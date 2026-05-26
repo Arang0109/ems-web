@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\projects\\\\ensolution-front-fsd\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)"
     ]
   }
 }

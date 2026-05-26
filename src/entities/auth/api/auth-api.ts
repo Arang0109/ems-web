@@ -1,4 +1,4 @@
-import type { SignInRequest, SignInResponse } from "@auth/api";
+import type { SignInRequest, SignInResponse } from "@entities/auth/api";
 
 import { axiosPrivate, axiosPublic } from "@shared/api";
 import type { ApiResponseMessage } from "@shared/model";

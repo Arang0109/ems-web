@@ -8,7 +8,6 @@ import type { SignInFormData } from "@entities/auth/model";
 
 import type { ApiResponseMessage } from "@shared/model";
 
-
 const REMEMBER_ID_KEY = "rememberedUsername";
 
 const getRememberedUsername = () => localStorage.getItem(REMEMBER_ID_KEY);
