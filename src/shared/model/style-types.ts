@@ -3,7 +3,9 @@ export type variant =
   | "secondary"
   | "danger"
   | "ghost"
-  | "outline";
+  | "outline"
+  | "sidebar"
+  | "sidebarActive";
 
 export const VARIANT_STYLES: Record<variant, string> = {
   primary:
@@ -20,6 +22,12 @@ export const VARIANT_STYLES: Record<variant, string> = {
     
   outline:
     "bg-transparent border border-neutral-300 text-neutral-700 hover:bg-neutral-100 shadow-none font-medium",
+
+  sidebar:
+    "text-gray-400 hover:bg-white/10 hover:text-white",
+    
+  sidebarActive:
+    "text-white bg-white/10",
 };
 
 export type size = "sm" | "md" | "lg" | "xl";
@@ -31,9 +39,10 @@ export const SIZE_STYLES: Record<size, string> = {
   xl: "h-12 px-6 text-base",  // 48px — 히어로/강조
 };
 
-export type width = "auto" | "full";
+export type width = "auto" | "full" | "left";
 
 export const WIDTH_STYLES: Record<width, string> = {
     auto: "w-auto justify-center",
     full: "w-full justify-center",
+    left: "w-full justify-start",
   };

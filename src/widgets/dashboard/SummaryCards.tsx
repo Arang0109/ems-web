@@ -1,5 +1,5 @@
 import { Building2, Factory, ClipboardList, TrendingUp } from 'lucide-react';
-import type { DashboardSummary } from '@/entities/dashboard/model/dashboard-types';
+import type { DashboardSummary } from '@entities/dashboard';
 
 interface Props {
   summary: DashboardSummary;
@@ -15,7 +15,7 @@ const cards = [
     ring: 'ring-blue-100',
   },
   {
-    key: 'facilityCount' as const,
+    key: 'stackCount' as const,
     label: '측정시설 수',
     unit: '개',
     icon: Factory,

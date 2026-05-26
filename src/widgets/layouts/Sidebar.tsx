@@ -2,17 +2,22 @@ import {
   LayoutGrid, FileText, House,
   BarChart2, Users, PieChart,
 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router";
+
+import { Button } from "@shared/ui/buttons";
 
 const SIDEBAR_ITEMS = [
-  { icon: House, label: "대시보드" },
-  { icon: LayoutGrid, label: "현장/계약" },
-  { icon: FileText, label: "청구/지급" },
-  { icon: BarChart2, label: "통계" },
-  { icon: PieChart, label: "분석" },
-  { icon: Users, label: "회원정보" },
+  { icon: House, label: "대시보드", path: "/dashboard" },
+  { icon: LayoutGrid, label: "업체/계약", path: "/sites" },
+  { icon: FileText, label: "측정계획", path: "/billing" },
+  { icon: BarChart2, label: "통계", path: "/statistics" },
+  { icon: PieChart, label: "분석", path: "/analysis" },
+  { icon: Users, label: "회원정보", path: "/members" },
 ];
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   return (
     <aside
@@ -21,18 +26,18 @@ export const Sidebar = () => {
 
       {/* Sidebar menu items */}
       <nav className="flex flex-col gap-1 px-2 py-3 flex-1">
-        {SIDEBAR_ITEMS.map(({ icon: Icon, label }) => (
-          <button
+        {SIDEBAR_ITEMS.map(({ icon: Icon, label, path }) => (
+          <Button
             key={label}
-            title={label}
-            className="flex items-center gap-3 w-full px-3 py-3 text-gray-400 hover:bg-white/10 hover:text-white rounded-lg transition-colors"
-          >
-            <Icon className="w-5 h-5 flex-shrink-0" />
-            <span className="text-sm whitespace-nowrap">{label}</span>
-          </button>
+            label={label}
+            variant={pathname === path ? "sidebarActive" : "sidebar"}
+            icon={<Icon className="w-5 h-5 flex-shrink-0" />}
+            width="left"
+            onClick={() => navigate(path)}
+          />
         ))}
       </nav>
-      
+
     </aside>
   );
 }

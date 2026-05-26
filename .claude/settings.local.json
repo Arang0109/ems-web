@@ -4,7 +4,8 @@
       "Bash(npm install *)",
       "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\projects\\\\ensolution-front-fsd\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(Remove-Item \"c:\\\\dev\\\\projects\\\\ensolution-front-fsd\\\\src\\\\shared\\\\ui\\\\breadcrumbs\\\\index.ts\")"
     ]
   }
 }

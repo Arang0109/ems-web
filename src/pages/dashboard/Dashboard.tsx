@@ -1,6 +1,6 @@
 import { MainLayout } from '@/widgets/layouts';
-import { MeasurementChart, SummaryCards, RegionFacilityCharts } from '@/widgets/dashboard';
-import { useDashboard } from '@/entities/dashboard/model/hooks/use-dashboard';
+import { MeasurementChart, SummaryCards } from '@/widgets/dashboard';
+import { useDashboard } from '@features/get-dashboard-summary';
 
 import { PageTitle } from '@/shared/ui/sementics';
 
@@ -44,16 +44,6 @@ export const Dashboard = () => {
           <SkeletonCard />
         ) : (
           <MeasurementChart stats={stats} />
-        )}
-
-        {/* Region & Facility distribution */}
-        {isLoading || !summary ? (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <SkeletonCard />
-            <SkeletonCard />
-          </div>
-        ) : (
-          <RegionFacilityCharts summary={summary} />
         )}
       </div>
     </MainLayout>

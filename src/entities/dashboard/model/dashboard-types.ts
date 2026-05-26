@@ -3,18 +3,12 @@ export interface MeasurementDataPoint {
   count: number;
 }
 
-export interface MeasurementStats {
-  monthly: MeasurementDataPoint[];
-  weekly: MeasurementDataPoint[];
-  daily: MeasurementDataPoint[];
-}
-
 export interface WorkplaceByRegion {
   region: string;
   count: number;
 }
 
-export interface FacilityByType {
+export interface StackByType {
   type: string;
   count: number;
 }
@@ -24,6 +18,4 @@ export interface DashboardSummary {
   stackCount: number;
   totalMeasurements: number;
   thisMonthMeasurements: number;
-  workplacesByRegion: WorkplaceByRegion[];
-  stacksByType: FacilityByType[];
 }

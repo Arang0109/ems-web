@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { useAuth } from '@entities/auth/model';
+import { useAuth } from '@entities/auth';
 
 export const useSignOut = () => {
   const { logout } = useAuth();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthContext, TOKEN_KEY } from "@entities/auth/model";
+import { AuthContext, TOKEN_KEY } from "@entities/auth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(() => {
