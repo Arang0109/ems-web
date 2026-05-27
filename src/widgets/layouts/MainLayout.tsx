@@ -1,35 +1,17 @@
-
-import { Navbar } from "./Navbar";
-import { UserArea } from "./UserArea";
+import { Outlet } from 'react-router';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sidebar } from "./Sidebar";
 
-import { Logo } from "@shared/ui/logo";
-
-interface Props {
-  children: React.ReactNode;
-}
-
-export const MainLayout = ({
-  children,
-}: Props) => {
+export const MainLayout = () => {
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <header className="flex items-center h-16 bg-white border-b border-gray-200 px-6 flex-shrink-0 z-50 relative">
-        <Logo />
-        <Navbar />
-        <UserArea />
-      </header>
-
-      {/* Body */}
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        {/* Main content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
-      </div>
-    </div>
+    <SidebarProvider>
+      <Sidebar />
+      {/* main */}
+      <main className="flex-1 min-h-screen bg-gray-50">
+        <SidebarTrigger className="md:hidden" />
+        <Outlet />
+      </main>
+    </SidebarProvider>
   );
 };

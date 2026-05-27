@@ -1,3 +1,6 @@
+import { Checkbox as BaseCheckbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+
 interface CheckboxProps {
   id?: string;
   label?: React.ReactNode;
@@ -17,21 +20,19 @@ export const Checkbox = ({
   disabled
 }: CheckboxProps) => {
   return (
-    <div className="flex items-center">
-      <input
-        id={id}
-        name={name}
-        type="checkbox"
-        checked={checked}
-        disabled={disabled}
-        onChange={(e) => onChange?.(e.target.checked)}
-        className="w-3.5 h-3.5 text-neutral-600 bg-white border-slate-300 rounded focus:ring-2 focus:ring-primary-400"/>
-    
-      <label
-        htmlFor={id}
-        className="ml-2 text-xs text-neutral-600"
-      >{label}</label>
-    </div>
-    
+    <FieldGroup>
+      <Field orientation="horizontal">
+        <BaseCheckbox
+          id={id}
+          name={name}
+          checked={checked}
+          disabled={disabled}
+          onCheckedChange={(value) => onChange?.(value === true)}
+        />
+        <FieldLabel htmlFor={id}>
+          {label}
+        </FieldLabel>
+      </Field>
+    </FieldGroup>
   );
 };

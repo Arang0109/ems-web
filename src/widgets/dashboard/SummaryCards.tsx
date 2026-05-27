@@ -42,7 +42,7 @@ const cards = [
 
 export const SummaryCards = ({ summary }: Props) => {
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       {cards.map(({ key, label, unit, icon: Icon, color, ring }) => (
         <div
           key={key}

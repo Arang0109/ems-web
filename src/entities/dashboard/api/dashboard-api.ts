@@ -1,10 +1,10 @@
-import type { MeasurementStats, DashboardSummary } from '@entities/dashboard';
+import type { MeasurementDataPoint, DashboardSummary } from '@entities/dashboard';
 
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from "@shared/model";
 
 export const dashboardApi = {
-  getMeasurementStats: async (): Promise<ApiResponseMessage<MeasurementStats>> => {
+  getMeasurementStats: async (): Promise<ApiResponseMessage<MeasurementDataPoint[]>> => {
     const res = await axiosPrivate.get('/dashboard/measurement-stats');
     return res.data;
   },

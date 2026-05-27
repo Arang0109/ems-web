@@ -1,3 +1,4 @@
+import { useIsMobile } from '@shared/model';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from 'recharts';
@@ -25,6 +26,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 export const MeasurementChart = ({ stats }: Props) => {
+  const isMobile = useIsMobile();
   const total = stats.reduce((sum, d) => sum + d.count, 0);
   const max = Math.max(...stats.map((d) => d.count));
 
@@ -37,15 +39,15 @@ export const MeasurementChart = ({ stats }: Props) => {
         </div>
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1 bg-indigo-50 rounded-xl px-4 py-3">
+      <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
+        <div className="bg-indigo-50 rounded-xl px-4 py-3">
           <p className="text-xs text-indigo-400">총 측정건수</p>
           <p className="text-xl font-bold text-indigo-700 mt-0.5">
             {total.toLocaleString()}
             <span className="text-sm font-normal text-indigo-400 ml-1">건</span>
           </p>
         </div>
-        <div className="flex-1 bg-gray-50 rounded-xl px-4 py-3">
+        <div className="bg-gray-50 rounded-xl px-4 py-3">
           <p className="text-xs text-gray-400">최다 측정</p>
           <p className="text-xl font-bold text-gray-700 mt-0.5">
             {max.toLocaleString()}
@@ -64,17 +66,21 @@ export const MeasurementChart = ({ stats }: Props) => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-            <XAxis
-              dataKey="label"
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: '#9ca3af' }}
-              axisLine={false}
-              tickLine={false}
-            />
+            {!isMobile && (
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
+                axisLine={false}
+                tickLine={false}
+              />
+            )}
+            {!isMobile && (
+              <YAxis
+                tick={{ fontSize: 11, fill: '#9ca3af' }}
+                axisLine={false}
+                tickLine={false}
+              />
+            )}
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
             <Area
               type="monotone"
