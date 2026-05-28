@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
+  getExpandedRowModel,
+  createColumnHelper,
   type SortingState,
   type ColumnFiltersState,
+  type ExpandedState,
 } from '@tanstack/react-table';
-import { ChevronUp, ChevronDown, ChevronsUpDown, Search } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronRight, Search } from 'lucide-react';
 
 import {
   Table,
@@ -19,7 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
 
 import { companyApi } from '@entities/company';
 import type { Company, CompanyStatus } from '@entities/company';
@@ -46,84 +47,75 @@ const SortIcon = ({ sorted }: { sorted: false | 'asc' | 'desc' }) => {
   return <ChevronsUpDown size={14} className="ml-1 shrink-0 text-gray-300" />;
 };
 
-// ── 컬럼 정의 ─────────────────────────────────────────────
-const columns: ColumnDef<Company>[] = [
-  {
-    id: 'index',
-    header: 'No.',
-    cell: ({ row }) => (
-      <span className="text-gray-400 text-xs">{row.index + 1}</span>
-    ),
-    enableSorting: false,
-    size: 48,
-  },
-  {
-    accessorKey: 'name',
-    header: '거래처명',
-    cell: ({ getValue }) => (
-      <span className="font-medium text-gray-800">{getValue<string>()}</span>
-    ),
-  },
-  {
-    accessorKey: 'businessNumber',
-    header: '사업자번호',
-    cell: ({ getValue }) => (
-      <span className="font-mono text-gray-600">{getValue<string>()}</span>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'representative',
-    header: '대표자',
-    cell: ({ getValue }) => <span className="text-gray-700">{getValue<string>()}</span>,
-  },
-  {
-    accessorKey: 'phone',
-    header: '연락처',
-    cell: ({ getValue }) => <span className="text-gray-600">{getValue<string>()}</span>,
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'address',
-    header: '주소',
-    cell: ({ getValue }) => (
-      <span className="text-gray-600 truncate max-w-xs block">{getValue<string>()}</span>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: 'registeredAt',
-    header: '등록일',
-    cell: ({ getValue }) => <span className="text-gray-500 text-xs">{getValue<string>()}</span>,
-  },
-  {
-    accessorKey: 'status',
-    header: '상태',
-    cell: ({ getValue }) => <StatusBadge status={getValue<CompanyStatus>()} />,
-    enableSorting: false,
-    filterFn: (row, columnId, filterValue) =>
-      filterValue === 'all' ? true : row.getValue(columnId) === filterValue,
-  },
-];
-
-// ── 스켈레톤 ──────────────────────────────────────────────
-const TableSkeleton = () => (
-  <>
-    {Array.from({ length: 6 }).map((_, i) => (
-      <TableRow key={i}>
-        {Array.from({ length: columns.length }).map((_, j) => (
-          <TableCell key={j}>
-            <Skeleton className="h-4 w-full rounded" />
-          </TableCell>
+// ── 사업장 중첩 테이블 ─────────────────────────────────────
+const WorkplaceSubTable = ({ rows }: { rows: Company['workplaces'] }) => (
+  <div>
+    <Table>
+      <TableHeader>
+        <TableRow className="bg-gray-50/70 hover:bg-gray-50/70">
+          <TableHead className="text-left py-2 px-3 font-semibold">사업장명</TableHead>
+          <TableHead className="text-left py-2 px-3 font-semibold">주소</TableHead>
+          <TableHead className="text-left py-2 px-3 font-semibold">대표자</TableHead>
+          <TableHead className="text-left py-2 px-3 font-semibold">상태</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row, i) => (
+          <TableRow key={i} className="border-t border-gray-100">
+            <TableCell className="py-2 px-3 font-medium text-gray-700">{row.name}</TableCell>
+            <TableCell className="py-2 px-3 text-gray-500">{row.address}</TableCell>
+            <TableCell className="py-2 px-3 text-gray-500">{row.representative}</TableCell>
+            <TableCell className="py-2 px-3"><StatusBadge status={row.status} /></TableCell>
+          </TableRow>
         ))}
-      </TableRow>
-    ))}
-  </>
+      </TableBody>
+    </Table>
+  </div>
 );
 
+// ── 컬럼 정의 ─────────────────────────────────────────────
+const columnHelper = createColumnHelper<Company>();
+
+const defaultColumns = [
+  columnHelper.display({
+    id: 'expand',
+    size: 40,
+    header: "",
+    cell: ({ row }) => {
+      return row.getCanExpand() ? (
+        <button
+          onClick={row.getToggleExpandedHandler()}
+          className="flex items-center justify-center w-6 h-6 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <ChevronDown size={16} />
+        </button>
+      ) : null;
+    }
+  }),
+  columnHelper.accessor('name', {
+    header: '거래처명',
+    cell: (info) => (
+      <span className="font-medium text-gray-800">{info.getValue()}</span>
+    ),
+  }),
+  columnHelper.display({
+    id: 'workplaceCount',
+    header: '사업장 수',
+    cell: ({ row }) => {
+      const count = row.original.workplaces.length;
+      return count > 0
+        ? <span className="text-xs text-gray-500">{count}개</span>
+        : <span className="text-xs text-gray-300">-</span>;
+    },
+  }),
+  columnHelper.display({
+    id: 'status',
+    header: '상태',
+    cell: (info) => <StatusBadge status={info.row.original.status} />,
+  }),
+];
+
 // ── 메인 컴포넌트 ─────────────────────────────────────────
-// useReactTable()은 매 렌더마다 새 함수를 반환하므로 React Compiler 자동 메모이제이션과
-// 호환되지 않습니다. "use no memo" 디렉티브로 명시적으로 opt-out 합니다.
 export const CompanyTable = () => {
   "use no memo";
 
@@ -134,6 +126,7 @@ export const CompanyTable = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter]   = useState('');
   const [statusFilter, setStatusFilter]   = useState<'all' | 'active' | 'inactive'>('all');
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   useEffect(() => {
     companyApi.getCompanies()
@@ -145,7 +138,6 @@ export const CompanyTable = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  // 상태 필터를 columnFilters에 동기화
   useEffect(() => {
     setColumnFilters((prev) => {
       const others = prev.filter((f) => f.id !== 'status');
@@ -154,18 +146,22 @@ export const CompanyTable = () => {
   }, [statusFilter]);
 
   const table = useReactTable({
+    columns: defaultColumns,
     data,
-    columns,
-    state: { sorting, columnFilters, globalFilter },
+
+    state: { sorting, columnFilters, globalFilter, expanded },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   const rows = table.getRowModel().rows;
+  const colCount = defaultColumns.length;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -177,7 +173,7 @@ export const CompanyTable = () => {
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
-            placeholder="거래처명, 대표자, 주소 검색…"
+            placeholder="거래처명 검색…"
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 placeholder-gray-400 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition"
@@ -213,7 +209,7 @@ export const CompanyTable = () => {
                 return (
                   <TableHead
                     key={header.id}
-                    style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
+                    style={{ width: header.column.getSize() !== 150 ? header.column.getSize() : undefined }}
                     className={canSort ? 'cursor-pointer select-none' : ''}
                     onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   >
@@ -229,29 +225,46 @@ export const CompanyTable = () => {
         </TableHeader>
 
         <TableBody>
-          {loading ? (
-            <TableSkeleton />
-          ) : error ? (
+          {error ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="py-16 text-center text-sm text-red-500">
+              <TableCell colSpan={colCount} className="py-16 text-center text-sm text-red-500">
                 {error}
               </TableCell>
             </TableRow>
           ) : rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="py-16 text-center text-sm text-gray-400">
+              <TableCell colSpan={colCount} className="py-16 text-center text-sm text-gray-400">
                 검색 결과가 없습니다.
               </TableCell>
             </TableRow>
           ) : (
             rows.map((row) => (
-              <TableRow key={row.id} className="cursor-pointer">
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <React.Fragment key={row.id}>
+                {/* 거래처 행 */}
+                <TableRow
+                  className={`transition-colors ${
+                    row.original.workplaces.length > 0
+                      ? 'cursor-pointer hover:bg-gray-50'
+                      : ''
+                  } ${row.getIsExpanded() ? 'bg-gray-50/60' : ''}`}
+                  onClick={() => { if (row.original.workplaces.length > 0) row.toggleExpanded(); }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+
+                {/* 사업장 확장 행 */}
+                {row.getIsExpanded() && (
+                  <TableRow className="hover:bg-transparent">
+                    <TableCell colSpan={colCount} className="pb-3 pt-0 pl-12 pr-4">
+                      <WorkplaceSubTable rows={row.original.workplaces} />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
             ))
           )}
         </TableBody>
