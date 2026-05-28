@@ -1,6 +1,6 @@
 import { PageTitle } from '@shared/ui/sementics';
 
-import { CompanyTable } from '@widgets/client-table';
+import { CompanyTable } from '@/widgets/company-table';
 
 export const Companies = () => {
   return (
