@@ -1,8 +1,11 @@
-import { createColumnHelper } from '@tanstack/react-table';
+import { createColumnHelper, type FilterFn } from '@tanstack/react-table';
 
-import type { Company } from '@entities/company';
+import type { Company, ContractStatus } from '@entities/company';
 
-import { CustomCell, StatusCell } from '../ui/Cells';
+import { CustomCell, StatusCell, PathCell } from '../ui/Cells';
+
+const statusFilterFn: FilterFn<Company> = (row, _columnId, filterValue: Set<ContractStatus>) =>
+  filterValue.has(row.getValue('status'));
 
 const columnHelper = createColumnHelper<Company>();
 
@@ -18,25 +21,22 @@ export const defaultColumns = [
   columnHelper.accessor('address', {
     header: '주소',
     cell: CustomCell,
+    size: 350,
     enableSorting: false,
   }),
-  columnHelper.accessor('ceoName', {
-    header: '대표자명',
-    cell: CustomCell,
-    enableSorting: false,
-  }),
-  columnHelper.accessor('bizNumber', {
-    header: '사업자번호',
-    cell: CustomCell,
-    enableSorting: false,
+  columnHelper.accessor('status', {
+    header: '계약상태',
+    size: 120,
+    cell: StatusCell,
+    filterFn: statusFilterFn,
   }),
   columnHelper.accessor('createdAt', {
     header: '등록일',
+    size: 120,
     cell: CustomCell,
   }),
   columnHelper.display({
-    id: 'status',
-    header: '상태',
-    cell: StatusCell,
-  }),
+    id: 'path',
+    cell: PathCell,
+  })
 ];

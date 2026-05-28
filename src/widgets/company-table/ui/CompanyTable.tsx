@@ -4,7 +4,10 @@ import {
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
   type SortingState,
+  type ColumnFiltersState,
 } from '@tanstack/react-table';
 
 import {
@@ -18,24 +21,31 @@ import {
 
 import { SortIcon } from '@shared/icon';
 
-import { companyApi } from '@entities/company';
-import type { Company } from '@entities/company';
+import { companyApi, CONTRACT_STATUS } from '@entities/company';
+import type { Company, ContractStatus } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
-import { SearchInput } from './SearchInput';
-import { TableToolbar } from './TableToolbar';
-import type { ActiveStatus } from '@/shared/model';
+import { Search } from '@shared/ui/form-fields';
+import { ContractFilterToolbar } from './ContractFilterToolbar';
+import { Pagination } from '@/shared/ui/pagination';
 
 
-// ── 메인 컴포넌트 ─────────────────────────────────────────
 export const CompanyTable = () => {
   const [data, setData]         = useState<Company[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
   const [sorting, setSorting]   = useState<SortingState>([]);
-  const [filter, setFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ActiveStatus>('active');
+  const [globalFilter, setGlobalFilter] = useState('');
+  const initialStatuses = new Set(CONTRACT_STATUS.filter(s => s !== 'expired'));
+  const [selectedStatuses, setSelectedStatuses] = useState<Set<ContractStatus>>(initialStatuses);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    [{ id: 'status', value: initialStatuses }]
+  );
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     companyApi.getCompanies()
@@ -47,15 +57,27 @@ export const CompanyTable = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleStatusFilterChange = (statuses: Set<ContractStatus>) => {
+    setSelectedStatuses(statuses);
+    const isAll = CONTRACT_STATUS.every(s => statuses.has(s));
+    setColumnFilters(isAll ? [] : [{ id: 'status', value: statuses }]);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+  };
+
   const table = useReactTable({
     columns: defaultColumns,
     data,
 
-    state: { sorting },
+    state: { sorting, globalFilter, columnFilters, pagination },
 
+    onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const rows = table.getRowModel().rows;
@@ -63,13 +85,19 @@ export const CompanyTable = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className='flex justify-between m-5'>
-        <SearchInput filter={filter} setFilter={setFilter} />
-        <TableToolbar statusFilter={statusFilter} setStatusFilter={setStatusFilter} />
+      <div className="flex items-center justify-between m-5">
+        <Search
+          filter={globalFilter} setFilter={setGlobalFilter}
+          placeholer={'거래처, 사업장, 주소 검색 ...'}
+        />
+        <ContractFilterToolbar
+          selectedStatuses={selectedStatuses}
+          onChange={handleStatusFilterChange}
+        />
       </div>
-      
+
       {/* 테이블 */}
-      <Table>
+      <Table className='mx-5'>
         <TableHeader>
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id} className="bg-gray-50/70 hover:bg-gray-50/70">
@@ -123,11 +151,21 @@ export const CompanyTable = () => {
         </TableBody>
       </Table>
 
-      {/* 푸터: 건수 */}
+      {/* 푸터: 건수 + 페이지네이션 */}
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
-          총 <span className="font-medium text-gray-600">{rows.length}</span>건
-          {data.length !== rows.length && ` (전체 ${data.length}건)`}
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
+          <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
+            총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
+          </span>
+          <Pagination
+            pageIndex={table.getState().pagination.pageIndex}
+            pageCount={table.getPageCount()}
+            canPreviousPage={table.getCanPreviousPage()}
+            canNextPage={table.getCanNextPage()}
+            onPreviousPage={() => table.previousPage()}
+            onNextPage={() => table.nextPage()}
+            onPageChange={(idx) => table.setPageIndex(idx)}
+          />
         </div>
       )}
     </div>

@@ -1,0 +1,1 @@
+export { useCompanyDetailViewModel } from './hooks/useCompanyDetailViewModel';

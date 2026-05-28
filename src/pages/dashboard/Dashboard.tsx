@@ -1,7 +1,7 @@
-import { MeasurementChart, SummaryCards } from '@/widgets/dashboard';
-import { useDashboard } from '@features/get-dashboard-summary';
+import { MeasurementChart, SummaryCards } from '@widgets/metrics';
+import { useDashboard } from '@features/dashboard-summary';
 
-import { PageTitle } from '@/shared/ui/sementics';
+import { PageTitle } from '@shared/ui/semantics';
 
 const SkeletonCard = ({ className = '' }: { className?: string }) => (
   <div className={`bg-white rounded-2xl border border-gray-100 animate-pulse ${className}`}>

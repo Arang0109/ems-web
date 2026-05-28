@@ -1,6 +1,8 @@
 import { Building2, Factory, ClipboardList, TrendingUp } from 'lucide-react';
 import type { DashboardSummary } from '@entities/dashboard';
 
+import { SummaryCard } from '@/shared/ui/cards';
+
 interface Props {
   summary: DashboardSummary;
 }
@@ -44,21 +46,14 @@ export const SummaryCards = ({ summary }: Props) => {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       {cards.map(({ key, label, unit, icon: Icon, color, ring }) => (
-        <div
-          key={key}
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-4 flex items-center gap-4"
-        >
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ring-2 shrink-0 ${color} ${ring}`}>
-            <Icon size={20} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs text-gray-400 truncate">{label}</p>
-            <p className="text-2xl font-bold text-gray-800 leading-tight">
-              {summary[key].toLocaleString()}
-              <span className="text-sm font-normal text-gray-400 ml-1">{unit}</span>
-            </p>
-          </div>
-        </div>
+        <SummaryCard
+          count={summary[key]}
+          label={label}
+          unit={unit}
+          icon={<Icon size={20} />}
+          color={color}
+          ring={ring}
+        />
       ))}
     </div>
   );

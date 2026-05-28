@@ -48,6 +48,7 @@ const MENU_ITEMS: MenuItem[] = [
     label: "거래처 관리",
     subItems: [
       { label: "거래처 목록", path: "/companies" },
+      { label: "측정시설 목록", path: "/stacks" },
       { label: "계약 관리", path: "/contracts" },
     ],
   },
