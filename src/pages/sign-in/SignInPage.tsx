@@ -1,4 +1,4 @@
-import { CenteredCardLayout } from "@shared/ui/layouts";
+import { CenteredCardLayout } from "@/widgets/layouts";
 import { SignInWidget } from "@widgets/sign-in";
 
 export const SignInPage = () => {

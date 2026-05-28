@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router';
-import { useAuth } from '@auth/model';
+import { useAuth } from '@entities/auth';
 
 export const PublicRoute = ({ children }: {children: React.ReactNode}) => {
   const { isAuthenticated } = useAuth();

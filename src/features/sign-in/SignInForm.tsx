@@ -1,9 +1,8 @@
-import { Link } from "react-router";
-
 import { useSignIn } from "./hooks/use-sign-in";
 
-import { InputField, Checkbox } from "@shared/ui/form-fields";
-import { Button } from "@shared/ui/buttons";
+import { Input, Checkbox } from "@shared/ui/form-fields";
+import { Link } from "@shared/ui/links";
+import { Button } from "@/components/ui/button";
 
 
 export const SignInForm = () => {
@@ -19,7 +18,7 @@ export const SignInForm = () => {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <InputField
+      <Input
         id="username"
         name="username"
         label="Username"
@@ -27,9 +26,8 @@ export const SignInForm = () => {
         onChange={(value) => handleChange("username", value)}
         placeholder="아이디"
         autoComplete="username"
-        required
       />
-      <InputField
+      <Input
         id="password"
         name="password"
         label="Password"
@@ -38,21 +36,10 @@ export const SignInForm = () => {
         onChange={(value) => handleChange("password", value)}
         placeholder="••••••••"
         autoComplete="current-password"
-        required
       />
       <div className="flex gap-4">
-        <Link
-          to="/forgot-password"
-          className="text-xs text-neutral-500 hover:text-blue-500 transition-colors"
-        >
-          회원가입
-        </Link>
-        <Link
-          to="/forgot-password"
-          className="text-xs text-neutral-500 hover:text-blue-500 transition-colors"
-        >
-          비밀번호 찾기
-        </Link>
+        <Link to="/sign-up">회원가입</Link>
+        <Link to="/forgot-password">비밀번호 찾기</Link>
       </div>
       <Checkbox
         id="rememberedUsername"
@@ -62,11 +49,12 @@ export const SignInForm = () => {
         onChange={(checked) => handleChange("rememberedUsername", Boolean(checked))}
       />
       <Button
-        label="로그인"
-        width="full"
+        className="w-full"
         type="submit"
         disabled={isLoading}
-      />
+      >
+        로그인
+      </Button>
     </form>
   )
 }
