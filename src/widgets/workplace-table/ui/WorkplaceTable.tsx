@@ -21,8 +21,11 @@ import {
 
 import { SortIcon } from '@shared/icon';
 
-import { companyApi, CONTRACT_STATUS } from '@entities/company';
-import type { Company, ContractStatus } from '@entities/company';
+import { workplaceApi } from '@entities/workplace';
+import type { workplaceTableD } from '@entities/workplace';
+
+import { CONTRACT_STATUS } from '@shared/model'
+import type { ContractStatus } from '@shared/model'
 
 import { defaultColumns } from '../model/columns';
 
@@ -31,8 +34,8 @@ import { ContractFilterToolbar } from './ContractFilterToolbar';
 import { Pagination } from '@/shared/ui/pagination';
 
 
-export const CompanyTable = () => {
-  const [data, setData]         = useState<Company[]>([]);
+export const WorkplaceTable = () => {
+  const [data, setData]         = useState<workplaceTableD[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
   const [sorting, setSorting]   = useState<SortingState>([]);
@@ -48,7 +51,7 @@ export const CompanyTable = () => {
   });
 
   useEffect(() => {
-    companyApi.getCompanies()
+    workplaceApi.getWorkplaceTableDatas()
       .then((res) => {
         if (res.status) setData(res.data);
         else setError(res.message ?? '데이터를 불러오지 못했습니다.');

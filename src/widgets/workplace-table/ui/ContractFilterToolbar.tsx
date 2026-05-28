@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 
-import type { ContractStatus } from '@entities/company';
-import { CONTRACT_STATUS } from '@entities/company';
+import type { ContractStatus } from '@shared/model';
+import { CONTRACT_STATUS } from '@shared/model';
 import { BadgeWithIcon } from '@shared/ui/badges';
 
 import { STATUS_MAP } from '../model/constants';

@@ -1,25 +1,13 @@
+import type { ContractStatus } from "@shared/model";
+
 export type Company = {
   id: number;
-  companyName: string;              // 거래처명
-  workplaceName: string;            // 사업장명
+  name: string;              // 거래처명
   address: string;                  // 주소
   ceoName: string;                  // 대표자
   bizNumber: string;                // 사업자번호 (xxx-xx-xxxxx)
-  createdAt: string;                // 등록일 (YYYY-MM-DD)
+  remark: string;
   status: ContractStatus;           // 계약상태
+  createdAt: Date;                // 등록일 (YYYY-MM-DD)
+  modifiedAt: Date;             // 등록일 (YYYY-MM-DD)
 }
-
-export type CompanyDetail = {
-  company: Company;
-}
-
-export type ContractOverview = {
-  recentContractCount: number;
-  totalContractCount: number;
-  expiringSoonContractCount: number;
-  expiredContractCount: number;
-}
-
-export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
-
-export type ContractStatus = typeof CONTRACT_STATUS[number];

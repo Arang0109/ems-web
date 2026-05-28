@@ -1,0 +1,1 @@
+export { useWorkplaceDetailViewModel } from './hooks/useWorkplaceDetailViewModel';

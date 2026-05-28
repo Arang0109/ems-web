@@ -1,9 +1,9 @@
 import { authHandlers } from './auth';
 import { dashboardHandlers } from './dashboard';
-import { companyHandlers } from './company';
+import { workplaceHandlers } from './workplace';
 
 export const handlers = [
   ...authHandlers,
   ...dashboardHandlers,
-  ...companyHandlers,
+  ...workplaceHandlers,
 ];

@@ -1,15 +1,15 @@
 import { PageTitle } from '@shared/ui/semantics';
-import { useContractOverview } from '@/features/contract-overview';
+import { useContractOverview } from '@features/contract-overview';
 
-import { CompanyTable } from '@widgets/company-table';
+import { WorkplaceTable } from '@widgets/workplace-table';
 import { ContractChart } from '@widgets/contract-chart';
 
-export const Companies = () => {
+export const Workplaces = () => {
   const { summary, isLoading, error } = useContractOverview();
 
   return (
     <div className="p-6 space-y-5 min-h-full">
-      <PageTitle title="거래처 목록" description="거래처 정보를 확인하고 관리할 수 있습니다."/>
+      <PageTitle title="사업장 목록" description="사업장 정보를 확인하고 관리할 수 있습니다."/>
 
       {error && (
         <div className="bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl px-4 py-3">
@@ -27,7 +27,7 @@ export const Companies = () => {
         <ContractChart summary={summary} />
       )}
       
-      <CompanyTable />
+      <WorkplaceTable />
     </div>
   );
 }

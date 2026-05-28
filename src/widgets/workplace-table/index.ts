@@ -1,0 +1,1 @@
+export { WorkplaceTable } from './ui/WorkplaceTable';

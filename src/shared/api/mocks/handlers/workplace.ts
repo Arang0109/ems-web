@@ -2,8 +2,8 @@ import { http, HttpResponse } from 'msw';
 
 const BASE_URL = 'http://localhost:8080/api';
 
-export const companyHandlers = [
-  http.get(`${BASE_URL}/companies`, () => {
+export const workplaceHandlers = [
+  http.get(`${BASE_URL}/workplaces/summary`, () => {
     return HttpResponse.json({
       status: true,
       message: '거래처 목록 조회 성공',
@@ -32,7 +32,7 @@ export const companyHandlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/companies/contract-summary`, () => {
+  http.get(`${BASE_URL}/workplaces/contract-summary`, () => {
     return HttpResponse.json({
       status: true,
       message: '계약정보 요약 조회 성공',
@@ -45,20 +45,35 @@ export const companyHandlers = [
     })
   }),
 
-  http.get(`${BASE_URL}/companies/1`, () => {
+  http.get(`${BASE_URL}/workplaces/1`, () => {
     return HttpResponse.json({
       status: true,
       message: '계약정보 요약 조회 성공',
       data: {
         company: {
           id: 1,
-          companyName: '(주)한국환경기술',
-          workplaceName: '(주)한국환경기술 서울사무소',
+          name: '(주)한국환경기술',
           address: '서울특별시 강남구 테헤란로 123',
           ceoName: '강서울',
           bizNumber: '123-45312-32',
+          status: 'active',
           createdAt: '2022-03-15',
-          status: 'active' },
+          modifiedAt: '2022-03-15'
+        },
+        workplace: {
+          id: 1,
+          companyId: 1,
+          name: '(주)한국환경기술 서울사무소',
+          address: '서울특별시 강남구 테헤란로 123',                 // 주소
+          bizNumber: '123-45312-32',               // 사업자번호 (xxx-xx-xxxxx)
+          manager: '강민수',
+          businessCategory: '자동차 제조업',
+          grade: 'TYPE_1',
+          remark: '12월 계약 종료',
+          status: 'active',
+          createdAt: '2022-03-15',
+          modifiedAt: '2022-03-15',
+        }
       }
     })
   }),
