@@ -34,7 +34,9 @@ export function FormDialog({
     <DialogPrimitive>
       <form>
         <DialogTrigger render={<Button variant="outline">{triggerLabel}</Button>} />
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent
+          className="sm:max-w-150"
+        >
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>

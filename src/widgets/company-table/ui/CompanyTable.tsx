@@ -11,6 +11,8 @@ import {
 import { companyApi } from '@entities/company';
 import type { Company } from '@entities/company';
 
+import { RegisterCompanyForm } from '@features/register-company'
+
 import { defaultColumns } from '../model/columns';
 
 import { BasicTable } from '@shared/ui/table';
@@ -70,7 +72,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
             triggerLabel='측정대행 의뢰기관 등록'
             title='측정대행 의뢰기관 등록'
             description='측정대행 의뢰기관을 등록합니다.'
-            children={<>cc</>}
+            children={<RegisterCompanyForm />}
           />
         </div>
       </div>
