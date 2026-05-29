@@ -8,15 +8,15 @@ import {
   getPaginationRowModel,
   type SortingState,
 } from '@tanstack/react-table';
-import { Building2, Plus } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 import type { Company, WorkplaceTableCols } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
-import { Button } from '@/components/ui/button';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
-import { Pagination } from '@/shared/ui/pagination';
+import { FormDialog } from '@shared/ui/dialogs';
+import { Pagination } from '@shared/ui/pagination';
 
 interface WorkplaceTableProps {
   data: WorkplaceTableCols[];
@@ -70,14 +70,12 @@ export const WorkplaceTable = ({
               </p>
             )}
           </div>
-          <Button
-            variant='default'
-            size='sm'
-            disabled={!selectedCompany}
-          >
-            <Plus size={13} strokeWidth={2.5} />
-            측정대상 사업장 등록
-          </Button>
+          <FormDialog
+            triggerLabel='측정대상 사업장 등록'
+            title='측정대상 사업장 등록'
+            description='측정대상 사업장을 등록합니다.'
+            children={<>cc</>}
+          />
         </div>
       </div>
 

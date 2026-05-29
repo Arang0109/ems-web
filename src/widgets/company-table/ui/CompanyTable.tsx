@@ -13,12 +13,10 @@ import type { Company } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
-import { Plus } from 'lucide-react';
-
-import { Button } from '@/components/ui/button';
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form-fields';
-import { Pagination } from '@/shared/ui/pagination';
+import { FormDialog } from '@shared/ui/dialogs';
+import { Pagination } from '@shared/ui/pagination';
 
 interface CompanyTableProps {
   onRowClick?: (company: Company) => void;
@@ -68,13 +66,12 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-gray-800">의뢰기관 목록</h2>
           </div>
-          <Button
-            variant='default'
-            size='sm'
-          >
-            <Plus size={13} strokeWidth={2.5} />
-            측정대행 의뢰기관 등록
-          </Button>
+          <FormDialog
+            triggerLabel='측정대행 의뢰기관 등록'
+            title='측정대행 의뢰기관 등록'
+            description='측정대행 의뢰기관을 등록합니다.'
+            children={<>cc</>}
+          />
         </div>
       </div>
 
