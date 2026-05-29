@@ -6,8 +6,7 @@ import { WorkplaceTable } from "@widgets/workplace-table";
 import { useSelectCompany } from "@features/select-company";
 
 export const ClientManagementPage = () => {
-  const { handleSelectCompanyRow, workplaceTableData, isLoading, error } = useSelectCompany();
-  console.log(workplaceTableData)
+  const { handleSelectCompanyRow, selectedCompany, workplaceTableData, isLoading, error } = useSelectCompany();
 
   return (
     <div className="p-6 space-y-5 min-h-full">
@@ -15,7 +14,7 @@ export const ClientManagementPage = () => {
     
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CompanyTable onRowClick={handleSelectCompanyRow} />
-        <WorkplaceTable data={workplaceTableData} loading={isLoading} error={error} />
+        <WorkplaceTable data={workplaceTableData} loading={isLoading} error={error} selectedCompany={selectedCompany} />
       </div>
     </div>
   );

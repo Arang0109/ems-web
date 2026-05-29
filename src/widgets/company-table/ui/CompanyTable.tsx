@@ -13,6 +13,9 @@ import type { Company } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
+import { Plus } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form-fields';
 import { Pagination } from '@/shared/ui/pagination';
@@ -60,12 +63,29 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex items-center justify-start mb-3">
+      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-gray-800">의뢰기관 목록</h2>
+          </div>
+          <Button
+            variant='default'
+            size='sm'
+          >
+            <Plus size={13} strokeWidth={2.5} />
+            측정대행 의뢰기관 등록
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-start mt-3">
         <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'의뢰기관, 주소 검색 ...'} />
       </div>
 
-       {/* 테이블 */}
-      <BasicTable table={table} error={error} onRowClick={onRowClick} />
+      <div className="p-5 flex-1 flex flex-col">
+        {/* 테이블 */}
+        <BasicTable table={table} error={error} onRowClick={onRowClick} />
+      </div>
 
       {!loading && !error && (
         <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">

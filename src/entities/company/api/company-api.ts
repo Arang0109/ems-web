@@ -4,7 +4,7 @@ import type { Company, WorkplaceTableCols } from '../model/company-types';
 
 export const companyApi = {
   getCompanies: async (): Promise<ApiResponseMessage<Company[]>> => {
-    const res = await axiosPrivate.get('/companies');
+    const res = await axiosPrivate.get('/companies'); //
     return res.data;
   },
 

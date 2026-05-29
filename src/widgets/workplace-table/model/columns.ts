@@ -1,16 +1,12 @@
 import { createColumnHelper } from '@tanstack/react-table';
 
-import type { WorkplaceTableD } from '@entities/workplace';
+import type { WorkplaceTableCols } from '@entities/company';
 
 import { CustomCell, PathCell } from '../ui/Cells';
 
-const columnHelper = createColumnHelper<WorkplaceTableD>();
+const columnHelper = createColumnHelper<WorkplaceTableCols>();
 
 export const defaultColumns = [
-  columnHelper.accessor('companyName', {
-    header: '측정대행 의뢰기관',
-    cell: CustomCell,
-  }),
   columnHelper.accessor('workplaceName', {
     header: '측정대상 사업장',
     cell: CustomCell,

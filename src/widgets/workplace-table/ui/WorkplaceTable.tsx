@@ -8,31 +8,34 @@ import {
   getPaginationRowModel,
   type SortingState,
 } from '@tanstack/react-table';
+import { Building2, Plus } from 'lucide-react';
 
-import type { WorkplaceTableCols } from '@entities/company';
+import type { Company, WorkplaceTableCols } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
-import { BasicTable } from '@shared/ui/table';
-import { Search } from '@shared/ui/form-fields';
+import { Button } from '@/components/ui/button';
+import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Pagination } from '@/shared/ui/pagination';
 
 interface WorkplaceTableProps {
   data: WorkplaceTableCols[];
   loading: boolean;
-  error: string | null
+  error: string | null;
+  selectedCompany?: Company | null;
 }
 
 export const WorkplaceTable = ({
   data,
   loading,
   error,
+  selectedCompany,
 }: WorkplaceTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 4,
   });
 
   const table = useReactTable({
@@ -50,21 +53,51 @@ export const WorkplaceTable = ({
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex items-center justify-start m-5">
-        <Search
-          filter={globalFilter} setFilter={setGlobalFilter}
-          placeholer={'거래처, 사업장, 주소 검색 ...'}
-        />
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
+      {/* 헤더 */}
+      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-gray-800">사업장 목록</h2>
+            {selectedCompany ? (
+              <p className="mt-0.5 text-xs text-blue-600 font-medium truncate">
+                {selectedCompany.name}
+              </p>
+            ) : (
+              <p className="mt-0.5 text-xs text-gray-400">
+                의뢰기관을 선택해주세요
+              </p>
+            )}
+          </div>
+          <Button
+            variant='default'
+            size='sm'
+            disabled={!selectedCompany}
+          >
+            <Plus size={13} strokeWidth={2.5} />
+            측정대상 사업장 등록
+          </Button>
+        </div>
       </div>
 
-      {/* 테이블 */}
-      <BasicTable table={table} error={error} />
+      {/* 컨텐츠 */}
+      <div className="p-5 flex-1 flex flex-col">
+        {!selectedCompany ? (
+          <TableEmptyState
+            icon={<Building2 size={22} className="text-gray-400" />}
+            label='사업장 정보 없음'
+            subLabel={<span>왼쪽에서 의뢰기관을 선택하면<br />해당 사업장 목록이 표시됩니다.</span>}
+          />
+        ) : (
+          <>
+            <BasicTable table={table} error={error} />
+          </>
+        )}
+      </div>
 
       {/* 푸터: 건수 + 페이지네이션 */}
-      {!loading && !error && (
+      {selectedCompany && !loading && !error && (
         <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
           <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
             총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
