@@ -1,13 +1,20 @@
-import type { ContractStatus } from "@shared/model";
-
 export type Company = {
   id: number;
-  name: string;              // 거래처명
-  address: string;                  // 주소
-  ceoName: string;                  // 대표자
-  bizNumber: string;                // 사업자번호 (xxx-xx-xxxxx)
-  remark: string;
-  status: ContractStatus;           // 계약상태
-  createdAt: Date;                // 등록일 (YYYY-MM-DD)
-  modifiedAt: Date;             // 등록일 (YYYY-MM-DD)
+  name: string;               // 측정대행 의뢰기관
+  bizNumber: string;          // 사업자등록번호 (xxx-xx-xxxxx)
+  ceoName: string;            // 대표자
+  address: string;            // 측정대행 의뢰기관 주소
+
+  manager: string;            // 측정대행 의뢰기관 담당자
+  email: string;              // E-mail
+  tell: string;               // 전화번호
+}
+
+export type WorkplaceTableCols = {
+  id: number;
+  companyId: number;
+  companyName: string;
+  workplaceName: string;
+  address: string;
+  bizNumber: string;
 }

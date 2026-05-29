@@ -42,13 +42,12 @@ type MenuItem = {
 };
 
 const MENU_ITEMS: MenuItem[] = [
-  { icon: House, label: "대시보드", path: "/dashboard" },
+  { icon: House, label: "Dashboard", path: "/dashboard" },
   {
     icon: LayoutGrid,
-    label: "거래처 관리",
+    label: "Contract",
     subItems: [
-      { label: "사업장 목록", path: "/workplaces" },
-      { label: "측정시설 목록", path: "/stacks" },
+      { label: "거래처 관리", path: "/clients" },
       { label: "계약 관리", path: "/contracts" },
     ],
   },

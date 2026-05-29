@@ -1,25 +1,12 @@
 import type { CellContext } from '@tanstack/react-table';
 
-import type { workplaceTableD } from '@entities/workplace';
-import type { ContractStatus } from '@shared/model';
-import { STATUS_MAP } from '../model/constants';
-import { BadgeWithIcon } from '@shared/ui/badges';
+import type { WorkplaceTableD } from '@entities/workplace';
 import { DetailViewButton } from '@shared/ui/table-ui';
 
-
-const StatusBadge = ({ status }: { status: ContractStatus }) => {
-  const { label, variant } = STATUS_MAP[status];
-  return <BadgeWithIcon variant={variant} label={label} />;
-};
-
-export const CustomCell = ({ getValue }: CellContext<workplaceTableD, string>) => (
+export const CustomCell = ({ getValue }: CellContext<WorkplaceTableD, string>) => (
   <span className="font-medium text-gray-800">{getValue()}</span>
 );
 
-export const StatusCell = ({ row }: CellContext<workplaceTableD, unknown>) => (
-  <StatusBadge status={row.original.status} />
-);
-
-export const PathCell = ({ row }: CellContext<workplaceTableD, unknown>) => (
+export const PathCell = ({ row }: CellContext<WorkplaceTableD, unknown>) => (
   <DetailViewButton path={`/workplaces/${row.original.id}`} />
 );

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   getCoreRowModel,
@@ -8,8 +8,8 @@ import {
   getPaginationRowModel,
   type SortingState,
 } from '@tanstack/react-table';
-
-import type { WorkplaceTableCols } from '@entities/company';
+import { companyApi } from '@entities/company';
+import type { Company } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
 
@@ -17,23 +17,30 @@ import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form-fields';
 import { Pagination } from '@/shared/ui/pagination';
 
-interface WorkplaceTableProps {
-  data: WorkplaceTableCols[];
-  loading: boolean;
-  error: string | null
+interface CompanyTableProps {
+  onRowClick?: (company: Company) => void;
 }
 
-export const WorkplaceTable = ({
-  data,
-  loading,
-  error,
-}: WorkplaceTableProps) => {
+export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
+  const [data, setData] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 5,
   });
+
+  useEffect(() => {
+    companyApi.getCompanies()
+      .then((res) => {
+        if (res.status) setData(res.data);
+        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
+      })
+      .catch(() => setError('서버 연결에 실패했습니다.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -44,26 +51,22 @@ export const WorkplaceTable = ({
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     onSortingChange: setSorting,
+
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="flex items-center justify-start m-5">
-        <Search
-          filter={globalFilter} setFilter={setGlobalFilter}
-          placeholer={'거래처, 사업장, 주소 검색 ...'}
-        />
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
+      <div className="flex items-center justify-start mb-3">
+        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'의뢰기관, 주소 검색 ...'} />
       </div>
 
-      {/* 테이블 */}
-      <BasicTable table={table} error={error} />
+       {/* 테이블 */}
+      <BasicTable table={table} error={error} onRowClick={onRowClick} />
 
-      {/* 푸터: 건수 + 페이지네이션 */}
       {!loading && !error && (
         <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
           <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
@@ -82,4 +85,4 @@ export const WorkplaceTable = ({
       )}
     </div>
   );
-};
+}

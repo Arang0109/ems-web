@@ -1,40 +1,29 @@
-import { createColumnHelper, type FilterFn } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 
-import type { workplaceTableD } from '@entities/workplace';
-import type { ContractStatus } from '@shared/model';
+import type { WorkplaceTableD } from '@entities/workplace';
 
-import { CustomCell, StatusCell, PathCell } from '../ui/Cells';
+import { CustomCell, PathCell } from '../ui/Cells';
 
-const statusFilterFn: FilterFn<workplaceTableD> = (row, _columnId, filterValue: Set<ContractStatus>) =>
-  filterValue.has(row.getValue('status'));
-
-const columnHelper = createColumnHelper<workplaceTableD>();
+const columnHelper = createColumnHelper<WorkplaceTableD>();
 
 export const defaultColumns = [
-  columnHelper.accessor('workplaceName', {
-    header: '사업장명',
+  columnHelper.accessor('companyName', {
+    header: '측정대행 의뢰기관',
     cell: CustomCell,
   }),
-  columnHelper.accessor('companyName', {
-    header: '거래처명',
+  columnHelper.accessor('workplaceName', {
+    header: '측정대상 사업장',
     cell: CustomCell,
   }),
   columnHelper.accessor('address', {
-    header: '주소',
+    header: '측정대상 사업장 주소',
     cell: CustomCell,
     size: 350,
-    enableSorting: false,
   }),
-  columnHelper.accessor('status', {
-    header: '계약상태',
-    size: 120,
-    cell: StatusCell,
-    filterFn: statusFilterFn,
-  }),
-  columnHelper.accessor('createdAt', {
-    header: '등록일',
-    size: 120,
+  columnHelper.accessor('bizNumber', {
+    header: '사업자등록번호',
     cell: CustomCell,
+    enableSorting: false,
   }),
   columnHelper.display({
     id: 'path',
