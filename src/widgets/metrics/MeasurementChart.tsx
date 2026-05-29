@@ -1,4 +1,4 @@
-import { useIsMobile } from '@shared/model';
+import { useIsMobile } from '@shared/hooks';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from 'recharts';

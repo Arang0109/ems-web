@@ -1,20 +1,20 @@
-export type CompanyStatus = 'active' | 'inactive';
-
-export interface Company {
+export type Company = {
   id: number;
-  name: string;           // 거래처명
-  address: string;          // 주소
-  businessNumber: string; // 사업자번호 (xxx-xx-xxxxx)
-  representative: string; // 대표자
-  remark: string;        // 비고
-  registeredAt: string;   // 등록일 (YYYY-MM-DD)
-  workplaces: {
-    name: string;           // 사업장명
-    address: string;        // 사업장 주소
-    businessNumber: string; // 사업장 사업자번호
-    representative: string; // 사업장 대표자
-    registeredAt: string;   // 사업장 등록일 (YYYY-MM-DD)
-    status: CompanyStatus;  // 사업장 상태
-  }[];
-  status: CompanyStatus;  // 상태
+  name: string;               // 측정대행 의뢰기관
+  bizNumber: string;          // 사업자등록번호 (xxx-xx-xxxxx)
+  ceoName: string;            // 대표자
+  address: string;            // 측정대행 의뢰기관 주소
+
+  manager: string;            // 측정대행 의뢰기관 담당자
+  email: string;              // E-mail
+  tell: string;               // 전화번호
+}
+
+export type WorkplaceTableCols = {
+  id: number;
+  companyId: number;
+  companyName: string;
+  workplaceName: string;
+  address: string;
+  bizNumber: string;
 }

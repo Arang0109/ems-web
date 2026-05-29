@@ -6,7 +6,7 @@ import { MainLayout } from "@widgets/layouts";
 
 import { SignInPage } from "@pages/sign-in";
 import { Dashboard } from "@pages/dashboard";
-import { Companies } from "@pages/companies";
+import { ClientManagementPage } from "@pages/client";
 
 export const AppRoutes = () => (
   <BrowserRouter>
@@ -25,7 +25,7 @@ export const AppRoutes = () => (
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/companies" element={<Companies />} />
+        <Route path="/clients" element={<ClientManagementPage />} />
       </Route>
     </Routes>
   </BrowserRouter>
