@@ -21,5 +21,5 @@ export const StatusCell = ({ row }: CellContext<workplaceTableD, unknown>) => (
 );
 
 export const PathCell = ({ row }: CellContext<workplaceTableD, unknown>) => (
-  <DetailViewButton path={`/companies/${row.original.id}`} />
+  <DetailViewButton path={`/workplaces/${row.original.id}`} />
 );

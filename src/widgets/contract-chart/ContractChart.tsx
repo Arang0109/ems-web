@@ -1,6 +1,6 @@
 import { Clock3, Files, CalendarClock, FileX } from 'lucide-react';
 
-import type { ContractOverview } from '@entities/company';
+import type { ContractOverview } from '@entities/workplace';
 import { SummaryCard } from '@/shared/ui/cards';
 
 interface Props {
@@ -45,6 +45,7 @@ export const ContractChart = ({ summary }: Props) => {
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       {cards.map(({ key, label, unit, icon: Icon, color, ring }) => (
         <SummaryCard
+          key={key}
           count={summary[key]}
           label={label}
           unit={unit}

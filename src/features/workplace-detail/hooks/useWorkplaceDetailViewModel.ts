@@ -5,7 +5,7 @@ import { useWorkplaceDetail } from "./useWorkplaceDetail";
 
 export const useWorkplaceDetailViewModel = () => {
   const navigate = useNavigate();
-  const goBack = () => navigate("/company");
+  const goBack = () => navigate("/workplaces");
 
   const { workplaceId } = useParams();
   const { workplace, fetchWorkplace, isLoading } = useWorkplaceDetail();

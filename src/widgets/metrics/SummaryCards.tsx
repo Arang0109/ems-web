@@ -1,7 +1,7 @@
 import { Building2, Factory, ClipboardList, TrendingUp } from 'lucide-react';
 import type { DashboardSummary } from '@entities/dashboard';
 
-import { SummaryCard } from '@/shared/ui/cards';
+import { SummaryCard } from '@shared/ui/cards';
 
 interface Props {
   summary: DashboardSummary;

@@ -14,7 +14,7 @@ export const workplaceApi = {
   },
 
   getWorkplaceDetail: async (workplaceId: number): Promise<ApiResponseMessage<WorkplaceDetail>> => {
-    const res = await axiosPrivate.get(`/workplaces/${workplaceId}'`);
+    const res = await axiosPrivate.get(`/workplaces/${workplaceId}`);
     return res.data;
   },
 
