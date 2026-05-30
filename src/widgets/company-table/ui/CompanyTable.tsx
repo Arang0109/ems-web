@@ -1,14 +1,12 @@
-import { useEffect, useState } from 'react';
-
 import {
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  type SortingState,
 } from '@tanstack/react-table';
-import { companyApi } from '@entities/company';
+import { useTableState } from '@shared/hooks';
+import { useCompanies } from '@entities/company';
 import type { Company } from '@entities/company';
 
 import { RegisterCompanyForm, useRegisterCompany } from '@features/register-company'
@@ -25,27 +23,12 @@ interface CompanyTableProps {
 }
 
 export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
-  const [data, setData] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-
+  const {
+    sorting, setSorting,
+    globalFilter, setGlobalFilter,
+    pagination, setPagination } = useTableState({ pageSize: 5 });
   const { form, handleChange, onSubmit } = useRegisterCompany();
-
-  useEffect(() => {
-    companyApi.getCompanies()
-      .then((res) => {
-        if (res.status) setData(res.data);
-        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
-      })
-      .catch(() => setError('서버 연결에 실패했습니다.'))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, loading, error } = useCompanies();
 
   const table = useReactTable({
     columns: defaultColumns,
