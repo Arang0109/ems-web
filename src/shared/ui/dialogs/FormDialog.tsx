@@ -18,6 +18,8 @@ interface DialogProps {
   submitLabel?: string;
   cancelLabel?: string;
   onSubmit?: (e: React.FormEvent) => void;
+
+  disabled?: boolean;
 }
 
 export function FormDialog({
@@ -29,12 +31,14 @@ export function FormDialog({
   cancelLabel='닫기',
 
   onSubmit,
+
+  disabled,
 }: DialogProps) {
   return (
     <DialogPrimitive>
-      <form>
-        <DialogTrigger render={<Button variant="outline">{triggerLabel}</Button>} />
-        <DialogContent className="sm:max-w-sm">
+      <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+      <DialogContent className="sm:max-w-150">
+        <form onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
@@ -44,10 +48,10 @@ export function FormDialog({
           {children}
           <DialogFooter>
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            <Button type="submit" onSubmit={onSubmit}>{submitLabel}</Button>
+            <Button type="submit">{submitLabel}</Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </DialogPrimitive>
   )
 }

@@ -1,16 +1,16 @@
-import { useState } from 'react';
-
 import {
   getCoreRowModel,
   useReactTable,
   getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  type SortingState,
 } from '@tanstack/react-table';
+import { useTableState } from '@shared/hooks';
 import { Building2 } from 'lucide-react';
 
 import type { Company, WorkplaceTableCols } from '@entities/company';
+
+import { RegisterWorkplaceForm } from '@features/register-workplace';
 
 import { defaultColumns } from '../model/columns';
 
@@ -31,12 +31,10 @@ export const WorkplaceTable = ({
   error,
   selectedCompany,
 }: WorkplaceTableProps) => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 4,
-  });
+  const {
+    sorting, setSorting,
+    globalFilter, setGlobalFilter,
+    pagination, setPagination } = useTableState({ pageSize: 4 });
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -74,7 +72,8 @@ export const WorkplaceTable = ({
             triggerLabel='측정대상 사업장 등록'
             title='측정대상 사업장 등록'
             description='측정대상 사업장을 등록합니다.'
-            children={<>cc</>}
+            children={<RegisterWorkplaceForm company={selectedCompany}/>}
+            disabled={selectedCompany ? false : true}
           />
         </div>
       </div>

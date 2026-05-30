@@ -1,1 +1,1 @@
-export { useSelectCompany } from './hook/useSelectCompany';
+export { useSelectCompany } from './hooks/useSelectCompany';

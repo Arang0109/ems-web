@@ -1,0 +1,1 @@
+export { RegisterWorkplaceForm } from './ui/RegisterWorkplaceForm';

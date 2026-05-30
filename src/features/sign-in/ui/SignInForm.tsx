@@ -1,6 +1,6 @@
-import { useSignIn } from "./hooks/use-sign-in";
+import { useSignIn } from "../hooks/use-sign-in";
 
-import { Input, Checkbox } from "@shared/ui/form-fields";
+import { Input, Checkbox } from "@/shared/ui/form";
 import { Link } from "@shared/ui/links";
 import { Button } from "@/components/ui/button";
 

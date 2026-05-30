@@ -1,1 +1,1 @@
-export { useContractOverview } from './use-contract-overview';
+export { useContractOverview } from './hooks/use-contract-overview';
