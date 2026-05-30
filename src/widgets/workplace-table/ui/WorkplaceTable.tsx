@@ -75,10 +75,9 @@ export const WorkplaceTable = ({
           </div>
           <FormDialog
             triggerLabel='측정대상 사업장 등록'
-            title='측정대상 사업장 등록'
-            description='측정대상 사업장을 등록합니다.'
             children={<RegisterWorkplaceForm company={selectedCompany}/>}
             disabled={selectedCompany ? false : true}
+            submitLabel='등록'
           />
         </div>
       </div>

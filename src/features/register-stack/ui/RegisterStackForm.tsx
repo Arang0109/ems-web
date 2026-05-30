@@ -1,13 +1,16 @@
 import { FieldGroup } from "@/components/ui/field"
 import { Divider } from "@shared/ui/borders";
 import type { Workplace } from "@entities/workplace";
-import { InputGroup, SectionTitle } from "@/shared/ui/form";
+import { InputGroup, Select, SectionTitle, HorizontalRadioGroup } from "@/shared/ui/form";
 
-import { Building2, Hash, MapPin, Factory } from "lucide-react";
+import { Building2, Hash, Factory } from "lucide-react";
+
+import { measurementFieldOptions, gradeOptions } from "../model/types";
 
 export const RegisterStackForm = ({
   workplace
 }: {workplace: Workplace | null | undefined}) => {
+
   return(
     <FieldGroup>
       <SectionTitle>사업장 정보</SectionTitle>
@@ -24,6 +27,7 @@ export const RegisterStackForm = ({
       <Divider />
 
       <SectionTitle>측정시설 정보</SectionTitle>
+      <HorizontalRadioGroup options={measurementFieldOptions} />
       <div className="grid md:grid-cols-2 gap-4">
         <InputGroup
           id="name"
@@ -43,13 +47,13 @@ export const RegisterStackForm = ({
         />
       </div>
       <div className="grid md:grid-cols-3 gap-4">
-        <InputGroup
+        <Select
           id="grade"
           label="시설 종별"
-          placeholder="시설 규모"
+          placeholder="종별 선택"
+          options={gradeOptions}
           value=""
-          onChange={() => undefined}
-          startIcon={<MapPin />}
+          onValueChange={(v) => console.log(v)}
         />
         <InputGroup
           id="businessCategory"
@@ -57,7 +61,6 @@ export const RegisterStackForm = ({
           placeholder="업종"
           value=""
           onChange={() => undefined}
-          startIcon={<MapPin />}
         />
         <InputGroup
           id="mainProduct"
@@ -65,7 +68,6 @@ export const RegisterStackForm = ({
           placeholder="주요 생산품"
           value=""
           onChange={() => undefined}
-          startIcon={<MapPin />}
         />
       </div>
       

@@ -12,8 +12,8 @@ import {
 
 interface DialogProps {
   triggerLabel: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   children: React.ReactNode;
   submitLabel?: string;
   cancelLabel?: string;
@@ -39,14 +39,14 @@ export function FormDialog({
       <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
       <DialogContent className="sm:max-w-150">
         <form onSubmit={onSubmit}>
-          <DialogHeader>
+          <DialogHeader className="mb-5">
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
               {description}
             </DialogDescription>
           </DialogHeader>
           {children}
-          <DialogFooter className="mt-3">
+          <DialogFooter className="mt-5">
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
             <Button type="submit">{submitLabel}</Button>
           </DialogFooter>

@@ -22,7 +22,6 @@ export const defaultColumns = [
   columnHelper.accessor('field', {
     header: '측정분야',
     cell: CustomCell,
-    size: 350,
   }),
   columnHelper.accessor('modifiedAt', {
     header: '수정일시',

@@ -55,10 +55,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           </div>
           <FormDialog
             triggerLabel='측정대행 의뢰기관 등록'
-            title='측정대행 의뢰기관 등록'
-            description='측정대행 의뢰기관을 등록합니다.'
             children={<RegisterCompanyForm form={form} onChange={handleChange} />}
-
             onSubmit={onSubmit}
             submitLabel='등록'
           />
