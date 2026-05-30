@@ -11,12 +11,12 @@ import {
 import { companyApi } from '@entities/company';
 import type { Company } from '@entities/company';
 
-import { RegisterCompanyForm } from '@features/register-company'
+import { RegisterCompanyForm, useRegisterCompany } from '@features/register-company'
 
 import { defaultColumns } from '../model/columns';
 
 import { BasicTable } from '@shared/ui/table';
-import { Search } from '@shared/ui/form-fields';
+import { Search } from '@/shared/ui/form';
 import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
@@ -34,6 +34,8 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     pageIndex: 0,
     pageSize: 5,
   });
+
+  const { form, handleChange, onSubmit } = useRegisterCompany();
 
   useEffect(() => {
     companyApi.getCompanies()
@@ -72,7 +74,10 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
             triggerLabel='측정대행 의뢰기관 등록'
             title='측정대행 의뢰기관 등록'
             description='측정대행 의뢰기관을 등록합니다.'
-            children={<RegisterCompanyForm />}
+            children={<RegisterCompanyForm form={form} onChange={handleChange} />}
+
+            onSubmit={onSubmit}
+            submitLabel='등록'
           />
         </div>
       </div>

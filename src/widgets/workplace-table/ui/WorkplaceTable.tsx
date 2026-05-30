@@ -12,6 +12,8 @@ import { Building2 } from 'lucide-react';
 
 import type { Company, WorkplaceTableCols } from '@entities/company';
 
+import { RegisterWorkplaceForm } from '@features/register-workplace';
+
 import { defaultColumns } from '../model/columns';
 
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
@@ -74,7 +76,8 @@ export const WorkplaceTable = ({
             triggerLabel='측정대상 사업장 등록'
             title='측정대상 사업장 등록'
             description='측정대상 사업장을 등록합니다.'
-            children={<>cc</>}
+            children={<RegisterWorkplaceForm company={selectedCompany}/>}
+            disabled={selectedCompany ? false : true}
           />
         </div>
       </div>
