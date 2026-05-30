@@ -81,8 +81,9 @@ export const companyHandlers = [
     });
   }),
 
-  http.get(`${BASE_URL}/companies/:companyId/workplaces`, ({ params }) => {
-    const companyId = Number(params.companyId);
+  http.get(`${BASE_URL}/workplaces`, ({ request }) => {
+    const url = new URL(request.url);
+    const companyId = Number(url.searchParams.get('companyId'));
     const workplaces = workplacesByCompany[companyId] ?? [];
     return HttpResponse.json({
       status: true,

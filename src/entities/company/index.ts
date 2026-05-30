@@ -1,5 +1,5 @@
-export type { Company, CompanyRegisterRequest, WorkplaceTableCols } from './model/company-types';
-export type { CompanyRegisterForm } from './api/company-form'
-export { getDefaultCompanyRegisterForm } from './api/company-form';
+export type { Company, CompanyRegisterRequest } from './api/company-dtos';
+export type { CompanyRegisterForm } from './model/company-types';
+export { getDefaultCompanyRegisterForm } from './model/company-types';
 export { companyApi } from './api/company-api';
-export { useCompanies} from "./hooks/use-companies";
+export { useCompanies } from './hooks/use-companies';

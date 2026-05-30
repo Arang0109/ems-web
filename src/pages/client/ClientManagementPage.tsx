@@ -2,11 +2,28 @@ import { PageTitle } from "@shared/ui/semantics";
 
 import { CompanyTable } from "@widgets/company-table";
 import { WorkplaceTable } from "@widgets/workplace-table";
+import { StackTable } from "@widgets/stack-table";
 
 import { useSelectCompany } from "@features/select-company";
+import { useSelectWorkplace } from "@features/select-workplace";
 
 export const ClientManagementPage = () => {
-  const { handleSelectCompanyRow, selectedCompany, workplaceTableData, isLoading, error } = useSelectCompany();
+  const {
+    handleSelectWorkplaceRow,
+    clearStackTableData,
+    selectedWorkplace,
+    StackTableData,
+    isLoading: isWorkplaceLoading,
+    error: workplaceError
+  } = useSelectWorkplace();
+
+  const {
+    handleSelectCompanyRow,
+    selectedCompany,
+    workplaceTableData,
+    isLoading: isCompanyLoading,
+    error: companyError
+  } = useSelectCompany(clearStackTableData);
 
   return (
     <div className="p-6 space-y-5 min-h-full">
@@ -14,7 +31,10 @@ export const ClientManagementPage = () => {
     
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CompanyTable onRowClick={handleSelectCompanyRow} />
-        <WorkplaceTable data={workplaceTableData} loading={isLoading} error={error} selectedCompany={selectedCompany} />
+        <WorkplaceTable onRowClick={handleSelectWorkplaceRow} data={workplaceTableData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany} />
+      </div>
+      <div className="grid grid-cols-1">
+        <StackTable data={StackTableData} loading={isWorkplaceLoading} error={workplaceError} selectedWorkplace={selectedWorkplace} />
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
-export type Company = {
-  id: number;
+export type CompanyRegisterForm = {
   name: string;               // 측정대행 의뢰기관
   bizNumber: string;          // 사업자등록번호 (xxx-xx-xxxxx)
   ceoName: string;            // 대표자
@@ -10,23 +9,12 @@ export type Company = {
   tell: string;               // 전화번호
 }
 
-export type CompanyRegisterRequest = {
-  name: string;               // 측정대행 의뢰기관
-  bizNumber: string;          // 사업자등록번호 (xxx-xx-xxxxx)
-  ceoName: string;            // 대표자
-  address: string;            // 측정대행 의뢰기관 주소
-
-  manager: string;            // 측정대행 의뢰기관 담당자
-  email: string;              // E-mail
-  tell: string;               // 전화번호
-}
-
-export type WorkplaceTableCols = {
-  id: number;
-  companyId: number;
-  companyName: string;
-  workplaceName: string;
-  address: string;
-  bizNumber: string;
-}
-
+export const getDefaultCompanyRegisterForm = (): CompanyRegisterForm => ({
+  name: "",
+  bizNumber: "",
+  address: "",
+  ceoName: "",
+  manager: "",
+  email: "",
+  tell: "",
+});

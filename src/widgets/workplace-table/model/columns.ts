@@ -1,8 +1,8 @@
 import { createColumnHelper } from '@tanstack/react-table';
 
-import type { WorkplaceTableCols } from '@entities/company';
+import type { WorkplaceTableCols } from './workplace-table-types';
 
-import { CustomCell, PathCell } from '../ui/Cells';
+import { CustomCell } from '../ui/Cells';
 
 const columnHelper = createColumnHelper<WorkplaceTableCols>();
 
@@ -21,8 +21,4 @@ export const defaultColumns = [
     cell: CustomCell,
     enableSorting: false,
   }),
-  columnHelper.display({
-    id: 'path',
-    cell: PathCell,
-  })
 ];

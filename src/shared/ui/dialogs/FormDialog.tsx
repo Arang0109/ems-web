@@ -46,7 +46,7 @@ export function FormDialog({
             </DialogDescription>
           </DialogHeader>
           {children}
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
             <Button type="submit">{submitLabel}</Button>
           </DialogFooter>
