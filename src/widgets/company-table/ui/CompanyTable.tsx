@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   getCoreRowModel,
   useReactTable,
@@ -23,11 +24,12 @@ interface CompanyTableProps {
 }
 
 export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
+  const [open, setOpen] = useState(false);
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
-  const { form, handleChange, onSubmit } = useRegisterCompany();
+  const { form, handleChange, onSubmit } = useRegisterCompany({ onSuccess: () => setOpen(false) });
   const { data, loading, error } = useCompanies();
 
   const table = useReactTable({
@@ -55,10 +57,13 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           </div>
           <FormDialog
             triggerLabel='측정대행 의뢰기관 등록'
-            children={<RegisterCompanyForm form={form} onChange={handleChange} />}
+            open={open}
+            onOpenChange={setOpen}
             onSubmit={onSubmit}
             submitLabel='등록'
-          />
+          >
+            <RegisterCompanyForm form={form} onChange={handleChange} />
+          </FormDialog>
         </div>
       </div>
 

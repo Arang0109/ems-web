@@ -1,12 +1,12 @@
 import type { CellContext } from '@tanstack/react-table';
 
-import type { StackTableCols } from '../model/stack-table-types';
+import type { StackTableRow } from '../model/types';
 import { DetailViewButton } from '@shared/ui/table-ui';
 
-export const CustomCell = ({ getValue }: CellContext<StackTableCols, string>) => (
+export const CustomCell = ({ getValue }: CellContext<StackTableRow, string>) => (
   <span className="font-medium text-gray-800">{getValue()}</span>
 );
 
-export const PathCell = ({ row }: CellContext<StackTableCols, unknown>) => (
+export const PathCell = ({ row }: CellContext<StackTableRow, unknown>) => (
   <DetailViewButton path={`/stacks/${row.original.id}`} />
 );

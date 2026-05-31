@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import {
   getCoreRowModel,
   useReactTable,
@@ -5,27 +7,29 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-import { useTableState } from '@shared/hooks';
-import { Building2 } from 'lucide-react';
 
 import type { Company } from '@entities/company';
-import type { WorkplaceTableCols } from '@entities/workplace';
+import type { Workplace, WorkplaceTableListResponse } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
 
 import { defaultColumns } from '../model/columns';
+import { toWorkplaceRows } from '../model/mapper';
+import type { WorkplaceTableRow } from '../model/types';
 
+import { useTableState } from '@shared/hooks';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
+import { Building2 } from 'lucide-react';
+
 interface WorkplaceTableProps {
-  data: WorkplaceTableCols[];
+  data: WorkplaceTableListResponse[];
   loading: boolean;
   error: string | null;
   selectedCompany?: Company | null;
-
-  onRowClick?: (workplace: WorkplaceTableCols) => void;
+  onRowClick?: (workplace: Workplace) => void;
 }
 
 export const WorkplaceTable = ({
@@ -33,7 +37,6 @@ export const WorkplaceTable = ({
   loading,
   error,
   selectedCompany,
-
   onRowClick,
 }: WorkplaceTableProps) => {
   const {
@@ -41,9 +44,14 @@ export const WorkplaceTable = ({
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 4 });
 
+  const tableData = useMemo(
+    () => data.map(toWorkplaceRows),
+    [data]
+  );
+
   const table = useReactTable({
     columns: defaultColumns,
-    data,
+    data: tableData,
 
     state: { sorting, globalFilter, pagination },
 
@@ -55,6 +63,18 @@ export const WorkplaceTable = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  const handleRowClick = onRowClick
+    ? (row: WorkplaceTableRow) => {
+        onRowClick({
+          id: row.id,
+          companyId: row.companyId,
+          name: row.workplaceName,
+          address: row.address,
+          bizNumber: row.bizNumber,
+        });
+      }
+    : undefined;
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -92,7 +112,7 @@ export const WorkplaceTable = ({
           />
         ) : (
           <>
-            <BasicTable table={table} error={error} onRowClick={onRowClick} />
+            <BasicTable table={table} error={error} onRowClick={handleRowClick} />
           </>
         )}
       </div>

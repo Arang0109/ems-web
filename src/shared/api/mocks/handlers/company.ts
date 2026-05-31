@@ -81,6 +81,15 @@ export const companyHandlers = [
     });
   }),
 
+  http.post(`${BASE_URL}/companies`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '의뢰기관 등록 성공',
+      data: { id: Date.now(), ...body }
+    }, { status: 201 });
+  }),
+
   http.get(`${BASE_URL}/workplaces`, ({ request }) => {
     const url = new URL(request.url);
     const companyId = Number(url.searchParams.get('companyId'));

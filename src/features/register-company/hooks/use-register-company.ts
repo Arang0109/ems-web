@@ -1,10 +1,20 @@
 import { useState } from "react";
 
-import type { CompanyRegisterForm } from "@entities/company";
-import { getDefaultCompanyRegisterForm } from "@entities/company";
+import { companyApi } from "@entities/company";
 
-export const useRegisterCompany = () => {
+import type { CompanyRegisterForm } from "../model/register-company-types";
+import { getDefaultCompanyRegisterForm } from "../model/register-company-types";
+import { mapToDto } from "../model/mapper";
+
+interface useRegisterCompanyProps {
+  onSuccess: () => void;
+}
+
+export const useRegisterCompany = ({
+  onSuccess
+}: useRegisterCompanyProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState<CompanyRegisterForm>(getDefaultCompanyRegisterForm());
 
   const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
@@ -14,18 +24,28 @@ export const useRegisterCompany = () => {
     }));
   };
 
-  const onSubmit = () => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
+    setError('');
 
-    console.log(form);
+    const payload = mapToDto(form);
 
-    setIsLoading(false);
-  }
+    try {
+      const res = await companyApi.registerCompany(payload);
+      onSuccess();
+      return res;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+    } finally { setIsLoading(false); }
+  };
 
   return {
     form,
+    isLoading,
+    error,
+
     onSubmit,
     handleChange,
-    isLoading,
   }
 }

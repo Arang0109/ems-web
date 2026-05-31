@@ -1,10 +1,10 @@
 import { createColumnHelper } from '@tanstack/react-table';
 
-import type { WorkplaceTableCols } from './workplace-table-types';
+import type { WorkplaceTableRow } from './types';
 
 import { CustomCell } from '../ui/Cells';
 
-const columnHelper = createColumnHelper<WorkplaceTableCols>();
+const columnHelper = createColumnHelper<WorkplaceTableRow>();
 
 export const defaultColumns = [
   columnHelper.accessor('workplaceName', {

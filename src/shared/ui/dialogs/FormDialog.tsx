@@ -17,8 +17,9 @@ interface DialogProps {
   children: React.ReactNode;
   submitLabel?: string;
   cancelLabel?: string;
-  onSubmit?: (e: React.FormEvent) => void;
-
+  onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
 }
 
@@ -29,13 +30,13 @@ export function FormDialog({
   children,
   submitLabel='제출',
   cancelLabel='닫기',
-
   onSubmit,
-
+  open,
+  onOpenChange,
   disabled,
 }: DialogProps) {
   return (
-    <DialogPrimitive>
+    <DialogPrimitive open={open} onOpenChange={onOpenChange}>
       <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
       <DialogContent className="sm:max-w-150">
         <form onSubmit={onSubmit}>

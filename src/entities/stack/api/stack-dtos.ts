@@ -27,7 +27,7 @@ export type StackRegisterRequest = {
   mainProduct: string;
 }
 
-export type StackTableRow = {
+export type StackTableListResponse = {
   id: number,
   companyName: string,
   workplaceName: string,

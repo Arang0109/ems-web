@@ -1,4 +1,3 @@
-export type { ContractOverview } from './model/workplace-types';
-export type { Workplace, WorkplaceTableCols } from './api/workplace-dtos';
-export { workplaceApi } from './api/workplace-api';
-export { workplaceTableColsToWorkplace } from './api/workplace-mapper';
+export type { Workplace, ContractOverview } from './model/types';
+export type { WorkplaceTableListResponse } from './api/dtos';
+export { workplaceApi } from './api/api';

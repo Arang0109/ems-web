@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import {
   getCoreRowModel,
   useReactTable,
@@ -5,18 +7,17 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-import { useMemo } from 'react';
 
 import { useTableState } from '@shared/hooks';
-import type { StackTableRow } from "@entities/stack";
 import type { Workplace } from '@entities/workplace';
+import type { StackTableListResponse } from '@entities/stack';
 
 import { RegisterStackForm } from '@features/register-stack';
 
 import { Building2 } from 'lucide-react';
 
-import { toStackTableCols } from '../model/stack-table-types';
 import { defaultColumns } from '../model/columns';
+import { toStackRows } from '../model/mapper';
 
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Search } from '@/shared/ui/form';
@@ -24,7 +25,7 @@ import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
 interface StackTableProps {
-  data: StackTableRow[];
+  data: StackTableListResponse[];
   loading: boolean;
   error: string | null;
   selectedWorkplace?: Workplace | null;
@@ -38,11 +39,14 @@ export const StackTable = ({
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 10 });
 
-  const mappedData = useMemo(() => data.map(toStackTableCols), [data]);
+  const tableData = useMemo(
+      () => data.map(toStackRows),
+      [data]
+    );
 
   const table = useReactTable({
     columns: defaultColumns,
-    data: mappedData,
+    data: tableData,
 
     state: { sorting, globalFilter, pagination },
 
@@ -82,7 +86,7 @@ export const StackTable = ({
       </div>
 
       <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'의뢰기관, 사업장, 시설, 측정분야 검색 ...'} />
+        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'측정시설, 측정분야 검색 ...'} />
       </div>
 
       {/* 컨텐츠 */}

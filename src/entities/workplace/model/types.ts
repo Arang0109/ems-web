@@ -6,11 +6,9 @@ export type Workplace = {
   bizNumber: string;
 }
 
-export type WorkplaceTableCols = {
-  id: number;
-  companyId: number;
-  companyName: string;
-  workplaceName: string;
-  address: string;
-  bizNumber: string;
+export type ContractOverview = {
+  recentContractCount: number;
+  totalContractCount: number;
+  expiringSoonContractCount: number;
+  expiredContractCount: number;
 }

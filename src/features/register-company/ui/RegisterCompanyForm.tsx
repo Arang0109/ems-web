@@ -1,7 +1,9 @@
 import { FieldGroup } from "@/components/ui/field";
 import { Divider } from "@shared/ui/borders";
-import type { CompanyRegisterForm } from "@/entities/company";
+
+import type { CompanyRegisterForm } from "../model/register-company-types";
 import { InputGroup, SectionTitle } from "@/shared/ui/form";
+import { formatBusinessNumber, formatPhoneNumber } from '@shared/lib/formatters';
 
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
@@ -34,7 +36,7 @@ export const RegisterCompanyForm = ({
           id="bizNumber"
           label="사업자등록번호"
           placeholder="사업자등록번호"
-          value={form.bizNumber}
+          value={formatBusinessNumber(form.bizNumber)}
           onChange={(value) => onChange("bizNumber", value)}
           startIcon={<Hash />}
         />
@@ -71,7 +73,7 @@ export const RegisterCompanyForm = ({
         <InputGroup
           id="tell"
           placeholder="전화번호"
-          value={form.tell}
+          value={formatPhoneNumber(form.tell)}
           onChange={(value) => onChange("tell", value)}
           startIcon={<Phone />}
         />
