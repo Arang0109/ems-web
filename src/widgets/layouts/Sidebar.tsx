@@ -48,8 +48,8 @@ const MENU_ITEMS: MenuItem[] = [
     label: "Contract",
     subItems: [
       { label: "거래처 관리", path: "/clients" },
-      { label: "측정시설 관리", path: "/stacks" },
-      { label: "계약 관리", path: "/contracts" },
+      { label: "계약서 조회", path: "/contracts" },
+      { label: "계약서 등록", path: "/contracts/register" },
     ],
   },
   {

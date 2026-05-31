@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   getCoreRowModel,
   useReactTable,
@@ -9,13 +10,12 @@ import { useTableState } from '@shared/hooks';
 import { useCompanies } from '@entities/company';
 import type { Company } from '@entities/company';
 
-import { RegisterCompanyForm, useRegisterCompany } from '@features/register-company'
+import { RegisterCompanyForm } from '@features/register-company'
 
 import { defaultColumns } from '../model/columns';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@/shared/ui/form';
-import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
 interface CompanyTableProps {
@@ -23,11 +23,11 @@ interface CompanyTableProps {
 }
 
 export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
+  const [open, setOpen] = useState(false);
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
-  const { form, handleChange, onSubmit } = useRegisterCompany();
   const { data, loading, error } = useCompanies();
 
   const table = useReactTable({
@@ -53,14 +53,9 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-gray-800">의뢰기관 목록</h2>
           </div>
-          <FormDialog
-            triggerLabel='측정대행 의뢰기관 등록'
-            title='측정대행 의뢰기관 등록'
-            description='측정대행 의뢰기관을 등록합니다.'
-            children={<RegisterCompanyForm form={form} onChange={handleChange} />}
-
-            onSubmit={onSubmit}
-            submitLabel='등록'
+          <RegisterCompanyForm
+            open={open}
+            onOpenChange={setOpen}
           />
         </div>
       </div>

@@ -1,12 +1,7 @@
 import type { CellContext } from '@tanstack/react-table';
 
-import type { WorkplaceTableD } from '@entities/workplace';
-import { DetailViewButton } from '@shared/ui/table-ui';
+import type { WorkplaceTableRow } from '../model/types';
 
-export const CustomCell = ({ getValue }: CellContext<WorkplaceTableD, string>) => (
+export const CustomCell = ({ getValue }: CellContext<WorkplaceTableRow, string>) => (
   <span className="font-medium text-gray-800">{getValue()}</span>
-);
-
-export const PathCell = ({ row }: CellContext<WorkplaceTableD, unknown>) => (
-  <DetailViewButton path={`/workplaces/${row.original.id}`} />
 );

@@ -67,7 +67,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
               onClick={() => onRowClick?.(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell key={cell.id} className='text-xs'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

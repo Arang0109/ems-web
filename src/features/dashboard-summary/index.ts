@@ -1,1 +1,1 @@
-export { useDashboard } from './hooks/use-dashboard';
+export { useDashboard } from './model/use-dashboard';
