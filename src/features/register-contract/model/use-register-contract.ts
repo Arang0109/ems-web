@@ -18,11 +18,13 @@ export const useRegisterContract = () => {
     }));
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (e: React.SubmitEvent) => {
+    e.preventDefault();
     setIsLoading(true);
     setError('');
 
     const payload = mapToDto(form);
+    console.log("payload: ", payload)
 
     try {
       const res = await contractApi.registerContract(payload);

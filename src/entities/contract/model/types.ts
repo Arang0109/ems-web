@@ -17,3 +17,20 @@ export type Contract = {
 
   remark: string;                   // 비고
 }
+
+export const CONTRACT_AMOUNT_UNIT = ['month', 'quarter', 'semi-annual', 'annual', 'total'] as const;
+
+export type ContractAmountUnit = typeof CONTRACT_AMOUNT_UNIT[number];
+
+export const CONTRACT_AMOUNT_UNIT_LABEL: Record<ContractAmountUnit, string> = {
+  month: '월',
+  quarter: '분기',
+  "semi-annual": '반기',
+  annual: '연',
+  total: "총액"
+};
+
+export const contractAmountUnitOptions = CONTRACT_AMOUNT_UNIT.map((v) => ({
+  value: v,
+  label: CONTRACT_AMOUNT_UNIT_LABEL[v]
+}));

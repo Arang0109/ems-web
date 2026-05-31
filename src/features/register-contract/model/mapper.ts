@@ -11,6 +11,7 @@ export const mapToDto = (
   startDate: toDateString(form.startDate),
   completionDate: toDateString(form.completionDate),
   contractAmount: form.contractAmount,
+  contractAmountUnit: form.contractAmountUnit,
   vatIncluded: form.vatIncluded,
   contractGuaranteeAmount: form.contractGuaranteeAmount,
   advancePaymentAmount: form.advancePaymentAmount,
