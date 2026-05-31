@@ -1,0 +1,1 @@
+export { RegisterContractForm } from "./ui/RegisterContractForm";

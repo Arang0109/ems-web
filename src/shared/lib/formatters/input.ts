@@ -19,3 +19,7 @@ export function stripFormatting(value: string): string {
 export function trimValue(value: string): string {
   return value.trim();
 }
+
+export function toDateString(date: Date): string {
+  return date.toISOString().split("T")[0];
+}

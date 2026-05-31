@@ -1,1 +1,1 @@
-export { formatBusinessNumber, formatPhoneNumber, stripFormatting, trimValue } from './input';
+export { toDateString, formatBusinessNumber, formatPhoneNumber, stripFormatting, trimValue } from './input';
