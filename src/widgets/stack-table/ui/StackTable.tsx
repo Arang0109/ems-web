@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 import {
   getCoreRowModel,
@@ -21,19 +21,19 @@ import { toStackRows } from '../model/mapper';
 
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Search } from '@/shared/ui/form';
-import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
 interface StackTableProps {
   data: StackTableListResponse[];
   loading: boolean;
   error: string | null;
-  selectedWorkplace?: Workplace | null;
+  selectedWorkplace: Workplace | null;
 }
 
 export const StackTable = ({
   data, loading, error, selectedWorkplace
 }: StackTableProps) => {
+  const [open, setOpen] = useState(false);
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
@@ -65,22 +65,22 @@ export const StackTable = ({
       <div className="px-5 pt-5 pb-4 border-b border-gray-100">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-gray-800">사업장 목록</h2>
+            <h2 className="text-sm font-semibold text-gray-800">측정시설 목록</h2>
             {selectedWorkplace ? (
               <p className="mt-0.5 text-xs text-blue-600 font-medium truncate">
                 {selectedWorkplace.name}
               </p>
             ) : (
               <p className="mt-0.5 text-xs text-gray-400">
-                의뢰기관을 선택해주세요
+                사업장을 선택해주세요
               </p>
             )}
           </div>
-          <FormDialog
-            triggerLabel='측정대상 사업장 등록'
-            children={<RegisterStackForm workplace={selectedWorkplace} />}
-            disabled={selectedWorkplace ? false : true}
-            submitLabel='등록'
+          <RegisterStackForm
+            key={selectedWorkplace?.id}
+            workplace={selectedWorkplace}
+            open={open}
+            onOpenChange={setOpen}
           />
         </div>
       </div>
@@ -94,7 +94,7 @@ export const StackTable = ({
         {!selectedWorkplace ? (
           <TableEmptyState
             icon={<Building2 size={22} className="text-gray-400" />}
-            label='사업장 정보 없음'
+            label='측정시설 정보 없음'
             subLabel={<span>위쪽에서 사업장을 선택하면<br />해당 측정시설 목록이 표시됩니다.</span>}
           />
         ) : (

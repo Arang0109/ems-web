@@ -5,10 +5,3 @@ export type Workplace = {
   address: string;            // 측정대상 사업장 주소
   bizNumber: string;
 }
-
-export type ContractOverview = {
-  recentContractCount: number;
-  totalContractCount: number;
-  expiringSoonContractCount: number;
-  expiredContractCount: number;
-}

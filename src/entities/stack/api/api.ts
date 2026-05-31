@@ -1,6 +1,7 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { Stack, StackTableListResponse } from './stack-dtos';
+import type { StackRegisterRequest, StackTableListResponse } from './dtos';
+import type { Stack } from '../model/types';
 
 export const stackApi = {
   getStacks: async (): Promise<ApiResponseMessage<Stack[]>> => {
@@ -12,4 +13,10 @@ export const stackApi = {
     const res = await axiosPrivate.get(`/stacks?workplaceId=${workplaceId}`);
     return res.data;
   },
+
+  registerStack: async (data: StackRegisterRequest): Promise<ApiResponseMessage<Stack>> => {
+    const res = await axiosPrivate.post('/stacks', data);
+    return res.data;
+  },
+
 }

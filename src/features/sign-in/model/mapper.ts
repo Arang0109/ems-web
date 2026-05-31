@@ -1,5 +1,5 @@
-import type { SignInRequest } from "./auth-dto";
-import type { SignInFormData } from "../model/auth-types";
+import type { SignInRequest } from "@entities/auth";
+import type { SignInFormData } from "../model/types";
 
 export const mapSignInFormDataToRequest = (formData: SignInFormData): SignInRequest => {
   return {

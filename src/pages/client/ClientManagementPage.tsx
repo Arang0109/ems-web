@@ -31,7 +31,9 @@ export const ClientManagementPage = () => {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CompanyTable onRowClick={handleSelectCompanyRow} />
-        <WorkplaceTable onRowClick={handleSelectWorkplaceRow} data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany} />
+        <WorkplaceTable
+          onRowClick={handleSelectWorkplaceRow}
+          data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany} />
       </div>
       <div className="grid grid-cols-1">
         <StackTable data={stackData} loading={isWorkplaceLoading} error={workplaceError} selectedWorkplace={selectedWorkplace} />

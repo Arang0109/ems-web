@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 
-import { signInApi, mapSignInFormDataToRequest, useAuth } from "@entities/auth";
-import type { SignInFormData } from "@entities/auth";
+import { signInApi, useAuth } from "@entities/auth";
+
+import { mapSignInFormDataToRequest } from "../model/mapper";
+import type { SignInFormData } from "../model/types";
 
 import type { ApiResponseMessage } from "@shared/model";
 

@@ -12,5 +12,5 @@ export const companyApi = {
   registerCompany: async (data: CompanyRegisterRequest): Promise<ApiResponseMessage<Company>> => {
     const res = await axiosPrivate.post('/companies', data);
     return res.data;
-  }
+  },
 };

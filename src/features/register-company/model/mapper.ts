@@ -1,4 +1,4 @@
-import type { CompanyRegisterForm } from "./register-company-types";
+import type { CompanyRegisterForm } from "./types";
 import type { CompanyRegisterRequest } from "@entities/company";
 
 import { stripFormatting, trimValue } from "@shared/lib/formatters";

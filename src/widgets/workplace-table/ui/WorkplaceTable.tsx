@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 import {
   getCoreRowModel,
@@ -19,7 +19,6 @@ import type { WorkplaceTableRow } from '../model/types';
 
 import { useTableState } from '@shared/hooks';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
-import { FormDialog } from '@shared/ui/dialogs';
 import { Pagination } from '@shared/ui/pagination';
 
 import { Building2 } from 'lucide-react';
@@ -28,7 +27,7 @@ interface WorkplaceTableProps {
   data: WorkplaceTableListResponse[];
   loading: boolean;
   error: string | null;
-  selectedCompany?: Company | null;
+  selectedCompany: Company | null;
   onRowClick?: (workplace: Workplace) => void;
 }
 
@@ -39,11 +38,11 @@ export const WorkplaceTable = ({
   selectedCompany,
   onRowClick,
 }: WorkplaceTableProps) => {
+  const [open, setOpen] = useState(false);
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 4 });
-
   const tableData = useMemo(
     () => data.map(toWorkplaceRows),
     [data]
@@ -93,11 +92,11 @@ export const WorkplaceTable = ({
               </p>
             )}
           </div>
-          <FormDialog
-            triggerLabel='측정대상 사업장 등록'
-            children={<RegisterWorkplaceForm company={selectedCompany}/>}
-            disabled={selectedCompany ? false : true}
-            submitLabel='등록'
+          <RegisterWorkplaceForm
+            key={selectedCompany?.id}
+            company={selectedCompany}
+            open={open}
+            onOpenChange={setOpen}
           />
         </div>
       </div>

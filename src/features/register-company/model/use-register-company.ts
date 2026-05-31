@@ -2,8 +2,8 @@ import { useState } from "react";
 
 import { companyApi } from "@entities/company";
 
-import type { CompanyRegisterForm } from "../model/register-company-types";
-import { getDefaultCompanyRegisterForm } from "../model/register-company-types";
+import type { CompanyRegisterForm } from "../model/types";
+import { getDefaultCompanyRegisterForm } from "../model/types";
 import { mapToDto } from "../model/mapper";
 
 interface useRegisterCompanyProps {
@@ -24,7 +24,7 @@ export const useRegisterCompany = ({
     }));
   };
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');

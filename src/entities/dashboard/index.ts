@@ -1,5 +1,5 @@
 export type {
-  MeasurementDataPoint, WorkplaceByRegion, StackByType, DashboardSummary
-} from './model/dashboard-types';
+  MeasurementCountChartResponse, DashboardOverviewResponse
+} from './api/dtos';
 
-export { dashboardApi } from './api/dashboard-api';
+export { dashboardApi } from './api/api';

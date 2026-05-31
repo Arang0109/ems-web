@@ -1,4 +1,6 @@
-export type { Stack, StackRegisterRequest, StackTableListResponse } from "./api/stack-dtos";
-export type { StackRegisterForm } from "./model/stack-types";
-export { stackApi } from "./api/stack-api";
-export { useStacks } from "./hooks/use-staks";
+export { stackApi } from "./api/api";
+
+export type { StackRegisterRequest, StackTableListResponse } from "./api/dtos";
+export type { Stack } from "./model/types";
+
+export { useStacks } from "./model/use-staks";

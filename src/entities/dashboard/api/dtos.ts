@@ -1,9 +1,9 @@
-export interface MeasurementDataPoint {
+export interface MeasurementCountChartResponse {
   label: string;
   count: number;
 }
 
-export interface DashboardSummary {
+export interface DashboardOverviewResponse {
   workplaceCount: number;
   stackCount: number;
   totalMeasurements: number;
