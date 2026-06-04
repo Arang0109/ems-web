@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import type { Company } from '@entities/company';
 import { workplaceApi } from '@entities/workplace';
@@ -15,26 +15,29 @@ export const useSelectCompany = (onCompanyChange?: () => void) => {
     onCompanyChange?.();
   };
 
+  const fetchWorkplaces = useCallback(async (companyId: number) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setWorkplaceData([]);
+
+      const res = await workplaceApi.getWorkplacesByCompany(companyId);
+      setWorkplaceData(res.data);
+    } catch {
+      setError('데이터를 불러오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!selectedCompany?.id) return;
+    fetchWorkplaces(selectedCompany.id);
+  }, [selectedCompany?.id, fetchWorkplaces]);
 
-    const fetchWorkplaces = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        setWorkplaceData([]);
-
-        const res = await workplaceApi.getWorkplacesByCompany(selectedCompany.id);
-        setWorkplaceData(res.data);
-      } catch {
-        setError('데이터를 불러오는 데 실패했습니다.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchWorkplaces();
-  }, [selectedCompany?.id]);
+  const refetchWorkplaces = useCallback(() => {
+    if (selectedCompany?.id) fetchWorkplaces(selectedCompany.id);
+  }, [selectedCompany?.id, fetchWorkplaces]);
 
   return {
     selectedCompany,
@@ -42,6 +45,7 @@ export const useSelectCompany = (onCompanyChange?: () => void) => {
 
     isLoading, error,
 
-    handleSelectCompanyRow
+    handleSelectCompanyRow,
+    refetchWorkplaces,
   }
 }

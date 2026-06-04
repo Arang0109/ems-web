@@ -1,3 +1,5 @@
+import type { ContractAmountUnit } from "@entities/contract";
+
 export type ContractRegisterForm = {
   contractName: string;              // 용역명
 
@@ -6,6 +8,7 @@ export type ContractRegisterForm = {
   completionDate: Date;           // 완수일자
 
   contractAmount: number;           // 계약금액
+  contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
   contractGuaranteeAmount: number;  // 계약보증금
@@ -25,7 +28,8 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   completionDate: new Date(),
 
   contractAmount: 0,
-  vatIncluded: false,
+  contractAmountUnit: 'month',
+  vatIncluded: true,
 
   contractGuaranteeAmount: 0,
   advancePaymentAmount: 0,
@@ -34,4 +38,10 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   delayPenaltyRate: 0,
 
   remark: "",
-})
+});
+
+
+export const VAT_INCLUED_LABEL = {
+  true: '포함',
+  false: '미포함'
+} as const;

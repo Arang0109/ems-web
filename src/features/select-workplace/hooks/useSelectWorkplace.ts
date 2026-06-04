@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import type { Workplace } from "@entities/workplace";
 import { stackApi } from "@entities/stack";
@@ -19,23 +19,27 @@ export const useSelectWorkplace = () => {
     setStackData([]);
   };
 
-  useEffect(() => {
-    const fetchStacks = async () => {
-      try {
-        if (selectedWorkplace == null) return;
-        setIsLoading(true);
-        setStackData([]);
-        const res = await stackApi.getStacksByWorkplace(selectedWorkplace.id);
-        setStackData(res.data);
-      } catch {
-        setError('데이터를 불러오는 데 실패했습니다.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchStacks = useCallback(async (workplaceId: number) => {
+    try {
+      setIsLoading(true);
+      setStackData([]);
+      const res = await stackApi.getStacksByWorkplace(workplaceId);
+      setStackData(res.data);
+    } catch {
+      setError('데이터를 불러오는 데 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-    fetchStacks();
-  }, [selectedWorkplace])
+  useEffect(() => {
+    if (selectedWorkplace == null) return;
+    fetchStacks(selectedWorkplace.id);
+  }, [selectedWorkplace, fetchStacks]);
+
+  const refetchStacks = useCallback(() => {
+    if (selectedWorkplace?.id) fetchStacks(selectedWorkplace.id);
+  }, [selectedWorkplace?.id, fetchStacks]);
 
   return {
     selectedWorkplace,
@@ -45,5 +49,6 @@ export const useSelectWorkplace = () => {
 
     handleSelectWorkplaceRow,
     clearWorkplaceSelection,
+    refetchStacks,
   }
 }

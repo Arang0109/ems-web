@@ -1,48 +1,45 @@
 import React from "react";
 
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { Input as InputField } from "@/components/ui/input";
+import {
+  Field,
+  FieldDescription,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Textarea as TextareaPrimitive } from "@/components/ui/textarea";
 
-interface InputProps<T = string | number> {
+interface TextareaProps {
   id?: string;
   label?: React.ReactNode;
 
-  value: T;
-  onChange?: (value: T) => void;
+  value: string;
+  onChange?: (value: string) => void;
 
-  type?: React.HTMLInputTypeAttribute;
   name?: string;
   placeholder?: string;
+  rows?: number;
 
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
 
-  min?: number;
-  max?: number;
-  step?: number;
-
-  autoComplete?: string;
+  maxLength?: number;
   helperText?: string;
 }
 
-export const Input = <T extends string | number>({
+export const Textarea = ({
   id,
   label,
   value,
   onChange,
-  type = "text",
   name,
   placeholder,
+  rows,
   disabled = false,
   readOnly = false,
   required,
-  min,
-  max,
-  step,
-  autoComplete,
+  maxLength,
   helperText,
-}: InputProps<T>) => {
+}: TextareaProps) => {
   const isStringLabel = typeof label === "string";
 
   return (
@@ -51,20 +48,17 @@ export const Input = <T extends string | number>({
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </FieldLabel>
-      <InputField
+      <TextareaPrimitive
         id={id}
-        type={type}
         name={name}
-        value={String(value)}
-        onChange={(e) => onChange?.(e.target.value as T)}
+        value={value}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder ?? (isStringLabel ? (label as string) : undefined)}
+        rows={rows}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
-        min={min}
-        max={max}
-        step={step}
-        autoComplete={autoComplete}
+        maxLength={maxLength}
       />
       {helperText && (
         <FieldDescription>{helperText}</FieldDescription>

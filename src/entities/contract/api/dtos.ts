@@ -1,5 +1,7 @@
 import type { MeasurementField } from "@shared/model";
 
+import type { ContractAmountUnit } from "../model/types";
+
 export type ContractTableListResponse = {
   field: MeasurementField;
   companyName: string;
@@ -20,6 +22,7 @@ export type ContractRegisterRequest = {
   completionDate: string;           // 완수일자
 
   contractAmount: number;           // 계약금액
+  contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
   contractGuaranteeAmount: number;  // 계약보증금

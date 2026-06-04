@@ -1,22 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-import type { Company } from "@entities/company";
+import type { CompanyListResponse } from "@entities/company";
 import { companyApi } from "@entities/company";
 
 export const useCompanies = () => {
-  const [data, setData] = useState<Company[]>([]);
+  const [data, setData] = useState<CompanyListResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState(0);
+
+  const refetch = useCallback(() => {
+    setLoading(true);
+    setRevision((r) => r + 1);
+  }, []);
 
   useEffect(() => {
-    companyApi.getCompanies()
+    let cancelled = false;
+    companyApi.getCompanyList()
       .then((res) => {
+        if (cancelled) return;
         if (res.status) setData(res.data);
         else setError(res.message ?? '데이터를 불러오지 못했습니다.');
       })
-      .catch(() => setError('서버 연결에 실패했습니다.'))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [revision]);
 
-  return { data, loading, error };
+  return { data, loading, error, refetch };
 };

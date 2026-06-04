@@ -1,22 +1,18 @@
-export type CompanyTableListResponse = {
+export type CompanyListResponse = {
   id: number;
   name: string;            
   bizNumber: string;       
-  ceoName: string;   
-  address: string;            
-
-  manager: string;
-  email: string;        
-  tell: string;       
+  representative: string;   
+  address: string;
 }
 
 export type CompanyRegisterRequest = {
   name: string;
   bizNumber: string;
-  ceoName: string;
+  representative: string;
   address: string;
 
   manager: string;
   email: string;
-  tell: string;
+  tel: string;
 }

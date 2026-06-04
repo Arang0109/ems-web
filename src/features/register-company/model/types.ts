@@ -1,12 +1,12 @@
 export type CompanyRegisterForm = {
   name: string;
   bizNumber: string;
-  ceoName: string;
+  representative: string;
   address: string;
 
   manager: string;
   email: string;
-  tell: string;
+  tel: string;
 
   isBizNumberChecked: boolean;
 }
@@ -15,10 +15,10 @@ export const getDefaultCompanyRegisterForm = (): CompanyRegisterForm => ({
   name: "",
   bizNumber: "",
   address: "",
-  ceoName: "",
+  representative: "",
   manager: "",
   email: "",
-  tell: "",
+  tel: "",
 
   isBizNumberChecked: true,
 });

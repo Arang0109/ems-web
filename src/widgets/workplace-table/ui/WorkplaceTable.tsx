@@ -29,6 +29,7 @@ interface WorkplaceTableProps {
   error: string | null;
   selectedCompany: Company | null;
   onRowClick?: (workplace: Workplace) => void;
+  onSuccess?: () => void;
 }
 
 export const WorkplaceTable = ({
@@ -37,6 +38,7 @@ export const WorkplaceTable = ({
   error,
   selectedCompany,
   onRowClick,
+  onSuccess,
 }: WorkplaceTableProps) => {
   const [open, setOpen] = useState(false);
   const {
@@ -97,6 +99,7 @@ export const WorkplaceTable = ({
             company={selectedCompany}
             open={open}
             onOpenChange={setOpen}
+            onSuccess={onSuccess}
           />
         </div>
       </div>

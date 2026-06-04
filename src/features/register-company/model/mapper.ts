@@ -8,9 +8,9 @@ export const mapToDto = (
 ): CompanyRegisterRequest => ({
   name: trimValue(form.name),
   bizNumber: stripFormatting(form.bizNumber),
-  ceoName: trimValue(form.ceoName),
+  representative: trimValue(form.representative),
   address: trimValue(form.address),
   manager: trimValue(form.manager),
   email: trimValue(form.email),
-  tell: stripFormatting(form.tell),
+  tel: stripFormatting(form.tel),
 });

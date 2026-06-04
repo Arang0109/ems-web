@@ -5,21 +5,26 @@ import { useRegisterCompany } from "../model/use-register-company";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle } from "@shared/ui/form";
-import { formatBusinessNumber, formatPhoneNumber } from '@shared/lib/formatters';
+import { formatBusinessNumber, formatPhoneNumber, stripFormatting } from '@shared/lib/formatters';
 
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
 interface RegisterCompanyFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export const RegisterCompanyForm = ({
   open,
   onOpenChange,
+  onSuccess,
 }: RegisterCompanyFormProps) => {
   const { form, handleChange, onSubmit } = useRegisterCompany({
-    onSuccess: () => onOpenChange(false),
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
   });
 
   return (
@@ -49,15 +54,15 @@ export const RegisterCompanyForm = ({
             label="사업자등록번호"
             placeholder="사업자등록번호"
             value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", value)}
+            onChange={(value) => handleChange("bizNumber", stripFormatting(value).slice(0, 10))}
             startIcon={<Hash />}
           />
           <InputGroup
-            id="ceoName"
+            id="representative"
             label="대표자"
             placeholder="대표자"
-            value={form.ceoName}
-          onChange={(value) => handleChange("ceoName", value)}
+            value={form.representative}
+          onChange={(value) => handleChange("representative", value)}
             startIcon={<User2Icon />}
           />
         </div>
@@ -83,10 +88,10 @@ export const RegisterCompanyForm = ({
             startIcon={<User2Icon />}
           />
           <InputGroup
-            id="tell"
+            id="tel"
             placeholder="전화번호"
-            value={formatPhoneNumber(form.tell)}
-            onChange={(value) => handleChange("tell", value)}
+            value={formatPhoneNumber(form.tel)}
+            onChange={(value) => handleChange("tel", stripFormatting(value).slice(0, 11))}
             startIcon={<Phone />}
           />
           <InputGroup

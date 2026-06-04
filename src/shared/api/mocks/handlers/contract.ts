@@ -65,4 +65,13 @@ export const contractHandlers = [
       ],
     });
   }),
+  
+  http.post(`${BASE_URL}/contracts`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '계약서 등록 성공',
+      data: { id: Date.now(), ...body }
+    }, { status: 201 });
+  }),
 ];
