@@ -27,17 +27,16 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 |----------|------|
 | `badges/` | BadgeWithIcon 등 |
 | `borders/` | Divider 등 |
-| `buttons/` | Button 래퍼 |
+| `buttons/` | IconButton, DetailViewButton 등 버튼 컴포넌트 |
 | `cards/` | SummaryCard 등 |
 | `dialogs/` | FormDialog 등 |
 | `form/` | Input, Select, DatePicker, Checkbox 등 폼 요소 |
 | `links/` | Link |
 | `pagination/` | Pagination |
 | `semantics/` | PageTitle 등 시맨틱 요소 |
-| `table/` | TanStack Table 기반 공통 테이블 |
-| `table-ui/` | DetailViewButton 등 테이블 UI 요소 |
+| `table/` | TanStack Table 기반 공통 테이블 (BasicTable, TableEmptyState) |
 
-**비즈니스 로직 코드에서 반드시 `@/shared/ui/*`를 통해 사용할 것**
+**비즈니스 로직 코드에서 반드시 `@shared/ui/*`를 통해 사용할 것**
 (`@/components/ui/*` 직접 import 금지 — shadcn/ui 원본 컴포넌트 파일 내에서만 허용)
 
 ---

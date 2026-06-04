@@ -48,7 +48,7 @@ app → pages → widgets → features → entities → shared
 - 상위 레이어는 하위 레이어만 import 가능
 - 같은 레이어 간 직접 import 금지 (shared 제외)
 - `@/components/ui/*`는 shadcn/ui 원본 컴포넌트(`src/components/`)에서만 직접 참조 허용
-- 비즈니스 로직 코드(features, widgets 등)에서는 `@/shared/ui/*`를 통해 사용
+- 비즈니스 로직 코드(features, widgets 등)에서는 `@shared/ui/*`를 통해 사용
 
 ---
 
@@ -134,5 +134,5 @@ shared/model/common-types (상수 + 타입 + 레이블맵)
 | `entities/company/model/company-form.ts` | Form 타입이 entity에 혼재 | `features/register-company/model/`로 이동 |
 | `entities/company/model/company-mapper.ts` | mapper가 `model/`에 위치 | `api/company-mapper.ts`로 이동 |
 | `entities/company/model/company-types.ts` | `WorkplaceTableCols` (UI 표현 타입) 포함 | `widgets/company-table/model/`로 분리 |
-| `features/sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `features/register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field`, `separator` 직접 import | `@/shared/ui/`를 통해 사용 |
+| `features/sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@shared/ui/buttons`를 통해 사용 |
+| `features/register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field`, `separator` 직접 import | `@shared/ui/`를 통해 사용 |

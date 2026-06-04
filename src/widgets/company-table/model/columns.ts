@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { CustomCell } from "../ui/Cells";
+import { CustomCell, ActionCell } from "../ui/Cells";
 import type { CompanyTableRow } from "./types";
 
 const columnHelper = createColumnHelper<CompanyTableRow>();
@@ -22,5 +22,9 @@ export const defaultColumns = [
     header: '사업자등록번호',
     cell: CustomCell,
     enableSorting: false,
+  }),
+  columnHelper.display({
+    id: 'actions',
+    cell: ActionCell,
   }),
 ];

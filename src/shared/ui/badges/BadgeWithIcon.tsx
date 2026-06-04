@@ -8,12 +8,8 @@ type BadgeProps = {
   label: string,
 }
 
-export const BadgeWithIcon = ({ variant, icon, label }: BadgeProps) => {
-  return (
-    <div className="flex flex-wrap gap-2">
-      <BadgePrimitive variant={variant}>
-        {icon} {label}
-      </BadgePrimitive>
-    </div>
-  );
-};
+export const BadgeWithIcon = ({ variant, icon, label }: BadgeProps) => (
+  <BadgePrimitive variant={variant}>
+    {icon} {label}
+  </BadgePrimitive>
+);

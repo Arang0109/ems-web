@@ -2,7 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 
 import type { WorkplaceTableRow } from './types';
 
-import { CustomCell } from '../ui/Cells';
+import { CustomCell, ActionCell } from '../ui/Cells';
 
 const columnHelper = createColumnHelper<WorkplaceTableRow>();
 
@@ -21,4 +21,8 @@ export const defaultColumns = [
     cell: CustomCell,
     enableSorting: false,
   }),
+    columnHelper.display({
+      id: 'actions',
+      cell: ActionCell,
+    }),
 ];
