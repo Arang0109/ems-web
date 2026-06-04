@@ -12,13 +12,13 @@ import {
 interface SearchProps {
   filter: string;
   setFilter: Dispatch<SetStateAction<string>>;
-  placeholer?: string;
+  placeholder?: string;
 }
 
 export const Search = ({
   filter,
   setFilter,
-  placeholer = "...",
+  placeholder = "...",
 }: SearchProps) => {
   return (
     <Field className="max-w-sm">
@@ -27,7 +27,7 @@ export const Search = ({
           id="inline-start-input"
           value={filter}
           onChange={(e) => setFilter(String(e.target.value))}
-          placeholder={placeholer} />
+          placeholder={placeholder} />
         <InputGroupAddon align="inline-start">
           <SearchIcon className="text-muted-foreground" />
         </InputGroupAddon>

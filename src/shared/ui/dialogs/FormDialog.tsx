@@ -17,7 +17,7 @@ interface DialogProps {
   children: React.ReactNode;
   submitLabel?: string;
   cancelLabel?: string;
-  onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
