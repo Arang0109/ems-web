@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 
 import type { Company } from '@entities/company';
 import { workplaceApi } from '@entities/workplace';
@@ -10,17 +10,11 @@ export const useSelectCompany = (onCompanyChange?: () => void) => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [workplaceData, setWorkplaceData] = useState<WorkplaceTableListResponse[]>([]);
 
-  const handleSelectCompanyRow = (company: Company) => {
-    setSelectedCompany(company);
-    onCompanyChange?.();
-  };
-
-  const fetchWorkplaces = useCallback(async (companyId: number) => {
+  const fetchWorkplaces = async (companyId: number) => {
+    setIsLoading(true);
+    setError(null);
+    setWorkplaceData([]);
     try {
-      setIsLoading(true);
-      setError(null);
-      setWorkplaceData([]);
-
       const res = await workplaceApi.getWorkplacesByCompany(companyId);
       setWorkplaceData(res.data);
     } catch {
@@ -28,24 +22,24 @@ export const useSelectCompany = (onCompanyChange?: () => void) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (!selectedCompany?.id) return;
-    fetchWorkplaces(selectedCompany.id);
-  }, [selectedCompany?.id, fetchWorkplaces]);
+  const handleSelectCompanyRow = (company: Company) => {
+    setSelectedCompany(company);
+    onCompanyChange?.();
+    fetchWorkplaces(company.id);
+  };
 
-  const refetchWorkplaces = useCallback(() => {
+  const refetchWorkplaces = () => {
     if (selectedCompany?.id) fetchWorkplaces(selectedCompany.id);
-  }, [selectedCompany?.id, fetchWorkplaces]);
+  };
 
   return {
     selectedCompany,
     workplaceData,
-
-    isLoading, error,
-
+    isLoading,
+    error,
     handleSelectCompanyRow,
     refetchWorkplaces,
-  }
-}
+  };
+};

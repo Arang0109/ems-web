@@ -4,6 +4,10 @@ export type CompanyListResponse = {
   bizNumber: string;       
   representative: string;   
   address: string;
+
+  manager: string;
+  email: string;
+  tel: string;
 }
 
 export type CompanyRegisterRequest = {

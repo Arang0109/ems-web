@@ -65,7 +65,7 @@ export const companyHandlers = [
       status: true,
       message: '측정대행 의뢰기관 목록 조회 성공',
       data: [
-        { id: 1,  name: '(주)한국환경기술', representative: '가나다',  address: '서울특별시 강남구 테헤란로 123',          bizNumber: '238-32482-34' },
+        { id: 1,  name: '(주)한국환경기술', representative: '가나다',  address: '서울특별시 강남구 테헤란로 123',          bizNumber: '238-32482-34', manager: '김환경', email: 'kim.huan@koreaenvironment.com' , tel: '02-1234-5678' },
         { id: 2,  name: '대성산업(주)',      representative: '박철호',  address: '경기도 수원시 영통구 월드컵로 206',        bizNumber: '401-29384-55' },
         { id: 3,  name: '동아화학공업',      representative: '정성훈',  address: '부산광역시 사하구 하신중앙로 99',          bizNumber: '611-47832-43' },
         { id: 4,  name: '(주)그린에너지',    representative: '임수진',  address: '대전광역시 유성구 대덕대로 512',           bizNumber: '803-72918-54' },

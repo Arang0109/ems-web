@@ -22,9 +22,10 @@ import { Pagination } from '@shared/ui/pagination';
 
 interface CompanyTableProps {
   onRowClick?: (company: Company) => void;
+  selectedCompany: Company | null;
 }
 
-export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
+export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps) => {
   const [open, setOpen] = useState(false);
   const {
     sorting, setSorting,
@@ -35,6 +36,8 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     () => data?.map(toCompanyRows),
     [data]
   );
+
+  console.log('company render', selectedCompany);
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -60,9 +63,9 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           representative: row.representative,
           address: row.address,
           bizNumber: row.bizNumber,
-          manager: "",
-          email: "",
-          tel: "",
+          manager: row.manager,
+          email: row.email,
+          tel: row.tel,
         });
       }
     : undefined;
@@ -83,7 +86,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
       </div>
 
       <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'의뢰기관, 주소 검색 ...'} />
+        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
       </div>
 
       <div className="p-5 flex-1 flex flex-col">

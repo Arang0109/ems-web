@@ -9,4 +9,8 @@ export const toCompanyRows = (col: CompanyListResponse): CompanyTableRow => ({
   representative: col.representative,
   address: col.address,
   bizNumber: formatBusinessNumber(col.bizNumber),
+
+  manager: col.manager,
+  email: col.email,
+  tel: col.tel,
 });
