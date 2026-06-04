@@ -11,11 +11,12 @@ import {
 } from "@/components/ui/dialog"
 
 interface DialogProps {
-  triggerLabel: string;
+  triggerLabel?: string;
   title?: string;
   description?: string;
   children: React.ReactNode;
   submitLabel?: string;
+  deleteLabel?: string;
   cancelLabel?: string;
   onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
   open?: boolean;
@@ -29,6 +30,7 @@ export function FormDialog({
   description,
   children,
   submitLabel='제출',
+  deleteLabel='삭제',
   cancelLabel='닫기',
   onSubmit,
   open,
@@ -48,8 +50,11 @@ export function FormDialog({
           </DialogHeader>
           {children}
           <DialogFooter className="mt-5">
+            {deleteLabel && (
+              <Button variant="destructive">{deleteLabel}</Button>
+            )}
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            <Button type="submit">{submitLabel}</Button>
+            {submitLabel && <Button type="submit">{submitLabel}</Button>}
           </DialogFooter>
         </form>
       </DialogContent>

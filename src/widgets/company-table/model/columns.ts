@@ -1,7 +1,15 @@
 import { createColumnHelper } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 
 import { CustomCell, ActionCell } from "../ui/Cells";
 import type { CompanyTableRow } from "./types";
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    onViewDetail?: (row: CompanyTableRow) => void;
+  }
+}
 
 const columnHelper = createColumnHelper<CompanyTableRow>();
 

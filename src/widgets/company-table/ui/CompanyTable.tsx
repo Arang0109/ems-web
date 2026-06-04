@@ -17,8 +17,10 @@ import { toCompanyRows } from '../model/mapper';
 import type { CompanyTableRow } from '../model/types';
 
 import { BasicTable } from '@shared/ui/table';
-import { Search } from '@/shared/ui/form';
+import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
+
+import { CompanyDetailForm } from './CompanyDetailForm';
 
 interface CompanyTableProps {
   onRowClick?: (company: Company) => void;
@@ -27,6 +29,9 @@ interface CompanyTableProps {
 
 export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps) => {
   const [open, setOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailCompany, setDetailCompany] = useState<CompanyTableRow | null>(null);
+
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
@@ -38,6 +43,11 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
   );
 
   console.log('company render', selectedCompany);
+
+  const handleViewDetail = (row: CompanyTableRow) => {
+    setDetailCompany(row);
+    setDetailOpen(true);
+  };
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -53,6 +63,8 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+
+    meta: { onViewDetail: handleViewDetail },
   });
 
   const handleRowClick = onRowClick
@@ -109,6 +121,12 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
           />
         </div>
       )}
+
+      <CompanyDetailForm
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        company={detailCompany}
+      />
     </div>
   );
 }
