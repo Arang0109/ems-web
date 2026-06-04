@@ -28,10 +28,11 @@ interface StackTableProps {
   loading: boolean;
   error: string | null;
   selectedWorkplace: Workplace | null;
+  onSuccess?: () => void;
 }
 
 export const StackTable = ({
-  data, loading, error, selectedWorkplace
+  data, loading, error, selectedWorkplace, onSuccess
 }: StackTableProps) => {
   const [open, setOpen] = useState(false);
   const {
@@ -81,6 +82,7 @@ export const StackTable = ({
             workplace={selectedWorkplace}
             open={open}
             onOpenChange={setOpen}
+            onSuccess={onSuccess}
           />
         </div>
       </div>

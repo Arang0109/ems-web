@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 const BASE_URL = 'http://localhost:8080/api';
 
 export const authHandlers = [
-  http.post(`${BASE_URL}/auth/login`, async ({ request }) => {
+  http.post(`${BASE_URL}/auth/sign-in`, async ({ request }) => {
     const body = await request.json() as { username: string; password: string };
 
     if (body.username === 'admin' && body.password === '1234') {
@@ -27,7 +27,7 @@ export const authHandlers = [
     );
   }),
 
-  http.post(`${BASE_URL}/auth/logout`, () => {
+  http.post(`${BASE_URL}/auth/sign-out`, () => {
     return HttpResponse.json({
       status: true,
       message: '로그아웃 성공',

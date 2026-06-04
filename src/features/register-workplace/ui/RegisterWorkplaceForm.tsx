@@ -12,16 +12,21 @@ interface RegisterWorkplaceFormProps {
   company: Company | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export const RegisterWorkplaceForm = ({
   company,
   open,
   onOpenChange,
+  onSuccess,
 }: RegisterWorkplaceFormProps) => {
   const { form, handleChange, onSubmit } = useRegisterWorkplace({
     company,
-    onSuccess: () => onOpenChange(false),
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
   });
 
   return (
@@ -59,7 +64,7 @@ export const RegisterWorkplaceForm = ({
             id="companyCeo"
             label="대표자"
             placeholder="대표자"
-            value={company?.ceoName ?? ''}
+            value={company?.representative ?? ''}
             startIcon={<User2 />}
             disabled
             readOnly

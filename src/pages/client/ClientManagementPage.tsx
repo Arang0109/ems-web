@@ -14,7 +14,8 @@ export const ClientManagementPage = () => {
     selectedWorkplace,
     stackData,
     isLoading: isWorkplaceLoading,
-    error: workplaceError
+    error: workplaceError,
+    refetchStacks,
   } = useSelectWorkplace();
 
   const {
@@ -22,7 +23,8 @@ export const ClientManagementPage = () => {
     selectedCompany,
     workplaceData,
     isLoading: isCompanyLoading,
-    error: companyError
+    error: companyError,
+    refetchWorkplaces,
   } = useSelectCompany(clearWorkplaceSelection);
 
   return (
@@ -33,10 +35,12 @@ export const ClientManagementPage = () => {
         <CompanyTable onRowClick={handleSelectCompanyRow} />
         <WorkplaceTable
           onRowClick={handleSelectWorkplaceRow}
-          data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany} />
+          data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany}
+          onSuccess={refetchWorkplaces} />
       </div>
       <div className="grid grid-cols-1">
-        <StackTable data={stackData} loading={isWorkplaceLoading} error={workplaceError} selectedWorkplace={selectedWorkplace} />
+        <StackTable data={stackData} loading={isWorkplaceLoading} error={workplaceError} selectedWorkplace={selectedWorkplace}
+          onSuccess={refetchStacks} />
       </div>
     </div>
   );

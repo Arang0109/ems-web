@@ -30,7 +30,7 @@ export type StackRegisterForm = {
 export const getDefaultStackRegisterForm = (workplace?: Workplace | null): StackRegisterForm => ({
   workplaceId: workplace?.id ?? 0,
   wokrplaceName: workplace?.name ?? "",
-  field: "air",
+  field: "AIR",
   stackName: "",
   semsNumber: "",
   grade: "TYPE_1",

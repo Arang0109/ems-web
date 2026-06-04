@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   getCoreRowModel,
   useReactTable,
@@ -13,6 +13,8 @@ import type { Company } from '@entities/company';
 import { RegisterCompanyForm } from '@features/register-company'
 
 import { defaultColumns } from '../model/columns';
+import { toCompanyRows } from '../model/mapper';
+import type { CompanyTableRow } from '../model/types';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@/shared/ui/form';
@@ -28,11 +30,15 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
-  const { data, loading, error } = useCompanies();
+  const { data, loading, error, refetch } = useCompanies();
+  const tableData = useMemo(
+    () => data?.map(toCompanyRows),
+    [data]
+  );
 
   const table = useReactTable({
     columns: defaultColumns,
-    data,
+    data: tableData,
 
     state: { sorting, globalFilter, pagination },
 
@@ -46,6 +52,21 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const handleRowClick = onRowClick
+    ? (row: CompanyTableRow) => {
+        onRowClick({
+          id: row.id,
+          name: row.name,
+          representative: row.representative,
+          address: row.address,
+          bizNumber: row.bizNumber,
+          manager: "",
+          email: "",
+          tel: "",
+        });
+      }
+    : undefined;
+
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
       <div className="px-5 pt-5 pb-4 border-b border-gray-100">
@@ -56,6 +77,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
           <RegisterCompanyForm
             open={open}
             onOpenChange={setOpen}
+            onSuccess={refetch}
           />
         </div>
       </div>
@@ -65,8 +87,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
       </div>
 
       <div className="p-5 flex-1 flex flex-col">
-        {/* 테이블 */}
-        <BasicTable table={table} error={error} onRowClick={onRowClick} />
+        <BasicTable table={table} error={error} onRowClick={handleRowClick} />
       </div>
 
       {!loading && !error && (

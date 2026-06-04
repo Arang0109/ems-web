@@ -2,7 +2,7 @@ export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
 export const GRADE = ['TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4', 'TYPE_5'] as const;
 export const ORIENTATION = ['VERTICAL', 'HORIZONTAL'] as const;
 export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
-export const MEASUREMENT_FIELD = ['air', 'water', 'noiseVibration', 'odor'] as const;
+export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
 
 export type ContractStatus = typeof CONTRACT_STATUS[number];
 export type Grade = typeof GRADE[number];
@@ -35,8 +35,8 @@ export const SHAPE_LABEL: Record<Shape, string> = {
 };
 
 export const MEASUREMENT_FIELD_LABEL: Record<MeasurementField, string> = {
-  air: '대기',
-  water: '수질',
-  noiseVibration: '소음진동',
-  odor: '악취',
+  AIR: '대기',
+  WATER: '수질',
+  NOISE_VIBRATION: '소음진동',
+  ODOR: '악취',
 };

@@ -1,16 +1,16 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
 import { CustomCell } from "../ui/Cells";
-import type { Company } from "@entities/company";
+import type { CompanyTableRow } from "./types";
 
-const columnHelper = createColumnHelper<Company>();
+const columnHelper = createColumnHelper<CompanyTableRow>();
 
 export const defaultColumns = [
   columnHelper.accessor('name', {
     header: '측정대행 의뢰기관',
     cell: CustomCell,
   }),
-  columnHelper.accessor('ceoName', {
+  columnHelper.accessor('representative', {
     header: '대표자명',
     cell: CustomCell,
   }),

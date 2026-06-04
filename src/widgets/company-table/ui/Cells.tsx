@@ -1,7 +1,7 @@
 import type { CellContext } from "@tanstack/react-table";
 
-import type { Company } from "@entities/company";
+import type { CompanyTableRow } from "../model/types";
 
-export const CustomCell = ({ getValue }: CellContext<Company, string>) => (
+export const CustomCell = ({ getValue }: CellContext<CompanyTableRow, string>) => (
   <span className="font-medium text-gray-800">{getValue()}</span>
-)
+);

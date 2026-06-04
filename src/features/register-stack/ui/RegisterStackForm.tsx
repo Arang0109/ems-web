@@ -17,17 +17,22 @@ interface RegisterStackFormProps {
   workplace: Workplace | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export const RegisterStackForm = ({
   workplace,
   open,
-  onOpenChange
+  onOpenChange,
+  onSuccess,
 }: RegisterStackFormProps) => {
 
   const { form, handleChange, onSubmit } = useRegisterStack({
     workplace,
-    onSuccess: () => onOpenChange(false),
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
   });
 
   return(
