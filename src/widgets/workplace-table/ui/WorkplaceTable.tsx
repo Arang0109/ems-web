@@ -22,6 +22,7 @@ import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 
 import { Building2 } from 'lucide-react';
+import { WorkplaceDetailForm } from './WorkplaceDetailForm';
 
 interface WorkplaceTableProps {
   data: WorkplaceTableListResponse[];
@@ -41,6 +42,8 @@ export const WorkplaceTable = ({
   onSuccess,
 }: WorkplaceTableProps) => {
   const [open, setOpen] = useState(false);
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
@@ -49,6 +52,13 @@ export const WorkplaceTable = ({
     () => data.map(toWorkplaceRows),
     [data]
   );
+  
+    const handleViewDetail = (row: WorkplaceTableRow) => {
+      setDetailWorkplace(row);
+      setDetailOpen(true);
+    };
+
+    const handleEdit = () => { /* TODO: workplace update API */ };
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -63,6 +73,7 @@ export const WorkplaceTable = ({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    meta: { onViewWorkplaceDetail: handleViewDetail },
   });
 
   const handleRowClick = onRowClick
@@ -136,6 +147,13 @@ export const WorkplaceTable = ({
           />
         </div>
       )}
+
+      <WorkplaceDetailForm
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        workplace={detailWorkplace}
+        onEdit={handleEdit}
+      />
     </div>
   );
 };

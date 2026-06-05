@@ -24,10 +24,9 @@ import { CompanyDetailForm } from './CompanyDetailForm';
 
 interface CompanyTableProps {
   onRowClick?: (company: Company) => void;
-  selectedCompany: Company | null;
 }
 
-export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps) => {
+export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailCompany, setDetailCompany] = useState<CompanyTableRow | null>(null);
@@ -42,12 +41,13 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
     [data]
   );
 
-  console.log('company render', selectedCompany);
-
   const handleViewDetail = (row: CompanyTableRow) => {
     setDetailCompany(row);
     setDetailOpen(true);
   };
+
+  const handleEdit = () => { /* TODO: company update API */ };
+  const handleDelete = () => { /* TODO: company delete API */ };
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -64,7 +64,7 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
 
-    meta: { onViewDetail: handleViewDetail },
+    meta: { onViewCompanyDetail: handleViewDetail },
   });
 
   const handleRowClick = onRowClick
@@ -126,6 +126,8 @@ export const CompanyTable = ({ onRowClick, selectedCompany }: CompanyTableProps)
         open={detailOpen}
         onOpenChange={setDetailOpen}
         company={detailCompany}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
     </div>
   );

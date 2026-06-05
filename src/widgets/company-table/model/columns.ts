@@ -7,7 +7,7 @@ import type { CompanyTableRow } from "./types";
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData extends RowData> {
-    onViewDetail?: (row: CompanyTableRow) => void;
+    onViewCompanyDetail?: (row: CompanyTableRow) => void;
   }
 }
 

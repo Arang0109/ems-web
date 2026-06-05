@@ -5,9 +5,9 @@ import { stackHandlers } from './stack';
 import { contractHandlers } from './contract';
 
 export const handlers = [
-  ...authHandlers,
+  // ...authHandlers,
   ...dashboardHandlers,
-  ...companyHandlers,
-  ...stackHandlers,
+  // ...companyHandlers,
+  // ...stackHandlers,
   ...contractHandlers,
 ];

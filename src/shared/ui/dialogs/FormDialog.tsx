@@ -19,6 +19,7 @@ interface DialogProps {
   deleteLabel?: string;
   cancelLabel?: string;
   onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  onDelete?: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
@@ -30,9 +31,10 @@ export function FormDialog({
   description,
   children,
   submitLabel='제출',
-  deleteLabel='삭제',
+  deleteLabel,
   cancelLabel='닫기',
   onSubmit,
+  onDelete,
   open,
   onOpenChange,
   disabled,
@@ -51,7 +53,7 @@ export function FormDialog({
           {children}
           <DialogFooter className="mt-5">
             {deleteLabel && (
-              <Button variant="destructive">{deleteLabel}</Button>
+              <Button variant="destructive" onClick={onDelete}>{deleteLabel}</Button>
             )}
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
             {submitLabel && <Button type="submit">{submitLabel}</Button>}

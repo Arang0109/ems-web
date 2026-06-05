@@ -13,15 +13,20 @@ interface CompanyDetailFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   company: CompanyTableRow | null;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export const CompanyDetailForm = ({ open, onOpenChange, company }: CompanyDetailFormProps) => (
+export const CompanyDetailForm = ({ open, onOpenChange, company, onEdit, onDelete }: CompanyDetailFormProps) => (
   <FormDialog
     title='의뢰기관 상세'
     open={open}
     onOpenChange={onOpenChange}
+    deleteLabel='삭제'
     cancelLabel='닫기'
     submitLabel='수정'
+    onSubmit={onEdit}
+    onDelete={onDelete}
   >
     <FieldGroup>
       {/* 기관 정보 */}

@@ -12,6 +12,6 @@ export const ActionCell = ({ row, table }: CellContext<CompanyTableRow, unknown>
   <IconButton
     icon={<FileSearchCorner />}
     label="View Details"
-    onClick={() => table.options.meta?.onViewDetail?.(row.original)}
+    onClick={() => table.options.meta?.onViewCompanyDetail?.(row.original)}
   />
 );
