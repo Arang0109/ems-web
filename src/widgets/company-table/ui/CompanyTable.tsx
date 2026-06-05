@@ -7,14 +7,14 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 import { useTableState } from '@shared/hooks';
-import { useCompanies } from '@entities/company';
+import { useCompanies, useCompanyAction } from '@entities/company';
 import type { Company } from '@entities/company';
 
 import { RegisterCompanyForm } from '@features/register-company'
 
 import { defaultColumns } from '../model/columns';
-import { toCompanyRows } from '../model/mapper';
-import type { CompanyTableRow } from '../model/types';
+import { toCompanyRows, toCompanyUpdateRequest } from '../model/mapper';
+import type { CompanyTableRow, CompanyDetailFormData } from '../model/types';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
@@ -36,6 +36,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
   const { data, loading, error, refetch } = useCompanies();
+  const { handleEdit: editCompany, handleDelete: deleteCompany } = useCompanyAction({ onSuccess: refetch });
   const tableData = useMemo(
     () => data?.map(toCompanyRows),
     [data]
@@ -46,8 +47,17 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
     setDetailOpen(true);
   };
 
-  const handleEdit = () => { /* TODO: company update API */ };
-  const handleDelete = () => { /* TODO: company delete API */ };
+  const handleEdit = (data: CompanyDetailFormData) => {
+    if (!detailCompany) return;
+    editCompany(detailCompany.id, toCompanyUpdateRequest(data));
+    setDetailOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (!detailCompany) return;
+    deleteCompany(detailCompany.id);
+    setDetailOpen(false);
+  };
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -123,6 +133,7 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
       )}
 
       <CompanyDetailForm
+        key={detailCompany?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         company={detailCompany}

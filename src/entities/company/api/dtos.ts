@@ -20,3 +20,14 @@ export type CompanyRegisterRequest = {
   email: string;
   tel: string;
 }
+
+export type CompanyUpdateRequest = {
+  name: string;
+  bizNumber: string;
+  representative: string;
+  address: string;
+
+  manager: string;
+  email: string;
+  tel: string;
+}

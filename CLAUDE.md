@@ -55,6 +55,37 @@ npx tsc --noEmit  # 타입 체크
 
 ---
 
+## React 패턴 규칙
+
+### prop → state 동기화 — `useEffect` 금지
+
+외부 prop을 내부 state의 초기값으로 사용할 때 `useEffect` + `setState` 조합을 쓰지 말 것.
+Effect 내부의 동기적 `setState`는 cascading render를 유발한다.
+
+**금지 패턴**
+```tsx
+// ❌ useEffect로 prop을 state에 동기화
+useEffect(() => {
+  setForm({ name: company.name, ... });
+}, [company]);
+```
+
+**올바른 패턴 — `key` + 초기값**
+```tsx
+// ✅ 부모에서 key를 변경하면 컴포넌트가 리마운트되어 초기값이 재적용됨
+<DetailForm key={selectedItem?.id} item={selectedItem} />
+
+// 자식 컴포넌트에서는 prop을 useState 초기값으로만 사용
+const [form, setForm] = useState({
+  name: item?.name ?? '',
+});
+```
+
+`key`가 바뀌면 React는 컴포넌트를 언마운트 후 다시 마운트하므로 `useState` 초기값이 새로 적용된다.
+이 방식은 "외부 데이터를 편집하는 폼"(상세 모달, 수정 다이얼로그 등) 패턴에 항상 적용한다.
+
+---
+
 ## 레이어별 세부 규칙
 
 각 레이어 디렉토리 하위 `CLAUDE.md`에 세부 지침이 있습니다.

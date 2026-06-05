@@ -9,5 +9,6 @@ export { Select } from "./Select";
 export { DatePicker } from "./DatePicker";
 
 export { SectionTitle } from "./SectionTitle";
+export { FieldGroup } from "./FieldGroup";
 export type { RadioOption } from "./HorizontalRadioGroup";
 export type { SelectOption, SelectGroupOption } from "./Select";
