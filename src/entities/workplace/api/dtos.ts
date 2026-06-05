@@ -14,6 +14,12 @@ export type WorkplaceRegisterRequest = {
   address: string,
 }
 
+export type WorkplaceUpdateRequest = {
+  name: string,
+  bizNumber: string,
+  address: string,
+}
+
 export type ContractOverview = {
   recentContractCount: number;
   totalContractCount: number;

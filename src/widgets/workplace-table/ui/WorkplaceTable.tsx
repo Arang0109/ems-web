@@ -10,12 +10,13 @@ import {
 
 import type { Company } from '@entities/company';
 import type { Workplace, WorkplaceTableListResponse } from '@entities/workplace';
+import { useWorkplaceAction } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
 
 import { defaultColumns } from '../model/columns';
-import { toWorkplaceRows } from '../model/mapper';
-import type { WorkplaceTableRow } from '../model/types';
+import { toWorkplaceRows, toWorkplaceUpdateRequest } from '../model/mapper';
+import type { WorkplaceDetailFormData, WorkplaceTableRow } from '../model/types';
 
 import { useTableState } from '@shared/hooks';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
@@ -42,23 +43,37 @@ export const WorkplaceTable = ({
   onSuccess,
 }: WorkplaceTableProps) => {
   const [open, setOpen] = useState(false);
-    const [detailOpen, setDetailOpen] = useState(false);
-    const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
+
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 4 });
+
+  const { handleEdit: editWorkplace, handleDelete: deleteWorkplace } = useWorkplaceAction({ onSuccess });
+
   const tableData = useMemo(
     () => data.map(toWorkplaceRows),
     [data]
   );
   
-    const handleViewDetail = (row: WorkplaceTableRow) => {
-      setDetailWorkplace(row);
-      setDetailOpen(true);
-    };
+  const handleViewDetail = (row: WorkplaceTableRow) => {
+    setDetailWorkplace(row);
+    setDetailOpen(true);
+  };
 
-    const handleEdit = () => { /* TODO: workplace update API */ };
+  const handleEdit = (data: WorkplaceDetailFormData) => {
+    if (!detailWorkplace) return;
+    editWorkplace(detailWorkplace.id, toWorkplaceUpdateRequest(data));
+    setDetailOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (!detailWorkplace) return;
+    deleteWorkplace(detailWorkplace.id);
+    setDetailOpen(false);
+  };
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -153,6 +168,7 @@ export const WorkplaceTable = ({
         onOpenChange={setDetailOpen}
         workplace={detailWorkplace}
         onEdit={handleEdit}
+        onDelete={handleDelete}
       />
     </div>
   );

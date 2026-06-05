@@ -6,3 +6,9 @@ export type WorkplaceTableRow = {
   address: string;
   bizNumber: string;
 };
+
+export type WorkplaceDetailFormData = {
+  name: string;
+  address: string;
+  bizNumber: string;
+};

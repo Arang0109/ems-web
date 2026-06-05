@@ -41,7 +41,9 @@ export function FormDialog({
 }: DialogProps) {
   return (
     <DialogPrimitive open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+      {triggerLabel && (
+        <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+      )}
       <DialogContent className="sm:max-w-150">
         <form onSubmit={onSubmit}>
           <DialogHeader className="mb-5">

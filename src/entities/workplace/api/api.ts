@@ -1,7 +1,7 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 import type { Workplace } from '../model/types';
-import type { WorkplaceTableListResponse, ContractOverview, WorkplaceRegisterRequest } from './dtos';
+import type { WorkplaceTableListResponse, ContractOverview, WorkplaceRegisterRequest, WorkplaceUpdateRequest } from './dtos';
 
 export const workplaceApi = {
   getWorkplaces: async (): Promise<ApiResponseMessage<Workplace[]>> => {
@@ -21,6 +21,16 @@ export const workplaceApi = {
 
   registerWorkplace: async (data: WorkplaceRegisterRequest): Promise<ApiResponseMessage<Workplace>> => {
     const res = await axiosPrivate.post('/workplaces', data);
+    return res.data;
+  },
+
+  deleteWorkplace: async (id: number): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.delete(`/workplaces/${id}`);
+    return res.data;
+  },
+
+  updateWorkplace: async (id: number, data: WorkplaceUpdateRequest): Promise<ApiResponseMessage<Workplace>> => {
+    const res = await axiosPrivate.put(`/workplaces/${id}`, data);
     return res.data;
   },
 }
