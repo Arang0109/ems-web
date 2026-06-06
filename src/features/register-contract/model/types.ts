@@ -1,6 +1,9 @@
 import type { ContractAmountUnit } from "@entities/contract";
 
 export type ContractRegisterForm = {
+  workplaceId: string;           // 측정대상 사업장
+  workplaceName: string;         // 사업장명 (선택된 사업장에 따라 자동 입력)
+  workplaceAddress: string;      // 사업장 소재지 (선택된 사업장에 따라 자동 입력)
   contractName: string;              // 용역명
 
   contractDate: Date;             // 계약일자
@@ -21,6 +24,9 @@ export type ContractRegisterForm = {
 }
 
 export const getDefaultContractForm = (): ContractRegisterForm => ({
+  workplaceId: "",
+  workplaceName: "",
+  workplaceAddress: "",
   contractName: "",
 
   contractDate: new Date(),
@@ -28,8 +34,8 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   completionDate: new Date(),
 
   contractAmount: 0,
-  contractAmountUnit: 'month',
-  vatIncluded: true,
+  contractAmountUnit: 'total',
+  vatIncluded: false,
 
   contractGuaranteeAmount: 0,
   advancePaymentAmount: 0,

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 
-import type { CompanyListResponse } from "../api/dtos";
-import { companyApi } from "../api/api";
+import type { WorkplaceListResponse } from "../api/dtos";
+import { workplaceApi } from "../api/api";
 
-export const useCompanies = () => {
-  const [data, setData] = useState<CompanyListResponse[]>([]);
+export const useWorkplaces = () => {
+  const [data, setData] = useState<WorkplaceListResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
@@ -16,7 +16,7 @@ export const useCompanies = () => {
 
   useEffect(() => {
     let cancelled = false;
-    companyApi.getCompanyList()
+    workplaceApi.getWorkplaces(null)
       .then((res) => {
         if (cancelled) return;
         if (res.status) setData(res.data);
@@ -27,5 +27,16 @@ export const useCompanies = () => {
     return () => { cancelled = true; };
   }, [revision]);
 
-  return { data, loading, error, refetch };
-};
+  const workplaceOptions = data.map(wp => ({
+    value: String(wp.id),
+    label: `${wp.workplaceName}`,
+  }));
+
+  return {
+    data,
+    loading,
+    error,
+    workplaceOptions,
+    refetch,
+  }
+}

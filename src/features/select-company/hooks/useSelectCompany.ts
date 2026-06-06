@@ -2,20 +2,20 @@ import { useState } from 'react';
 
 import type { Company } from '@entities/company';
 import { workplaceApi } from '@entities/workplace';
-import type { WorkplaceTableListResponse } from '@entities/workplace';
+import type { WorkplaceListResponse } from '@entities/workplace';
 
 export const useSelectCompany = (onCompanyChange?: () => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [workplaceData, setWorkplaceData] = useState<WorkplaceTableListResponse[]>([]);
+  const [workplaceData, setWorkplaceData] = useState<WorkplaceListResponse[]>([]);
 
   const fetchWorkplaces = async (companyId: number) => {
     setIsLoading(true);
     setError(null);
     setWorkplaceData([]);
     try {
-      const res = await workplaceApi.getWorkplacesByCompany(companyId);
+      const res = await workplaceApi.getWorkplaces(companyId);
       setWorkplaceData(res.data);
     } catch {
       setError('데이터를 불러오는 데 실패했습니다.');

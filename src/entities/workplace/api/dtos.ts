@@ -1,4 +1,4 @@
-export type WorkplaceTableListResponse = {
+export type WorkplaceListResponse = {
   id: number;
   companyId: number;
   companyName: string;

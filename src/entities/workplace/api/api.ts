@@ -1,16 +1,13 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 import type { Workplace } from '../model/types';
-import type { WorkplaceTableListResponse, ContractOverview, WorkplaceRegisterRequest, WorkplaceUpdateRequest } from './dtos';
+import type { WorkplaceListResponse, ContractOverview, WorkplaceRegisterRequest, WorkplaceUpdateRequest } from './dtos';
 
 export const workplaceApi = {
-  getWorkplaces: async (): Promise<ApiResponseMessage<Workplace[]>> => {
-    const res = await axiosPrivate.get('/workplaces');
-    return res.data;
-  },
+  getWorkplaces: async (companyId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {
+    const params = companyId != null ? { companyId } : {};
 
-  getWorkplacesByCompany: async (companyId: number): Promise<ApiResponseMessage<WorkplaceTableListResponse[]>> => {
-    const res = await axiosPrivate.get(`/workplaces?companyId=${companyId}`);
+    const res = await axiosPrivate.get('/workplaces', { params });
     return res.data;
   },
 

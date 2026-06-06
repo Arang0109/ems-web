@@ -15,6 +15,7 @@ export type ContractTableListResponse = {
 }
 
 export type ContractRegisterRequest = {
+  workplaceId: string;               // 사업장 ID
   contractName: string;              // 용역명
 
   contractDate: string;             // 계약일자

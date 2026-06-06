@@ -53,7 +53,7 @@ export const WorkplaceDetailForm = ({ open, onOpenChange, workplace, onEdit, onD
         <InputGroup
           id="name"
           label="측정대상 사업장"
-          value={form.name ?? ''}
+          value={form.name}
           onChange={(value) => handleChange('name', value)}
           startIcon={<Building2 />}
         />
@@ -61,14 +61,14 @@ export const WorkplaceDetailForm = ({ open, onOpenChange, workplace, onEdit, onD
           <InputGroup
             id="bizNumber"
             label="사업자등록번호"
-            value={form.bizNumber ?? ''}
+            value={form.bizNumber}
             onChange={(value) => handleChange('bizNumber', value)}
             startIcon={<Hash />}
           />
         <InputGroup
           id="address"
           label="주소"
-          value={form.address ?? ''}
+          value={form.address}
           onChange={(value) => handleChange('address', value)}
           startIcon={<MapPin />}
         />

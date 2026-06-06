@@ -6,6 +6,7 @@ import { trimValue, toDateString } from "@shared/lib/formatters";
 export const mapToDto = (
   form: ContractRegisterForm
 ): ContractRegisterRequest => ({
+  workplaceId: form.workplaceId,
   contractName: trimValue(form.contractName),
   contractDate: toDateString(form.contractDate),
   startDate: toDateString(form.startDate),

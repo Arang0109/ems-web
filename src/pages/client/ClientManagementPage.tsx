@@ -32,7 +32,7 @@ export const ClientManagementPage = () => {
       <PageTitle title="거래처 관리" description="측정 현황 및 통계 요약"/>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <CompanyTable onRowClick={handleSelectCompanyRow} selectedCompany={selectedCompany} />
+        <CompanyTable onRowClick={handleSelectCompanyRow} />
         <WorkplaceTable
           onRowClick={handleSelectWorkplaceRow}
           data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany}

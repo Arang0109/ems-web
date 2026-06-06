@@ -101,8 +101,18 @@ export const companyHandlers = [
 
   http.get(`${BASE_URL}/workplaces`, ({ request }) => {
     const url = new URL(request.url);
-    const companyId = Number(url.searchParams.get('companyId'));
-    const workplaces = workplacesByCompany[companyId] ?? [];
+    const companyIdParam = url.searchParams.get('companyId');
+
+    if (!companyIdParam || companyIdParam === 'null') {
+      const all = Object.values(workplacesByCompany).flat();
+      return HttpResponse.json({
+        status: true,
+        message: '측정대상 사업장 목록 조회 성공',
+        data: all,
+      });
+    }
+
+    const workplaces = workplacesByCompany[Number(companyIdParam)] ?? [];
     return HttpResponse.json({
       status: true,
       message: '측정대상 사업장 목록 조회 성공',

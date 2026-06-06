@@ -1,14 +1,25 @@
-import { FieldGroup } from "@/components/ui/field";
-
 import { useRegisterContract } from "../model/use-register-contract";
 import { VAT_INCLUED_LABEL } from "../model/types";
+import { useWorkplaces } from "@entities/workplace";
 import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, type ContractAmountUnit } from "@entities/contract";
 
-import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput } from "@shared/ui/form";
-import { Button } from "@/components/ui/button";
+import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
+import { Button } from "@shared/ui/buttons";
 
 export const RegisterContractForm = () => {
   const { form, handleChange, onSubmit } = useRegisterContract();
+  const { data: workplaces, workplaceOptions } = useWorkplaces();
+
+  const handleWorkplaceChange = (value: string) => {
+    const selected = workplaces.find((wp) => String(wp.id) === value);
+
+    handleChange("workplaceId", value);
+
+    if (selected) {
+      handleChange("workplaceName", selected.workplaceName);
+      handleChange("workplaceAddress", selected.address ?? "");
+    }
+  };
 
   return (
     <form onSubmit={onSubmit}>
@@ -18,6 +29,26 @@ export const RegisterContractForm = () => {
             <Button type="submit">계약 작성</Button>
           </div>
           
+          <div className="grid md:grid-cols-2 gap-4">
+            <Select
+              id="workplaceId"
+              label="측정대상 사업장"
+              placeholder="사업장 선택"
+              value={form.workplaceName}
+              options={workplaceOptions}
+              onValueChange={value => value && handleWorkplaceChange(value)}
+            />
+
+            <InputGroup
+              id="workplaceAddress"
+              label="사업장 소재지"
+              placeholder="사업장 소재지"
+              value={form.workplaceAddress}
+              onChange={(value) => handleChange("workplaceAddress", value)}
+              disabled
+              readOnly
+            />
+          </div>
           <InputGroup
             id="contractName"
             label="용역명"

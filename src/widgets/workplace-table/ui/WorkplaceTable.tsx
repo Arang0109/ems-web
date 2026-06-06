@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 
 import type { Company } from '@entities/company';
-import type { Workplace, WorkplaceTableListResponse } from '@entities/workplace';
+import type { Workplace, WorkplaceListResponse } from '@entities/workplace';
 import { useWorkplaceAction } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
@@ -26,7 +26,7 @@ import { Building2 } from 'lucide-react';
 import { WorkplaceDetailForm } from './WorkplaceDetailForm';
 
 interface WorkplaceTableProps {
-  data: WorkplaceTableListResponse[];
+  data: WorkplaceListResponse[];
   loading: boolean;
   error: string | null;
   selectedCompany: Company | null;
@@ -164,6 +164,7 @@ export const WorkplaceTable = ({
       )}
 
       <WorkplaceDetailForm
+        key={detailWorkplace?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         workplace={detailWorkplace}
