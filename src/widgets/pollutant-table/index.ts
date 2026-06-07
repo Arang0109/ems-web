@@ -1,0 +1,1 @@
+export { PollutantTable } from "./ui/PollutantTable";

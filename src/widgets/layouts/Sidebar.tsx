@@ -19,9 +19,11 @@ import {
 
 import {
   House,
-  LayoutGrid,
+  Building2,
+  FileText,
   Gauge,
   PieChart,
+  Wrench,
   ChevronDown,
   LogOut,
   Activity,
@@ -42,23 +44,39 @@ type MenuItem = {
 };
 
 const MENU_ITEMS: MenuItem[] = [
-  { icon: House, label: "Dashboard", path: "/dashboard" },
+  { icon: House, label: "대시보드", path: "/dashboard" },
   {
-    icon: LayoutGrid,
-    label: "Contract",
+    icon: Building2,
+    label: "기준정보",
     subItems: [
       { label: "거래처 관리", path: "/clients" },
-      { label: "계약서 조회", path: "/contracts" },
-      { label: "계약서 등록", path: "/contracts/register" },
+      { label: "측정시설 조회", path: "/stacks" },
+      { label: "측정물질 관리", path: "/pollutants" },
+    ],
+  },
+  {
+    icon: FileText,
+    label: "계약",
+    subItems: [
+      { label: '계약서 조회', path: '/contracts' },
+      { label: '계약서 등록', path: '/contracts/register' },
     ],
   },
   {
     icon: Gauge,
-    label: "측정 관리",
+    label: '측정',
     subItems: [
-      { label: "측정 계획", path: "/measurement/plan" },
-      { label: "측정 이력", path: "/measurement/history" },
-      { label: "측정 현황", path: "/measurement/status" },
+      { label: '측정 계획', path: '/measurement/plan' },
+      { label: '측정 현황', path: '/measurement/status' },
+      { label: '측정 이력', path: '/measurement/history' },
+    ],
+  },
+  {
+    icon: Wrench,
+    label: '자원 관리',
+    subItems: [
+      { label: '측정인력 관리', path: '/staff' },
+      { label: '측정장비 관리', path: '/equipment' },
     ],
   },
   { icon: PieChart, label: "데이터 분석", path: "/analysis" },

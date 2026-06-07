@@ -9,7 +9,9 @@ export {
   MEASUREMENT_FIELD, MEASUREMENT_FIELD_LABEL,
   ORIENTATION, ORIENTATION_LABEL,
   SHAPE, SHAPE_LABEL,
+  MEASUREMENT_METHOD, MEASUREMENT_METHOD_LABEL,
+  POLLUTANT_PHASE, POLLUTANT_PHASE_LABEL
 } from './common-types';
 export type {
-  ContractStatus, Grade, MeasurementField, Orientation, Shape
+  ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod, PollutantPhase
 } from './common-types';

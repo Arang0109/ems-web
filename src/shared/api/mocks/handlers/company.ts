@@ -9,8 +9,8 @@ const workplacesByCompany: Record<number, { id: number; companyId: number; compa
     { id: 103, companyId: 1,  companyName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 부산지사',  address: '부산광역시 해운대구 센텀중앙로 55',          bizNumber: '238-32482-36' },
   ],
   2: [
-    // { id: 104, companyId: 2,  companyName: '대성산업(주)',      workplaceName: '대성산업(주) 수원본사',       address: '경기도 수원시 영통구 월드컵로 206',          bizNumber: '401-29384-55' },
-    // { id: 105, companyId: 2,  companyName: '대성산업(주)',      workplaceName: '대성산업(주) 화성공장',       address: '경기도 화성시 팔탄면 서탄로 200',            bizNumber: '401-29384-56' },
+    { id: 104, companyId: 2,  companyName: '대성산업(주)',      workplaceName: '대성산업(주) 수원본사',       address: '경기도 수원시 영통구 월드컵로 206',          bizNumber: '401-29384-55' },
+    { id: 105, companyId: 2,  companyName: '대성산업(주)',      workplaceName: '대성산업(주) 화성공장',       address: '경기도 화성시 팔탄면 서탄로 200',            bizNumber: '401-29384-56' },
   ],
   3: [
     { id: 106, companyId: 3,  companyName: '동아화학공업',      workplaceName: '동아화학공업 부산본사',       address: '부산광역시 사하구 하신중앙로 99',            bizNumber: '611-47832-43' },

@@ -3,12 +3,16 @@ export const GRADE = ['TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4', 'TYPE_5'] as const
 export const ORIENTATION = ['VERTICAL', 'HORIZONTAL'] as const;
 export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
 export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
+export const MEASUREMENT_METHOD = ['DUST', 'HEAVY_METAL', 'MERCURY', 'FIELD_MEASUREMENT', 'ABSORPTION_SOLUTION', 'ADSORPTION_TUBE', 'TEDLAR_BAG', 'CARTRIDGE'] as const;
+export const POLLUTANT_PHASE = ['PARTICLE', 'GAS'] as const;
 
 export type ContractStatus = typeof CONTRACT_STATUS[number];
 export type Grade = typeof GRADE[number];
 export type Orientation = typeof ORIENTATION[number];
 export type Shape = typeof SHAPE[number];
 export type MeasurementField = typeof MEASUREMENT_FIELD[number];
+export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
+export type PollutantPhase = typeof POLLUTANT_PHASE[number];
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
   active: '정상',
@@ -39,4 +43,20 @@ export const MEASUREMENT_FIELD_LABEL: Record<MeasurementField, string> = {
   WATER: '수질',
   NOISE_VIBRATION: '소음진동',
   ODOR: '악취',
+};
+
+export const MEASUREMENT_METHOD_LABEL: Record<MeasurementMethod, string> = {
+  DUST: '먼지',
+  HEAVY_METAL: '중금속',
+  MERCURY: '수은',
+  FIELD_MEASUREMENT: '현장측정',
+  ABSORPTION_SOLUTION: '흡수액',
+  ADSORPTION_TUBE: '흡착관',
+  TEDLAR_BAG: '테드라백',
+  CARTRIDGE: '카트리지'
+};
+
+export const POLLUTANT_PHASE_LABEL: Record<PollutantPhase, string> = {
+  PARTICLE: '입자상',
+  GAS: '가스상'
 };

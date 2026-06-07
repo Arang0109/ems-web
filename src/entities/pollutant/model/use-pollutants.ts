@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 
-import type { Stack } from "./types";
-import { stackApi } from "../api/api";
+import type { PollutantResponse } from "../api/dtos";
+import { pollutantApi } from "../api/api";
 
-export const useStacks = () => {
-  const [data, setData] = useState<Stack[]>([]);
+export const usePollutants = () => {
+  const [data, setData] = useState<PollutantResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    stackApi.getStacks()
+    pollutantApi.getPollutants()
       .then((res) => {
         if (res.status) setData(res.data);
         else setError(res.message ?? '데이터를 불러오지 못했습니다.');
