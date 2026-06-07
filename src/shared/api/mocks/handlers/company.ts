@@ -65,18 +65,18 @@ export const companyHandlers = [
       status: true,
       message: '측정대행 의뢰기관 목록 조회 성공',
       data: [
-        { id: 1,  name: '(주)한국환경기술', representative: '가나다',  address: '서울특별시 강남구 테헤란로 123',          bizNumber: '238-32482-34', manager: '김환경', email: 'kim.huan@koreaenvironment.com' , tel: '02-1234-5678' },
-        { id: 2,  name: '대성산업(주)',      representative: '박철호',  address: '경기도 수원시 영통구 월드컵로 206',        bizNumber: '401-29384-55' },
-        { id: 3,  name: '동아화학공업',      representative: '정성훈',  address: '부산광역시 사하구 하신중앙로 99',          bizNumber: '611-47832-43' },
-        { id: 4,  name: '(주)그린에너지',    representative: '임수진',  address: '대전광역시 유성구 대덕대로 512',           bizNumber: '803-72918-54' },
-        { id: 5, name: '삼진제조(주)',       representative: '오태현',  address: '대구광역시 달서구 성서산업로 100',         bizNumber: '104-93847-62' },
-        { id: 6, name: '한빛소재산업',       representative: '유준서',  address: '광주광역시 광산구 하남산단 6번로 107',     bizNumber: '126-61573-28' },
-        { id: 7, name: '(주)미래환경',       representative: '남기훈',  address: '인천광역시 남동구 남동공단로 215',         bizNumber: '137-43829-16' },
-        { id: 8, name: '세진중공업(주)',      representative: '조현우',  address: '경상남도 창원시 성산구 공단로 730',        bizNumber: '159-38274-61' },
-        { id: 9, name: '(주)태양기술',        representative: '황성진',  address: '서울특별시 마포구 월드컵북로 396',         bizNumber: '173-58291-34' },
-        { id: 10, name: '경남산업(주)',         representative: '홍길동',  address: '부산광역시 강서구 신항대로 345',           bizNumber: '184-73618-52' },
-        { id: 11, name: '현대에너지(주)',       representative: '안준혁',  address: '울산광역시 남구 삼산로 100',               bizNumber: '195-46827-93' },
-        { id: 12, name: '(주)청정환경',         representative: '송미경',  address: '경기도 성남시 분당구 판교로 256',          bizNumber: '207-85136-74' },
+        { id: 1,  name: '(주)한국환경기술', representative: '가나다',  address: '서울특별시 강남구 테헤란로 123',          bizNumber: '238-32482-34', manager: '김환경', email: 'kim.huan@koreaenvironment.com',  tel: '02-1234-5678' },
+        { id: 2,  name: '대성산업(주)',      representative: '박철호',  address: '경기도 수원시 영통구 월드컵로 206',        bizNumber: '401-29384-55', manager: '이철수', email: 'lee.cs@daesungindustry.com',     tel: '031-456-7890' },
+        { id: 3,  name: '동아화학공업',      representative: '정성훈',  address: '부산광역시 사하구 하신중앙로 99',          bizNumber: '611-47832-43', manager: '박민준', email: 'park.mj@dongachem.co.kr',        tel: '051-234-5678' },
+        { id: 4,  name: '(주)그린에너지',    representative: '임수진',  address: '대전광역시 유성구 대덕대로 512',           bizNumber: '803-72918-54', manager: '최유나', email: 'choi.yn@greenenergy.co.kr',      tel: '042-345-6789' },
+        { id: 5,  name: '삼진제조(주)',       representative: '오태현',  address: '대구광역시 달서구 성서산업로 100',         bizNumber: '104-93847-62', manager: '강태호', email: 'kang.th@samjinmfg.com',          tel: '053-567-8901' },
+        { id: 6,  name: '한빛소재산업',       representative: '유준서',  address: '광주광역시 광산구 하남산단 6번로 107',     bizNumber: '126-61573-28', manager: '윤세진', email: 'yoon.sj@hanbitmat.co.kr',        tel: '062-678-9012' },
+        { id: 7,  name: '(주)미래환경',       representative: '남기훈',  address: '인천광역시 남동구 남동공단로 215',         bizNumber: '137-43829-16', manager: '서지훈', email: 'seo.jh@miraeenv.com',            tel: '032-789-0123' },
+        { id: 8,  name: '세진중공업(주)',      representative: '조현우',  address: '경상남도 창원시 성산구 공단로 730',        bizNumber: '159-38274-61', manager: '임현수', email: 'lim.hs@sejinheavy.co.kr',        tel: '055-890-1234' },
+        { id: 9,  name: '(주)태양기술',        representative: '황성진',  address: '서울특별시 마포구 월드컵북로 396',         bizNumber: '173-58291-34', manager: '한가람', email: 'han.gr@taeyangtech.com',          tel: '02-901-2345' },
+        { id: 10, name: '경남산업(주)',         representative: '홍길동',  address: '부산광역시 강서구 신항대로 345',           bizNumber: '184-73618-52', manager: '전도윤', email: 'jeon.dy@gyeongnam-ind.co.kr',    tel: '051-012-3456' },
+        { id: 11, name: '현대에너지(주)',       representative: '안준혁',  address: '울산광역시 남구 삼산로 100',               bizNumber: '195-46827-93', manager: '오승민', email: 'oh.sm@hyundaienergy.co.kr',      tel: '052-123-4567' },
+        { id: 12, name: '(주)청정환경',         representative: '송미경',  address: '경기도 성남시 분당구 판교로 256',          bizNumber: '207-85136-74', manager: '배수빈', email: 'bae.sb@cleanenv.co.kr',          tel: '031-234-5678' },
       ],
     });
   }),
@@ -97,6 +97,19 @@ export const companyHandlers = [
       message: '사업장 등록 성공',
       data: { id: Date.now(), ...body }
     }, { status: 201 });
+  }),
+
+  http.get(`${BASE_URL}/workplaces/contract-summary`, () => {
+    return HttpResponse.json({
+      status: true,
+      message: '계약 현황 요약 조회 성공',
+      data: {
+        recentContractCount: 6,
+        totalContractCount: 18,
+        expiringSoonContractCount: 3,
+        expiredContractCount: 2,
+      },
+    });
   }),
 
   http.get(`${BASE_URL}/workplaces`, ({ request }) => {

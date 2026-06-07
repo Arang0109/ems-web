@@ -102,3 +102,42 @@ api/
 ```
 
 새 도메인 MSW 핸들러는 `handlers/` 하위에 도메인별 파일로 분리하고 `handlers/index.ts`에 통합합니다.
+
+### 핸들러 on/off 관리 (`handlers/index.ts`)
+
+주석 방식으로 도메인별 활성화를 관리한다. 단순 주석 처리가 아닌 상태 마커로 맥락을 명시:
+
+```ts
+// 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
+export const handlers = [
+  // [WIP]    로그인 페이지 개발 시 활성화
+  // ...authHandlers,
+
+  // [ACTIVE]
+  ...dashboardHandlers,
+
+  // [READY]
+  // ...companyHandlers,
+];
+```
+
+백엔드 일부 API가 준비되는 시점에는 `VITE_MOCK_xxx=false` 환경변수 방식으로 전환을 검토한다.
+
+### 목업 데이터 작성 기준
+
+1. **필드명은 DTO와 완전히 일치** — `src/entities/[domain]/api/dtos.ts` 응답 타입 기준
+2. **필드값은 `common-types.ts` 상수 규격 사용** — `'AIR' | 'WATER' | 'NOISE_VIBRATION' | 'ODOR'`
+3. **식별자 필드 누락 금지** — `id`, `workplaceId` 등 DTO에 있는 모든 필드 포함
+4. **enum 필드 다양성 확보** — 가능한 모든 값을 최소 1건 이상 포함
+
+### 경로 매칭 순서 주의
+
+MSW는 등록 순서대로 매칭하므로, 구체적인 경로를 먼저 등록해야 한다:
+
+```ts
+// ✅ 올바른 순서
+http.get('/workplaces/contract-summary', ...),
+http.get('/workplaces', ...),
+
+// ❌ 역순이면 /workplaces가 /workplaces/contract-summary를 가로챔
+```

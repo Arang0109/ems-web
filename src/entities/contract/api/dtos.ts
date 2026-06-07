@@ -8,11 +8,11 @@ export type ContractTableResponse = {
   companyName: string;
   workplaceName: string;  
 
-  contractDate: string;            // 용역명
+  contractDate: string;            // 계약일자
   taskPeriod: string;
   fields: string;
 
-  contractStatus: string;      // 계약일자
+  contractStatus: string;      // 계약상태
 }
 
 export type ContractRegisterRequest = {

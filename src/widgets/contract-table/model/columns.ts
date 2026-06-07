@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { CustomCell, DateCell } from "../ui/Cells";
+import { CustomCell, DateCell, PathCell } from "../ui/Cells";
 import type { ContractTableRow } from "./types";
 
 const columnHelper = createColumnHelper<ContractTableRow>();
@@ -31,5 +31,9 @@ export const defaultColumns = [
     header: '과업기간',
     cell: DateCell,
     enableSorting: false,
+  }),
+  columnHelper.display({
+    header: '상세보기',
+    cell: PathCell,
   }),
 ];
