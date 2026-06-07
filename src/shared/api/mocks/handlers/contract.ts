@@ -86,4 +86,39 @@ export const contractHandlers = [
       data: { id: Date.now(), ...body }
     }, { status: 201 });
   }),
+
+  http.put(`${BASE_URL}/contracts/:contractId`, async ({ params, request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '계약서 수정 성공',
+      data: { id: Number(params.contractId), ...body }
+    });
+  }),
+
+  http.get(`${BASE_URL}/contracts/:contractId`, ({ params }) => {
+    return HttpResponse.json({
+      status: true,
+      message: '계약서 조회 성공',
+      data: {
+        id: Number(params.contractId),
+        workplaceId: 101,
+        companyName: '(주)한국환경기술',
+        workplaceName: '(주)한국환경기술 서울본사',
+        workplaceAddress: '서울특별시 강남구 테헤란로 123',
+        contractName: '대기오염물질 측정대행 용역',
+        contractDate: '2025-01-01',
+        startDate: '2025-01-01',
+        completionDate: '2025-12-31',
+        contractAmount: 12000000,
+        contractAmountUnit: 'ANNUAL',
+        vatIncluded: true,
+        contractGuaranteeAmount: 1200000,
+        advancePaymentAmount: 3000000,
+        advancePaymentDueDate: 30,
+        delayPenaltyRate: 0.1,
+        remark: '',
+      }
+    });
+  }),
 ];
