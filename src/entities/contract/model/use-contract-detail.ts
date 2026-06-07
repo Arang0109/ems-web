@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
 
-import type { ContractResponse } from '../api/dtos';
+import type { ContractDetail } from './types';
 import { contractApi } from '../api/api';
 
 export const useContractDetail = () => {
-  const [data, setData] = useState<ContractResponse | null>(null);
+  const [data, setData] = useState<ContractDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

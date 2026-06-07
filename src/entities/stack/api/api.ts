@@ -1,6 +1,6 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackRegisterRequest, StackTableListResponse } from './dtos';
+import type { StackRegisterRequest, StackTableListResponse } from './dto';
 import type { Stack } from '../model/types';
 
 export const stackApi = {

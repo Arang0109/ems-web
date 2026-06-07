@@ -1,9 +1,9 @@
-import type { CompanyListResponse, CompanyUpdateRequest } from '@entities/company';
-import { formatBusinessNumber, trimValue, unformatNumber } from '@shared/lib/formatters';
+import type { Company, CompanyUpdate } from '@entities/company';
+import { formatBusinessNumber, trimValue, unformatNumber } from '@shared/lib';
 
 import type { CompanyTableRow, CompanyDetailFormData } from './types';
 
-export const toCompanyRows = (col: CompanyListResponse): CompanyTableRow => ({
+export const toCompanyRows = (col: Company): CompanyTableRow => ({
   id: col.id,
   name: col.name,
   representative: col.representative,
@@ -15,7 +15,7 @@ export const toCompanyRows = (col: CompanyListResponse): CompanyTableRow => ({
   tel: col.tel,
 });
 
-export const toCompanyUpdateRequest = (data: CompanyDetailFormData): CompanyUpdateRequest => ({
+export const toCompanyUpdateRequest = (data: CompanyDetailFormData): CompanyUpdate => ({
   name: trimValue(data.name),
   representative: trimValue(data.representative),
   address: trimValue(data.address),

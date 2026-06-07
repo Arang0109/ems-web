@@ -1,3 +1,43 @@
+export type ContractListItem = {
+  id: number;
+  workplaceId: number;
+
+  contractName: string;
+  companyName: string;
+  workplaceName: string;
+
+  contractDate: string;
+  taskPeriod: string;
+  fields: string;
+
+  contractStatus: string;
+}
+
+export type ContractDetail = {
+  id: number;
+  workplaceId: number;
+  contractName: string;
+  workplaceName: string;
+  companyName: string;
+  workplaceAddress: string;
+
+  contractDate: string;
+  startDate: string;
+  completionDate: string;
+
+  contractAmount: number;
+  contractAmountUnit: ContractAmountUnit;
+  vatIncluded: boolean;
+
+  contractGuaranteeAmount: number;
+  advancePaymentAmount: number;
+
+  advancePaymentDueDate: number;
+  delayPenaltyRate: number;
+
+  remark: string;
+}
+
 export type Contract = {
   id: number;
   workplaceId: string;               // 사업장 ID
@@ -20,7 +60,48 @@ export type Contract = {
   remark: string;                   // 비고
 }
 
-export const CONTRACT_AMOUNT_UNIT = ['MONTH', 'QUARTER', 'SEMI_ANNUAL', 'ANNUAL', 'TOTAL'] as const;
+export type ContractCreate = {
+  workplaceId: string;
+  contractName: string;
+
+  contractDate: Date;
+  startDate: Date;
+  completionDate: Date;
+
+  contractAmount: number;
+  contractAmountUnit: ContractAmountUnit;
+  vatIncluded: boolean;
+
+  contractGuaranteeAmount: number;
+  advancePaymentAmount: number;
+
+  advancePaymentDueDate: number;
+  delayPenaltyRate: number;
+
+  remark: string;
+}
+
+export type ContractUpdate = {
+  contractName: string;
+
+  contractDate: Date;
+  startDate: Date;
+  completionDate: Date;
+
+  contractAmount: number;
+  contractAmountUnit: ContractAmountUnit;
+  vatIncluded: boolean;
+
+  contractGuaranteeAmount: number;
+  advancePaymentAmount: number;
+
+  advancePaymentDueDate: number;
+  delayPenaltyRate: number;
+
+  remark: string;
+}
+
+export const CONTRACT_AMOUNT_UNIT =['MONTH', 'QUARTER', 'SEMI_ANNUAL', 'ANNUAL', 'TOTAL'] as const;
 
 export type ContractAmountUnit = typeof CONTRACT_AMOUNT_UNIT[number];
 

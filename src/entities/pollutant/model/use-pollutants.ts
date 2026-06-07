@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 
-import type { PollutantResponse } from "../api/dtos";
+import type { Pollutant } from "./types";
 import { pollutantApi } from "../api/api";
 
 export const usePollutants = () => {
-  const [data, setData] = useState<PollutantResponse[]>([]);
+  const [data, setData] = useState<Pollutant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

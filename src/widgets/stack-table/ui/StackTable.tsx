@@ -8,9 +8,9 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 
-import { useTableState } from '@shared/hooks';
+import { useTableState } from '@shared/model';
 import type { Workplace } from '@entities/workplace';
-import type { StackTableListResponse } from '@entities/stack';
+import type { StackListItem } from '@entities/stack';
 
 import { RegisterStackForm } from '@features/register-stack';
 
@@ -24,7 +24,7 @@ import { Search } from '@/shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
 
 interface StackTableProps {
-  data: StackTableListResponse[];
+  data: StackListItem[];
   loading: boolean;
   error: string | null;
   selectedWorkplace: Workplace | null;
@@ -88,7 +88,7 @@ export const StackTable = ({
       </div>
 
       <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'측정시설, 측정분야 검색 ...'} />
+        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정시설, 측정분야 검색 ...'} />
       </div>
 
       {/* 컨텐츠 */}

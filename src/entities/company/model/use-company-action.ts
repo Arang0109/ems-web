@@ -1,6 +1,8 @@
 import { useState } from 'react';
+
 import { companyApi } from '../api/api';
-import type { CompanyUpdateRequest } from '../api/dtos';
+import { toUpdateRequest, toRegisterRequest } from '../api/mapper';
+import type { CompanyCreate, CompanyUpdate } from './types';
 
 interface UseCompanyActionProps {
   onSuccess?: () => void;
@@ -10,12 +12,17 @@ export const useCompanyAction = ({ onSuccess }: UseCompanyActionProps = {}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleEdit = async (id: number, data: CompanyUpdateRequest) => {
+  const registerCompany = async (data: CompanyCreate) => {
+    const request = toRegisterRequest(data);
+    await companyApi.registerCompany(request);
+  };
+
+  const handleEdit = async (id: number, data: CompanyUpdate) => {
     setLoading(true);
     setError(null);
 
     try {
-      await companyApi.updateCompany(id, data);
+      await companyApi.updateCompany(id, toUpdateRequest(data));
       onSuccess?.();
     } catch (err: unknown) {
       setError((err as Error).message ?? '서버 연결에 실패했습니다.');
@@ -42,6 +49,8 @@ export const useCompanyAction = ({ onSuccess }: UseCompanyActionProps = {}) => {
     error,
     loading,
 
+    registerCompany,
+    
     handleEdit,
     handleDelete,
   };

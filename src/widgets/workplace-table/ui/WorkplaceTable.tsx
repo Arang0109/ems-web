@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 
 import type { Company } from '@entities/company';
-import type { Workplace, WorkplaceListResponse } from '@entities/workplace';
+import type { Workplace, WorkplaceListItem } from '@entities/workplace';
 import { useWorkplaceAction } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
@@ -18,7 +18,7 @@ import { defaultColumns } from '../model/columns';
 import { toWorkplaceRows, toWorkplaceUpdateRequest } from '../model/mapper';
 import type { WorkplaceDetailFormData, WorkplaceTableRow } from '../model/types';
 
-import { useTableState } from '@shared/hooks';
+import { useTableState } from '@shared/model';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 
@@ -26,7 +26,7 @@ import { Building2 } from 'lucide-react';
 import { WorkplaceDetailForm } from './WorkplaceDetailForm';
 
 interface WorkplaceTableProps {
-  data: WorkplaceListResponse[];
+  data: WorkplaceListItem[];
   loading: boolean;
   error: string | null;
   selectedCompany: Company | null;

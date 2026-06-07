@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 
-import type { CompanyListResponse } from "../api/dtos";
 import { companyApi } from "../api/api";
+import type { Company } from "./types";
 
 export const useCompanies = () => {
-  const [data, setData] = useState<CompanyListResponse[]>([]);
+  const [data, setData] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);

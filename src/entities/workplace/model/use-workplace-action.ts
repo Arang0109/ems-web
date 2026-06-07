@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { workplaceApi } from '../api/api';
-import type { WorkplaceUpdateRequest } from '../api/dtos';
+import type { WorkplaceUpdate } from './types';
 
 interface UseWorkplaceActionProps {
   onSuccess?: () => void;
@@ -10,7 +10,7 @@ export const useWorkplaceAction = ({ onSuccess }: UseWorkplaceActionProps = {}) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleEdit = async (id: number, data: WorkplaceUpdateRequest) => {
+  const handleEdit = async (id: number, data: WorkplaceUpdate) => {
     setLoading(true);
     setError(null);
 

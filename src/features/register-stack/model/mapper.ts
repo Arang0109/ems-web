@@ -1,11 +1,11 @@
 import type { StackRegisterForm } from "./types";
-import type { StackRegisterRequest } from "@entities/stack";
+import type { StackCreate } from "@entities/stack";
 
-import { trimValue } from "@shared/lib/formatters";
+import { trimValue } from "@shared/lib";
 
 export const mapToDto = (
   form: StackRegisterForm
-): StackRegisterRequest => ({
+): StackCreate => ({
   workplaceId: form.workplaceId,
   field: form.field,
   name: trimValue(form.stackName),

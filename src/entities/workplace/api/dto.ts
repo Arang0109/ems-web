@@ -19,10 +19,3 @@ export type WorkplaceUpdateRequest = {
   bizNumber: string,
   address: string,
 }
-
-export type ContractOverview = {
-  recentContractCount: number;
-  totalContractCount: number;
-  expiringSoonContractCount: number;
-  expiredContractCount: number;
-}

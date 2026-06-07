@@ -17,3 +17,23 @@ export type Stack = {
   createdAt: Date;
   modifiedAt: Date;
 }
+
+export type StackCreate = {
+  workplaceId: number;
+  field: MeasurementField;
+  name: string;
+  semsNumber: string;
+  grade: Grade;
+  businessCategory: string;
+  mainProduct: string;
+}
+
+export type StackListItem = {
+  id: number,
+  companyName: string,
+  workplaceName: string,
+  field: MeasurementField,
+  stackName: string,
+  createdAt: string,
+  modifiedAt: string,
+}

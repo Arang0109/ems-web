@@ -1,4 +1,4 @@
-import type { MeasurementCountChartResponse, DashboardOverviewResponse } from './dtos';
+import type { MeasurementCountChartResponse, DashboardOverviewResponse } from './dto';
 
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from "@shared/model";

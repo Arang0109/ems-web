@@ -2,13 +2,13 @@ import { useState } from 'react';
 
 import type { Company } from '@entities/company';
 import { workplaceApi } from '@entities/workplace';
-import type { WorkplaceListResponse } from '@entities/workplace';
+import type { WorkplaceListItem } from '@entities/workplace';
 
 export const useSelectCompany = (onCompanyChange?: () => void) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [workplaceData, setWorkplaceData] = useState<WorkplaceListResponse[]>([]);
+  const [workplaceData, setWorkplaceData] = useState<WorkplaceListItem[]>([]);
 
   const fetchWorkplaces = async (companyId: number) => {
     setIsLoading(true);

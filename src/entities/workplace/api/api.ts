@@ -1,7 +1,7 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { Workplace } from '../model/types';
-import type { WorkplaceListResponse, ContractOverview, WorkplaceRegisterRequest, WorkplaceUpdateRequest } from './dtos';
+import type { Workplace, ContractOverview } from '../model/types';
+import type { WorkplaceListResponse, WorkplaceRegisterRequest, WorkplaceUpdateRequest } from './dto';
 
 export const workplaceApi = {
   getWorkplaces: async (companyId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {

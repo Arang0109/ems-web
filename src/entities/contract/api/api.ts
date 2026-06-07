@@ -1,7 +1,7 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 
-import type { ContractRegisterRequest, ContractUpdateRequest, ContractTableResponse, ContractResponse } from './dtos';
+import type { ContractRegisterRequest, ContractUpdateRequest, ContractTableResponse, ContractResponse } from './dto';
 import type { Contract } from '../model/types';
 
 export const contractApi = {

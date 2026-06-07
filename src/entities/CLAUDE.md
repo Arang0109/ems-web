@@ -17,6 +17,24 @@
 - **UI 표현 타입 금지** — `CompanyTableRow` 등은 해당 widget의 `model/`에 위치
 - **mapper 함수 `model/`에 위치 금지** — mapper는 `api/`에 위치
 
+## 외부 노출 원칙
+
+- Entity slice에서 외부 레이어로 노출할 수 있는 타입은 `model/types.ts`의 **도메인 모델 타입**만 허용한다.
+- 여기에는 조회 모델뿐 아니라 등록/수정에 사용하는 도메인 입력 모델도 포함된다.
+
+
+```ts
+// ✅ 허용
+export type { Company } from './model/types';
+export type { CompanyCreate } from './model/types';
+export type { CompanyUpdate } from './model/types';
+
+// ❌ 금지
+export type { CompanyCreateRequest } from './api/dto';
+export type { CompanyUpdateRequest } from './api/dto';
+export type { CompanyListResponse } from './api/dto';
+```
+
 ---
 
 ## 파일 구조 표준
@@ -26,10 +44,10 @@ entity-name/
 ├── index.ts
 ├── api/
 │   ├── api.ts        # API 호출 함수 (object 패턴)
-│   └── dtos.ts       # 요청/응답 DTO 타입
+│   └── dto.ts       # 요청/응답 DTO 타입
 └── model/
     ├── types.ts      # 순수 도메인 타입만
-    └── use-xxx.ts    # 데이터 페칭 훅
+    └── use-entity.ts    # 데이터 페칭 훅
 ```
 
 ---
@@ -48,7 +66,7 @@ export const companyApi = {
 };
 ```
 
-### `api/dtos.ts` — 요청/응답 DTO 분리
+### `api/dto.ts` — 요청/응답 DTO 분리
 
 ```typescript
 // 응답 DTO (서버 → 클라이언트)
@@ -81,11 +99,14 @@ export type Company = {
 };
 ```
 
-### `model/use-xxx.ts` — 데이터 페칭 훅
+### `model/use-entity.ts` — 데이터 페칭 훅
+
+- API DTO를 직접 UI에 노출하지 않고, 가능하면 `model/types.ts`의 도메인 타입으로 변환하여 반환한다.
+- 단, DTO와 도메인 타입이 완전히 동일한 경우에는 타입 alias로 연결할 수 있다.
 
 ```typescript
 export function useCompanies() {
-  const [data, setData] = useState<CompanyListResponse[]>([]);
+  const [data, setData] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -99,10 +120,14 @@ export function useCompanies() {
 
 ---
 
-## 알려진 위반 사항
+## 도메인 입력 모델 목록
 
-| 위치 | 문제 | 개선 방향 |
-|------|------|-----------|
-| `company/model/company-form.ts` | Form 타입이 entity에 혼재 | `features/register-company/model/`로 이동 |
-| `company/model/company-mapper.ts` | mapper가 `model/`에 위치 | `api/company-mapper.ts`로 이동 |
-| `company/model/company-types.ts` | `WorkplaceTableCols` (UI 표현 타입) 포함 | `widgets/company-table/model/`로 분리 |
+각 entity에서 외부 노출 가능한 입력 모델(등록/수정용 도메인 타입)은 아래와 같습니다.
+
+| Entity | 노출 타입 |
+|--------|-----------|
+| `company` | `Company`, `CompanyCreate`, `CompanyUpdate` |
+| `contract` | `Contract`, `ContractListItem`, `ContractDetail`, `ContractCreate`, `ContractUpdate` |
+| `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
+| `stack` | `Stack`, `StackCreate`, `StackListItem` |
+| `pollutant` | `Pollutant` |

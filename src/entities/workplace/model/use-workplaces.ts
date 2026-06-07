@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 
-import type { WorkplaceListResponse } from "../api/dtos";
+import type { WorkplaceListItem } from "./types";
 import { workplaceApi } from "../api/api";
 
 export const useWorkplaces = () => {
-  const [data, setData] = useState<WorkplaceListResponse[]>([]);
+  const [data, setData] = useState<WorkplaceListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
