@@ -1,26 +1,27 @@
-import type { MeasurementField } from "@shared/model";
-
 import type { ContractAmountUnit } from "../model/types";
 
-export type ContractTableListResponse = {
-  field: MeasurementField;
+export type ContractTableResponse = {
+  id: number;
+  workplaceId: number;
+
+  contractName: string;
   companyName: string;
-  workplaceName: string;
-  contractName: string;              // 용역명
+  workplaceName: string;  
+
+  contractDate: string;            // 용역명
   taskPeriod: string;
+  fields: string;
 
-  contractStatus: string;
-
-  contractDate: string;             // 계약일자
+  contractStatus: string;      // 계약일자
 }
 
 export type ContractRegisterRequest = {
   workplaceId: string;               // 사업장 ID
   contractName: string;              // 용역명
 
-  contractDate: string;             // 계약일자
-  startDate: string;                // 착수일자
-  completionDate: string;           // 완수일자
+  contractDate: Date;             // 계약일자
+  startDate: Date;                // 착수일자
+  completionDate: Date;           // 완수일자
 
   contractAmount: number;           // 계약금액
   contractAmountUnit: ContractAmountUnit;

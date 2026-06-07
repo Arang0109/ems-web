@@ -1,12 +1,13 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 
-import type { ContractRegisterRequest, ContractTableListResponse } from './dtos';
+import type { ContractRegisterRequest, ContractTableResponse } from './dtos';
 import type { Contract } from '../model/types';
 
 export const contractApi = {
-  getContractTableList: async (): Promise<ApiResponseMessage<ContractTableListResponse[]>> => {
-    const res = await axiosPrivate.get('/contracts');
+  getContracts: async (contractId: number | null): Promise<ApiResponseMessage<ContractTableResponse[]>> => {
+    const params = contractId != null ? { contractId } : {};
+    const res = await axiosPrivate.get('/contracts', { params });
     return res.data;
   },
 

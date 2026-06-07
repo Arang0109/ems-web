@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { contractApi } from "@entities/contract";
 
@@ -11,6 +12,8 @@ export const useRegisterContract = () => {
   const [error, setError] = useState('');
   const [form, setForm] = useState<ContractRegisterForm>(getDefaultContractForm());
 
+  const navigate = useNavigate();
+
   const handleChange = <K extends keyof ContractRegisterForm>(name: K, value: ContractRegisterForm[K]) => {
     setForm((prev) => ({
       ...prev,
@@ -18,16 +21,16 @@ export const useRegisterContract = () => {
     }));
   };
 
-  const onSubmit = async (e: React.SubmitEvent) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     const payload = mapToDto(form);
-    console.log("payload: ", payload)
 
     try {
       const res = await contractApi.registerContract(payload);
+      navigate('/contracts');
       return res;
     } catch (err) {
       setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');

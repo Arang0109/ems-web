@@ -34,7 +34,7 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   completionDate: new Date(),
 
   contractAmount: 0,
-  contractAmountUnit: 'total',
+  contractAmountUnit: 'TOTAL',
   vatIncluded: false,
 
   contractGuaranteeAmount: 0,
@@ -47,7 +47,7 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
 });
 
 
-export const VAT_INCLUED_LABEL = {
+export const VAT_INCLUDED_LABEL = {
   true: '포함',
   false: '미포함'
 } as const;

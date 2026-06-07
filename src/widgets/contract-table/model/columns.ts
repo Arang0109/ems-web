@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { CustomCell } from "../ui/Cells";
+import { CustomCell, DateCell } from "../ui/Cells";
 import type { ContractTableRow } from "./types";
 
 const columnHelper = createColumnHelper<ContractTableRow>();
@@ -9,6 +9,7 @@ export const defaultColumns = [
   columnHelper.accessor('field', {
     header: '측정분야',
     cell: CustomCell,
+    enableSorting: false,
   }),
   columnHelper.accessor('companyName', {
     header: '측정대행 의뢰기관',
@@ -21,16 +22,14 @@ export const defaultColumns = [
   columnHelper.accessor('contractName', {
     header: '용역명',
     cell: CustomCell,
-    enableSorting: false,
   }),
   columnHelper.accessor('contractDate', {
     header: '계약일',
     cell: CustomCell,
-    enableSorting: false,
   }),
   columnHelper.accessor('taskPeriod', {
     header: '과업기간',
-    cell: CustomCell,
+    cell: DateCell,
     enableSorting: false,
   }),
 ];

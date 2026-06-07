@@ -1,5 +1,5 @@
 import { useRegisterContract } from "../model/use-register-contract";
-import { VAT_INCLUED_LABEL } from "../model/types";
+import { VAT_INCLUDED_LABEL } from "../model/types";
 import { useWorkplaces } from "@entities/workplace";
 import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, type ContractAmountUnit } from "@entities/contract";
 
@@ -100,7 +100,7 @@ export const RegisterContractForm = () => {
               id="vatIncluded"
               label="부가세 여부"
               placeholder="선택"
-              value={VAT_INCLUED_LABEL[String(form.vatIncluded) as 'true' | 'false']}
+              value={VAT_INCLUDED_LABEL[String(form.vatIncluded) as 'true' | 'false']}
               options={[
                 { value: 'true', label: '포함' },
                 { value: 'false', label: '미포함' },

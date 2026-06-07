@@ -14,7 +14,7 @@ import { defaultColumns } from '../model/columns';
 import { toContractRows } from '../model/mapper';
 
 import { BasicTable } from '@shared/ui/table';
-import { Search } from '@/shared/ui/form';
+import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
 
 export const ContractTable = () => {
@@ -57,7 +57,7 @@ export const ContractTable = () => {
       </div>
 
       <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholer={'계약서 검색 ...'} />
+        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'계약서 검색 ...'} />
       </div>
 
       <div className="p-5 flex-1 flex flex-col">
