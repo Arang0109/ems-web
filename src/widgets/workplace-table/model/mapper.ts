@@ -1,5 +1,5 @@
 import type { WorkplaceListResponse, WorkplaceUpdateRequest } from '@entities/workplace';
-import { formatBusinessNumber, stripFormatting } from '@shared/lib/formatters';
+import { formatBusinessNumber, unformatNumber } from '@shared/lib/formatters';
 
 import type { WorkplaceDetailFormData, WorkplaceTableRow } from './types';
 
@@ -15,5 +15,5 @@ export const toWorkplaceRows = (col: WorkplaceListResponse): WorkplaceTableRow =
 export const toWorkplaceUpdateRequest = (col: WorkplaceDetailFormData): WorkplaceUpdateRequest => ({
   name: col.name,
   address: col.address,
-  bizNumber: stripFormatting(col.bizNumber),
+  bizNumber: unformatNumber(col.bizNumber),
 });

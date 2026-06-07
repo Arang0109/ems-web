@@ -1,10 +1,10 @@
 import { useRegisterContract } from "../model/use-register-contract";
-import { VAT_INCLUDED_LABEL } from "../model/types";
 import { useWorkplaces } from "@entities/workplace";
-import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, type ContractAmountUnit } from "@entities/contract";
+import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
+import { formatMoney, unformatMoney, toKoreanAmount } from "@shared/lib/formatters";
 
 export const RegisterContractForm = () => {
   const { form, handleChange, onSubmit } = useRegisterContract();
@@ -28,7 +28,7 @@ export const RegisterContractForm = () => {
             <SectionTitle>계약 정보</SectionTitle>
             <Button type="submit">계약 작성</Button>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-4">
             <Select
               id="workplaceId"
@@ -83,10 +83,10 @@ export const RegisterContractForm = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <InputGroup
               id="contractAmount"
-              type="number"
               label="계약금액(원)"
-              value={form.contractAmount}
-              onChange={(value) => handleChange("contractAmount", value)}
+              value={formatMoney(form.contractAmount)}
+              onChange={(value) => handleChange("contractAmount", unformatMoney(value).toString())}
+              helperText={toKoreanAmount(form.contractAmount) || undefined}
             />
             <Select
               id="contractAmountUnit"
@@ -109,19 +109,19 @@ export const RegisterContractForm = () => {
             />
             <InputGroup
               id="contractGuaranteeAmount"
-              type="number"
               label="계약보증금"
-              value={form.contractGuaranteeAmount}
-              onChange={(value) => handleChange("contractGuaranteeAmount", value)}
+              value={formatMoney(form.contractGuaranteeAmount)}
+              onChange={(value) => handleChange("contractGuaranteeAmount", unformatMoney(value).toString())}
+              helperText={toKoreanAmount(form.contractGuaranteeAmount) || undefined}
             />
           </div>
           <div className="grid md:grid-cols-4 gap-4">
             <InputGroup
               id="advancePaymentAmount"
-              type="number"
               label="선금"
-              value={form.advancePaymentAmount}
-              onChange={(value) => handleChange("advancePaymentAmount", value)}
+              value={formatMoney(form.advancePaymentAmount)}
+              onChange={(value) => handleChange("advancePaymentAmount", unformatMoney(value).toString())}
+              helperText={toKoreanAmount(form.advancePaymentAmount) || undefined}
             />
             <InlineInput
               id="advancePaymentDueDate"
@@ -147,7 +147,7 @@ export const RegisterContractForm = () => {
             label="비고"
             value={form.remark}
               onChange={(value) => handleChange("remark", value)}
-          /> 
+          />
       </FieldGroup>
     </form>
   );

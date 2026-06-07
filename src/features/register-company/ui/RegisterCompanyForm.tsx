@@ -5,7 +5,7 @@ import { useRegisterCompany } from "../model/use-register-company";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle } from "@shared/ui/form";
-import { formatBusinessNumber, formatPhoneNumber, stripFormatting } from '@shared/lib/formatters';
+import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib/formatters';
 
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
@@ -54,7 +54,7 @@ export const RegisterCompanyForm = ({
             label="사업자등록번호"
             placeholder="사업자등록번호"
             value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", stripFormatting(value).slice(0, 10))}
+            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
             startIcon={<Hash />}
           />
           <InputGroup
@@ -91,7 +91,7 @@ export const RegisterCompanyForm = ({
             id="tel"
             placeholder="전화번호"
             value={formatPhoneNumber(form.tel)}
-            onChange={(value) => handleChange("tel", stripFormatting(value).slice(0, 11))}
+            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
             startIcon={<Phone />}
           />
           <InputGroup

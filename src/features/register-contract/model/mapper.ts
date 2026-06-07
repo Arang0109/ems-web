@@ -1,7 +1,7 @@
 import type { ContractRegisterRequest } from "@entities/contract";
 import type { ContractRegisterForm } from "./types";
 
-import { trimValue } from "@shared/lib/formatters";
+import { trimValue, unformatMoney } from "@shared/lib/formatters";
 
 export const mapToDto = (
   form: ContractRegisterForm
@@ -11,11 +11,11 @@ export const mapToDto = (
   contractDate: form.contractDate,
   startDate: form.startDate,
   completionDate: form.completionDate,
-  contractAmount: form.contractAmount,
+  contractAmount: unformatMoney(form.contractAmount),
   contractAmountUnit: form.contractAmountUnit,
   vatIncluded: form.vatIncluded,
-  contractGuaranteeAmount: form.contractGuaranteeAmount,
-  advancePaymentAmount: form.advancePaymentAmount,
+  contractGuaranteeAmount: unformatMoney(form.contractGuaranteeAmount),
+  advancePaymentAmount: unformatMoney(form.advancePaymentAmount),
   advancePaymentDueDate: form.advancePaymentDueDate,
   delayPenaltyRate: form.delayPenaltyRate,
   remark: trimValue(form.remark),

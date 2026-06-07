@@ -11,11 +11,11 @@ export type ContractEditForm = {
   contractDate: Date;
   startDate: Date;
   completionDate: Date;
-  contractAmount: number;
+  contractAmount: string;
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;
-  contractGuaranteeAmount: number;
-  advancePaymentAmount: number;
+  contractGuaranteeAmount: string;
+  advancePaymentAmount: string;
   advancePaymentDueDate: number;
   delayPenaltyRate: number;
   remark: string;
@@ -29,11 +29,11 @@ export const getDefaultContractEditForm = (): ContractEditForm => ({
   contractDate: new Date(),
   startDate: new Date(),
   completionDate: new Date(),
-  contractAmount: 0,
+  contractAmount: "",
   contractAmountUnit: "TOTAL",
   vatIncluded: false,
-  contractGuaranteeAmount: 0,
-  advancePaymentAmount: 0,
+  contractGuaranteeAmount: "",
+  advancePaymentAmount: "",
   advancePaymentDueDate: 0,
   delayPenaltyRate: 0,
   remark: "",
@@ -47,17 +47,12 @@ export const mapFromResponse = (r: ContractResponse): ContractEditForm => ({
   contractDate: new Date(r.contractDate),
   startDate: new Date(r.startDate),
   completionDate: new Date(r.completionDate),
-  contractAmount: r.contractAmount,
+  contractAmount: String(r.contractAmount),
   contractAmountUnit: r.contractAmountUnit,
   vatIncluded: r.vatIncluded,
-  contractGuaranteeAmount: r.contractGuaranteeAmount,
-  advancePaymentAmount: r.advancePaymentAmount,
+  contractGuaranteeAmount: String(r.contractGuaranteeAmount),
+  advancePaymentAmount: String(r.advancePaymentAmount),
   advancePaymentDueDate: r.advancePaymentDueDate,
   delayPenaltyRate: r.delayPenaltyRate,
   remark: r.remark,
 });
-
-export const VAT_INCLUDED_LABEL = {
-  true: "포함",
-  false: "미포함",
-} as const;

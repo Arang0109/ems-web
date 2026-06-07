@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup } from "@shared/ui/form";
-import { formatPhoneNumber, stripFormatting, formatBusinessNumber } from '@shared/lib/formatters';
+import { formatPhoneNumber, unformatNumber, formatBusinessNumber } from '@shared/lib/formatters';
 
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
@@ -59,7 +59,7 @@ export const CompanyDetailForm = ({ open, onOpenChange, company, onEdit, onDelet
             id="bizNumber"
             label="사업자등록번호"
             value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", stripFormatting(value).slice(0, 10))}
+            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
             startIcon={<Hash />}
           />
           <InputGroup

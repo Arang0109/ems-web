@@ -36,3 +36,8 @@ export const contractAmountUnitOptions = CONTRACT_AMOUNT_UNIT.map((v) => ({
   value: v,
   label: CONTRACT_AMOUNT_UNIT_LABEL[v]
 }));
+
+export const VAT_INCLUDED_LABEL = {
+  true: '포함',
+  false: '미포함',
+} as const;

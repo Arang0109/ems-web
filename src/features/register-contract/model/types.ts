@@ -10,12 +10,12 @@ export type ContractRegisterForm = {
   startDate: Date;                // 착수일자
   completionDate: Date;           // 완수일자
 
-  contractAmount: number;           // 계약금액
+  contractAmount: string;           // 계약금액
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
-  contractGuaranteeAmount: number;  // 계약보증금
-  advancePaymentAmount: number;     // 선금
+  contractGuaranteeAmount: string;  // 계약보증금
+  advancePaymentAmount: string;     // 선금
 
   advancePaymentDueDate: number;    // 선급지급기간
   delayPenaltyRate: number;         // 지체상금율 (%)
@@ -33,21 +33,15 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   startDate: new Date(),
   completionDate: new Date(),
 
-  contractAmount: 0,
+  contractAmount: "",
   contractAmountUnit: 'TOTAL',
   vatIncluded: false,
 
-  contractGuaranteeAmount: 0,
-  advancePaymentAmount: 0,
+  contractGuaranteeAmount: "",
+  advancePaymentAmount: "",
 
   advancePaymentDueDate: 0,
   delayPenaltyRate: 0,
 
   remark: "",
 });
-
-
-export const VAT_INCLUDED_LABEL = {
-  true: '포함',
-  false: '미포함'
-} as const;

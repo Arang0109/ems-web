@@ -2,7 +2,7 @@ import { Divider } from "@shared/ui/borders";
 import type { Company } from "@/entities/company";
 import { FieldGroup, InputGroup, SectionTitle } from "@/shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
-import { formatBusinessNumber, stripFormatting } from '@shared/lib/formatters';
+import { formatBusinessNumber, unformatNumber } from '@shared/lib/formatters';
 
 import { Building2, Hash, User2, MapPin, Factory } from "lucide-react";
 
@@ -87,7 +87,7 @@ export const RegisterWorkplaceForm = ({
           label="사업장 사업자등록번호"
           placeholder="사업자등록번호"
           value={formatBusinessNumber(form.workplaceBizNumber)}
-          onChange={(value) => handleChange("workplaceBizNumber", stripFormatting(value).slice(0, 10))}
+          onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
         />
         <InputGroup

@@ -7,4 +7,4 @@ export { useContracts } from "./model/use-contracts";
 export { useContractDetail } from "./model/use-contract-detail";
 
 export type { ContractAmountUnit } from "./model/types";
-export { CONTRACT_AMOUNT_UNIT, CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions } from "./model/types";
+export { CONTRACT_AMOUNT_UNIT, CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL } from "./model/types";
