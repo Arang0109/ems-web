@@ -3,20 +3,20 @@ import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, Fi
 import { Button } from "@shared/ui/buttons";
 import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
-import type { ContractEditForm } from "../model/types";
+import type { ContractUpdateForm } from "../model/types";
 import { useUpdateContract } from "../model/use-update-contract";
 
-interface ContractDetailFormProps {
+interface Props {
   contractId: number;
-  initial: ContractEditForm;
+  initial: ContractUpdateForm;
   onSuccess?: () => void;
 }
 
-export const ContractDetailForm = ({ contractId, initial, onSuccess }: ContractDetailFormProps) => {
-  const { form, handleChange, onSubmit, isLoading, error } = useUpdateContract(contractId, initial, onSuccess);
+export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) => {
+  const { form, handleChange, handleSubmit, isLoading, error } = useUpdateContract({ contractId, initial, onSuccess });
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <FieldGroup>
         <div className="flex justify-between">
           <SectionTitle>계약 정보</SectionTitle>

@@ -7,7 +7,7 @@ import { Button } from "@shared/ui/buttons";
 import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
 export const RegisterContractForm = () => {
-  const { form, handleChange, onSubmit } = useRegisterContract();
+  const { form, handleChange, handleSubmit } = useRegisterContract();
   const { data: workplaces, workplaceOptions } = useWorkplaces();
 
   const handleWorkplaceChange = (value: string) => {
@@ -22,7 +22,7 @@ export const RegisterContractForm = () => {
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <FieldGroup>
           <div className="flex justify-between">
             <SectionTitle>계약 정보</SectionTitle>

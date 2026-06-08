@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 
 import { useContractDetail } from "@entities/contract";
-import { ContractDetailForm, mapFromResponse } from "@features/update-contract";
+import { ContractDetailForm, toContractUpdateForm } from "@features/update-contract";
 
 import { PageTitle } from "@shared/ui/semantics";
 
@@ -24,7 +24,7 @@ export const ContractDetailPage = () => {
           <ContractDetailForm
             key={data.id}
             contractId={data.id}
-            initial={mapFromResponse(data)}
+            initial={toContractUpdateForm(data)}
           />
         </div>
       )}

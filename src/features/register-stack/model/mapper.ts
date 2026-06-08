@@ -3,7 +3,7 @@ import type { StackCreate } from "@entities/stack";
 
 import { trimValue } from "@shared/lib";
 
-export const mapToDto = (
+export const toStackCreate = (
   form: StackRegisterForm
 ): StackCreate => ({
   workplaceId: form.workplaceId,
@@ -13,4 +13,4 @@ export const mapToDto = (
   grade: form.grade,
   businessCategory: trimValue(form.businessCategory),
   mainProduct: trimValue(form.mainProduct),
-})
+});

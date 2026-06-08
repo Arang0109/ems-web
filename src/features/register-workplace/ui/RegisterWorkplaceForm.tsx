@@ -21,7 +21,7 @@ export const RegisterWorkplaceForm = ({
   onOpenChange,
   onSuccess,
 }: RegisterWorkplaceFormProps) => {
-  const { form, handleChange, onSubmit } = useRegisterWorkplace({
+  const { form, handleChange, handleSubmit } = useRegisterWorkplace({
     company,
     onSuccess: () => {
       onOpenChange(false);
@@ -34,7 +34,7 @@ export const RegisterWorkplaceForm = ({
       triggerLabel='측정대상 사업장 등록'
       open={open}
       onOpenChange={onOpenChange}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       submitLabel='등록'
       disabled={!company}
     >

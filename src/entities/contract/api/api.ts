@@ -2,7 +2,6 @@ import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 
 import type { ContractRegisterRequest, ContractUpdateRequest, ContractTableResponse, ContractResponse } from './dto';
-import type { Contract } from '../model/types';
 
 export const contractApi = {
   getContracts: async (contractId: number | null): Promise<ApiResponseMessage<ContractTableResponse[]>> => {
@@ -16,12 +15,12 @@ export const contractApi = {
     return res.data;
   },
 
-  registerContract: async (data: ContractRegisterRequest): Promise<ApiResponseMessage<Contract>> => {
+  registerContract: async (data: ContractRegisterRequest): Promise<ApiResponseMessage<ContractResponse>> => {
     const res = await axiosPrivate.post('/contracts', data);
     return res.data;
   },
 
-  updateContract: async (contractId: number, data: ContractUpdateRequest): Promise<ApiResponseMessage<Contract>> => {
+  updateContract: async (contractId: number, data: ContractUpdateRequest): Promise<ApiResponseMessage<ContractResponse>> => {
     const res = await axiosPrivate.put(`/contracts/${contractId}`, data);
     return res.data;
   },

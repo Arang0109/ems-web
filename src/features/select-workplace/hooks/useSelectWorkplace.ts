@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 
 import type { Workplace } from "@entities/workplace";
 import { stackApi } from "@entities/stack";
-import type { StackTableListResponse } from "@entities/stack";
+import type { StackListItem } from "@entities/stack";
 
 export const useSelectWorkplace = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedWorkplace, setSelectedWorkplace] = useState<Workplace | null>(null);
-  const [stackData, setStackData] = useState<StackTableListResponse[]>([]);
+  const [stackData, setStackData] = useState<StackListItem[]>([]);
 
   const handleSelectWorkplaceRow = (workplace: Workplace) => {
     setSelectedWorkplace(workplace);

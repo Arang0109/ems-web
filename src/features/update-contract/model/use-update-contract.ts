@@ -1,39 +1,34 @@
 import { useState } from "react";
 
-import { contractApi } from "@entities/contract";
+import { useUpdateContractAction } from "@entities/contract";
 
-import type { ContractEditForm } from "./types";
-import { mapToUpdateDto } from "./mapper";
+import type { ContractUpdateForm } from "./types";
+import { toContractUpdate } from "./mapper";
 
-export const useUpdateContract = (
-  contractId: number,
-  initial: ContractEditForm,
-  onSuccess?: () => void
-) => {
-  const [form, setForm] = useState<ContractEditForm>(initial);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+interface Props {
+  contractId: number;
+  initial: ContractUpdateForm;
+  onSuccess?: () => void;
+}
 
-  const handleChange = <K extends keyof ContractEditForm>(
+export const useUpdateContract = ({ contractId, initial, onSuccess }: Props) => {
+  const { updateContract, isLoading, error } = useUpdateContractAction({
+    onSuccess: onSuccess ?? (() => {}),
+  });
+
+  const [form, setForm] = useState<ContractUpdateForm>(initial);
+
+  const handleChange = <K extends keyof ContractUpdateForm>(
     name: K,
-    value: ContractEditForm[K]
+    value: ContractUpdateForm[K]
   ) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    try {
-      await contractApi.updateContract(contractId, mapToUpdateDto(form));
-      onSuccess?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
+    await updateContract(contractId, toContractUpdate(form));
   };
 
-  return { form, isLoading, error, handleChange, onSubmit };
+  return { form, isLoading, error, handleChange, handleSubmit };
 };

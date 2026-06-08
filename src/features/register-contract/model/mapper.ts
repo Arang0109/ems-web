@@ -3,7 +3,7 @@ import type { ContractRegisterForm } from "./types";
 
 import { trimValue, unformatNumber } from "@shared/lib";
 
-export const mapToDto = (
+export const toContractCreate = (
   form: ContractRegisterForm
 ): ContractCreate => ({
   workplaceId: form.workplaceId,
@@ -19,4 +19,4 @@ export const mapToDto = (
   advancePaymentDueDate: form.advancePaymentDueDate,
   delayPenaltyRate: form.delayPenaltyRate,
   remark: trimValue(form.remark),
-})
+});

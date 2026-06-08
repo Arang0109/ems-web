@@ -16,7 +16,7 @@ export const gradeOptions = GRADE.map((grade) => ({
 
 export type StackRegisterForm = {
   workplaceId: number,
-  wokrplaceName: string,
+  workplaceName: string,
   field: MeasurementField,
   stackName: string,
   semsNumber: string;
@@ -27,7 +27,7 @@ export type StackRegisterForm = {
 
 export const getDefaultStackRegisterForm = (workplace?: Workplace | null): StackRegisterForm => ({
   workplaceId: workplace?.id ?? 0,
-  wokrplaceName: workplace?.name ?? "",
+  workplaceName: workplace?.name ?? "",
   field: "AIR",
   stackName: "",
   semsNumber: "",

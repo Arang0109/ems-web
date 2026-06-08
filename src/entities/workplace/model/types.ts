@@ -1,19 +1,10 @@
-export type Workplace = {
-  id: number;
-  companyId: number;
-  name: string;
-  address: string;
-  bizNumber: string;
-}
+import type { WorkplaceResponse, WorkplaceListResponse, ContractOverviewResponse } from '../api/dto';
 
-export type WorkplaceListItem = {
-  id: number;
-  companyId: number;
-  companyName: string;
-  workplaceName: string;
-  address: string;
-  bizNumber: string;
-}
+export type Workplace = WorkplaceResponse;
+
+export type WorkplaceListItem = WorkplaceListResponse;
+
+export type ContractOverview = ContractOverviewResponse;
 
 export type WorkplaceCreate = {
   companyId: number;
@@ -26,11 +17,4 @@ export type WorkplaceUpdate = {
   name: string;
   bizNumber: string;
   address: string;
-}
-
-export type ContractOverview = {
-  recentContractCount: number;
-  totalContractCount: number;
-  expiringSoonContractCount: number;
-  expiredContractCount: number;
 }

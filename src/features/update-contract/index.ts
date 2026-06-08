@@ -1,2 +1,4 @@
 export { ContractDetailForm } from "./ui/ContractDetailForm";
-export { mapFromResponse } from "./model/types";
+export { useUpdateContract } from "./model/use-update-contract";
+export { toContractUpdateForm } from "./model/mapper";
+export type { ContractUpdateForm } from "./model/types";

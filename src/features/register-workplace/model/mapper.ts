@@ -3,7 +3,7 @@ import type { WorkplaceCreate } from "@entities/workplace";
 
 import { unformatNumber, trimValue } from "@shared/lib";
 
-export const mapToDto = (
+export const toWorkplaceCreate = (
   form: WorkplaceRegisterForm
 ): WorkplaceCreate => ({
   companyId: form.companyId,

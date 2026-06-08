@@ -7,6 +7,21 @@ export type WorkplaceListResponse = {
   bizNumber: string;
 }
 
+export type WorkplaceResponse = {
+  id: number;
+  companyId: number;
+  name: string;
+  address: string;
+  bizNumber: string;
+}
+
+export type ContractOverviewResponse = {
+  recentContractCount: number;
+  totalContractCount: number;
+  expiringSoonContractCount: number;
+  expiredContractCount: number;
+}
+
 export type WorkplaceRegisterRequest = {
   companyId: number,
   name: string,
