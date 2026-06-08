@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
 import { companyApi } from '../api/api';
-import { toUpdateRequest, toRegisterRequest } from '../api/mapper';
-import type { CompanyCreate, CompanyUpdate } from './types';
+import { toUpdateRequest } from '../api/mapper';
+import type { CompanyUpdate } from './types';
 
 interface UseCompanyActionProps {
   onSuccess?: () => void;
@@ -11,11 +11,6 @@ interface UseCompanyActionProps {
 export const useCompanyAction = ({ onSuccess }: UseCompanyActionProps = {}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const registerCompany = async (data: CompanyCreate) => {
-    const request = toRegisterRequest(data);
-    await companyApi.registerCompany(request);
-  };
 
   const handleEdit = async (id: number, data: CompanyUpdate) => {
     setLoading(true);
@@ -48,8 +43,6 @@ export const useCompanyAction = ({ onSuccess }: UseCompanyActionProps = {}) => {
   return {
     error,
     loading,
-
-    registerCompany,
     
     handleEdit,
     handleDelete,

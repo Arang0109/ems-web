@@ -11,7 +11,7 @@ import {
 import { defaultColumns } from '../model/columns';
 import { toPollutantRow } from '../model/mapper';
 
-import { useTableState } from '@shared/hooks';
+import { useTableState } from '@shared/model';
 import { BasicTable } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 import { usePollutants } from '@entities/pollutant';

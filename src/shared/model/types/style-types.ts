@@ -6,4 +6,3 @@ export const SIZE_STYLES: Record<size, string> = {
   lg: "h-10 px-5 text-sm",    // 40px — 주요 액션
   xl: "h-12 px-6 text-base",  // 48px — 히어로/강조
 };
-

@@ -1,7 +1,7 @@
 import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
-import { formatMoney, unformatMoney, toKoreanAmount } from "@shared/lib/formatters";
+import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
 import type { ContractEditForm } from "../model/types";
 import { useUpdateContract } from "../model/use-update-contract";
@@ -93,7 +93,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: ContractD
             id="contractAmount"
             label="계약금액(원)"
             value={formatMoney(form.contractAmount)}
-            onChange={(value) => handleChange("contractAmount", unformatMoney(value).toString())}
+            onChange={(value) => handleChange("contractAmount", unformatNumber(value))}
             helperText={toKoreanAmount(form.contractAmount) || undefined}
           />
           <Select
@@ -119,7 +119,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: ContractD
             id="contractGuaranteeAmount"
             label="계약보증금"
             value={formatMoney(form.contractGuaranteeAmount)}
-            onChange={(value) => handleChange("contractGuaranteeAmount", unformatMoney(value).toString())}
+            onChange={(value) => handleChange("contractGuaranteeAmount", unformatNumber(value))}
             helperText={toKoreanAmount(form.contractGuaranteeAmount) || undefined}
           />
         </div>
@@ -129,7 +129,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: ContractD
             id="advancePaymentAmount"
             label="선금"
             value={formatMoney(form.advancePaymentAmount)}
-            onChange={(value) => handleChange("advancePaymentAmount", unformatMoney(value).toString())}
+            onChange={(value) => handleChange("advancePaymentAmount", unformatNumber(value))}
             helperText={toKoreanAmount(form.advancePaymentAmount) || undefined}
           />
           <InlineInput

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+
 import {
   getCoreRowModel,
   useReactTable,
@@ -6,7 +7,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-import { useTableState } from '@shared/hooks';
+
 import { useCompanies, useCompanyAction } from '@entities/company';
 import type { Company } from '@entities/company';
 
@@ -15,12 +16,13 @@ import { RegisterCompanyForm } from '@features/register-company'
 import { defaultColumns } from '../model/columns';
 import { toCompanyRows, toCompanyUpdateRequest } from '../model/mapper';
 import type { CompanyTableRow, CompanyDetailFormData } from '../model/types';
+import { CompanyDetailForm } from './CompanyDetailForm';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
 
-import { CompanyDetailForm } from './CompanyDetailForm';
+import { useTableState } from '@shared/model';
 
 interface CompanyTableProps {
   onRowClick?: (company: Company) => void;

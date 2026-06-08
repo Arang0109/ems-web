@@ -1,7 +1,5 @@
-import {
-  MEASUREMENT_FIELD_LABEL, MEASUREMENT_FIELD,
-  GRADE_LABEL, GRADE,
-} from "@shared/model";
+import { MEASUREMENT_FIELD, GRADE } from "@shared/model";
+import { MEASUREMENT_FIELD_LABEL, GRADE_LABEL } from "@shared/config"
 
 import type { Workplace } from "@entities/workplace";
 import type { MeasurementField, Grade } from "@shared/model";

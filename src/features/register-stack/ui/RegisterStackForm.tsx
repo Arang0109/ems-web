@@ -9,7 +9,7 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, Select, SectionTitle, HorizontalRadioGroup } from "@shared/ui/form";
 import type { Grade, MeasurementField } from "@shared/model";
-import { GRADE_LABEL } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, Factory } from "lucide-react";
 

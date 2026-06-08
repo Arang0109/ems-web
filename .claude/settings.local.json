@@ -7,7 +7,8 @@
       "Bash(npx tsc *)",
       "Bash(Remove-Item \"c:\\\\dev\\\\projects\\\\ensolution-front-fsd\\\\src\\\\shared\\\\ui\\\\breadcrumbs\\\\index.ts\")",
       "Bash(Remove-Item \"c:\\\\dev\\\\projects\\\\new\\\\ensolution-front-fsd\\\\src\\\\shared\\\\ui\\\\buttons\\\\Button.tsx\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\dev\\\\projects\\\\new\\\\ensolution-front-fsd\" -Recurse -Directory | Where-Object { $_.FullName -match \"\\(pages|features|widgets|entities\\)\" } | Sort-Object FullName | Select-Object -First 100)"
     ]
   }
 }

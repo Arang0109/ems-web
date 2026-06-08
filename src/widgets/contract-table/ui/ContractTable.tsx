@@ -6,7 +6,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-import { useTableState } from '@shared/hooks';
+import { useTableState } from '@shared/model';
 
 import { useContracts } from '@entities/contract';
 

@@ -1,6 +1,7 @@
 import type { CompanyResponse } from "../api/dto";
 
 export type Company = CompanyResponse
+
 export type CompanyCreate = {
   name: string;
   bizNumber: string;
@@ -11,6 +12,7 @@ export type CompanyCreate = {
   email: string;
   tel: string;
 }
+
 export type CompanyUpdate = {
   name: string;
   bizNumber: string;

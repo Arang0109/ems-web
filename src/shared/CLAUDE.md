@@ -6,16 +6,25 @@
 
 ## 책임 범위
 
-- 공통 UI 컴포넌트 (shadcn/ui 래퍼)
+- 공통 UI 컴포넌트 (shadcn/ui 래퍼 포함)
 - axios 인스턴스 (인증/비인증)
-- MSW 핸들러 (개발 Mock API)
-- 공통 타입, 상수, 레이블맵
-- 입력 포맷팅 유틸
+- MSW 핸들러 및 Mock 데이터
+- 공통 타입, enum, 상수
+- 공통 레이블맵 및 옵션 생성 유틸
+- 날짜, 숫자, 문자열 등 입력 포맷팅 유틸
+- 범용 Helper 함수 및 재사용 가능한 Hook
 
 ## 금지 사항
 
 - 비즈니스 도메인 로직 작성 금지
 - 특정 feature/entity에 종속된 코드 금지
+- 회사, 계약, 사업장 등 도메인 전용 타입 및 로직 작성 금지
+- 상위 레이어를(entities, fetures, widgets, pages) import하지 말 것
+
+## 판단 기준
+
+- 위 질문에 "다른 프로젝트에서도 그대로 사용할 수 있는가?"라고 답할 수 있다면 shared에 위치시킨다.
+- 그렇지 않고 특정 비즈니스 개념을 알고 있어야 한다면 해당 도메인(entities 또는 features)으로 이동한다.
 
 ---
 
@@ -41,30 +50,59 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 
 ---
 
-## `model/common-types.ts` — 상수 + 타입 + 레이블맵 패턴
+## `model/common-types.ts` — 상수 + 타입 패턴
 
-도메인 전역 상수와 표시 레이블을 한 곳에서 관리:
+도메인 전역에서 사용하는 상수와 타입을 한 곳에서 관리한다.
 
 ```typescript
-// 1. 상수 배열 (as const → 유니온 타입 추론)
-export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
-export type ContractStatus = (typeof CONTRACT_STATUS)[number];
+// 상수 배열 (as const → 유니온 타입 추론)
+export const CONTRACT_STATUS = [
+  'active',
+  'expiringSoon',
+  'expired',
+] as const;
 
-// 2. 표시 레이블맵 (UI에서 한글 표시용)
-export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
+export type ContractStatus =
+  (typeof CONTRACT_STATUS)[number];
+```
+
+---
+
+## `config/labels.ts` — 표시 레이블 패턴
+
+UI에서 사용하는 표시 문자열은 별도의 레이블맵으로 관리한다.
+
+```typescript
+export const CONTRACT_STATUS_LABEL: Record<
+  ContractStatus,
+  string
+> = {
   active: '계약중',
   expiringSoon: '만료 예정',
   expired: '만료',
 };
-
-// 3. 선택지 배열 생성 (폼 select 옵션)
-export const contractStatusOptions = CONTRACT_STATUS.map((value) => ({
-  value,
-  label: CONTRACT_STATUS_LABEL[value],
-}));
 ```
 
-feature의 폼 선택지나 widget mapper의 라벨 변환에서 이 패턴을 재사용합니다.
+---
+
+## 선택지 생성
+
+폼에서 사용하는 Select 옵션은 타입과 레이블맵을 이용하여 생성한다.
+
+```typescript
+export const contractStatusOptions =
+  CONTRACT_STATUS.map((value) => ({
+    value,
+    label: CONTRACT_STATUS_LABEL[value],
+  }));
+```
+
+### 사용
+
+- `common-types.ts` → 타입 및 상수 정의
+- `labels.ts` → 화면 표시 문자열
+- Feature → Select 옵션 생성
+- Widget → 표시 라벨 변환
 
 ---
 

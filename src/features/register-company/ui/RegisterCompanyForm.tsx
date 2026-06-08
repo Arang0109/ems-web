@@ -1,12 +1,15 @@
-import { FieldGroup } from "@/components/ui/field";
-
 import { useRegisterCompany } from "../model/use-register-company";
 
+// UI
+import { FieldGroup } from "@/components/ui/field";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle } from "@shared/ui/form";
-import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib/formatters';
 
+// Format
+import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
+
+// Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
 interface RegisterCompanyFormProps {
@@ -20,7 +23,7 @@ export const RegisterCompanyForm = ({
   onOpenChange,
   onSuccess,
 }: RegisterCompanyFormProps) => {
-  const { form, handleChange, onSubmit } = useRegisterCompany({
+  const { form, handleChange, handleSubmit } = useRegisterCompany({
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -32,7 +35,7 @@ export const RegisterCompanyForm = ({
       triggerLabel='측정대행 의뢰기관 등록'
       open={open}
       onOpenChange={onOpenChange}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       submitLabel='등록'
     >
       <FieldGroup>
