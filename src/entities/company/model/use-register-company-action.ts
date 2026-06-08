@@ -3,9 +3,7 @@ import type { CompanyCreate } from "./types";
 import { companyApi } from "../api/api";
 import { toRegisterRequest } from "../api/mapper";
 
-interface Props { onSuccess: () => void; }
-
-export const useRegisterCompanyAction = ({ onSuccess }: Props) => {
+export const useRegisterCompanyAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,9 +15,10 @@ export const useRegisterCompanyAction = ({ onSuccess }: Props) => {
 
     try {
       await companyApi.registerCompany(payload);
-      onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
+      const message = err instanceof Error ? err.message : '서버 연결에 실패했습니다.';
+      setError(message);
+      throw new Error(message);
     } finally {
       setIsLoading(false);
     }
