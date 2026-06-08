@@ -9,7 +9,7 @@ export const useStacks = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStacks = async (workplaceId: number) => {
+  const fetchStacks = async (workplaceId: number | null) => {
     setLoading(true);
     setError(null);
     setData([]);
