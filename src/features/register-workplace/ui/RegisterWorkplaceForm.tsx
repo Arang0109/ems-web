@@ -1,12 +1,13 @@
 import { Divider } from "@shared/ui/borders";
-import type { Company } from "@/entities/company";
-import { FieldGroup, InputGroup, SectionTitle } from "@/shared/ui/form";
+import type { Company } from "@entities/company";
+
+import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 import { formatBusinessNumber, unformatNumber } from '@shared/lib';
 
 import { Building2, Hash, User2, MapPin, Factory } from "lucide-react";
 
-import { useRegisterWorkplace } from "../model/use-register-workplace";
+import { useRegisterWorkplace } from "../model/hooks/use-register-workplace";
 
 interface RegisterWorkplaceFormProps {
   company: Company | null;

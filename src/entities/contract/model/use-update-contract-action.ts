@@ -3,9 +3,7 @@ import { contractApi } from '../api/api';
 import { toUpdateRequest } from '../api/mapper';
 import type { ContractUpdate } from './types';
 
-interface Props { onSuccess: () => void; }
-
-export const useUpdateContractAction = ({ onSuccess }: Props) => {
+export const useUpdateContractAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +15,6 @@ export const useUpdateContractAction = ({ onSuccess }: Props) => {
 
     try {
       await contractApi.updateContract(id, payload);
-      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
     } finally {

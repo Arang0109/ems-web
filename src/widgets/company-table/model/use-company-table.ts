@@ -86,6 +86,6 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch
+    loading, error, refetch,
   }
 }

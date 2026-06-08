@@ -4,28 +4,32 @@ import { CompanyTable } from "@widgets/company-table";
 import { WorkplaceTable } from "@widgets/workplace-table";
 import { StackTable } from "@widgets/stack-table";
 
-import { useSelectCompany } from "@features/select-company";
-import { useSelectWorkplace } from "@features/select-workplace";
+import { useCompanySelection } from "@features/select-company";
+import { useWorkplaceSelection } from "@features/select-workplace";
 
 export const ClientManagementPage = () => {
   const {
+    stacks,
+    selectedWorkplace,
+
     handleSelectWorkplaceRow,
     clearWorkplaceSelection,
-    selectedWorkplace,
-    stackData,
-    isLoading: isWorkplaceLoading,
-    error: workplaceError,
     refetchStacks,
-  } = useSelectWorkplace();
+    
+    loading: stacksLoading,
+    error: stacksError,
+  } = useWorkplaceSelection();
 
   const {
-    handleSelectCompanyRow,
+    workplaces,
     selectedCompany,
-    workplaceData,
-    isLoading: isCompanyLoading,
-    error: companyError,
+
+    handleSelectCompanyRow,
     refetchWorkplaces,
-  } = useSelectCompany(clearWorkplaceSelection);
+    
+    loading: workplacesLoading,
+    error: workplacesError,
+  } = useCompanySelection({ onChange: clearWorkplaceSelection });
 
   return (
     <div className="p-6 space-y-5 min-h-full">
@@ -34,12 +38,20 @@ export const ClientManagementPage = () => {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CompanyTable onRowClick={handleSelectCompanyRow} />
         <WorkplaceTable
+          workplaces={workplaces}
+          loading={workplacesLoading}
+          error={workplacesError}
+          selectedCompany={selectedCompany}
           onRowClick={handleSelectWorkplaceRow}
-          data={workplaceData} loading={isCompanyLoading} error={companyError} selectedCompany={selectedCompany}
-          onSuccess={refetchWorkplaces} />
+          onSuccess={refetchWorkplaces}
+        />
       </div>
       <div className="grid grid-cols-1">
-        <StackTable data={stackData} loading={isWorkplaceLoading} error={workplaceError} selectedWorkplace={selectedWorkplace}
+        <StackTable
+          stacks={stacks}
+          loading={stacksLoading}
+          error={stacksError}
+          selectedWorkplace={selectedWorkplace}
           onSuccess={refetchStacks} />
       </div>
     </div>

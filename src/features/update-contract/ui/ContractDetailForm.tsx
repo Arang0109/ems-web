@@ -1,10 +1,16 @@
-import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
-import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
-import { Button } from "@shared/ui/buttons";
-import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
-
 import type { ContractUpdateForm } from "../model/types";
-import { useUpdateContract } from "../model/use-update-contract";
+import { useUpdateContract } from "../model/hooks/use-update-contract";
+
+// Entitity
+import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL  } from "@entities/contract";
+import type { ContractAmountUnit } from "@entities/contract";
+
+// UI
+import { Button } from "@shared/ui/buttons";
+import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
+
+// Icon
+import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
 interface Props {
   contractId: number;

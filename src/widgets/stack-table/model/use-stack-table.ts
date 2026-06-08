@@ -7,20 +7,18 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-
-import { useTableState } from '@shared/model';
-import type { Workplace } from '@entities/workplace';
 import type { StackListItem } from '@entities/stack';
 
 import { defaultColumns } from '../model/columns';
 import { toStackRows } from '../model/mapper';
 
+import { useTableState } from '@shared/model';
+
 interface Props {
-  data: StackListItem[];
-  selectedWorkplace: Workplace | null;
+  stacks: StackListItem[];
 }
 
-export const useStackTable = ({ data, selectedWorkplace }: Props) => {
+export const useStackTable = ({ stacks }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
 
   const {
@@ -29,7 +27,7 @@ export const useStackTable = ({ data, selectedWorkplace }: Props) => {
     pagination, setPagination,
   } = useTableState({ pageSize: 10 });
 
-  const tableData = useMemo(() => data.map(toStackRows), [data]);
+  const tableData = useMemo(() => stacks.map(toStackRows), [stacks]);
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -48,7 +46,9 @@ export const useStackTable = ({ data, selectedWorkplace }: Props) => {
 
   return {
     table,
+
     registerModalOpen, setRegisterModalOpen,
+
     globalFilter, setGlobalFilter,
   };
 };

@@ -1,4 +1,4 @@
-import { useRegisterCompany } from "../model/use-register-company";
+import { useRegisterCompany } from "../model/hooks/use-register-company";
 
 // UI
 import { FieldGroup } from "@/components/ui/field";

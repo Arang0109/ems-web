@@ -1,10 +1,12 @@
 import { useState } from "react";
 
+import type { CompanyUpdateForm } from "../types";
+import { toCompanyUpdate } from "../mapper";
+
 import { useUpdateCompanyAction } from "@entities/company";
 import type { Company } from "@entities/company";
 
-import type { CompanyUpdateForm } from "../model/types";
-import { toCompanyUpdate } from "../model/mapper";
+import { toast } from "@shared/ui/toasts";
 
 interface Props {
   company: Company | null;
@@ -12,7 +14,7 @@ interface Props {
 }
 
 export const useUpdateCompany = ({ company, onSuccess }: Props) => {
-  const { updateCompany, isLoading, error } = useUpdateCompanyAction({ onSuccess });
+  const { updateCompany, isLoading, error } = useUpdateCompanyAction();
 
   const [form, setForm] = useState<CompanyUpdateForm>({
     name: company?.name ?? '',
@@ -31,7 +33,15 @@ export const useUpdateCompany = ({ company, onSuccess }: Props) => {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     if (!company) return
     e.preventDefault();
-    await updateCompany(company.id, toCompanyUpdate(form));
+    
+    try {
+      await updateCompany(company.id, toCompanyUpdate(form));
+      toast.success(`${company.name}이(가) 수정되었습니다.`);
+      onSuccess();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '수정에 실패했습니다.';
+      toast.error(message);
+    }
   };
 
   return {

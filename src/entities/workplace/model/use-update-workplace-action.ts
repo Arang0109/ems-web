@@ -3,9 +3,7 @@ import { workplaceApi } from '../api/api';
 import { toUpdateRequest } from '../api/mapper';
 import type { WorkplaceUpdate } from './types';
 
-interface Props { onSuccess: () => void; }
-
-export const useUpdateWorkplaceAction = ({ onSuccess }: Props) => {
+export const useUpdateWorkplaceAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +15,6 @@ export const useUpdateWorkplaceAction = ({ onSuccess }: Props) => {
 
     try {
       await workplaceApi.updateWorkplace(id, payload);
-      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
     } finally {

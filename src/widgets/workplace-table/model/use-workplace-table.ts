@@ -8,24 +8,20 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 
-import type { Company } from '@entities/company';
 import type { Workplace, WorkplaceListItem } from '@entities/workplace';
-import { useWorkplaceAction } from '@entities/workplace';
 
 import { defaultColumns } from '../model/columns';
-import { toWorkplaceRows, toWorkplaceUpdateRequest } from '../model/mapper';
-import type { WorkplaceDetailFormData, WorkplaceTableRow } from '../model/types';
+import { toWorkplaceRows } from '../model/mapper';
+import type { WorkplaceTableRow } from '../model/types';
 
 import { useTableState } from '@shared/model';
 
 interface Props {
-  data: WorkplaceListItem[];
-  selectedCompany: Company | null;
+  workplaces: WorkplaceListItem[];
   onRowClick?: (workplace: Workplace) => void;
-  onSuccess?: () => void;
 }
 
-export const useWorkplaceTable = ({ data, selectedCompany, onRowClick, onSuccess }: Props) => {
+export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
@@ -36,25 +32,11 @@ export const useWorkplaceTable = ({ data, selectedCompany, onRowClick, onSuccess
     pagination, setPagination,
   } = useTableState({ pageSize: 4 });
 
-  const { handleEdit: editWorkplace, handleDelete: deleteWorkplace } = useWorkplaceAction({ onSuccess });
-
-  const tableData = useMemo(() => data.map(toWorkplaceRows), [data]);
+  const tableData = useMemo(() => workplaces.map(toWorkplaceRows), [workplaces]);
 
   const handleViewDetail = (row: WorkplaceTableRow) => {
     setDetailWorkplace(row);
     setDetailOpen(true);
-  };
-
-  const handleEdit = (formData: WorkplaceDetailFormData) => {
-    if (!detailWorkplace) return;
-    editWorkplace(detailWorkplace.id, toWorkplaceUpdateRequest(formData));
-    setDetailOpen(false);
-  };
-
-  const handleDelete = () => {
-    if (!detailWorkplace) return;
-    deleteWorkplace(detailWorkplace.id);
-    setDetailOpen(false);
   };
 
   const table = useReactTable({
@@ -87,11 +69,13 @@ export const useWorkplaceTable = ({ data, selectedCompany, onRowClick, onSuccess
 
   return {
     table,
+
     handleRowClick,
-    handleEdit,
-    handleDelete,
+
     registerModalOpen, setRegisterModalOpen,
     detailOpen, setDetailOpen,
     detailWorkplace,
+
+    globalFilter, setGlobalFilter,
   };
 };

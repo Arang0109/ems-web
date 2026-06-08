@@ -1,5 +1,5 @@
-import { useRegisterContract } from "../model/use-register-contract";
-import { useWorkplaces } from "@entities/workplace";
+import { useRegisterContract } from "../model/hooks/use-register-contract";
+
 import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
@@ -7,19 +7,15 @@ import { Button } from "@shared/ui/buttons";
 import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
 export const RegisterContractForm = () => {
-  const { form, handleChange, handleSubmit } = useRegisterContract();
-  const { data: workplaces, workplaceOptions } = useWorkplaces();
+  const { 
+    form,
 
-  const handleWorkplaceChange = (value: string) => {
-    const selected = workplaces.find((wp) => String(wp.id) === value);
+    handleSubmit,
+    handleChange,
+    handleWorkplaceChange,
 
-    handleChange("workplaceId", value);
-
-    if (selected) {
-      handleChange("workplaceName", selected.workplaceName);
-      handleChange("workplaceAddress", selected.address ?? "");
-    }
-  };
+    workplaceOptions,
+  } = useRegisterContract();
 
   return (
     <form onSubmit={handleSubmit}>

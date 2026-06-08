@@ -12,7 +12,7 @@ import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
 
 interface Props {
-  data: StackListItem[];
+  stacks: StackListItem[];
   loading: boolean;
   error: string | null;
   selectedWorkplace: Workplace | null;
@@ -20,13 +20,13 @@ interface Props {
 }
 
 export const StackTable = ({
-  data, loading, error, selectedWorkplace, onSuccess
+  stacks, loading, error, selectedWorkplace, onSuccess
 }: Props) => {
   const {
     table,
     registerModalOpen, setRegisterModalOpen,
     globalFilter, setGlobalFilter,
-  } = useStackTable({ data, selectedWorkplace });
+  } = useStackTable({ stacks });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">

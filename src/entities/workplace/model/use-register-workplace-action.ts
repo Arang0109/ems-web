@@ -3,9 +3,7 @@ import { workplaceApi } from '../api/api';
 import { toRegisterRequest } from '../api/mapper';
 import type { WorkplaceCreate } from './types';
 
-interface Props { onSuccess: () => void; }
-
-export const useRegisterWorkplaceAction = ({ onSuccess }: Props) => {
+export const useRegisterWorkplaceAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +15,6 @@ export const useRegisterWorkplaceAction = ({ onSuccess }: Props) => {
 
     try {
       await workplaceApi.registerWorkplace(payload);
-      onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
     } finally {

@@ -24,6 +24,8 @@ interface InputProps<T = string | number> {
 
   autoComplete?: string;
   helperText?: string;
+
+  isInvalid?: boolean;
 }
 
 export const Input = <T extends string | number>({
@@ -42,11 +44,12 @@ export const Input = <T extends string | number>({
   step,
   autoComplete,
   helperText,
+  isInvalid,
 }: InputProps<T>) => {
   const isStringLabel = typeof label === "string";
 
   return (
-    <Field>
+    <Field data-invalid={isInvalid || undefined}>
       <FieldLabel htmlFor={id}>
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
@@ -65,6 +68,7 @@ export const Input = <T extends string | number>({
         max={max}
         step={step}
         autoComplete={autoComplete}
+        aria-invalid={isInvalid}
       />
       {helperText && (
         <FieldDescription>{helperText}</FieldDescription>

@@ -1,2 +1,2 @@
 export { RegisterContractForm } from "./ui/RegisterContractForm";
-export { useRegisterContract } from "./model/use-register-contract";
+export { useRegisterContract } from "./model/hooks/use-register-contract";

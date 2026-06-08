@@ -4,39 +4,42 @@ import type { Company } from '@entities/company';
 import type { Workplace, WorkplaceListItem } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
+import { UpdateWorkplaceForm } from '@features/update-workplace';
 
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 
 import { Building2 } from 'lucide-react';
-import { WorkplaceDetailForm } from './WorkplaceDetailForm';
 
 interface Props {
-  data: WorkplaceListItem[];
-  loading: boolean;
-  error: string | null;
+  workplaces: WorkplaceListItem[];
   selectedCompany: Company | null;
+
   onRowClick?: (workplace: Workplace) => void;
   onSuccess?: () => void;
+
+  loading: boolean;
+  error: string | null;
 }
 
 export const WorkplaceTable = ({
-  data,
-  loading,
-  error,
+  workplaces,
   selectedCompany,
   onRowClick,
   onSuccess,
+
+  loading,
+  error,
 }: Props) => {
   const {
     table,
+
     handleRowClick,
-    handleEdit,
-    handleDelete,
+
     registerModalOpen, setRegisterModalOpen,
     detailOpen, setDetailOpen,
-    detailWorkplace,
-  } = useWorkplaceTable({ data, selectedCompany, onRowClick, onSuccess });
+    detailWorkplace
+  } = useWorkplaceTable({ workplaces, onRowClick });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -96,13 +99,12 @@ export const WorkplaceTable = ({
         </div>
       )}
 
-      <WorkplaceDetailForm
+      <UpdateWorkplaceForm
         key={detailWorkplace?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         workplace={detailWorkplace}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onSuccess={onSuccess}
       />
     </div>
   );

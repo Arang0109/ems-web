@@ -1,9 +1,11 @@
 import { useState } from "react";
 
+import type { ContractUpdateForm } from "../types";
+import { toContractUpdate } from "../mapper";
+
 import { useUpdateContractAction } from "@entities/contract";
 
-import type { ContractUpdateForm } from "./types";
-import { toContractUpdate } from "./mapper";
+import { toast } from "@shared/ui/toasts";
 
 interface Props {
   contractId: number;
@@ -12,9 +14,7 @@ interface Props {
 }
 
 export const useUpdateContract = ({ contractId, initial, onSuccess }: Props) => {
-  const { updateContract, isLoading, error } = useUpdateContractAction({
-    onSuccess: onSuccess ?? (() => {}),
-  });
+  const { updateContract, isLoading, error } = useUpdateContractAction();
 
   const [form, setForm] = useState<ContractUpdateForm>(initial);
 
@@ -27,7 +27,15 @@ export const useUpdateContract = ({ contractId, initial, onSuccess }: Props) => 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await updateContract(contractId, toContractUpdate(form));
+    
+    try {
+      await updateContract(contractId, toContractUpdate(form));
+      toast.success(`${form.contractName}이(가) 수정되었습니다.`);
+      onSuccess?.();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '수정에 실패했습니다.';
+      toast.error(message);
+    }
   };
 
   return { form, isLoading, error, handleChange, handleSubmit };

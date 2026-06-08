@@ -1,4 +1,5 @@
-import { useUpdateCompany } from '../model/use-update-company';
+import { useUpdateCompany } from '../model/hooks/use-update-company';
+import { useDeleteCompany } from '../model/hooks/use-delete-company';
 
 import type { Company } from '@entities/company';
 
@@ -12,7 +13,6 @@ import { formatPhoneNumber, unformatNumber, formatBusinessNumber } from '@shared
 
 // Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
-import { useDeleteCompany } from '../model/use-delete-company';
 
 interface Props {
   open: boolean;

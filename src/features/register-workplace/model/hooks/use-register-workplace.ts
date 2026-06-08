@@ -1,11 +1,13 @@
 import { useState } from "react";
 
+import type { WorkplaceRegisterForm } from "../types";
+import { getDefaultWorkplaceRegisterForm } from "../types";
+import { toWorkplaceCreate } from "../mapper";
+
 import type { Company } from "@entities/company";
 import { useRegisterWorkplaceAction } from "@entities/workplace";
 
-import type { WorkplaceRegisterForm } from "../model/types";
-import { getDefaultWorkplaceRegisterForm } from "../model/types";
-import { toWorkplaceCreate } from "../model/mapper";
+import { toast } from "@shared/ui/toasts";
 
 interface Props {
   company: Company | null;
@@ -13,7 +15,7 @@ interface Props {
 }
 
 export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
-  const { registerWorkplace, isLoading, error } = useRegisterWorkplaceAction({ onSuccess });
+  const { registerWorkplace, isLoading, error } = useRegisterWorkplaceAction();
 
   const [form, setForm] = useState<WorkplaceRegisterForm>(getDefaultWorkplaceRegisterForm(company));
 
@@ -23,7 +25,14 @@ export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await registerWorkplace(toWorkplaceCreate(form));
+    try {
+      await registerWorkplace(toWorkplaceCreate(form));
+      toast.success("측정대상 사업장이 등록되었습니다.")
+      onSuccess();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '등록에 실패했습니다.';
+      toast.error(message);
+    }
   };
 
   return {

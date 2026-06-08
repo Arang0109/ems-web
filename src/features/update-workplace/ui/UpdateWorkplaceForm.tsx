@@ -1,30 +1,36 @@
-import { useState } from 'react';
+import { useUpdateWorkplace } from '../model/hooks/use-update-workplace';
+import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
+
+import type { WorkplaceListItem } from '@entities/workplace';
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
 
 import { Building2, Hash, MapPin } from "lucide-react";
 
-import type { WorkplaceDetailFormData, WorkplaceTableRow } from "../model/types";
-
-interface WorkplaceDetailFormProps {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  workplace: WorkplaceTableRow | null;
-  onEdit?: (data: WorkplaceDetailFormData) => void;
-  onDelete?: () => void;
+  workplace: WorkplaceListItem | null;
+  onSuccess?: () => void;
 }
 
-export const WorkplaceDetailForm = ({ open, onOpenChange, workplace, onEdit, onDelete }: WorkplaceDetailFormProps) => {
-  const [form, setForm] = useState<WorkplaceDetailFormData>({
-    name: workplace?.workplaceName ?? '',
-    bizNumber: workplace?.bizNumber ?? '',
-    address: workplace?.address ?? '',
+export const UpdateWorkplaceForm = ({ open, onOpenChange, workplace, onSuccess }: Props) => {
+  const { form, handleSubmit, handleChange } = useUpdateWorkplace({
+    workplace: workplace,
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
   });
 
-  const handleChange = (field: keyof WorkplaceDetailFormData, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const { handleDelete } = useDeleteWorkplace({
+    workplace: workplace,
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
+  });
 
   return(
     <FormDialog
@@ -34,8 +40,8 @@ export const WorkplaceDetailForm = ({ open, onOpenChange, workplace, onEdit, onD
       cancelLabel='닫기'
       submitLabel='수정'
       deleteLabel='삭제'
-      onSubmit={() => onEdit?.(form)}
-      onDelete={onDelete}
+      onSubmit={handleSubmit}
+      onDelete={handleDelete}
     >
       <FieldGroup>
         {/* 기관 정보 */}

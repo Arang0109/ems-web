@@ -13,7 +13,7 @@ export const SignInForm = () => {
 
     handleChange,
 
-    isLoading
+    isLoading, error
   } = useSignIn();
 
   return (
@@ -26,6 +26,7 @@ export const SignInForm = () => {
         onChange={(value) => handleChange("username", value)}
         placeholder="아이디"
         autoComplete="username"
+        isInvalid={error}
       />
       <Input
         id="password"
@@ -36,6 +37,7 @@ export const SignInForm = () => {
         onChange={(value) => handleChange("password", value)}
         placeholder="••••••••"
         autoComplete="current-password"
+        isInvalid={error}
       />
       <div className="flex gap-4">
         <Link to="/sign-up">회원가입</Link>

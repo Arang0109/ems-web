@@ -1,16 +1,12 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackRegisterRequest, StackTableListResponse } from './dto';
+import type { StackRegisterRequest, StackListResponse } from './dto';
 import type { Stack } from '../model/types';
 
 export const stackApi = {
-  getStacks: async (): Promise<ApiResponseMessage<Stack[]>> => {
-    const res = await axiosPrivate.get('/stacks');
-    return res.data;
-  },
-
-  getStacksByWorkplace: async (workplaceId: number): Promise<ApiResponseMessage<StackTableListResponse[]>> => {
-    const res = await axiosPrivate.get(`/stacks?workplaceId=${workplaceId}`);
+  getStacks: async (workplaceId: number | null = null): Promise<ApiResponseMessage<StackListResponse[]>> => {
+    const params = workplaceId != null ? { workplaceId } : {};
+    const res = await axiosPrivate.get('/stacks', { params });
     return res.data;
   },
 

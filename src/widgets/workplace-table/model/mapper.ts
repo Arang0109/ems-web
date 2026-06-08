@@ -1,7 +1,7 @@
-import type { WorkplaceListItem, WorkplaceUpdate } from '@entities/workplace';
-import { formatBusinessNumber, unformatNumber } from '@shared/lib';
+import type { WorkplaceListItem } from '@entities/workplace';
+import { formatBusinessNumber } from '@shared/lib';
 
-import type { WorkplaceDetailFormData, WorkplaceTableRow } from './types';
+import type { WorkplaceTableRow } from './types';
 
 export const toWorkplaceRows = (col: WorkplaceListItem): WorkplaceTableRow => ({
   id: col.id,
@@ -10,10 +10,4 @@ export const toWorkplaceRows = (col: WorkplaceListItem): WorkplaceTableRow => ({
   workplaceName: col.workplaceName,
   address: col.address,
   bizNumber: formatBusinessNumber(col.bizNumber),
-});
-
-export const toWorkplaceUpdateRequest = (col: WorkplaceDetailFormData): WorkplaceUpdate => ({
-  name: col.name,
-  address: col.address,
-  bizNumber: unformatNumber(col.bizNumber),
 });

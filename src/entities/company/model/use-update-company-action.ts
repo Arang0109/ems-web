@@ -3,9 +3,7 @@ import type { CompanyUpdate } from "./types";
 import { companyApi } from "../api/api";
 import { toUpdateRequest } from "../api/mapper";
 
-interface Props { onSuccess: () => void; }
-
-export const useUpdateCompanyAction = ({ onSuccess }: Props) => {
+export const useUpdateCompanyAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +15,6 @@ export const useUpdateCompanyAction = ({ onSuccess }: Props) => {
 
     try {
       await companyApi.updateCompany(id, payload);
-      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
     } finally {

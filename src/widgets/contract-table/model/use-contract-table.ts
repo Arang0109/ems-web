@@ -7,12 +7,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-
-import { useTableState } from '@shared/model';
 import { useContracts } from '@entities/contract';
 
 import { defaultColumns } from '../model/columns';
 import { toContractRows } from '../model/mapper';
+
+import { useTableState } from '@shared/model';
 
 export const useContractTable = () => {
   const {

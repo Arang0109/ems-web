@@ -10,7 +10,7 @@ export type StackRegisterRequest = {
   mainProduct: string,
 }
 
-export type StackTableListResponse = {
+export type StackListResponse = {
   id: number,
   companyName: string,
   workplaceName: string,

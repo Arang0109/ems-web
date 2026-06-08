@@ -1,31 +1,28 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 
-import type { Stack } from "./types";
+import type { StackListItem } from "./types";
+import { toStackListItems } from "../api/mapper";
 import { stackApi } from "../api/api";
 
 export const useStacks = () => {
-  const [data, setData] = useState<Stack[]>([]);
+  const [data, setData] = useState<StackListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [revision, setRevision] = useState(0);
 
-  const refetch = useCallback(() => {
+  const fetchStacks = async (workplaceId: number) => {
     setLoading(true);
-    setRevision((r) => r + 1);
-  }, []);
+    setError(null);
+    setData([]);
 
-  useEffect(() => {
-    let cancelled = false;
-    stackApi.getStacks()
-      .then((res) => {
-        if (cancelled) return;
-        if (res.status) setData(res.data);
-        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
-      })
-      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [revision]);
+    try {
+      const res = await stackApi.getStacks(workplaceId);
+      setData(toStackListItems(res.data));
+    } catch {
+      setError('데이터를 불러오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  return { data, loading, error, refetch };
+  return { data, loading, error, fetchStacks };
 }

@@ -1,10 +1,11 @@
 import { useState } from "react";
 
-import type { CompanyRegisterForm } from "./types";
-import { getDefaultForm } from "./types";
-import { toCompanyCreate } from "./mapper";
+import type { CompanyRegisterForm } from "../types";
+import { getDefaultForm } from "../types";
+import { toCompanyCreate } from "../mapper";
 
 import { useRegisterCompanyAction } from "@entities/company";
+
 import { toast } from "@shared/ui/toasts";
 
 interface Props { onSuccess: () => void; }
@@ -22,7 +23,7 @@ export const useRegisterCompany = ({ onSuccess }: Props) => {
     e.preventDefault();
     try {
       await registerCompany(toCompanyCreate(form));
-      toast.success(`측정대행 의뢰기관[${form.name}]이 등록되었습니다.`);
+      toast.success(`측정대행 의뢰기관이 등록되었습니다.`);
       setForm(getDefaultForm());
       onSuccess();
     } catch (err) {

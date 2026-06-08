@@ -45,3 +45,4 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
 
   remark: "",
 });
+

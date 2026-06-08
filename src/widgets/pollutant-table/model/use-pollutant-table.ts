@@ -8,11 +8,12 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 
-import { useTableState } from '@shared/model';
 import { usePollutants } from '@entities/pollutant';
 
 import { defaultColumns } from '../model/columns';
 import { toPollutantRow } from '../model/mapper';
+
+import { useTableState } from '@shared/model';
 
 export const usePollutantTable = () => {
   const {

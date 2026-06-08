@@ -1,42 +1,33 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 import type { WorkplaceListItem } from "./types";
+import { toWorkplaceListItems } from "../api/mapper";
 import { workplaceApi } from "../api/api";
 
 export const useWorkplaces = () => {
   const [data, setData] = useState<WorkplaceListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [revision, setRevision] = useState(0);
 
-  const refetch = useCallback(() => {
+  const fetchWorkplaces = useCallback(async (companyId: number | null) => {
     setLoading(true);
-    setRevision((r) => r + 1);
+    setError(null);
+    setData([]);
+    try {
+      const res = await workplaceApi.getWorkplaces(companyId);
+      setData(toWorkplaceListItems(res.data));
+    } catch {
+      setError('데이터를 불러오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    workplaceApi.getWorkplaces(null)
-      .then((res) => {
-        if (cancelled) return;
-        if (res.status) setData(res.data);
-        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
-      })
-      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [revision]);
-
-  const workplaceOptions = data.map(wp => ({
-    value: String(wp.id),
-    label: `${wp.workplaceName}`,
-  }));
 
   return {
     data,
     loading,
     error,
-    workplaceOptions,
-    refetch,
+
+    fetchWorkplaces,
   }
 }
