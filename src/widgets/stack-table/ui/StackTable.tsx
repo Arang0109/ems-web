@@ -1,14 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useStackTable } from '../model/use-stack-table';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
-import { useTableState } from '@shared/model';
 import type { Workplace } from '@entities/workplace';
 import type { StackListItem } from '@entities/stack';
 
@@ -16,14 +7,11 @@ import { RegisterStackForm } from '@features/register-stack';
 
 import { Building2 } from 'lucide-react';
 
-import { defaultColumns } from '../model/columns';
-import { toStackRows } from '../model/mapper';
-
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
-import { Search } from '@/shared/ui/form';
+import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
 
-interface StackTableProps {
+interface Props {
   data: StackListItem[];
   loading: boolean;
   error: string | null;
@@ -33,32 +21,12 @@ interface StackTableProps {
 
 export const StackTable = ({
   data, loading, error, selectedWorkplace, onSuccess
-}: StackTableProps) => {
-  const [open, setOpen] = useState(false);
+}: Props) => {
   const {
-    sorting, setSorting,
+    table,
+    registerModalOpen, setRegisterModalOpen,
     globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 10 });
-
-  const tableData = useMemo(
-      () => data.map(toStackRows),
-      [data]
-    );
-
-  const table = useReactTable({
-    columns: defaultColumns,
-    data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+  } = useStackTable({ data, selectedWorkplace });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -80,8 +48,8 @@ export const StackTable = ({
           <RegisterStackForm
             key={selectedWorkplace?.id}
             workplace={selectedWorkplace}
-            open={open}
-            onOpenChange={setOpen}
+            open={registerModalOpen}
+            onOpenChange={setRegisterModalOpen}
             onSuccess={onSuccess}
           />
         </div>
@@ -100,9 +68,7 @@ export const StackTable = ({
             subLabel={<span>위쪽에서 사업장을 선택하면<br />해당 측정시설 목록이 표시됩니다.</span>}
           />
         ) : (
-          <>
-            <BasicTable table={table} error={error} />
-          </>
+          <BasicTable table={table} error={error} />
         )}
       </div>
 

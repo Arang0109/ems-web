@@ -1,0 +1,44 @@
+import { useMemo } from 'react';
+
+import {
+  getCoreRowModel,
+  useReactTable,
+  getSortedRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+} from '@tanstack/react-table';
+
+import { useTableState } from '@shared/model';
+import { usePollutants } from '@entities/pollutant';
+
+import { defaultColumns } from '../model/columns';
+import { toPollutantRow } from '../model/mapper';
+
+export const usePollutantTable = () => {
+  const {
+    sorting, setSorting,
+    globalFilter, setGlobalFilter,
+    pagination, setPagination,
+  } = useTableState({ pageSize: 4 });
+
+  const { data, loading, error } = usePollutants();
+
+  const tableData = useMemo(() => data.map(toPollutantRow), [data]);
+
+  const table = useReactTable({
+    columns: defaultColumns,
+    data: tableData,
+
+    state: { sorting, globalFilter, pagination },
+
+    onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return { table, loading, error };
+};

@@ -1,50 +1,10 @@
-import { useMemo } from 'react';
+import { usePollutantTable } from '../model/use-pollutant-table';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
-import { defaultColumns } from '../model/columns';
-import { toPollutantRow } from '../model/mapper';
-
-import { useTableState } from '@shared/model';
 import { BasicTable } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
-import { usePollutants } from '@entities/pollutant';
 
 export const PollutantTable = () => {
-
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination
-  } = useTableState({ pageSize: 4 });
-
-  const { data, loading, error } = usePollutants();
-
-  const tableData = useMemo(
-    () => data.map(toPollutantRow),
-    [data]
-  );
-
-  const table = useReactTable({
-    columns: defaultColumns,
-    data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
+  const { table, loading, error } = usePollutantTable();
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">

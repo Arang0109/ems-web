@@ -1,85 +1,32 @@
-import { useState, useMemo } from 'react';
+import { useCompanyTable } from '../model/use-company-table';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
-import { useCompanies } from '@entities/company';
 import type { Company } from '@entities/company';
 
 import { RegisterCompanyForm } from '@features/register-company'
 import { UpdateCompanyForm } from '@features/update-company';
 
-import { defaultColumns } from '../model/columns';
-import { toCompany, toCompanyRows } from '../model/mapper';
-import type { CompanyTableRow } from '../model/types';
-
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
-
-import { useTableState } from '@shared/model';
 
 interface Props {
   onRowClick?: (company: Company) => void;
 }
 
 export const CompanyTable = ({ onRowClick }: Props) => {
-  const [open, setOpen] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailCompany, setDetailCompany] = useState<Company | null>(null);
-
   const {
-    sorting, setSorting,
+    table,
+
+    handleRowClick,
+
+    registerModalOpen, setRegisterModalOpen,
+    updateModalOpen, setUpdateModalOpen,
+    detailCompany,
+
     globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 5 });
-  const { data, loading, error, refetch } = useCompanies();
-  const tableData = useMemo(
-    () => data?.map(toCompanyRows),
-    [data]
-  );
 
-  const handleViewDetail = (row: CompanyTableRow) => {
-    setDetailCompany(toCompany(row));
-    setDetailOpen(true);
-  };
-
-  const table = useReactTable({
-    columns: defaultColumns,
-    data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    meta: { onViewCompanyDetail: handleViewDetail },
-  });
-
-  const handleRowClick = onRowClick
-    ? (row: CompanyTableRow) => {
-        onRowClick({
-          id: row.id,
-          name: row.name,
-          representative: row.representative,
-          address: row.address,
-          bizNumber: row.bizNumber,
-          manager: row.manager,
-          email: row.email,
-          tel: row.tel,
-        });
-      }
-    : undefined;
+    loading, error, refetch
+  } = useCompanyTable({ onRowClick });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -89,8 +36,8 @@ export const CompanyTable = ({ onRowClick }: Props) => {
             <h2 className="text-sm font-semibold text-gray-800">의뢰기관 목록</h2>
           </div>
           <RegisterCompanyForm
-            open={open}
-            onOpenChange={setOpen}
+            open={registerModalOpen}
+            onOpenChange={setRegisterModalOpen}
             onSuccess={refetch}
           />
         </div>
@@ -123,8 +70,8 @@ export const CompanyTable = ({ onRowClick }: Props) => {
 
       <UpdateCompanyForm
         key={detailCompany?.id}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
+        open={updateModalOpen}
+        onOpenChange={setUpdateModalOpen}
         company={detailCompany}
         onSuccess={refetch}
       />

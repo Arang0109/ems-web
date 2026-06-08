@@ -1,31 +1,17 @@
-import { useState, useMemo } from 'react';
-
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
+import { useWorkplaceTable } from '../model/use-workplace-table';
 
 import type { Company } from '@entities/company';
 import type { Workplace, WorkplaceListItem } from '@entities/workplace';
-import { useWorkplaceAction } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
 
-import { defaultColumns } from '../model/columns';
-import { toWorkplaceRows, toWorkplaceUpdateRequest } from '../model/mapper';
-import type { WorkplaceDetailFormData, WorkplaceTableRow } from '../model/types';
-
-import { useTableState } from '@shared/model';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 
 import { Building2 } from 'lucide-react';
 import { WorkplaceDetailForm } from './WorkplaceDetailForm';
 
-interface WorkplaceTableProps {
+interface Props {
   data: WorkplaceListItem[];
   loading: boolean;
   error: string | null;
@@ -41,67 +27,16 @@ export const WorkplaceTable = ({
   selectedCompany,
   onRowClick,
   onSuccess,
-}: WorkplaceTableProps) => {
-  const [open, setOpen] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(false);
-  const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
-
+}: Props) => {
   const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 4 });
-
-  const { handleEdit: editWorkplace, handleDelete: deleteWorkplace } = useWorkplaceAction({ onSuccess });
-
-  const tableData = useMemo(
-    () => data.map(toWorkplaceRows),
-    [data]
-  );
-  
-  const handleViewDetail = (row: WorkplaceTableRow) => {
-    setDetailWorkplace(row);
-    setDetailOpen(true);
-  };
-
-  const handleEdit = (data: WorkplaceDetailFormData) => {
-    if (!detailWorkplace) return;
-    editWorkplace(detailWorkplace.id, toWorkplaceUpdateRequest(data));
-    setDetailOpen(false);
-  };
-
-  const handleDelete = () => {
-    if (!detailWorkplace) return;
-    deleteWorkplace(detailWorkplace.id);
-    setDetailOpen(false);
-  };
-
-  const table = useReactTable({
-    columns: defaultColumns,
-    data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    meta: { onViewWorkplaceDetail: handleViewDetail },
-  });
-
-  const handleRowClick = onRowClick
-    ? (row: WorkplaceTableRow) => {
-        onRowClick({
-          id: row.id,
-          companyId: row.companyId,
-          name: row.workplaceName,
-          address: row.address,
-          bizNumber: row.bizNumber,
-        });
-      }
-    : undefined;
+    table,
+    handleRowClick,
+    handleEdit,
+    handleDelete,
+    registerModalOpen, setRegisterModalOpen,
+    detailOpen, setDetailOpen,
+    detailWorkplace,
+  } = useWorkplaceTable({ data, selectedCompany, onRowClick, onSuccess });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -123,8 +58,8 @@ export const WorkplaceTable = ({
           <RegisterWorkplaceForm
             key={selectedCompany?.id}
             company={selectedCompany}
-            open={open}
-            onOpenChange={setOpen}
+            open={registerModalOpen}
+            onOpenChange={setRegisterModalOpen}
             onSuccess={onSuccess}
           />
         </div>
@@ -139,9 +74,7 @@ export const WorkplaceTable = ({
             subLabel={<span>왼쪽에서 의뢰기관을 선택하면<br />해당 사업장 목록이 표시됩니다.</span>}
           />
         ) : (
-          <>
-            <BasicTable table={table} error={error} onRowClick={handleRowClick} />
-          </>
+          <BasicTable table={table} error={error} onRowClick={handleRowClick} />
         )}
       </div>
 
