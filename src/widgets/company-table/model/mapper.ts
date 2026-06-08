@@ -1,7 +1,7 @@
-import type { Company, CompanyUpdate } from '@entities/company';
-import { formatBusinessNumber, trimValue, unformatNumber } from '@shared/lib';
+import type { Company } from '@entities/company';
+import { formatBusinessNumber } from '@shared/lib';
 
-import type { CompanyTableRow, CompanyDetailFormData } from './types';
+import type { CompanyTableRow } from './types';
 
 export const toCompanyRows = (col: Company): CompanyTableRow => ({
   id: col.id,
@@ -15,12 +15,14 @@ export const toCompanyRows = (col: Company): CompanyTableRow => ({
   tel: col.tel,
 });
 
-export const toCompanyUpdateRequest = (data: CompanyDetailFormData): CompanyUpdate => ({
-  name: trimValue(data.name),
-  representative: trimValue(data.representative),
-  address: trimValue(data.address),
-  bizNumber: unformatNumber(data.bizNumber),
-  manager: trimValue(data.manager),
-  email: trimValue(data.email),
+export const toCompany = (data: CompanyTableRow): Company => ({
+  id: data.id,
+  name: data.name,
+  representative: data.representative,
+  address: data.address,
+  bizNumber: data.bizNumber,
+
+  manager: data.manager,
+  email: data.email,
   tel: data.tel,
-});
+})

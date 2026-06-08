@@ -1,38 +1,42 @@
-import { useState } from 'react';
+import { useUpdateCompany } from '../model/use-update-company';
 
+import type { Company } from '@entities/company';
+
+// UI
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup } from "@shared/ui/form";
+
+// Format
 import { formatPhoneNumber, unformatNumber, formatBusinessNumber } from '@shared/lib';
 
+// Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
+import { useDeleteCompany } from '../model/use-delete-company';
 
-import type { CompanyTableRow, CompanyDetailFormData } from "../model/types";
-
-interface CompanyDetailFormProps {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  company: CompanyTableRow | null;
-  onEdit?: (data: CompanyDetailFormData) => void;
-  onDelete?: () => void;
+  company: Company | null;
+  onSuccess?: () => void;
 }
 
-export const CompanyDetailForm = ({ open, onOpenChange, company, onEdit, onDelete }: CompanyDetailFormProps) => {
-  const [form, setForm] = useState<CompanyDetailFormData>({
-    name: company?.name ?? '',
-    bizNumber: company?.bizNumber ?? '',
-    representative: company?.representative ?? '',
-    address: company?.address ?? '',
-    manager: company?.manager ?? '',
-    email: company?.email ?? '',
-    tel: company?.tel ?? '',
+export const UpdateCompanyForm = ({ open, onOpenChange, company, onSuccess }: Props) => {
+  const { form, handleSubmit, handleChange } = useUpdateCompany({
+    company: company,
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
   });
 
-  const handleChange = (field: keyof CompanyDetailFormData, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = () => onEdit?.(form);
+  const { handleDelete } = useDeleteCompany({
+    company: company,
+    onSuccess: () => {
+      onOpenChange(false);
+      onSuccess?.();
+    },
+  });
 
   return (
     <FormDialog
@@ -43,7 +47,7 @@ export const CompanyDetailForm = ({ open, onOpenChange, company, onEdit, onDelet
       cancelLabel='닫기'
       submitLabel='수정'
       onSubmit={handleSubmit}
-      onDelete={onDelete}
+      onDelete={handleDelete}
     >
       <FieldGroup>
         <SectionTitle>기관 정보</SectionTitle>

@@ -8,15 +8,15 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 
-import { useCompanies, useCompanyAction } from '@entities/company';
+import { useCompanies } from '@entities/company';
 import type { Company } from '@entities/company';
 
 import { RegisterCompanyForm } from '@features/register-company'
+import { UpdateCompanyForm } from '@features/update-company';
 
 import { defaultColumns } from '../model/columns';
-import { toCompanyRows, toCompanyUpdateRequest } from '../model/mapper';
-import type { CompanyTableRow, CompanyDetailFormData } from '../model/types';
-import { CompanyDetailForm } from './CompanyDetailForm';
+import { toCompany, toCompanyRows } from '../model/mapper';
+import type { CompanyTableRow } from '../model/types';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
@@ -24,41 +24,28 @@ import { Pagination } from '@shared/ui/pagination';
 
 import { useTableState } from '@shared/model';
 
-interface CompanyTableProps {
+interface Props {
   onRowClick?: (company: Company) => void;
 }
 
-export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
+export const CompanyTable = ({ onRowClick }: Props) => {
   const [open, setOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailCompany, setDetailCompany] = useState<CompanyTableRow | null>(null);
+  const [detailCompany, setDetailCompany] = useState<Company | null>(null);
 
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
   const { data, loading, error, refetch } = useCompanies();
-  const { handleEdit: editCompany, handleDelete: deleteCompany } = useCompanyAction({ onSuccess: refetch });
   const tableData = useMemo(
     () => data?.map(toCompanyRows),
     [data]
   );
 
   const handleViewDetail = (row: CompanyTableRow) => {
-    setDetailCompany(row);
+    setDetailCompany(toCompany(row));
     setDetailOpen(true);
-  };
-
-  const handleEdit = (data: CompanyDetailFormData) => {
-    if (!detailCompany) return;
-    editCompany(detailCompany.id, toCompanyUpdateRequest(data));
-    setDetailOpen(false);
-  };
-
-  const handleDelete = () => {
-    if (!detailCompany) return;
-    deleteCompany(detailCompany.id);
-    setDetailOpen(false);
   };
 
   const table = useReactTable({
@@ -134,13 +121,12 @@ export const CompanyTable = ({ onRowClick }: CompanyTableProps) => {
         </div>
       )}
 
-      <CompanyDetailForm
+      <UpdateCompanyForm
         key={detailCompany?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         company={detailCompany}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onSuccess={refetch}
       />
     </div>
   );

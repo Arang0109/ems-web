@@ -64,7 +64,7 @@ app → pages → widgets → features → entities → shared
 |--------|---------|
 | pages | `sign-in`, `dashboard`, `client` |
 | widgets | `sign-in`, `layouts`, `company-table`, `workplace-table`, `stack-table`, `contract-table`, `metrics`, `contract-chart` |
-| features | `sign-in`, `sign-out`, `register-company`, `register-workplace`, `register-stack`, `register-contract`, `select-company`, `select-workplace`, `dashboard-summary`, `contract-overview` |
+| features | `sign-in`, `sign-out`, `register-company`, `update-company`, `register-workplace`, `register-stack`, `register-contract`, `select-company`, `select-workplace`, `dashboard-summary`, `contract-overview` |
 | entities | `auth`, `company`, `workplace`, `stack`, `contract`, `dashboard` |
 | shared | `api`, `hooks`, `icon`, `lib`, `model`, `ui` |
 
@@ -121,6 +121,16 @@ features/*/ui (폼 입력)
   → entities/*/api (API 호출)
 ```
 
+### 데이터 수정/삭제 (폼 제출)
+
+```
+features/*/ui (수정/삭제 폼 입력)
+  → features/*/model (폼 상태, 제출·삭제 로직)
+  → features/*/model/mapper (Form → UpdateDTO 변환)
+  → entities/*/model (useXxxAction 훅 — isLoading/error 관리)
+  → entities/*/api (도메인 API 호출)
+```
+
 ### 상수/레이블 사용
 
 ```
@@ -136,12 +146,3 @@ shared/model/common-types (공통 enum/type)
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `features/sign-in/SignInForm.tsx` | `ui/` 서브디렉토리 없이 루트에 위치 | `ui/SignInForm.tsx`로 이동 |
-| `features/sign-in/SocialSignIn.tsx` | `ui/` 서브디렉토리 없이 루트에 위치 | `ui/SocialSignIn.tsx`로 이동 |
-| `features/select-company/hook/` | 폴더명 단수 | `hooks/`로 변경 |
-| `features/contract-overview/use-contract-overview.ts` | `hooks/` 없이 루트에 위치 | `hooks/use-contract-overview.ts`로 이동 |
-| `entities/company/model/company-form.ts` | Form 타입이 entity에 혼재 | `features/register-company/model/`로 이동 |
-| `entities/company/model/company-mapper.ts` | mapper가 `model/`에 위치 | `api/company-mapper.ts`로 이동 |
-| `entities/company/model/company-types.ts` | `WorkplaceTableCols` (UI 표현 타입) 포함 | `widgets/company-table/model/`로 분리 |
-| `features/sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@shared/ui/buttons`를 통해 사용 |
-| `features/register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field`, `separator` 직접 import | `@shared/ui/`를 통해 사용 |

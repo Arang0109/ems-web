@@ -132,4 +132,14 @@ export const companyHandlers = [
       data: workplaces,
     });
   }),
+
+  http.delete(`${BASE_URL}/companies/:companyId`, ({ params }) => {
+    const { companyId } = params;
+
+    return HttpResponse.json({
+      success: true,
+      message: `${companyId} 삭제 완료`,
+      data: null,
+    });
+  }),
 ];

@@ -1,17 +1,15 @@
-export type CompanyRegisterForm = {
+export type CompanyUpdateForm = {
   name: string;
-  bizNumber: string;
   representative: string;
   address: string;
+  bizNumber: string;
 
   manager: string;
   email: string;
   tel: string;
-
-  isBizNumberChecked: boolean;
 }
 
-export const getDefaultForm = (): CompanyRegisterForm => ({
+export const getDefaultForm = (): CompanyUpdateForm => ({
   name: "",
   bizNumber: "",
   address: "",
@@ -19,6 +17,4 @@ export const getDefaultForm = (): CompanyRegisterForm => ({
   manager: "",
   email: "",
   tel: "",
-
-  isBizNumberChecked: true,
 });
