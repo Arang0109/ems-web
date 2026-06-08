@@ -114,4 +114,5 @@ entity의 **수동 호출 타입 fetch hook (타입 B)** 을 내부에서 사용
 | `sign-in/SocialSignIn.tsx` | `ui/` 없이 루트에 위치 | `ui/SocialSignIn.tsx`로 이동 |
 | `contract-overview/use-contract-overview.ts` | `hooks/` 없이 루트에 위치 | `hooks/use-contract-overview.ts`로 이동 |
 | `sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field`, `separator` 직접 import | `@/shared/ui/`를 통해 사용 |
+| `register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |

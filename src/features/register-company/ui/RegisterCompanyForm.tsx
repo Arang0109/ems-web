@@ -12,17 +12,13 @@ import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared
 // Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
 
-interface RegisterCompanyFormProps {
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const RegisterCompanyForm = ({
-  open,
-  onOpenChange,
-  onSuccess,
-}: RegisterCompanyFormProps) => {
+export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) => {
   const { form, handleChange, handleSubmit } = useRegisterCompany({
     onSuccess: () => {
       onOpenChange(false);

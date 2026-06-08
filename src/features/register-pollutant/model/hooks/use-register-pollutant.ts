@@ -12,7 +12,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-export const useRegisterPollutant = ({  onSuccess }: Props) => {
+export const useRegisterPollutant = ({ onSuccess }: Props) => {
   const { registerPollutant, loading, error } = useRegisterPollutantAction();
 
   const [form, setForm] = useState<PollutantRegisterForm>(getDefaultForm());

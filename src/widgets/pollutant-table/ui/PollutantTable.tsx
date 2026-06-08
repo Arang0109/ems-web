@@ -1,10 +1,12 @@
 import { usePollutantTable } from '../model/use-pollutant-table';
 
+import { RegisterPollutantForm } from '@features/register-pollutant';
+
 import { BasicTable } from '@shared/ui/table';
 import { Pagination } from '@shared/ui/pagination';
 
 export const PollutantTable = () => {
-  const { table, loading, error } = usePollutantTable();
+  const { table, registerModalOpen, setRegisterModalOpen, loading, error, refetch } = usePollutantTable();
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
@@ -14,8 +16,14 @@ export const PollutantTable = () => {
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-gray-800">측정물질 목록</h2>
           </div>
+          <RegisterPollutantForm
+            open={registerModalOpen}
+            onOpenChange={setRegisterModalOpen}
+            onSuccess={refetch}
+          />
         </div>
       </div>
+      
 
       {/* 컨텐츠 */}
       <div className="p-5 flex-1 flex flex-col">
