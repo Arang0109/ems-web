@@ -5,6 +5,7 @@ export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
 export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
 export const MEASUREMENT_METHOD = ['DUST', 'HEAVY_METAL', 'MERCURY', 'FIELD_MEASUREMENT', 'ABSORPTION_SOLUTION', 'ADSORPTION_TUBE', 'TEDLAR_BAG', 'CARTRIDGE'] as const;
 export const POLLUTANT_PHASE = ['PARTICLE', 'GAS'] as const;
+export const MEASUREMENT_CYCLE = ['MONTHLY','TWICE_MONTHLY','BIMONTHLY','QUARTERLY','SEMI_ANNUAL','ANNUAL'] as const;
 
 export type ContractStatus = typeof CONTRACT_STATUS[number];
 export type Grade = typeof GRADE[number];
@@ -13,3 +14,4 @@ export type Shape = typeof SHAPE[number];
 export type MeasurementField = typeof MEASUREMENT_FIELD[number];
 export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
 export type PollutantPhase = typeof POLLUTANT_PHASE[number];
+export type MeasurementCycle = typeof MEASUREMENT_CYCLE[number];

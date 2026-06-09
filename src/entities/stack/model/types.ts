@@ -18,6 +18,24 @@ export type Stack = {
   modifiedAt: Date;
 }
 
+export const getStackDefault = (): Stack => ({
+  id: 0,
+  workplaceId: 0,
+  field: 'AIR' as MeasurementField,
+  name: '',
+  semsNumber: '',
+  grade: 'TYPE_1' as Grade,
+  businessCategory: '',
+  mainProduct: '',
+  height: '',
+  horizontalLength: '',
+  verticalLength: '',
+  shape: 'CIRCULAR' as Shape,
+  orientation: 'VERTICAL' as Orientation,
+  createdAt: new Date(),
+  modifiedAt: new Date(),
+});
+
 export type StackCreate = {
   workplaceId: number;
   field: MeasurementField;
@@ -36,4 +54,36 @@ export type StackListItem = {
   stackName: string,
   createdAt: string,
   modifiedAt: string,
+}
+
+export type StackDetail = {
+  stack: Stack,
+  preventions: Prevention[];
+  facilities: Facility[];
+}
+
+export const getStackDetailDefault = (): StackDetail => ({
+  stack: getStackDefault(),
+  preventions: [],
+  facilities: [],
+});
+
+export type Prevention = {
+  id: number;
+  name: string;
+  targets: TargetSubstance[];
+}
+
+export type TargetSubstance = {
+  id: number;
+  name: string;
+  removalEfficiency: string;
+}
+
+export type Facility = {
+  id: number;
+  name: string;
+  fuelUsage: string;
+  fuelInput: string;
+  fuelType: string;
 }

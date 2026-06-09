@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import type { MeasurementField } from '@shared/model';
+import type { MeasurementField, Grade, Shape, Orientation } from '@shared/model';
 
 const BASE_URL = 'http://localhost:8080/api';
 
@@ -134,11 +134,102 @@ const stacksByWorkplace: Record<number, StackRow[]> = {
   ],
 };
 
+type StackDetailRow = {
+  id: number;
+  workplaceId: number;
+  field: MeasurementField;
+  name: string;
+  semsNumber: string;
+  grade: Grade;
+  businessCategory: string;
+  mainProduct: string;
+  height: string;
+  horizontalLength: string;
+  verticalLength: string;
+  shape: Shape;
+  orientation: Orientation;
+  createdAt: string;
+  modifiedAt: string;
+  preventions: { id: number; stackId: number; name: string; targets: {id:number; name: string; removalEfficiency: string}[]; }[];
+  facilities: { id: number; stackId: number; name: string; fuelUsage: string; fuelInput: string; fuelType: string }[];
+};
+
+const stackDetails: Record<number, StackDetailRow> = {
+  1001: {
+    id: 1001, workplaceId: 101, field: 'AIR', name: '1호 굴뚝',
+    semsNumber: 'SEMS-2025-001', grade: 'TYPE_1',
+    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    height: '45.5', horizontalLength: '1.2', verticalLength: '0.0',
+    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    createdAt: '2025-03-10T09:00:00', modifiedAt: '2025-11-15T14:30:00',
+    preventions: [
+      { id: 1, stackId: 1001, name: '전기집진시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
+      { id: 2, stackId: 1001, name: '세정집진시설', targets: [{id:1, name:"가스상", removalEfficiency:"90"}, {id:1, name:"입자상", removalEfficiency:"75"}] },
+    ],
+    facilities: [
+      { id: 1, stackId: 1001, name: '보일러 1호기', fuelUsage: '500', fuelInput: 'LNG', fuelType: '기체연료' },
+      { id: 2, stackId: 1001, name: '소각로 1호기', fuelUsage: '200', fuelInput: '경유', fuelType: '액체연료' },
+    ],
+  },
+  1002: {
+    id: 1002, workplaceId: 101, field: 'AIR', name: '2호 굴뚝',
+    semsNumber: 'SEMS-2025-002', grade: 'TYPE_2',
+    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    height: '30.0', horizontalLength: '0.8', verticalLength: '0.0',
+    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    createdAt: '2025-03-10T09:00:00', modifiedAt: '2026-01-20T11:00:00',
+    preventions: [
+      { id: 3, stackId: 1002, name: '여과집진시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
+    ],
+    facilities: [
+      { id: 3, stackId: 1002, name: '건조시설 1호기', fuelUsage: '300', fuelInput: '등유', fuelType: '액체연료' },
+    ],
+  },
+  1008: {
+    id: 1008, workplaceId: 106, field: 'WATER', name: '1호 배출구',
+    semsNumber: 'SEMS-2024-008', grade: 'TYPE_3',
+    businessCategory: '기초화학물질 제조업', mainProduct: '합성수지',
+    height: '0.0', horizontalLength: '0.5', verticalLength: '0.3',
+    shape: 'RECTANGULAR', orientation: 'HORIZONTAL',
+    createdAt: '2024-05-12T08:00:00', modifiedAt: '2025-08-22T16:00:00',
+    preventions: [
+      { id: 4, stackId: 1008, name: '폐수처리시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
+    ],
+    facilities: [
+      { id: 4, stackId: 1008, name: '반응조 1호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
+      { id: 5, stackId: 1008, name: '반응조 2호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
+    ],
+  },
+  1019: {
+    id: 1019, workplaceId: 111, field: 'NOISE_VIBRATION', name: '측정지점 1',
+    semsNumber: 'SEMS-2024-019', grade: 'TYPE_4',
+    businessCategory: '금속 가공제품 제조업', mainProduct: '금속부품',
+    height: '0.0', horizontalLength: '0.0', verticalLength: '0.0',
+    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    createdAt: '2024-02-14T10:00:00', modifiedAt: '2025-09-16T09:00:00',
+    preventions: [],
+    facilities: [
+      { id: 6, stackId: 1019, name: '프레스 1호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
+    ],
+  },
+};
+
 export const stackHandlers = [
+  http.get(`${BASE_URL}/stacks/:stackId`, ({ params }) => {
+    const stackId = Number(params.stackId);
+    const detail = stackDetails[stackId];
+    if (!detail) {
+      return HttpResponse.json({ status: false, message: '측정시설을 찾을 수 없습니다.', data: null }, { status: 404 });
+    }
+    return HttpResponse.json({ status: true, message: '측정시설 상세 조회 성공', data: detail });
+  }),
+
   http.get(`${BASE_URL}/stacks`, ({ request }) => {
     const url = new URL(request.url);
-    const workplaceId = Number(url.searchParams.get('workplaceId'));
-    const stacks = stacksByWorkplace[workplaceId] ?? [];
+    const workplaceIdParam = url.searchParams.get('workplaceId');
+    const stacks = workplaceIdParam
+      ? (stacksByWorkplace[Number(workplaceIdParam)] ?? [])
+      : Object.values(stacksByWorkplace).flat();
     return HttpResponse.json({
       status: true,
       message: '측정시설 목록 조회 성공',
