@@ -41,7 +41,7 @@ const SubstanceItem = ({ stackId, preventionId, substance, onRefetch }: Substanc
         icon={<Trash2 size={12} />}
         label="삭제"
         size="xs"
-        variant="ghost"
+        variant="destructive"
         onClick={handleDelete}
         disabled={isLoading}
       />

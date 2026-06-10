@@ -21,7 +21,7 @@ export const SignInForm = () => {
       <Input
         id="username"
         name="username"
-        label="Username"
+        label="아이디"
         value={form.username}
         onChange={(value) => handleChange("username", value)}
         placeholder="아이디"
@@ -31,7 +31,7 @@ export const SignInForm = () => {
       <Input
         id="password"
         name="password"
-        label="Password"
+        label="비밀번호"
         type="password"
         value={form.password}
         onChange={(value) => handleChange("password", value)}

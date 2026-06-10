@@ -9,7 +9,10 @@ export const useDeleteFacilityAction = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await stackApi.deleteFacility(stackId, facilityId);
+      const result = await stackApi.deleteFacility(stackId, facilityId);
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
       throw err;

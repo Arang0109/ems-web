@@ -14,10 +14,14 @@ export const useRegisterCompanyAction = () => {
     const payload = toRegisterRequest(data);
 
     try {
-      await companyApi.registerCompany(payload);
+      const result = await companyApi.registerCompany(payload);
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : '서버 연결에 실패했습니다.';
       setError(message);
+      throw err;
     } finally {
       setIsLoading(false);
     }

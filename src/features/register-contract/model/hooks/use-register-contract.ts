@@ -14,7 +14,7 @@ export const useRegisterContract = () => {
   const { data: workplaces, fetchWorkplaces } = useWorkplaces();
   const navigate = useNavigate();
 
-  const { registerContract, loading, error } = useRegisterContractAction();
+  const { registerContract, isLoading, error } = useRegisterContractAction();
 
   const [form, setForm] = useState<ContractRegisterForm>(getDefaultContractForm());
 
@@ -53,7 +53,7 @@ export const useRegisterContract = () => {
 
   return {
     form,
-    loading,
+    isLoading,
     error,
 
     handleSubmit,

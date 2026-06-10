@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const RegisterFacilityForm = ({ stackId, open, onOpenChange, onSuccess }: Props) => {
-  const { form, isLoading, handleChange, handleSubmit } = useRegisterFacility({
+  const { form, handleChange, handleSubmit } = useRegisterFacility({
     stackId,
     onSuccess: () => {
       onOpenChange(false);
@@ -22,12 +22,10 @@ export const RegisterFacilityForm = ({ stackId, open, onOpenChange, onSuccess }:
 
   return (
     <FormDialog
-      triggerLabel="배출시설 추가"
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
       submitLabel="등록"
-      isLoading={isLoading}
     >
       <FieldGroup>
         <SectionTitle>배출시설 정보</SectionTitle>

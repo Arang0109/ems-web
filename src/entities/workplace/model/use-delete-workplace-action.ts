@@ -10,9 +10,13 @@ export const useDeleteWorkplaceAction = () => {
     setError(null);
 
     try {
-      await workplaceApi.deleteWorkplace(id);
+      const result = await workplaceApi.deleteWorkplace(id);
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
+      throw err;
     } finally {
       setIsLoading(false);
     }

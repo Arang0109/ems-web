@@ -32,6 +32,7 @@ feature-name/
 ├── model/
 │   ├── types.ts        # Form 타입 + getDefaultXxxForm()
 │   ├── mapper.ts       # Form → Entity 변환
+│   ├── validator.ts    # 폼 유효성 검증 (필요 시)
 │   └── hooks/
 │       └── use-xxx.ts  # Feature Hook
 └── ui/
@@ -57,6 +58,33 @@ feature-name/
 - UI 전용 필드 허용 (예: `isBizNumberChecked`, `workplaceName` 읽기 전용 표시)
 - 초기값 생성 함수 `getDefaultXxxForm()` 함께 정의
 
+### Validator (`model/validator.ts`)
+
+- 유효성 검증이 필요한 경우에만 생성한다.
+- 순수 함수로만 구성한다 (부수효과 없음).
+- 함수명은 `validateXxxFields` 형태를 사용한다.
+- 반환 타입: `Partial<Record<keyof XxxForm, string>>` — 필드명 → 에러 메시지 맵
+- 필수 필드 누락, 포맷 검증 등을 담당한다.
+- `index.ts`에 export하지 않는다 (슬라이스 내부 유틸).
+
+```ts
+export const validateCompanyFields = (form: CompanyRegisterForm) => {
+  const errors: Partial<Record<keyof CompanyRegisterForm, string>> = {};
+
+  if (!form.name.trim()) {
+    errors.name = "기관명을 입력해주세요.";
+  }
+
+  if (form.bizNumber && !/^\d{10}$/.test(form.bizNumber)) {
+    errors.bizNumber = "10자리의 사업자번호를 입력해주세요.";
+  }
+
+  return errors;
+};
+```
+
+---
+
 ### Mapper (`model/mapper.ts`)
 
 - Form → Entity 도메인 입력 모델 변환 순수 함수
@@ -75,6 +103,60 @@ feature-name/
 - Entity action hook을 호출한다.
 - 성공 시 form reset, modal close, refetch, toast, navigate 등을 처리한다.
 - API DTO를 직접 생성하지 않는다.
+
+#### fieldErrors 패턴
+
+필드별 에러 상태는 `Partial<Record<keyof XxxForm, string>>` 타입으로 관리한다.
+
+```ts
+const [fieldErrors, setFieldErrors] =
+  useState<Partial<Record<keyof CompanyRegisterForm, string>>>();
+```
+
+- **onChange 시 해당 필드 에러 즉시 클리어**: 사용자가 수정하는 순간 에러 메시지를 제거한다.
+
+```ts
+const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
+  setForm((prev) => ({ ...prev, [name]: value }));
+  setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
+};
+```
+
+- **submit 시 검증 → 에러 있으면 조기 반환**: 검증 실패 시 API를 호출하지 않고 반드시 return한다.
+
+```ts
+const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  const errors = validateCompanyFields(form);
+  if (Object.keys(errors).length > 0) {
+    setFieldErrors(errors);
+    return; // ← 필수: 에러가 있으면 API 호출하지 않음
+  }
+
+  try { ... }
+};
+```
+
+#### 예외 처리 패턴
+
+API 호출 결과는 항상 try/catch로 감싸고, `toast`로 사용자에게 피드백을 준다.
+
+```ts
+try {
+  await registerCompany(toCompanyCreate(form));
+  toast.success("측정대행 의뢰기관이 등록되었습니다.");
+  setForm(getDefaultForm());
+  onSuccess();
+} catch (err) {
+  const message = err instanceof Error ? err.message : "등록에 실패했습니다.";
+  toast.error(message);
+}
+```
+
+- 성공: `toast.success` → form reset → 성공 콜백
+- 실패: `err instanceof Error ? err.message : '폴백 메시지'` 패턴으로 에러 메시지 추출 후 `toast.error`
+- catch 블록에서 에러를 다시 throw하지 않는다 (Entity 액션 훅이 throw하면 여기서 최종 처리).
 
 ---
 

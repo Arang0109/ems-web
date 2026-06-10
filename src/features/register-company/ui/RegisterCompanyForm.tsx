@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) => {
-  const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterCompany({
+  const { form, handleChange, handleAddressChange, handleSubmit, fieldErrors } = useRegisterCompany({
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -44,6 +44,8 @@ export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) =>
           value={form.name}
           onChange={(value) => handleChange("name", value)}
           helperText="사업자등록증상에 기재된 상호"
+          invalid={!!fieldErrors?.name}
+          error={fieldErrors?.name}
           required
           startIcon={<Building2 />}
         />
@@ -55,6 +57,8 @@ export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) =>
             value={formatBusinessNumber(form.bizNumber)}
             onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
             startIcon={<Hash />}
+            invalid={!!fieldErrors?.bizNumber}
+            error={fieldErrors?.bizNumber}
           />
           <InputGroup
             id="representative"

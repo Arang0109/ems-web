@@ -11,7 +11,10 @@ export const useRegisterSubstanceAction = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await stackApi.registerSubstance(stackId, preventionId, toRegisterSubstanceRequest(data));
+      const result = await stackApi.registerSubstance(stackId, preventionId, toRegisterSubstanceRequest(data));
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
       throw err;

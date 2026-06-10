@@ -17,13 +17,13 @@ interface Props {
 export const UpdateFacilityForm = ({ stackId, facility, open, onOpenChange, onSuccess }: Props) => {
   const close = () => onOpenChange(false);
 
-  const { form, isLoading: isUpdating, handleChange, handleSubmit } = useUpdateFacility({
+  const { form, handleChange, handleSubmit } = useUpdateFacility({
     stackId,
     facility,
     onSuccess: () => { close(); onSuccess?.(); },
   });
 
-  const { isLoading: isDeleting, handleDelete } = useDeleteFacility({
+  const { handleDelete } = useDeleteFacility({
     stackId,
     facility,
     onSuccess: () => { close(); onSuccess?.(); },
@@ -39,7 +39,6 @@ export const UpdateFacilityForm = ({ stackId, facility, open, onOpenChange, onSu
       submitLabel="수정"
       deleteLabel="삭제"
       cancelLabel="닫기"
-      isLoading={isUpdating || isDeleting}
     >
       <FieldGroup>
         <SectionTitle>배출시설 정보</SectionTitle>

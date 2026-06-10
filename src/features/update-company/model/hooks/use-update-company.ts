@@ -48,7 +48,7 @@ export const useUpdateCompany = ({ company, onSuccess }: Props) => {
     
     try {
       await updateCompany(company.id, toCompanyUpdate(form));
-      toast.success(`${company.name}이(가) 수정되었습니다.`);
+      toast.success(`${company.name} 이/가 수정되었습니다.`);
       onSuccess();
     } catch (err) {
       const message = err instanceof Error ? err.message : '수정에 실패했습니다.';

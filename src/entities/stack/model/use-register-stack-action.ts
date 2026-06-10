@@ -14,9 +14,13 @@ export const useRegisterStackAction = () => {
     const payload = toRegisterRequest(data);
 
     try {
-      await stackApi.registerStack(payload);
+      const result = await stackApi.registerStack(payload);
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
+      throw err;
     } finally {
       setIsLoading(false);
     }

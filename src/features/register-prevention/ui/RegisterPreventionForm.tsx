@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const RegisterPreventionForm = ({ stackId, open, onOpenChange, onSuccess }: Props) => {
-  const { form, isLoading, handleChange, handleSubmit } = useRegisterPrevention({
+  const { form, handleChange, handleSubmit } = useRegisterPrevention({
     stackId,
     onSuccess: () => {
       onOpenChange(false);
@@ -22,12 +22,10 @@ export const RegisterPreventionForm = ({ stackId, open, onOpenChange, onSuccess 
 
   return (
     <FormDialog
-      triggerLabel="방지시설 추가"
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
       submitLabel="등록"
-      isLoading={isLoading}
     >
       <FieldGroup>
         <SectionTitle>방지시설 정보</SectionTitle>

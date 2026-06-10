@@ -4,23 +4,27 @@ import { toUpdateRequest } from '../api/mapper';
 import type { StackUpdate } from './types';
 
 export const useUpdateStackAction = () => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const updateStack = async (id: number, data: StackUpdate) => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     const payload = toUpdateRequest(data);
 
     try {
-      await stackApi.updateStack(id, payload);
+      const result = await stackApi.updateStack(id, payload);
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
+      throw err;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  return { updateStack, loading, error };
+  return { updateStack, isLoading, error };
 };

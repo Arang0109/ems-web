@@ -11,7 +11,10 @@ export const useRegisterPreventionAction = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await stackApi.registerPrevention(stackId, toRegisterPreventionRequest(data));
+      const result = await stackApi.registerPrevention(stackId, toRegisterPreventionRequest(data));
+      if (!result.status) {
+        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
       throw err;
