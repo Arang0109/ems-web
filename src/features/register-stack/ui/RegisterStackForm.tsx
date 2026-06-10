@@ -1,6 +1,6 @@
 import type { Workplace } from "@entities/workplace";
 
-import { measurementFieldOptions, gradeOptions } from "../model/types";
+import { measurementFieldOptions, gradeOptions } from "@shared/model";
 import { useRegisterStack } from "../model/hooks/use-register-stack";
 
 import { FormDialog } from "@shared/ui/dialogs";

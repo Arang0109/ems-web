@@ -1,10 +1,10 @@
 import { useDeleteWorkplaceAction } from "@entities/workplace";
-import type { WorkplaceListItem } from "@entities/workplace";
+import type { Workplace } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
 
 interface Props {
-  workplace: WorkplaceListItem | null;
+  workplace: Workplace | null;
   onSuccess: () => void;
 }
 
@@ -15,7 +15,7 @@ export const useDeleteWorkplace = ({ workplace, onSuccess }: Props) => {
     if (!workplace) return;
     try {
       await deleteWorkplace(workplace.id);
-      toast.success(`${workplace.workplaceName}이(가) 삭제되었습니다.`)
+      toast.success(`${workplace.name}이(가) 삭제되었습니다.`)
       onSuccess();
     } catch (err) {
       const message = err instanceof Error ? err.message : '삭제에 실패했습니다.';

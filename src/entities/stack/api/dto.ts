@@ -24,6 +24,24 @@ export type StackUpdateRequest = {
   orientation: Orientation;
 }
 
+export type StackResponse = {
+  id: number;
+  workplaceId: number;
+  field: MeasurementField;
+  name: string;
+  semsNumber: string;
+  grade: Grade;
+  businessCategory: string;
+  mainProduct: string;
+  height: string;
+  horizontalLength: string;
+  verticalLength: string;
+  shape: Shape;
+  orientation: Orientation;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
 export type StackListResponse = {
   id: number,
   companyName: string,
@@ -70,6 +88,14 @@ export type PreventionResponse = {
 
 export type FacilityResponse = {
   id: number;
+  stackId: number;
+  name: string;
+  fuelUsage: string;
+  fuelInput: string;
+  fuelType: string;
+}
+
+export type FacilityRegisterRequest = {
   stackId: number;
   name: string;
   fuelUsage: string;

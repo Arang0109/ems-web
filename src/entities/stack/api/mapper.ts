@@ -1,6 +1,6 @@
 import { trimValue } from '@shared/lib';
-import type { StackRegisterRequest, StackListResponse, StackDetailResponse } from './dto';
-import type { StackCreate, StackDetail, StackListItem } from '../model/types';
+import type { StackRegisterRequest, StackListResponse, StackDetailResponse, StackUpdateRequest } from './dto';
+import type { StackCreate, StackDetail, StackListItem, StackUpdate } from '../model/types';
 
 export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
   workplaceId: vo.workplaceId,
@@ -11,6 +11,20 @@ export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
   businessCategory: trimValue(vo.businessCategory),
   mainProduct: trimValue(vo.mainProduct),
 });
+
+export const toUpdateRequest = (vo: StackUpdate): StackUpdateRequest => ({
+  field: vo.field,
+  name: trimValue(vo.name),
+  semsNumber: trimValue(vo.semsNumber),
+  grade: vo.grade,
+  businessCategory: trimValue(vo.businessCategory),
+  mainProduct: trimValue(vo.mainProduct),
+  height: vo.height,
+  horizontalLength: vo.horizontalLength,
+  verticalLength: vo.verticalLength,
+  shape: vo.shape,
+  orientation: vo.orientation,
+})
 
 export const toStackListItem = (dto: StackListResponse): StackListItem => ({
   id: dto.id,

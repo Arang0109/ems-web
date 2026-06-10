@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 
-import type { Workplace, WorkplaceListItem } from '@entities/workplace';
+import type { WorkplaceListItem } from '@entities/workplace';
 
 import { defaultColumns } from '../model/columns';
 import { toWorkplaceRows } from '../model/mapper';
@@ -18,13 +18,12 @@ import { useTableState } from '@shared/model';
 
 interface Props {
   workplaces: WorkplaceListItem[];
-  onRowClick?: (workplace: Workplace) => void;
+  onRowClick?: (workplace: WorkplaceListItem) => void;
 }
 
 export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [detailWorkplace, setDetailWorkplace] = useState<WorkplaceTableRow | null>(null);
 
   const {
     sorting, setSorting,
@@ -34,8 +33,7 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
 
   const tableData = useMemo(() => workplaces.map(toWorkplaceRows), [workplaces]);
 
-  const handleViewDetail = (row: WorkplaceTableRow) => {
-    setDetailWorkplace(row);
+  const handleViewDetail = () => {
     setDetailOpen(true);
   };
 
@@ -57,13 +55,8 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
 
   const handleRowClick = onRowClick
     ? (row: WorkplaceTableRow) => {
-        onRowClick({
-          id: row.id,
-          companyId: row.companyId,
-          name: row.workplaceName,
-          address: row.address,
-          bizNumber: row.bizNumber,
-        });
+        const item = workplaces.find(w => w.id === row.id);
+        if (item) onRowClick(item);
       }
     : undefined;
 
@@ -74,7 +67,6 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
 
     registerModalOpen, setRegisterModalOpen,
     detailOpen, setDetailOpen,
-    detailWorkplace,
 
     globalFilter, setGlobalFilter,
   };

@@ -1,9 +1,18 @@
+import { useState } from "react";
+
+import type { Stack } from "@entities/stack";
+import { UpdateStackForm } from "@features/update-stack";
+
 import type { StackProfile } from "../../model/types";
 
 import { Divider } from "@shared/ui/borders";
+import { IconButton } from "@shared/ui/buttons";
+import { Pencil } from "lucide-react";
 
 interface Props {
+  stack: Stack | null;
   stackProfile: StackProfile;
+  onSuccess?: () => void;
 }
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
@@ -13,10 +22,15 @@ const InfoItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-export const StackBasicInfo = ({ stackProfile }: Props) => {
+export const StackBasicInfo = ({ stack, stackProfile, onSuccess }: Props) => {
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+
   return (
     <div className="space-y-5">
-      <h3 className="text-sm font-semibold text-gray-800">기본 정보</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-800">기본 정보</h3>
+        <IconButton icon={<Pencil size={14} />} onClick={() => setUpdateModalOpen(true)} />
+      </div>
 
       <div className="space-y-2">
         <p className="text-xs font-semibold text-gray-500">시설 식별</p>
@@ -46,6 +60,12 @@ export const StackBasicInfo = ({ stackProfile }: Props) => {
           <InfoItem label="지름 / 크기" value={stackProfile.diameter} />
         </div>
       </div>
+      <UpdateStackForm
+        open={updateModalOpen}
+        onOpenChange={setUpdateModalOpen}
+        stack={stack}
+        onSuccess={onSuccess}
+      />
     </div>
   );
 };

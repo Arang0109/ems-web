@@ -9,6 +9,11 @@ import type {
 } from './dto';
 
 export const workplaceApi = {
+  getWorkplace: async (workplaceId: number): Promise<ApiResponseMessage<WorkplaceResponse>> => {
+    const res = await axiosPrivate.get(`/workplaces/${workplaceId}`);
+    return res.data;
+  },
+
   getWorkplaces: async (companyId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {
     const params = companyId != null ? { companyId } : {};
     const res = await axiosPrivate.get('/workplaces', { params });

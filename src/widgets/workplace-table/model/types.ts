@@ -9,6 +9,8 @@ export type WorkplaceTableRow = {
 
 export type WorkplaceDetailFormData = {
   name: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
   bizNumber: string;
 };

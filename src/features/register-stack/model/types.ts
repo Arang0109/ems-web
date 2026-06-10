@@ -1,18 +1,5 @@
-import { MEASUREMENT_FIELD, GRADE } from "@shared/model";
-import { MEASUREMENT_FIELD_LABEL, GRADE_LABEL } from "@shared/config"
-
 import type { Workplace } from "@entities/workplace";
 import type { MeasurementField, Grade } from "@shared/model";
-
-export const measurementFieldOptions = MEASUREMENT_FIELD.map((field) => ({
-  value: field,
-  label: MEASUREMENT_FIELD_LABEL[field],
-}));
-
-export const gradeOptions = GRADE.map((grade) => ({
-  value: grade,
-  label: GRADE_LABEL[grade]
-}))
 
 export type StackRegisterForm = {
   workplaceId: number,

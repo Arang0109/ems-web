@@ -6,7 +6,7 @@ import { stackApi } from "../api/api";
 
 export const useStacks = () => {
   const [data, setData] = useState<StackListItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchStacks = async (workplaceId: number | null) => {

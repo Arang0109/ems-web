@@ -14,8 +14,9 @@ import { Building2 } from 'lucide-react';
 interface Props {
   workplaces: WorkplaceListItem[];
   selectedCompany: Company | null;
+  selectedWorkplace: Workplace | null;
 
-  onRowClick?: (workplace: Workplace) => void;
+  onRowClick?: (workplace: WorkplaceListItem) => void;
   onSuccess?: () => void;
 
   loading: boolean;
@@ -25,6 +26,8 @@ interface Props {
 export const WorkplaceTable = ({
   workplaces,
   selectedCompany,
+  selectedWorkplace,
+
   onRowClick,
   onSuccess,
 
@@ -38,7 +41,6 @@ export const WorkplaceTable = ({
 
     registerModalOpen, setRegisterModalOpen,
     detailOpen, setDetailOpen,
-    detailWorkplace
   } = useWorkplaceTable({ workplaces, onRowClick });
 
   return (
@@ -100,10 +102,11 @@ export const WorkplaceTable = ({
       )}
 
       <UpdateWorkplaceForm
-        key={detailWorkplace?.id}
+        key={selectedWorkplace?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        workplace={detailWorkplace}
+        company={selectedCompany}
+        workplace={selectedWorkplace}
         onSuccess={onSuccess}
       />
     </div>

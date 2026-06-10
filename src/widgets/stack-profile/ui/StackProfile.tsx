@@ -12,13 +12,13 @@ import { Tabs } from '@shared/ui/tabs';
 export const StackProfile = () => {
   const { stackId } = useParams<{ stackId: string }>();
 
-  const { stackProfile, preventions, facilities, measurements } = useStackProfile(stackId);
+  const { stack, stackProfile, preventions, facilities, measurements, refetch } = useStackProfile(stackId);
 
   const tabOptions = [
     {
       value: "stack",
       label: "측정시설",
-      content: <StackBasicInfo stackProfile={stackProfile} />
+      content: <StackBasicInfo key={stack?.id} stack={stack} stackProfile={stackProfile} onSuccess={refetch} />
     },
     {
       value: "facility",

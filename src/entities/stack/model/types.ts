@@ -46,6 +46,20 @@ export type StackCreate = {
   mainProduct: string;
 }
 
+export type StackUpdate = {
+  field: MeasurementField;
+  name: string;
+  semsNumber: string;
+  grade: Grade;
+  businessCategory: string;
+  mainProduct: string;
+  height: string;
+  horizontalLength: string;
+  verticalLength: string;
+  shape: Shape;
+  orientation: Orientation;
+}
+
 export type StackListItem = {
   id: number,
   companyName: string,

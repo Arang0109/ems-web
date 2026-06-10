@@ -1,34 +1,50 @@
 import { useState } from "react";
 
-import type { Workplace } from "@entities/workplace";
 import { useStacks } from "@entities/stack";
+import type { WorkplaceListItem, Workplace } from "@entities/workplace";
+
+const toWorkplace = (item: WorkplaceListItem): Workplace => ({
+  id: item.id,
+  companyId: item.companyId,
+  name: item.workplaceName,
+  bizNumber: item.bizNumber,
+  zipcode: item.zipcode,
+  roadAddress: item.roadAddress,
+  address: item.address,
+});
 
 export const useWorkplaceSelection = () => {
-  const [selectedWorkplace, setSelectedWorkplace] = useState<Workplace | null>(null);
+  const [selectedWorkplaceId, setSelectedWorkplaceId] = useState<number | null>(null);
+  const [selectedWorkplaceItem, setSelectedWorkplaceItem] = useState<WorkplaceListItem | null>(null);
 
   const { data: stacks, fetchStacks, loading, error } = useStacks();
 
-  const handleSelectWorkplaceRow = (workplace: Workplace) => {
-    setSelectedWorkplace(workplace);
+  const selectedWorkplace: Workplace | null = selectedWorkplaceItem
+    ? toWorkplace(selectedWorkplaceItem)
+    : null;
+
+  const handleSelectWorkplaceRow = (workplace: WorkplaceListItem) => {
+    setSelectedWorkplaceId(workplace.id);
+    setSelectedWorkplaceItem(workplace);
     fetchStacks(workplace.id);
   };
 
-  const clearWorkplaceSelection = () => {
-    setSelectedWorkplace(null);
+  const refetchStacks = () => {
+    if (selectedWorkplaceId) fetchStacks(selectedWorkplaceId);
   };
 
-  const refetchStacks = () => {
-    if (selectedWorkplace?.id) fetchStacks(selectedWorkplace.id);
+  const clearWorkplaceSelection = () => {
+    setSelectedWorkplaceId(null);
+    setSelectedWorkplaceItem(null);
   };
 
   return {
-    stacks,
-    selectedWorkplace,
+    stacks, selectedWorkplace,
 
     handleSelectWorkplaceRow,
     clearWorkplaceSelection,
     refetchStacks,
-    
+
     loading, error,
   }
 }

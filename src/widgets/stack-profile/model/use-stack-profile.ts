@@ -18,11 +18,18 @@ export const useStackProfile = (stackId: string | undefined) => {
   }, [stackId, fetchStack, fetchStackMeasurements]);
 
   return {
+    stack: stack ?? null,
     stackProfile: toStackProfile(stack),
     preventions: toPreventionProfiles(preventions),
     facilities: toFacilityProfiles(facilities),
     measurements: toMeasurementProfiles(measurements),
     loading: loading || measurementsLoading,
     error,
+    refetch: () => {
+      if (!stackId) return;
+      const id = Number(stackId);
+      fetchStack(id);
+      fetchStackMeasurements(id);
+    },
   };
 }

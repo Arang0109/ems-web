@@ -1,7 +1,8 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackRegisterRequest, StackUpdateRequest, StackListResponse, StackDetailResponse } from './dto';
-import type { Stack } from '../model/types';
+import type {
+  StackRegisterRequest, StackUpdateRequest, StackListResponse, StackDetailResponse, StackResponse
+} from './dto';
 
 export const stackApi = {
   getStack: async (stackId: number): Promise<ApiResponseMessage<StackDetailResponse>> => {
@@ -15,12 +16,12 @@ export const stackApi = {
     return res.data;
   },
 
-  registerStack: async (data: StackRegisterRequest): Promise<ApiResponseMessage<Stack>> => {
+  registerStack: async (data: StackRegisterRequest): Promise<ApiResponseMessage<StackResponse>> => {
     const res = await axiosPrivate.post('/stacks', data);
     return res.data;
   },
 
-  updateStack: async (id: number, data: StackUpdateRequest): Promise<ApiResponseMessage<Stack>> => {
+  updateStack: async (id: number, data: StackUpdateRequest): Promise<ApiResponseMessage<StackResponse>> => {
     const res = await axiosPrivate.put(`/stacks/${id}`, data);
     return res.data;
   },
