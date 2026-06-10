@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useStackDetail } from '@entities/stack';
 import { useStackMeasurements } from '@entities/stack-measurement';
 
-import { toStackProfile, toPreventionProfiles, toFacilityProfiles, toMeasurementProfiles } from './mapper';
+import { toStackProfile, toMeasurementProfiles } from './mapper';
 
 export const useStackProfile = (stackId: string | undefined) => {
   const { data, loading, error, fetchStack } = useStackDetail();
@@ -19,9 +19,10 @@ export const useStackProfile = (stackId: string | undefined) => {
 
   return {
     stack: stack ?? null,
-    stackProfile: toStackProfile(stack),
-    preventions: toPreventionProfiles(preventions),
-    facilities: toFacilityProfiles(facilities),
+    stackId: stackId ? Number(stackId) : null,
+    stackProfile: toStackProfile(stack as NonNullable<typeof stack>),
+    facilities: facilities ?? [],
+    preventions: preventions ?? [],
     measurements: toMeasurementProfiles(measurements),
     loading: loading || measurementsLoading,
     error,

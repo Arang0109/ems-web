@@ -96,9 +96,28 @@ export type FacilityResponse = {
 }
 
 export type FacilityRegisterRequest = {
-  stackId: number;
   name: string;
   fuelUsage: string;
   fuelInput: string;
   fuelType: string;
+}
+
+export type FacilityUpdateRequest = {
+  name: string;
+  fuelUsage: string;
+  fuelInput: string;
+  fuelType: string;
+}
+
+export type PreventionRegisterRequest = {
+  name: string;
+}
+
+export type PreventionUpdateRequest = {
+  name: string;
+}
+
+export type TargetSubstanceRegisterRequest = {
+  name: string;
+  removalEfficiency: string;
 }

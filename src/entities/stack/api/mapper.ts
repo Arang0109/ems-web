@@ -1,6 +1,16 @@
 import { trimValue } from '@shared/lib';
-import type { StackRegisterRequest, StackListResponse, StackDetailResponse, StackUpdateRequest } from './dto';
-import type { StackCreate, StackDetail, StackListItem, StackUpdate } from '../model/types';
+import type {
+  StackRegisterRequest, StackListResponse, StackDetailResponse, StackUpdateRequest,
+  FacilityRegisterRequest, FacilityUpdateRequest,
+  PreventionRegisterRequest, PreventionUpdateRequest,
+  TargetSubstanceRegisterRequest,
+} from './dto';
+import type {
+  FacilityCreate, FacilityUpdate,
+  StackCreate, StackDetail, StackListItem, StackUpdate,
+  PreventionCreate, PreventionUpdate,
+  TargetSubstanceCreate,
+} from '../model/types';
 
 export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
   workplaceId: vo.workplaceId,
@@ -11,6 +21,13 @@ export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
   businessCategory: trimValue(vo.businessCategory),
   mainProduct: trimValue(vo.mainProduct),
 });
+
+export const toRegisterFacilityRequest = (vo: FacilityCreate): FacilityRegisterRequest => ({
+  name: trimValue(vo.name),
+  fuelUsage: trimValue(vo.fuelUsage),
+  fuelInput: trimValue(vo.fuelInput),
+  fuelType: trimValue(vo.fuelType)
+})
 
 export const toUpdateRequest = (vo: StackUpdate): StackUpdateRequest => ({
   field: vo.field,
@@ -37,6 +54,26 @@ export const toStackListItem = (dto: StackListResponse): StackListItem => ({
 });
 
 export const toStackListItems = (dtos: StackListResponse[]): StackListItem[] => dtos.map(toStackListItem);
+
+export const toUpdateFacilityRequest = (vo: FacilityUpdate): FacilityUpdateRequest => ({
+  name: trimValue(vo.name),
+  fuelUsage: trimValue(vo.fuelUsage),
+  fuelInput: trimValue(vo.fuelInput),
+  fuelType: trimValue(vo.fuelType),
+});
+
+export const toRegisterPreventionRequest = (vo: PreventionCreate): PreventionRegisterRequest => ({
+  name: trimValue(vo.name),
+});
+
+export const toUpdatePreventionRequest = (vo: PreventionUpdate): PreventionUpdateRequest => ({
+  name: trimValue(vo.name),
+});
+
+export const toRegisterSubstanceRequest = (vo: TargetSubstanceCreate): TargetSubstanceRegisterRequest => ({
+  name: trimValue(vo.name),
+  removalEfficiency: trimValue(vo.removalEfficiency),
+});
 
 export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
   stack: {

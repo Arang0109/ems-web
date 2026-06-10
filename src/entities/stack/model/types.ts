@@ -101,3 +101,30 @@ export type Facility = {
   fuelInput: string;
   fuelType: string;
 }
+
+export type FacilityCreate = {
+  name: string;
+  fuelUsage: string;
+  fuelInput: string;
+  fuelType: string;
+}
+
+export type FacilityUpdate = {
+  name: string;
+  fuelUsage: string;
+  fuelInput: string;
+  fuelType: string;
+}
+
+export type PreventionCreate = {
+  name: string;
+}
+
+export type PreventionUpdate = {
+  name: string;
+}
+
+export type TargetSubstanceCreate = {
+  name: string;
+  removalEfficiency: string;
+}

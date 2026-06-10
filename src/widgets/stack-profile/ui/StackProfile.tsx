@@ -12,7 +12,7 @@ import { Tabs } from '@shared/ui/tabs';
 export const StackProfile = () => {
   const { stackId } = useParams<{ stackId: string }>();
 
-  const { stack, stackProfile, preventions, facilities, measurements, refetch } = useStackProfile(stackId);
+  const { stack, stackId: stackIdNum, stackProfile, facilities, preventions, measurements, refetch } = useStackProfile(stackId);
 
   const tabOptions = [
     {
@@ -23,12 +23,16 @@ export const StackProfile = () => {
     {
       value: "facility",
       label: "배출시설",
-      content: <FacilityInfo facilities={facilities} />
+      content: stackIdNum
+        ? <FacilityInfo stackId={stackIdNum} facilities={facilities} onRefetch={refetch} />
+        : null
     },
     {
       value: "prevention",
       label: "방지시설",
-      content: <PreventionInfo preventions={preventions} />
+      content: stackIdNum
+        ? <PreventionInfo stackId={stackIdNum} preventions={preventions} onRefetch={refetch} />
+        : null
     },
     {
       value: "measurements",
@@ -38,7 +42,7 @@ export const StackProfile = () => {
     {
       value: "history",
       label: "측정이력",
-      content: <PreventionInfo preventions={preventions} />
+      content: null
     }
   ]
 
