@@ -27,3 +27,10 @@ export type FacilityProfile = {
   fuelInput: string;
   fuelType: string;
 }
+
+export type MeasurementProfile = {
+  nameKr: string;
+  nameEn: string;
+  cycle: string;
+  allowance: string;
+}

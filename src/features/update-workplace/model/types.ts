@@ -1,5 +1,7 @@
 export type WorkplaceUpdateForm = {
   name: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
   bizNumber: string;
 }
@@ -7,5 +9,7 @@ export type WorkplaceUpdateForm = {
 export const getDefaultForm = (): WorkplaceUpdateForm => ({
   name: "",
   bizNumber: "",
+  zipcode: "",
+  roadAddress: "",
   address: "",
 });

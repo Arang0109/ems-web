@@ -1,6 +1,6 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
-  MeasurementMethod, PollutantPhase,
+  MeasurementMethod, PollutantPhase, MeasurementCycle,
 } from "../model";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
@@ -48,4 +48,13 @@ export const MEASUREMENT_METHOD_LABEL: Record<MeasurementMethod, string> = {
 export const POLLUTANT_PHASE_LABEL: Record<PollutantPhase, string> = {
   PARTICLE: '입자상',
   GAS: '가스상'
+};
+
+export const MEASUREMENT_CYCLE_LABEL: Record<MeasurementCycle, string> = {
+  MONTHLY: '월 1회',
+  TWICE_MONTHLY: '월 2회',
+  BIMONTHLY: '격월',
+  QUARTERLY: '분기',
+  SEMI_ANNUAL: '반기',
+  ANNUAL: '연 1회',
 };

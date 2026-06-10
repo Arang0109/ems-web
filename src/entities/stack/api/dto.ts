@@ -10,6 +10,20 @@ export type StackRegisterRequest = {
   mainProduct: string,
 }
 
+export type StackUpdateRequest = {
+  field: MeasurementField;
+  name: string;
+  semsNumber: string;
+  grade: Grade;
+  businessCategory: string;
+  mainProduct: string;
+  height: string;
+  horizontalLength: string;
+  verticalLength: string;
+  shape: Shape;
+  orientation: Orientation;
+}
+
 export type StackListResponse = {
   id: number,
   companyName: string,

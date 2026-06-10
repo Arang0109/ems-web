@@ -9,22 +9,20 @@ import {
 } from '@tanstack/react-table';
 
 import { useCompanies } from '@entities/company';
-import type { Company } from '@entities/company';
 
 import { defaultColumns } from '../model/columns';
-import { toCompany, toCompanyRows } from '../model/mapper';
+import { toCompanyRows } from '../model/mapper';
 import type { CompanyTableRow } from '../model/types';
 
 import { useTableState } from '@shared/model';
 
 interface Props {
-  onRowClick?: (company: Company) => void;
+  onRowClick: (companyId: number) => void;
 }
 
 export const useCompanyTable = ({ onRowClick }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [detailCompany, setDetailCompany] = useState<Company | null>(null);
 
   const {
     sorting, setSorting,
@@ -37,8 +35,7 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
     [data]
   );
 
-  const handleViewDetail = (row: CompanyTableRow) => {
-    setDetailCompany(toCompany(row));
+  const handleViewDetail = () => {
     setUpdateModalOpen(true);
   };
 
@@ -62,16 +59,7 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
 
   const handleRowClick = onRowClick
     ? (row: CompanyTableRow) => {
-        onRowClick({
-          id: row.id,
-          name: row.name,
-          representative: row.representative,
-          address: row.address,
-          bizNumber: row.bizNumber,
-          manager: row.manager,
-          email: row.email,
-          tel: row.tel,
-        });
+        onRowClick(row.id);
       }
     : undefined;
 
@@ -82,7 +70,6 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
-    detailCompany,
 
     globalFilter, setGlobalFilter,
 

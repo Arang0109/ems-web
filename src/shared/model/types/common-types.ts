@@ -15,3 +15,9 @@ export type MeasurementField = typeof MEASUREMENT_FIELD[number];
 export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
 export type PollutantPhase = typeof POLLUTANT_PHASE[number];
 export type MeasurementCycle = typeof MEASUREMENT_CYCLE[number];
+
+export type AddressValue = {
+  zipcode: string;
+  roadAddress: string;
+  detailAddress: string;
+}

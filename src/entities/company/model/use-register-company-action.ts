@@ -18,7 +18,6 @@ export const useRegisterCompanyAction = () => {
     } catch (err) {
       const message = err instanceof Error ? err.message : '서버 연결에 실패했습니다.';
       setError(message);
-      throw new Error(message);
     } finally {
       setIsLoading(false);
     }

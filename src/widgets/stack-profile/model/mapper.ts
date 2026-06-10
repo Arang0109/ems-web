@@ -1,10 +1,12 @@
 import type { Prevention, Stack, Facility, TargetSubstance } from "@entities/stack";
-import type { FacilityProfile, PreventionProfile, StackProfile, TargetSubstanceProfile } from "./types";
+import type { StackMeasurementListItem } from "@entities/stack-measurement";
+import type { FacilityProfile, MeasurementProfile, PreventionProfile, StackProfile, TargetSubstanceProfile } from "./types";
 import {
   MEASUREMENT_FIELD_LABEL,
   GRADE_LABEL,
   SHAPE_LABEL,
-  ORIENTATION_LABEL
+  ORIENTATION_LABEL,
+  MEASUREMENT_CYCLE_LABEL,
 } from "@shared/config";
 
 const value = (v?: string | null) => v?.trim() || "-";
@@ -58,4 +60,15 @@ const toFacilityProfile = (data: Facility): FacilityProfile => ({
   fuelUsage: value(data.fuelUsage),
   fuelInput: value(data.fuelInput),
   fuelType: value(data.fuelType),
-})
+});
+
+export const toMeasurementProfiles = (
+  data: StackMeasurementListItem[]
+): MeasurementProfile[] => data.map(toMeasurementProfile);
+
+const toMeasurementProfile = (data: StackMeasurementListItem): MeasurementProfile => ({
+  nameKr: value(data.pollutant.nameKr),
+  nameEn: value(data.pollutant.nameEn),
+  cycle: MEASUREMENT_CYCLE_LABEL[data.pollutant.cycle] ?? data.pollutant.cycle,
+  allowance: value(data.pollutant.allowance),
+});

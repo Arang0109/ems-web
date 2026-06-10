@@ -9,5 +9,7 @@ export const toWorkplaceCreate = (
   companyId: form.companyId,
   name: trimValue(form.workplaceName),
   bizNumber: unformatNumber(form.workplaceBizNumber),
+  zipcode: form.workplaceZipcode,
+  roadAddress: form.workplaceRoadAddress,
   address: trimValue(form.workplaceAddress),
 });

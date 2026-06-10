@@ -9,6 +9,8 @@ export const toCompanyUpdate = (
   name: trimValue(form.name),
   bizNumber: unformatNumber(form.bizNumber),
   representative: trimValue(form.representative),
+  zipcode: form.zipcode,
+  roadAddress: form.roadAddress,
   address: trimValue(form.address),
   manager: trimValue(form.manager),
   email: trimValue(form.email),

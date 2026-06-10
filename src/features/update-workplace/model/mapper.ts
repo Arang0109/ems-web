@@ -8,5 +8,7 @@ export const toWorkplaceUpdate = (
 ): WorkplaceUpdate => ({
   name: trimValue(form.name),
   bizNumber: unformatNumber(form.bizNumber),
+  zipcode: form.zipcode,
+  roadAddress: form.roadAddress,
   address: trimValue(form.address),
 })

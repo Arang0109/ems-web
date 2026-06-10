@@ -7,6 +7,8 @@ export const toRegisterRequest = (vo: CompanyCreate): CompanyRegisterRequest => 
   name: trimValue(vo.name),
   bizNumber: unformatNumber(vo.bizNumber),
   representative: trimValue(vo.representative),
+  zipcode: vo.zipcode,
+  roadAddress: vo.roadAddress,
   address: trimValue(vo.address),
 
   manager: trimValue(vo.manager),
@@ -19,6 +21,8 @@ export const toUpdateRequest = (vo: CompanyUpdate): CompanyUpdateRequest => ({
   bizNumber: unformatNumber(vo.bizNumber),
   representative: trimValue(vo.representative),
   address: trimValue(vo.address),
+  zipcode: vo.zipcode,
+  roadAddress: vo.roadAddress,
 
   manager: trimValue(vo.manager),
   email: trimValue(vo.email),

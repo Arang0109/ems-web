@@ -1,4 +1,4 @@
-
+export { formatAddress } from "./format/address";
 export { unformatNumber } from "./format/number";
 export { formatBusinessNumber } from "./format/business-number";
 export { formatDateTime } from "./format/date-time";

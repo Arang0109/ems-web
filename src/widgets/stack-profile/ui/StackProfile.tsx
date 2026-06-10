@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { StackBasicInfo } from './children/StackBasicInfo';
 import { PreventionInfo } from './children/PreventionInfo';
 import { FacilityInfo } from './children/FacilityInfo';
+import { MeasurementInfo } from './children/MeasurementInfo';
 
 import { useStackProfile } from '../model/use-stack-profile';
 
@@ -11,7 +12,7 @@ import { Tabs } from '@shared/ui/tabs';
 export const StackProfile = () => {
   const { stackId } = useParams<{ stackId: string }>();
 
-  const { stackProfile, preventions, facilities } = useStackProfile(stackId);
+  const { stackProfile, preventions, facilities, measurements } = useStackProfile(stackId);
 
   const tabOptions = [
     {
@@ -32,7 +33,7 @@ export const StackProfile = () => {
     {
       value: "measurements",
       label: "측정항목",
-      content: <PreventionInfo preventions={preventions} />
+      content: <MeasurementInfo measurements={measurements} />
     },
     {
       value: "history",

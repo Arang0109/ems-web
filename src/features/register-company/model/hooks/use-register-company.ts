@@ -7,6 +7,7 @@ import { toCompanyCreate } from "../mapper";
 import { useRegisterCompanyAction } from "@entities/company";
 
 import { toast } from "@shared/ui/toasts";
+import type { AddressValue } from "@shared/model";
 
 interface Props { onSuccess: () => void; }
 
@@ -19,8 +20,18 @@ export const useRegisterCompany = ({ onSuccess }: Props) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
+    setForm((prev) => ({
+      ...prev,
+      zipcode: zipcode,
+      roadAddress,
+      address: detailAddress,
+    }));
+  };
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
     try {
       await registerCompany(toCompanyCreate(form));
       toast.success(`측정대행 의뢰기관이 등록되었습니다.`);
@@ -39,5 +50,6 @@ export const useRegisterCompany = ({ onSuccess }: Props) => {
 
     handleSubmit,
     handleChange,
+    handleAddressChange,
   };
 };

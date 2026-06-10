@@ -9,8 +9,7 @@ import { useWorkplaceSelection } from "@features/select-workplace";
 
 export const ClientManagementPage = () => {
   const {
-    stacks,
-    selectedWorkplace,
+    stacks, selectedWorkplace,
 
     handleSelectWorkplaceRow,
     clearWorkplaceSelection,
@@ -21,8 +20,7 @@ export const ClientManagementPage = () => {
   } = useWorkplaceSelection();
 
   const {
-    workplaces,
-    selectedCompany,
+    workplaces, selectedCompany,
 
     handleSelectCompanyRow,
     refetchWorkplaces,
@@ -36,7 +34,10 @@ export const ClientManagementPage = () => {
       <PageTitle title="거래처 관리" description="측정대행 의뢰기관, 측정대상 사업장, 측정시설 목록이 표시됩니다."/>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <CompanyTable onRowClick={handleSelectCompanyRow} />
+        <CompanyTable
+          selectedCompany={selectedCompany}
+          onRowClick={handleSelectCompanyRow}
+        />
         <WorkplaceTable
           workplaces={workplaces}
           loading={workplacesLoading}

@@ -1,11 +1,11 @@
 import { Divider } from "@shared/ui/borders";
 import type { Company } from "@entities/company";
 
-import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 import { formatBusinessNumber, unformatNumber } from '@shared/lib';
 
-import { Building2, Hash, User2, MapPin, Factory } from "lucide-react";
+import { Building2, Hash, User2, Factory } from "lucide-react";
 
 import { useRegisterWorkplace } from "../model/hooks/use-register-workplace";
 
@@ -22,7 +22,7 @@ export const RegisterWorkplaceForm = ({
   onOpenChange,
   onSuccess,
 }: RegisterWorkplaceFormProps) => {
-  const { form, handleChange, handleSubmit } = useRegisterWorkplace({
+  const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterWorkplace({
     company,
     onSuccess: () => {
       onOpenChange(false);
@@ -91,13 +91,11 @@ export const RegisterWorkplaceForm = ({
           onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
         />
-        <InputGroup
+        <AddressInput
           id="workplaceAddress"
-          label="사업장 주소"
-          placeholder="사업장 주소"
-          value={form.workplaceAddress}
-          onChange={(value) => handleChange("workplaceAddress", value)}
-          startIcon={<MapPin />}
+          placeholder="사업장 상세주소"
+          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceAddress }}
+          onChange={handleAddressChange}
         />
       </FieldGroup>
     </FormDialog>

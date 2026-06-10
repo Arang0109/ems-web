@@ -4,13 +4,13 @@ import { useRegisterCompany } from "../model/hooks/use-register-company";
 import { FieldGroup } from "@/components/ui/field";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle } from "@shared/ui/form";
+import { InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 
 // Format
 import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
 
 // Icon
-import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
+import { MailIcon, User2Icon, Phone, Building2, Hash } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -19,7 +19,7 @@ interface Props {
 }
 
 export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) => {
-  const { form, handleChange, handleSubmit } = useRegisterCompany({
+  const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterCompany({
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -61,17 +61,15 @@ export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) =>
             label="대표자"
             placeholder="대표자"
             value={form.representative}
-          onChange={(value) => handleChange("representative", value)}
+            onChange={(value) => handleChange("representative", value)}
             startIcon={<User2Icon />}
           />
         </div>
-        <InputGroup
+        <AddressInput
           id="address"
-          label="주소"
-          placeholder="주소"
-          value={form.address}
-          onChange={(value) => handleChange("address", value)}
-          startIcon={<MapPin />}
+          placeholder="상세주소"
+          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
+          onChange={handleAddressChange}
         />
 
         <Divider />

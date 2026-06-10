@@ -7,6 +7,7 @@ import { useUpdateWorkplaceAction } from "@entities/workplace";
 import type { WorkplaceListItem } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
+import type { AddressValue } from "@shared/model";
 
 interface Props {
   workplace: WorkplaceListItem | null;
@@ -19,11 +20,22 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
   const [form, setForm] = useState<WorkplaceUpdateForm>({
     name: workplace?.workplaceName ?? '',
     bizNumber: workplace?.bizNumber ?? "",
+    zipcode: workplace?.zipcode ?? '',
+    roadAddress: workplace?.roadAddress ?? '',
     address: workplace?.address ?? "",
   });
 
   const handleChange = (name: keyof WorkplaceUpdateForm, value: string) => {
     setForm((prev) => ({...prev, [name]: value,}));
+  };
+
+  const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
+    setForm((prev) => ({
+      ...prev,
+      zipcode: zipcode,
+      roadAddress,
+      address: detailAddress,
+    }));
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -47,5 +59,6 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
 
     handleSubmit,
     handleChange,
+    handleAddressChange,
   }
 }

@@ -4,9 +4,9 @@ import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 import type { WorkplaceListItem } from '@entities/workplace';
 
 import { FormDialog } from "@shared/ui/dialogs";
-import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 
-import { Building2, Hash, MapPin } from "lucide-react";
+import { Building2, Hash } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const UpdateWorkplaceForm = ({ open, onOpenChange, workplace, onSuccess }: Props) => {
-  const { form, handleSubmit, handleChange } = useUpdateWorkplace({
+  const { form, handleSubmit, handleAddressChange, handleChange } = useUpdateWorkplace({
     workplace: workplace,
     onSuccess: () => {
       onOpenChange(false);
@@ -56,14 +56,14 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, workplace, onSuccess }
           disabled
           readOnly
         />
-        <InputGroup
-          id="name"
-          label="측정대상 사업장"
-          value={form.name}
-          onChange={(value) => handleChange('name', value)}
-          startIcon={<Building2 />}
-        />
         <div className="grid md:grid-cols-2 gap-4">
+          <InputGroup
+            id="name"
+            label="측정대상 사업장"
+            value={form.name}
+            onChange={(value) => handleChange('name', value)}
+            startIcon={<Building2 />}
+          />
           <InputGroup
             id="bizNumber"
             label="사업자등록번호"
@@ -71,14 +71,13 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, workplace, onSuccess }
             onChange={(value) => handleChange('bizNumber', value)}
             startIcon={<Hash />}
           />
-        <InputGroup
-          id="address"
-          label="주소"
-          value={form.address}
-          onChange={(value) => handleChange('address', value)}
-          startIcon={<MapPin />}
-        />
         </div>
+        <AddressInput
+          id="address"
+          placeholder="상세주소"
+          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
+          onChange={handleAddressChange}
+        />
       </FieldGroup>
     </FormDialog>
   );

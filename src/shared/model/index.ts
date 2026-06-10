@@ -7,7 +7,8 @@ export {
   CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, MEASUREMENT_METHOD, POLLUTANT_PHASE, MEASUREMENT_CYCLE
 } from './types/common-types';
 export type {
-  ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod, PollutantPhase, MeasurementCycle
+  ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod, PollutantPhase, MeasurementCycle,
+  AddressValue
 } from './types/common-types';
 
 export { useIsMobile } from "./hooks/use-mobile";

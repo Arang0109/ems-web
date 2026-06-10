@@ -2,6 +2,7 @@ import { authHandlers } from './auth';
 import { dashboardHandlers } from './dashboard';
 import { companyHandlers } from './company';
 import { stackHandlers } from './stack';
+import { stackMeasurementHandlers } from './stack-measurement';
 import { contractHandlers } from './contract';
 import { pollutantHandlers } from './pollutants';
 
@@ -18,6 +19,9 @@ export const handlers = [
 
   // [ACTIVE]
   ...stackHandlers,
+
+  // [ACTIVE]
+  ...stackMeasurementHandlers,
 
   // [READY]
   ...contractHandlers,

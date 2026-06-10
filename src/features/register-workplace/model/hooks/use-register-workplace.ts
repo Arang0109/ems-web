@@ -8,6 +8,7 @@ import type { Company } from "@entities/company";
 import { useRegisterWorkplaceAction } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
+import type { AddressValue } from "@shared/model";
 
 interface Props {
   company: Company | null;
@@ -21,6 +22,15 @@ export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
 
   const handleChange = (name: keyof WorkplaceRegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
+    setForm((prev) => ({
+      ...prev,
+      zipcode: zipcode,
+      roadAddress,
+      address: detailAddress,
+    }));
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -42,5 +52,6 @@ export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
 
     handleSubmit,
     handleChange,
+    handleAddressChange,
   };
 }

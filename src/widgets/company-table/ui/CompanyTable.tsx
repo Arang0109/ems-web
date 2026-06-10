@@ -1,19 +1,19 @@
 import { useCompanyTable } from '../model/use-company-table';
 
-import type { Company } from '@entities/company';
-
 import { RegisterCompanyForm } from '@features/register-company'
 import { UpdateCompanyForm } from '@features/update-company';
 
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
+import type { Company } from '@entities/company';
 
 interface Props {
-  onRowClick?: (company: Company) => void;
+  selectedCompany: Company | null;
+  onRowClick: (companyId: number) => void;
 }
 
-export const CompanyTable = ({ onRowClick }: Props) => {
+export const CompanyTable = ({ selectedCompany, onRowClick }: Props) => {
   const {
     table,
 
@@ -21,7 +21,6 @@ export const CompanyTable = ({ onRowClick }: Props) => {
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
-    detailCompany,
 
     globalFilter, setGlobalFilter,
 
@@ -69,10 +68,10 @@ export const CompanyTable = ({ onRowClick }: Props) => {
       )}
 
       <UpdateCompanyForm
-        key={detailCompany?.id}
+        key={selectedCompany?.id}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
-        company={detailCompany}
+        company={selectedCompany}
         onSuccess={refetch}
       />
     </div>

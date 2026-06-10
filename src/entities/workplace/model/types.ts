@@ -10,11 +10,15 @@ export type WorkplaceCreate = {
   companyId: number;
   name: string;
   bizNumber: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
 }
 
 export type WorkplaceUpdate = {
   name: string;
   bizNumber: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
 }

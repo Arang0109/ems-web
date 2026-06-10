@@ -7,3 +7,15 @@ export type StackMeasurement = {
   cycle: MeasurementCycle;
   allowance: string;
 }
+
+export type StackMeasurementListItem = {
+  id: number;
+  stack_id: number;
+  pollutant: {
+    id: number;
+    nameKr: string;
+    nameEn: string;
+    cycle: MeasurementCycle;
+    allowance: string;
+  };
+}

@@ -6,6 +6,8 @@ export type CompanyCreate = {
   name: string;
   bizNumber: string;
   representative: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
 
   manager: string;
@@ -17,6 +19,8 @@ export type CompanyUpdate = {
   name: string;
   bizNumber: string;
   representative: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
 
   manager: string;

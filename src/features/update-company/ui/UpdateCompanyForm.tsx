@@ -6,13 +6,13 @@ import type { Company } from '@entities/company';
 // UI
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle, FieldGroup } from "@shared/ui/form";
+import { InputGroup, SectionTitle, FieldGroup, AddressInput } from "@shared/ui/form";
 
 // Format
 import { formatPhoneNumber, unformatNumber, formatBusinessNumber } from '@shared/lib';
 
 // Icon
-import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
+import { MailIcon, User2Icon, Phone, Building2, Hash } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const UpdateCompanyForm = ({ open, onOpenChange, company, onSuccess }: Props) => {
-  const { form, handleSubmit, handleChange } = useUpdateCompany({
+  const { form, handleSubmit, handleAddressChange, handleChange } = useUpdateCompany({
     company: company,
     onSuccess: () => {
       onOpenChange(false);
@@ -74,12 +74,11 @@ export const UpdateCompanyForm = ({ open, onOpenChange, company, onSuccess }: Pr
             startIcon={<User2Icon />}
           />
         </div>
-        <InputGroup
+        <AddressInput
           id="address"
-          label="주소"
-          value={form.address}
-          onChange={(value) => handleChange('address', value)}
-          startIcon={<MapPin />}
+          placeholder="상세주소"
+          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
+          onChange={handleAddressChange}
         />
 
         <Divider />

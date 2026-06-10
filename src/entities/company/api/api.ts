@@ -3,6 +3,11 @@ import type { ApiResponseMessage } from '@shared/model';
 import type { CompanyRegisterRequest, CompanyResponse, CompanyUpdateRequest } from './dto';
 
 export const companyApi = {
+  getCompany: async (id: number): Promise<ApiResponseMessage<CompanyResponse>> => {
+    const res = await axiosPrivate.get(`/companies/${id}`);
+    return res.data;
+  },
+
   getCompanyList: async (): Promise<ApiResponseMessage<CompanyResponse[]>> => {
     const res = await axiosPrivate.get('/companies');
     return res.data;

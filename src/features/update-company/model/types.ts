@@ -1,6 +1,8 @@
 export type CompanyUpdateForm = {
   name: string;
   representative: string;
+  zipcode: string;
+  roadAddress: string;
   address: string;
   bizNumber: string;
 
@@ -12,6 +14,8 @@ export type CompanyUpdateForm = {
 export const getDefaultForm = (): CompanyUpdateForm => ({
   name: "",
   bizNumber: "",
+  zipcode: "",
+  roadAddress: "",
   address: "",
   representative: "",
   manager: "",

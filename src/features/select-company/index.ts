@@ -1,1 +1,1 @@
-export { useCompanySelection } from './hooks/useCompanySelection';
+export { useCompanySelection } from './hooks/use-company-selection';

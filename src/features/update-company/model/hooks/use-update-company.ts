@@ -7,6 +7,7 @@ import { useUpdateCompanyAction } from "@entities/company";
 import type { Company } from "@entities/company";
 
 import { toast } from "@shared/ui/toasts";
+import type { AddressValue } from "@shared/model";
 
 interface Props {
   company: Company | null;
@@ -19,6 +20,8 @@ export const useUpdateCompany = ({ company, onSuccess }: Props) => {
   const [form, setForm] = useState<CompanyUpdateForm>({
     name: company?.name ?? '',
     representative: company?.representative ?? '',
+    zipcode: company?.zipcode ?? '',
+    roadAddress: company?.roadAddress ?? '',
     address: company?.address ?? "",
     bizNumber: company?.bizNumber ?? "",
     manager: company?.manager ?? "",
@@ -28,6 +31,15 @@ export const useUpdateCompany = ({ company, onSuccess }: Props) => {
 
   const handleChange = (name: keyof CompanyUpdateForm, value: string) => {
     setForm((prev) => ({...prev, [name]: value,}));
+  };
+  
+  const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
+    setForm((prev) => ({
+      ...prev,
+      zipcode: zipcode,
+      roadAddress,
+      address: detailAddress,
+    }));
   };
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -51,5 +63,6 @@ export const useUpdateCompany = ({ company, onSuccess }: Props) => {
 
     handleSubmit,
     handleChange,
+    handleAddressChange,
   }
 }

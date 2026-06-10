@@ -1,6 +1,6 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackRegisterRequest, StackListResponse, StackDetailResponse } from './dto';
+import type { StackRegisterRequest, StackUpdateRequest, StackListResponse, StackDetailResponse } from './dto';
 import type { Stack } from '../model/types';
 
 export const stackApi = {
@@ -20,4 +20,8 @@ export const stackApi = {
     return res.data;
   },
 
+  updateStack: async (id: number, data: StackUpdateRequest): Promise<ApiResponseMessage<Stack>> => {
+    const res = await axiosPrivate.put(`/stacks/${id}`, data);
+    return res.data;
+  },
 }
