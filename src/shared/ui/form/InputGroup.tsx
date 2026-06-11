@@ -21,6 +21,9 @@ interface InputGroupProps<T = string> {
   required?: boolean;
   helperText?: string;
 
+  invalid?: boolean;
+  error?: string;
+
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
 }
@@ -36,12 +39,17 @@ export const InputGroup = <T extends string | number>({
   readOnly,
   required,
   helperText,
+  invalid,
+  error,
   startIcon,
   endIcon,
 }: InputGroupProps<T>) => {
   const input = (
     <InputGroupPrimitive>
-      {startIcon && <InputGroupAddon>{startIcon}</InputGroupAddon>}
+      {startIcon && 
+        <InputGroupAddon
+          className={error? 'text-red-500' : ""}
+        >{startIcon}</InputGroupAddon>}
       <InputGroupInput
         id={id}
         type={type}
@@ -50,6 +58,7 @@ export const InputGroup = <T extends string | number>({
         placeholder={placeholder}
         disabled={disabled}
         readOnly={readOnly}
+        aria-invalid={invalid}
       />
       {endIcon && <InputGroupAddon align="inline-end">{endIcon}</InputGroupAddon>}
     </InputGroupPrimitive>
@@ -58,13 +67,14 @@ export const InputGroup = <T extends string | number>({
   if (!label) return input;
 
   return (
-    <Field>
+    <Field data-invalid={invalid}>
       <FieldLabel htmlFor={id}>
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </FieldLabel>
       {input}
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      {error && <FieldDescription className="text-red-500">{error}</FieldDescription>}
     </Field>
   );
 };

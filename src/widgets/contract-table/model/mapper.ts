@@ -1,14 +1,14 @@
-import type { ContractTableListResponse } from "@entities/contract";
+import type { ContractListItem } from "@entities/contract";
 import type { ContractTableRow } from "./types";
 
-import { MEASUREMENT_FIELD_LABEL } from "@shared/model";
-
-export const toContractRows = (row: ContractTableListResponse): ContractTableRow => ({
-  field: MEASUREMENT_FIELD_LABEL[row.field],
+export const toContractRows = (row: ContractListItem): ContractTableRow => ({
+  id: row.id,
+  workplaceId: row.workplaceId,
+  field: row.fields,
   companyName: row.companyName,
   workplaceName: row.workplaceName,
   contractName: row.contractName,
   taskPeriod: row.taskPeriod,
   contractStatus: row.contractStatus,
-  contractDate: row.contractDate
-})
+  contractDate: row.contractDate,
+});

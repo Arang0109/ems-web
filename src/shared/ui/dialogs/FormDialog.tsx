@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/dialog"
 
 interface DialogProps {
-  triggerLabel: string;
+  triggerLabel?: string;
   title?: string;
   description?: string;
   children: React.ReactNode;
   submitLabel?: string;
+  deleteLabel?: string;
   cancelLabel?: string;
-  onSubmit?: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  onDelete?: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
@@ -29,15 +31,19 @@ export function FormDialog({
   description,
   children,
   submitLabel='제출',
+  deleteLabel,
   cancelLabel='닫기',
   onSubmit,
+  onDelete,
   open,
   onOpenChange,
   disabled,
 }: DialogProps) {
   return (
     <DialogPrimitive open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+      {triggerLabel && (
+        <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+      )}
       <DialogContent className="sm:max-w-150">
         <form onSubmit={onSubmit}>
           <DialogHeader className="mb-5">
@@ -48,8 +54,11 @@ export function FormDialog({
           </DialogHeader>
           {children}
           <DialogFooter className="mt-5">
+            {deleteLabel && (
+              <Button variant="destructive" onClick={onDelete}>{deleteLabel}</Button>
+            )}
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            <Button type="submit">{submitLabel}</Button>
+            {submitLabel && <Button type="submit">{submitLabel}</Button>}
           </DialogFooter>
         </form>
       </DialogContent>

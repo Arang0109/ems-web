@@ -1,0 +1,1 @@
+export { RegisterPollutantForm } from "./ui/RegisterPollutantForm";

@@ -4,4 +4,8 @@ export type CompanyTableRow = {
   representative: string;
   address: string;
   bizNumber: string;
+
+  manager: string;
+  email: string;
+  tel: string;
 };

@@ -1,3 +1,3 @@
-export { ClientManagementPage } from "./ClientManagementPage";
-export { ContractPage } from "./ContractPage";
-export { ContractRegisterPage } from "./ContractRegisterPage";
+export * from "./company";
+export * from "./contract";
+export * from "./pollutant";

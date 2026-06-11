@@ -1,11 +1,11 @@
 export type ContractTableRow = {
+  id: number;
+  workplaceId: number;
   field: string;
   companyName: string;
   workplaceName: string;
-  contractName: string;              // 용역명
+  contractName: string;
   taskPeriod: string;
-
   contractStatus: string;
-
-  contractDate: string;             // 계약일자
+  contractDate: string;
 }

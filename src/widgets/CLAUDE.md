@@ -29,12 +29,13 @@ widget-name/
 widget-name/
 ├── index.ts
 ├── model/
-│   ├── types.ts      # TableRow 타입 정의
-│   ├── columns.ts    # TanStack Table ColumnDef 정의
-│   └── mapper.ts     # Entity → TableRow 변환 함수
+│   ├── types.ts            # TableRow 타입 정의
+│   ├── columns.ts          # TanStack Table ColumnDef 정의
+│   ├── mapper.ts           # Entity → TableRow 변환 함수
+│   └── use-xxx-table.ts   # 테이블 상태 관리 훅
 └── ui/
-    ├── XxxTable.tsx  # 메인 테이블 컴포넌트
-    └── Cells.tsx     # 커스텀 셀 컴포넌트
+    ├── XxxTable.tsx        # 메인 테이블 컴포넌트 (렌더링만 담당)
+    └── Cells.tsx           # 커스텀 셀 컴포넌트
 ```
 
 ---
@@ -70,10 +71,40 @@ export function toCompanyRows(row: CompanyListResponse): CompanyTableRow {
 }
 ```
 
-### 컴포넌트 내 매핑
+### 테이블 훅 (`model/use-xxx-table.ts`)
+
+테이블 컴포넌트가 UI 렌더링만 담당할 수 있도록, 상태·데이터·로직을 훅으로 분리한다.
 
 ```typescript
-const tableData = useMemo(() => data?.map(toCompanyRows) ?? [], [data]);
+export const useCompanyTable = ({ onRowClick }: Props) => {
+  // 모달 상태
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [detailCompany, setDetailCompany] = useState<Company | null>(null);
+
+  // 테이블 상태 (정렬, 필터, 페이지네이션)
+  const { sorting, setSorting, globalFilter, setGlobalFilter, pagination, setPagination } = useTableState({ pageSize: 5 });
+
+  // 데이터 페칭
+  const { data, loading, error, refetch } = useCompanies();
+
+  // Entity → TableRow 변환
+  const tableData = useMemo(() => data?.map(toCompanyRows), [data]);
+
+  // TanStack Table 인스턴스
+  const table = useReactTable({ columns: defaultColumns, data: tableData, ... });
+
+  return { table, loading, error, refetch, globalFilter, setGlobalFilter, ... };
+};
+```
+
+**컴포넌트는 훅의 반환값을 구조분해하여 렌더링만 담당한다:**
+
+```typescript
+export const CompanyTable = ({ onRowClick }: Props) => {
+  const { table, loading, error, ... } = useCompanyTable({ onRowClick });
+  return ( /* JSX만 */ );
+};
 ```
 
 ### Columns (`model/columns.ts`)

@@ -1,2 +1,2 @@
 export { RegisterWorkplaceForm } from './ui/RegisterWorkplaceForm';
-export { useRegisterWorkplace } from "./model/use-register-workplace";
+export { useRegisterWorkplace } from "./model/hooks/use-register-workplace";

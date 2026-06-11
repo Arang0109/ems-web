@@ -1,1 +1,1 @@
-export { useSelectWorkplace } from "./hooks/useSelectWorkplace";
+export { useWorkplaceSelection } from "./hooks/useWorkplaceSelection";

@@ -1,8 +1,15 @@
-import { createColumnHelper } from '@tanstack/react-table';
+import { createColumnHelper, type RowData } from '@tanstack/react-table';
 
 import type { WorkplaceTableRow } from './types';
 
 import { CustomCell, ActionCell } from '../ui/Cells';
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    onViewWorkplaceDetail?: (row: WorkplaceTableRow) => void;
+  }
+}
 
 const columnHelper = createColumnHelper<WorkplaceTableRow>();
 

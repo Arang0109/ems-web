@@ -1,7 +1,24 @@
-export type Workplace = {
-  id: number;
+import type { WorkplaceResponse, WorkplaceListResponse, ContractOverviewResponse } from '../api/dto';
+
+export type Workplace = WorkplaceResponse;
+
+export type WorkplaceListItem = WorkplaceListResponse;
+
+export type ContractOverview = ContractOverviewResponse;
+
+export type WorkplaceCreate = {
   companyId: number;
-  name: string;               // 측정대상 사업장
-  address: string;            // 측정대상 사업장 주소
+  name: string;
   bizNumber: string;
+  zipcode: string;
+  roadAddress: string;
+  address: string;
+}
+
+export type WorkplaceUpdate = {
+  name: string;
+  bizNumber: string;
+  zipcode: string;
+  roadAddress: string;
+  address: string;
 }

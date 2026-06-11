@@ -2,6 +2,9 @@ export type CompanyRegisterForm = {
   name: string;
   bizNumber: string;
   representative: string;
+
+  zipcode: string;
+  roadAddress: string;
   address: string;
 
   manager: string;
@@ -11,9 +14,11 @@ export type CompanyRegisterForm = {
   isBizNumberChecked: boolean;
 }
 
-export const getDefaultCompanyRegisterForm = (): CompanyRegisterForm => ({
+export const getDefaultForm = (): CompanyRegisterForm => ({
   name: "",
   bizNumber: "",
+  zipcode: "",
+  roadAddress: "",
   address: "",
   representative: "",
   manager: "",

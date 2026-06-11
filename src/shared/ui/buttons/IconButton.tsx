@@ -6,7 +6,7 @@ type ButtonSize = "default" | "sm" | "lg" | "icon" | "xs";
 
 interface IconButtonProps {
   icon: React.ReactNode;
-  label: string;
+  label?: string;
   onClick?: () => void;
   variant?: ButtonVariant;
   size?: ButtonSize;

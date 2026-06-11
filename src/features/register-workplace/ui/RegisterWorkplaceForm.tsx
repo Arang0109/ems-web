@@ -1,12 +1,13 @@
-import { FieldGroup } from "@/components/ui/field"
 import { Divider } from "@shared/ui/borders";
-import type { Company } from "@/entities/company";
-import { InputGroup, SectionTitle } from "@/shared/ui/form";
+import type { Company } from "@entities/company";
+
+import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
+import { formatBusinessNumber, unformatNumber } from '@shared/lib';
 
-import { Building2, Hash, User2, MapPin, Factory } from "lucide-react";
+import { Building2, Hash, User2, Factory } from "lucide-react";
 
-import { useRegisterWorkplace } from "../model/use-register-workplace";
+import { useRegisterWorkplace } from "../model/hooks/use-register-workplace";
 
 interface RegisterWorkplaceFormProps {
   company: Company | null;
@@ -21,7 +22,7 @@ export const RegisterWorkplaceForm = ({
   onOpenChange,
   onSuccess,
 }: RegisterWorkplaceFormProps) => {
-  const { form, handleChange, onSubmit } = useRegisterWorkplace({
+  const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterWorkplace({
     company,
     onSuccess: () => {
       onOpenChange(false);
@@ -34,7 +35,7 @@ export const RegisterWorkplaceForm = ({
       triggerLabel='측정대상 사업장 등록'
       open={open}
       onOpenChange={onOpenChange}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       submitLabel='등록'
       disabled={!company}
     >
@@ -61,7 +62,7 @@ export const RegisterWorkplaceForm = ({
             readOnly
           />
           <InputGroup
-            id="companyCeo"
+            id="representative"
             label="대표자"
             placeholder="대표자"
             value={company?.representative ?? ''}
@@ -86,17 +87,15 @@ export const RegisterWorkplaceForm = ({
           id="workplaceBizNumber"
           label="사업장 사업자등록번호"
           placeholder="사업자등록번호"
-          value={form.workplaceBizNumber}
-          onChange={(value) => handleChange("workplaceBizNumber", value)}
+          value={formatBusinessNumber(form.workplaceBizNumber)}
+          onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
         />
-        <InputGroup
+        <AddressInput
           id="workplaceAddress"
-          label="사업장 주소"
-          placeholder="사업장 주소"
-          value={form.workplaceAddress}
-          onChange={(value) => handleChange("workplaceAddress", value)}
-          startIcon={<MapPin />}
+          placeholder="사업장 상세주소"
+          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceAddress }}
+          onChange={handleAddressChange}
         />
       </FieldGroup>
     </FormDialog>

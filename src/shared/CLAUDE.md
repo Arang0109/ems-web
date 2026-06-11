@@ -6,16 +6,25 @@
 
 ## 책임 범위
 
-- 공통 UI 컴포넌트 (shadcn/ui 래퍼)
+- 공통 UI 컴포넌트 (shadcn/ui 래퍼 포함)
 - axios 인스턴스 (인증/비인증)
-- MSW 핸들러 (개발 Mock API)
-- 공통 타입, 상수, 레이블맵
-- 입력 포맷팅 유틸
+- MSW 핸들러 및 Mock 데이터
+- 공통 타입, enum, 상수
+- 공통 레이블맵 및 옵션 생성 유틸
+- 날짜, 숫자, 문자열 등 입력 포맷팅 유틸
+- 범용 Helper 함수 및 재사용 가능한 Hook
 
 ## 금지 사항
 
 - 비즈니스 도메인 로직 작성 금지
 - 특정 feature/entity에 종속된 코드 금지
+- 회사, 계약, 사업장 등 도메인 전용 타입 및 로직 작성 금지
+- 상위 레이어를(entities, fetures, widgets, pages) import하지 말 것
+
+## 판단 기준
+
+- 위 질문에 "다른 프로젝트에서도 그대로 사용할 수 있는가?"라고 답할 수 있다면 shared에 위치시킨다.
+- 그렇지 않고 특정 비즈니스 개념을 알고 있어야 한다면 해당 도메인(entities 또는 features)으로 이동한다.
 
 ---
 
@@ -41,30 +50,59 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 
 ---
 
-## `model/common-types.ts` — 상수 + 타입 + 레이블맵 패턴
+## `model/common-types.ts` — 상수 + 타입 패턴
 
-도메인 전역 상수와 표시 레이블을 한 곳에서 관리:
+도메인 전역에서 사용하는 상수와 타입을 한 곳에서 관리한다.
 
 ```typescript
-// 1. 상수 배열 (as const → 유니온 타입 추론)
-export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
-export type ContractStatus = (typeof CONTRACT_STATUS)[number];
+// 상수 배열 (as const → 유니온 타입 추론)
+export const CONTRACT_STATUS = [
+  'active',
+  'expiringSoon',
+  'expired',
+] as const;
 
-// 2. 표시 레이블맵 (UI에서 한글 표시용)
-export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
+export type ContractStatus =
+  (typeof CONTRACT_STATUS)[number];
+```
+
+---
+
+## `config/labels.ts` — 표시 레이블 패턴
+
+UI에서 사용하는 표시 문자열은 별도의 레이블맵으로 관리한다.
+
+```typescript
+export const CONTRACT_STATUS_LABEL: Record<
+  ContractStatus,
+  string
+> = {
   active: '계약중',
   expiringSoon: '만료 예정',
   expired: '만료',
 };
-
-// 3. 선택지 배열 생성 (폼 select 옵션)
-export const contractStatusOptions = CONTRACT_STATUS.map((value) => ({
-  value,
-  label: CONTRACT_STATUS_LABEL[value],
-}));
 ```
 
-feature의 폼 선택지나 widget mapper의 라벨 변환에서 이 패턴을 재사용합니다.
+---
+
+## 선택지 생성
+
+폼에서 사용하는 Select 옵션은 타입과 레이블맵을 이용하여 생성한다.
+
+```typescript
+export const contractStatusOptions =
+  CONTRACT_STATUS.map((value) => ({
+    value,
+    label: CONTRACT_STATUS_LABEL[value],
+  }));
+```
+
+### 사용
+
+- `common-types.ts` → 타입 및 상수 정의
+- `labels.ts` → 화면 표시 문자열
+- Feature → Select 옵션 생성
+- Widget → 표시 라벨 변환
 
 ---
 
@@ -102,3 +140,42 @@ api/
 ```
 
 새 도메인 MSW 핸들러는 `handlers/` 하위에 도메인별 파일로 분리하고 `handlers/index.ts`에 통합합니다.
+
+### 핸들러 on/off 관리 (`handlers/index.ts`)
+
+주석 방식으로 도메인별 활성화를 관리한다. 단순 주석 처리가 아닌 상태 마커로 맥락을 명시:
+
+```ts
+// 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
+export const handlers = [
+  // [WIP]    로그인 페이지 개발 시 활성화
+  // ...authHandlers,
+
+  // [ACTIVE]
+  ...dashboardHandlers,
+
+  // [READY]
+  // ...companyHandlers,
+];
+```
+
+백엔드 일부 API가 준비되는 시점에는 `VITE_MOCK_xxx=false` 환경변수 방식으로 전환을 검토한다.
+
+### 목업 데이터 작성 기준
+
+1. **필드명은 DTO와 완전히 일치** — `src/entities/[domain]/api/dtos.ts` 응답 타입 기준
+2. **필드값은 `common-types.ts` 상수 규격 사용** — `'AIR' | 'WATER' | 'NOISE_VIBRATION' | 'ODOR'`
+3. **식별자 필드 누락 금지** — `id`, `workplaceId` 등 DTO에 있는 모든 필드 포함
+4. **enum 필드 다양성 확보** — 가능한 모든 값을 최소 1건 이상 포함
+
+### 경로 매칭 순서 주의
+
+MSW는 등록 순서대로 매칭하므로, 구체적인 경로를 먼저 등록해야 한다:
+
+```ts
+// ✅ 올바른 순서
+http.get('/workplaces/contract-summary', ...),
+http.get('/workplaces', ...),
+
+// ❌ 역순이면 /workplaces가 /workplaces/contract-summary를 가로챔
+```

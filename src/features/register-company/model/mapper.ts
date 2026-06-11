@@ -1,16 +1,18 @@
 import type { CompanyRegisterForm } from "./types";
-import type { CompanyRegisterRequest } from "@entities/company";
+import type { CompanyCreate } from "@entities/company";
 
-import { stripFormatting, trimValue } from "@shared/lib/formatters";
+import { unformatNumber, trimValue } from "@shared/lib";
 
-export const mapToDto = (
+export const toCompanyCreate = (
   form: CompanyRegisterForm
-): CompanyRegisterRequest => ({
+): CompanyCreate => ({
   name: trimValue(form.name),
-  bizNumber: stripFormatting(form.bizNumber),
+  bizNumber: unformatNumber(form.bizNumber),
   representative: trimValue(form.representative),
+  zipcode: form.zipcode,
+  roadAddress: form.roadAddress,
   address: trimValue(form.address),
   manager: trimValue(form.manager),
   email: trimValue(form.email),
-  tel: stripFormatting(form.tel),
+  tel: unformatNumber(form.tel),
 });

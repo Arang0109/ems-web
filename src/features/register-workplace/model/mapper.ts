@@ -1,13 +1,15 @@
 import type { WorkplaceRegisterForm } from "./types";
-import type { WorkplaceRegisterRequest } from "@entities/workplace";
+import type { WorkplaceCreate } from "@entities/workplace";
 
-import { stripFormatting, trimValue } from "@shared/lib/formatters";
+import { unformatNumber, trimValue } from "@shared/lib";
 
-export const mapToDto = (
+export const toWorkplaceCreate = (
   form: WorkplaceRegisterForm
-): WorkplaceRegisterRequest => ({
+): WorkplaceCreate => ({
   companyId: form.companyId,
   name: trimValue(form.workplaceName),
-  bizNumber: stripFormatting(form.workplaceBizNumber),
+  bizNumber: unformatNumber(form.workplaceBizNumber),
+  zipcode: form.workplaceZipcode,
+  roadAddress: form.workplaceRoadAddress,
   address: trimValue(form.workplaceAddress),
 });

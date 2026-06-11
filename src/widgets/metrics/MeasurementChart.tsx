@@ -1,12 +1,12 @@
-import { useIsMobile } from '@shared/hooks';
+import { useIsMobile } from '@shared/model';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from 'recharts';
 
-import type { MeasurementDataPoint } from '@/entities/dashboard';
+import type { MeasurementCountChartResponse } from '@entities/dashboard';
 
 interface Props {
-  stats: MeasurementDataPoint[];
+  stats: MeasurementCountChartResponse[];
 }
 
 interface TooltipProps {

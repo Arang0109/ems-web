@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { SortIcon } from '@shared/icon';
+import { SortIcon } from '@/shared/assets';
 
 interface BasicTableProps<TData> {
   table: Table<TData>;

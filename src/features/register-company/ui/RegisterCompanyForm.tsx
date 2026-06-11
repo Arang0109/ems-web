@@ -1,26 +1,25 @@
+import { useRegisterCompany } from "../model/hooks/use-register-company";
+
+// UI
 import { FieldGroup } from "@/components/ui/field";
-
-import { useRegisterCompany } from "../model/use-register-company";
-
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle } from "@shared/ui/form";
-import { formatBusinessNumber, formatPhoneNumber, stripFormatting } from '@shared/lib/formatters';
+import { InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 
-import { MailIcon, User2Icon, Phone, Building2, Hash, MapPin } from "lucide-react";
+// Format
+import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
 
-interface RegisterCompanyFormProps {
+// Icon
+import { MailIcon, User2Icon, Phone, Building2, Hash } from "lucide-react";
+
+interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const RegisterCompanyForm = ({
-  open,
-  onOpenChange,
-  onSuccess,
-}: RegisterCompanyFormProps) => {
-  const { form, handleChange, onSubmit } = useRegisterCompany({
+export const RegisterCompanyForm = ({ open, onOpenChange, onSuccess }: Props) => {
+  const { form, handleChange, handleAddressChange, handleSubmit, fieldErrors } = useRegisterCompany({
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -32,7 +31,7 @@ export const RegisterCompanyForm = ({
       triggerLabel='측정대행 의뢰기관 등록'
       open={open}
       onOpenChange={onOpenChange}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       submitLabel='등록'
     >
       <FieldGroup>
@@ -45,6 +44,8 @@ export const RegisterCompanyForm = ({
           value={form.name}
           onChange={(value) => handleChange("name", value)}
           helperText="사업자등록증상에 기재된 상호"
+          invalid={!!fieldErrors?.name}
+          error={fieldErrors?.name}
           required
           startIcon={<Building2 />}
         />
@@ -54,25 +55,25 @@ export const RegisterCompanyForm = ({
             label="사업자등록번호"
             placeholder="사업자등록번호"
             value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", stripFormatting(value).slice(0, 10))}
+            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
             startIcon={<Hash />}
+            invalid={!!fieldErrors?.bizNumber}
+            error={fieldErrors?.bizNumber}
           />
           <InputGroup
             id="representative"
             label="대표자"
             placeholder="대표자"
             value={form.representative}
-          onChange={(value) => handleChange("representative", value)}
+            onChange={(value) => handleChange("representative", value)}
             startIcon={<User2Icon />}
           />
         </div>
-        <InputGroup
+        <AddressInput
           id="address"
-          label="주소"
-          placeholder="주소"
-          value={form.address}
-          onChange={(value) => handleChange("address", value)}
-          startIcon={<MapPin />}
+          placeholder="상세주소"
+          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
+          onChange={handleAddressChange}
         />
 
         <Divider />
@@ -91,7 +92,7 @@ export const RegisterCompanyForm = ({
             id="tel"
             placeholder="전화번호"
             value={formatPhoneNumber(form.tel)}
-            onChange={(value) => handleChange("tel", stripFormatting(value).slice(0, 11))}
+            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
             startIcon={<Phone />}
           />
           <InputGroup

@@ -1,19 +1,17 @@
-import { FieldGroup } from "@/components/ui/field"
-
 import type { Workplace } from "@entities/workplace";
 
-import { measurementFieldOptions, gradeOptions } from "../model/types";
-import { useRegisterStack } from "../model/use-register-stack";
+import { measurementFieldOptions, gradeOptions } from "@shared/model";
+import { useRegisterStack } from "../model/hooks/use-register-stack";
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, Select, SectionTitle, HorizontalRadioGroup } from "@shared/ui/form";
+import { FieldGroup, InputGroup, Select, SectionTitle, HorizontalRadioGroup } from "@shared/ui/form";
 import type { Grade, MeasurementField } from "@shared/model";
-import { GRADE_LABEL } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, Factory } from "lucide-react";
 
-interface RegisterStackFormProps {
+interface Props {
   workplace: Workplace | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -25,9 +23,9 @@ export const RegisterStackForm = ({
   open,
   onOpenChange,
   onSuccess,
-}: RegisterStackFormProps) => {
+}: Props) => {
 
-  const { form, handleChange, onSubmit } = useRegisterStack({
+  const { form, handleChange, handleSubmit } = useRegisterStack({
     workplace,
     onSuccess: () => {
       onOpenChange(false);
@@ -40,7 +38,7 @@ export const RegisterStackForm = ({
       triggerLabel='측정시설 등록'
       open={open}
       onOpenChange={onOpenChange}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       submitLabel='등록'
       disabled={!workplace}
     >
@@ -49,7 +47,7 @@ export const RegisterStackForm = ({
         <InputGroup
           label="측정대상 사업장"
           placeholder="측정대상 사업장"
-          value={form.wokrplaceName ?? ''}
+          value={form.workplaceName ?? ''}
           helperText="사업자등록증상에 기재된 상호"
           startIcon={<Building2 />}
           disabled
