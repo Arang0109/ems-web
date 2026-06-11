@@ -1,4 +1,4 @@
-# Architecture — ensolution-front-fsd
+# Architecture — ems-web
 
 Feature-Sliced Design (FSD) 아키텍처 문서입니다.
 

@@ -1,13 +1,13 @@
-# ensolution-front-fsd
+# ems-web
 
-> ⚠️ 이 프로젝트는 `c:\dev\projects\new\ensolution-front-fsd` 입니다.
+> ⚠️ 이 프로젝트는 `c:\dev\projects\new\ems-web` 입니다.
 > `c:\dev\projects\ensolution-front` (기존 프로젝트)와 **다른 별개의 프로젝트**입니다.
 
 ---
 
 ## 프로젝트 정보
 
-- **경로:** `c:\dev\projects\new\ensolution-front-fsd`
+- **경로:** `c:\dev\projects\new\ems-web`
 - **아키텍처:** Feature-Sliced Design (FSD)
 - **스택:** React + TypeScript + Vite + TailwindCSS v4 + shadcn/ui + MSW
 - **아키텍처 상세:** [ARCHITECTURE.md](./ARCHITECTURE.md) 참조
