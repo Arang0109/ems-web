@@ -103,6 +103,7 @@ export type Facility = {
 }
 
 export type FacilityCreate = {
+  stackId: number;
   name: string;
   fuelUsage: string;
   fuelInput: string;
@@ -117,6 +118,7 @@ export type FacilityUpdate = {
 }
 
 export type PreventionCreate = {
+  stackId: number;
   name: string;
 }
 
@@ -125,6 +127,7 @@ export type PreventionUpdate = {
 }
 
 export type TargetSubstanceCreate = {
+  preventionId: number;
   name: string;
   removalEfficiency: string;
 }

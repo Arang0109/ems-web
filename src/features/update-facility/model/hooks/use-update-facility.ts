@@ -8,12 +8,11 @@ import { getDefaultFacilityUpdateForm, type FacilityUpdateForm } from '../types'
 import { toFacilityUpdate } from '../mapper';
 
 interface Props {
-  stackId: number;
   facility: Facility | null;
   onSuccess: () => void;
 }
 
-export const useUpdateFacility = ({ stackId, facility, onSuccess }: Props) => {
+export const useUpdateFacility = ({ facility, onSuccess }: Props) => {
   const { updateFacility, isLoading } = useUpdateFacilityAction();
   const [form, setForm] = useState<FacilityUpdateForm>(getDefaultFacilityUpdateForm(facility ?? undefined));
 
@@ -25,7 +24,7 @@ export const useUpdateFacility = ({ stackId, facility, onSuccess }: Props) => {
     if (!facility) return;
     e.preventDefault();
     try {
-      await updateFacility(stackId, facility.id, toFacilityUpdate(form));
+      await updateFacility(facility.id, toFacilityUpdate(form));
       toast.success(`${facility.name}이(가) 수정되었습니다.`);
       onSuccess();
     } catch (err) {

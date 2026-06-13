@@ -85,7 +85,6 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
 
       <UpdateFacilityForm
         key={selectedFacility?.id}
-        stackId={stackId}
         facility={selectedFacility}
         open={updateOpen}
         onOpenChange={setUpdateOpen}

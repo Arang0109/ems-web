@@ -23,6 +23,7 @@ interface DialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
+  isLoading?: boolean;
 }
 
 export function FormDialog({
@@ -38,6 +39,7 @@ export function FormDialog({
   open,
   onOpenChange,
   disabled,
+  isLoading,
 }: DialogProps) {
   return (
     <DialogPrimitive open={open} onOpenChange={onOpenChange}>
@@ -55,10 +57,10 @@ export function FormDialog({
           {children}
           <DialogFooter className="mt-5">
             {deleteLabel && (
-              <Button variant="destructive" onClick={onDelete}>{deleteLabel}</Button>
+              <Button variant="destructive" onClick={onDelete}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
             )}
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            {submitLabel && <Button type="submit">{submitLabel}</Button>}
+            {submitLabel && <Button type="submit">{isLoading ? "제출 중..." : submitLabel}</Button>}
           </DialogFooter>
         </form>
       </DialogContent>

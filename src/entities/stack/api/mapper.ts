@@ -23,6 +23,7 @@ export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
 });
 
 export const toRegisterFacilityRequest = (vo: FacilityCreate): FacilityRegisterRequest => ({
+  stackId: vo.stackId,
   name: trimValue(vo.name),
   fuelUsage: trimValue(vo.fuelUsage),
   fuelInput: trimValue(vo.fuelInput),
@@ -63,6 +64,7 @@ export const toUpdateFacilityRequest = (vo: FacilityUpdate): FacilityUpdateReque
 });
 
 export const toRegisterPreventionRequest = (vo: PreventionCreate): PreventionRegisterRequest => ({
+  stackId: vo.stackId,
   name: trimValue(vo.name),
 });
 
@@ -71,6 +73,7 @@ export const toUpdatePreventionRequest = (vo: PreventionUpdate): PreventionUpdat
 });
 
 export const toRegisterSubstanceRequest = (vo: TargetSubstanceCreate): TargetSubstanceRegisterRequest => ({
+  preventionId: vo.preventionId,
   name: trimValue(vo.name),
   removalEfficiency: trimValue(vo.removalEfficiency),
 });
@@ -93,20 +96,20 @@ export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
     createdAt: dto.createdAt,
     modifiedAt: dto.modifiedAt
   },
-  preventions: dto.preventions.map((data) => ({
+  preventions: (dto.preventions ?? []).map((data) => ({
     id: data.id,
     name: data.name,
-    targets: data.targets.map((t) => ({
+    targets: (data.targets ?? []).map((t) => ({
       id: t.id,
       name: t.name,
       removalEfficiency: t.removalEfficiency,
     })),
   })),
-  facilities: dto.facilities.map((data) => ({
+  facilities: (dto.facilities ?? []).map((data) => ({
     id: data.id,
     name: data.name,
     fuelUsage: data.fuelUsage,
     fuelInput: data.fuelInput,
-    fuelType: data.fuelType
-  }))
+    fuelType: data.fuelType,
+  })),
 });

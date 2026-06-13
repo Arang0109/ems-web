@@ -7,24 +7,21 @@ import { FieldGroup, InputGroup, SectionTitle } from '@shared/ui/form';
 import { Shield } from 'lucide-react';
 
 interface Props {
-  stackId: number;
   prevention: Prevention | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const UpdatePreventionForm = ({ stackId, prevention, open, onOpenChange, onSuccess }: Props) => {
+export const UpdatePreventionForm = ({ prevention, open, onOpenChange, onSuccess }: Props) => {
   const close = () => onOpenChange(false);
 
   const { form, isLoading: isUpdating, handleChange, handleSubmit } = useUpdatePrevention({
-    stackId,
     prevention,
     onSuccess: () => { close(); onSuccess?.(); },
   });
 
   const { isLoading: isDeleting, handleDelete } = useDeletePrevention({
-    stackId,
     prevention,
     onSuccess: () => { close(); onSuccess?.(); },
   });

@@ -8,12 +8,11 @@ import { getDefaultPreventionUpdateForm, type PreventionUpdateForm } from '../ty
 import { toPreventionUpdate } from '../mapper';
 
 interface Props {
-  stackId: number;
   prevention: Prevention | null;
   onSuccess: () => void;
 }
 
-export const useUpdatePrevention = ({ stackId, prevention, onSuccess }: Props) => {
+export const useUpdatePrevention = ({ prevention, onSuccess }: Props) => {
   const { updatePrevention, isLoading } = useUpdatePreventionAction();
   const [form, setForm] = useState<PreventionUpdateForm>(getDefaultPreventionUpdateForm(prevention ?? undefined));
 
@@ -21,11 +20,11 @@ export const useUpdatePrevention = ({ stackId, prevention, onSuccess }: Props) =
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     if (!prevention) return;
     e.preventDefault();
     try {
-      await updatePrevention(stackId, prevention.id, toPreventionUpdate(form));
+      await updatePrevention(prevention.id, toPreventionUpdate(form));
       toast.success(`${prevention.name}이(가) 수정되었습니다.`);
       onSuccess();
     } catch (err) {

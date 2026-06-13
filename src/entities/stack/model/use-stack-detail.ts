@@ -17,7 +17,8 @@ export const useStackDetail = () => {
 
     try {
       const res = await stackApi.getStack(stackId);
-      setData(toStackDetail(res.data));
+      const detail = toStackDetail(res.data);
+      setData(detail);
     } catch {
       setError('데이터를 불러오는 데 실패했습니다.');
     } finally {

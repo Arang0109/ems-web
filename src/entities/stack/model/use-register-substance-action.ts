@@ -7,11 +7,11 @@ export const useRegisterSubstanceAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const registerSubstance = async (stackId: number, preventionId: number, data: TargetSubstanceCreate) => {
+  const registerSubstance = async (data: TargetSubstanceCreate) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await stackApi.registerSubstance(stackId, preventionId, toRegisterSubstanceRequest(data));
+      const result = await stackApi.registerSubstance(toRegisterSubstanceRequest(data));
       if (!result.status) {
         throw new Error(result.message ?? '서버 연결에 실패했습니다.');
       }

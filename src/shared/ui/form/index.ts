@@ -8,7 +8,6 @@ export { HorizontalRadioGroup } from "./HorizontalRadioGroup";
 export { Select } from "./Select";
 export { DatePicker } from "./DatePicker";
 export { AddressInput } from "./AddressInput";
-export type { AddressValue } from "./AddressInput";
 
 export { SectionTitle } from "./SectionTitle";
 export { FieldGroup } from "./FieldGroup";

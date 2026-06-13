@@ -22,8 +22,6 @@ interface DatePickerProps {
   required?: boolean;
   helperText?: string;
   className?: string;
-  fromDate?: Date;
-  toDate?: Date;
 }
 
 export const DatePicker = ({
@@ -36,8 +34,6 @@ export const DatePicker = ({
   required,
   helperText,
   className,
-  fromDate,
-  toDate,
 }: DatePickerProps) => {
   const [open, setOpen] = React.useState(false);
 
@@ -69,8 +65,6 @@ export const DatePicker = ({
             setOpen(false);
           }}
           defaultMonth={value}
-          fromDate={fromDate}
-          toDate={toDate}
         />
       </PopoverContent>
     </Popover>

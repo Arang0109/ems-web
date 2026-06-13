@@ -5,16 +5,14 @@ import { FieldGroup, InputGroup, SectionTitle } from '@shared/ui/form';
 import { FlaskConical } from 'lucide-react';
 
 interface Props {
-  stackId: number;
   preventionId: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const RegisterSubstanceForm = ({ stackId, preventionId, open, onOpenChange, onSuccess }: Props) => {
+export const RegisterSubstanceForm = ({ preventionId, open, onOpenChange, onSuccess }: Props) => {
   const { form, isLoading, handleChange, handleSubmit } = useRegisterSubstance({
-    stackId,
     preventionId,
     onSuccess: () => {
       onOpenChange(false);

@@ -17,16 +17,12 @@ interface Props {
 }
 
 interface SubstanceItemProps {
-  stackId: number;
-  preventionId: number;
   substance: TargetSubstance;
   onRefetch: () => void;
 }
 
-const SubstanceItem = ({ stackId, preventionId, substance, onRefetch }: SubstanceItemProps) => {
+const SubstanceItem = ({ substance, onRefetch }: SubstanceItemProps) => {
   const { isLoading, handleDelete } = useDeleteSubstance({
-    stackId,
-    preventionId,
     substance,
     onSuccess: onRefetch,
   });
@@ -121,8 +117,6 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
                   {prevention.targets.map((target) => (
                     <SubstanceItem
                       key={target.id}
-                      stackId={stackId}
-                      preventionId={prevention.id}
                       substance={target}
                       onRefetch={onRefetch}
                     />
@@ -145,7 +139,6 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
 
       <UpdatePreventionForm
         key={selectedPrevention?.id}
-        stackId={stackId}
         prevention={selectedPrevention}
         open={updatePreventionOpen}
         onOpenChange={setUpdatePreventionOpen}
@@ -155,7 +148,6 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
       {registerSubstancePreventionId !== null && (
         <RegisterSubstanceForm
           key={registerSubstancePreventionId}
-          stackId={stackId}
           preventionId={registerSubstancePreventionId}
           open={registerSubstanceOpen}
           onOpenChange={setRegisterSubstanceOpen}

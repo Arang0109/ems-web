@@ -1,5 +1,5 @@
 export type {
   MeasurementCountChartResponse, DashboardOverviewResponse
-} from './api/dtos';
+} from './api/dto';
 
 export { dashboardApi } from './api/api';

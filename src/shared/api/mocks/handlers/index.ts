@@ -21,11 +21,11 @@ export const handlers = [
   // ...stackHandlers,
 
   // [ACTIVE]
-  // ...stackMeasurementHandlers,
+  ...stackMeasurementHandlers,
 
   // [READY]
-  // ...contractHandlers,
+  ...contractHandlers,
 
   // [ACTIVE]
-  // ...pollutantHandlers,
+  ...pollutantHandlers,
 ];
