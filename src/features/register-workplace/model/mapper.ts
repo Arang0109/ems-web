@@ -12,4 +12,5 @@ export const toWorkplaceCreate = (
   zipcode: form.workplaceZipcode,
   roadAddress: form.workplaceRoadAddress,
   address: trimValue(form.workplaceAddress),
+  grade: form.grade,
 });

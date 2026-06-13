@@ -11,6 +11,7 @@ const toWorkplace = (item: WorkplaceListItem): Workplace => ({
   zipcode: item.zipcode,
   roadAddress: item.roadAddress,
   address: item.address,
+  grade: item.grade,
 });
 
 export const useWorkplaceSelection = () => {

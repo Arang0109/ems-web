@@ -11,4 +11,5 @@ export const toWorkplaceUpdate = (
   zipcode: form.zipcode,
   roadAddress: form.roadAddress,
   address: trimValue(form.address),
+  grade: form.grade,
 })

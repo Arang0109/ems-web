@@ -245,4 +245,85 @@ export const stackHandlers = [
       data: { id: Date.now(), ...body }
     }, { status: 201 });
   }),
+
+  http.put(`${BASE_URL}/stacks/:stackId`, async ({ params, request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '측정시설 수정 성공',
+      data: { id: Number(params.stackId), ...body }
+    });
+  }),
+
+  // 방지시설 (preventions)
+  http.post(`${BASE_URL}/preventions`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '방지시설 등록 성공',
+      data: { id: Date.now(), targets: [], ...body }
+    }, { status: 201 });
+  }),
+
+  http.put(`${BASE_URL}/preventions/:preventionId`, async ({ params, request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '방지시설 수정 성공',
+      data: { id: Number(params.preventionId), ...body }
+    });
+  }),
+
+  http.delete(`${BASE_URL}/preventions/:preventionId`, ({ params }) => {
+    return HttpResponse.json({
+      status: true,
+      message: `${params.preventionId} 방지시설 삭제 완료`,
+      data: null,
+    });
+  }),
+
+  // 연료시설 (facilities)
+  http.post(`${BASE_URL}/facilities`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '연료시설 등록 성공',
+      data: { id: Date.now(), ...body }
+    }, { status: 201 });
+  }),
+
+  http.put(`${BASE_URL}/facilities/:facilityId`, async ({ params, request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '연료시설 수정 성공',
+      data: { id: Number(params.facilityId), ...body }
+    });
+  }),
+
+  http.delete(`${BASE_URL}/facilities/:facilityId`, ({ params }) => {
+    return HttpResponse.json({
+      status: true,
+      message: `${params.facilityId} 연료시설 삭제 완료`,
+      data: null,
+    });
+  }),
+
+  // 대상물질 (target-substances)
+  http.post(`${BASE_URL}/target-substances`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>;
+    return HttpResponse.json({
+      status: true,
+      message: '대상물질 등록 성공',
+      data: { id: Date.now(), ...body }
+    }, { status: 201 });
+  }),
+
+  http.delete(`${BASE_URL}/target-substances/:substanceId`, ({ params }) => {
+    return HttpResponse.json({
+      status: true,
+      message: `${params.substanceId} 대상물질 삭제 완료`,
+      data: null,
+    });
+  }),
 ];

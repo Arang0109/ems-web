@@ -96,6 +96,14 @@ export const contractHandlers = [
     });
   }),
 
+  http.delete(`${BASE_URL}/contracts/:contractId`, ({ params }) => {
+    return HttpResponse.json({
+      status: true,
+      message: `${params.contractId} 계약서 삭제 완료`,
+      data: null,
+    });
+  }),
+
   http.get(`${BASE_URL}/contracts/:contractId`, ({ params }) => {
     return HttpResponse.json({
       status: true,

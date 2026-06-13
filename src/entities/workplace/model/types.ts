@@ -1,3 +1,4 @@
+import type { Grade } from '@shared/model';
 import type { WorkplaceResponse, WorkplaceListResponse, ContractOverviewResponse } from '../api/dto';
 
 export type Workplace = WorkplaceResponse;
@@ -13,6 +14,7 @@ export type WorkplaceCreate = {
   zipcode: string;
   roadAddress: string;
   address: string;
+  grade: Grade;
 }
 
 export type WorkplaceUpdate = {
@@ -21,4 +23,5 @@ export type WorkplaceUpdate = {
   zipcode: string;
   roadAddress: string;
   address: string;
+  grade: Grade
 }

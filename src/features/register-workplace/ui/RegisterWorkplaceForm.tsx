@@ -1,9 +1,12 @@
 import { Divider } from "@shared/ui/borders";
 import type { Company } from "@entities/company";
 
-import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 import { formatBusinessNumber, unformatNumber } from '@shared/lib';
+import type { Grade } from "@shared/model";
+import { gradeOptions } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, User2, Factory } from "lucide-react";
 
@@ -90,6 +93,14 @@ export const RegisterWorkplaceForm = ({
           value={formatBusinessNumber(form.workplaceBizNumber)}
           onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
+        />
+        <Select
+          id="grade"
+          label="시설 종별"
+          placeholder="종별 선택"
+          options={gradeOptions}
+          value={GRADE_LABEL[form.grade]}
+          onValueChange={(value) => value && handleChange("grade", value as Grade)}
         />
         <AddressInput
           id="workplaceAddress"

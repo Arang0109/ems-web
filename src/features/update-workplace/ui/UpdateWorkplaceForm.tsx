@@ -4,7 +4,10 @@ import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 import type { Workplace } from '@entities/workplace';
 
 import { FormDialog } from "@shared/ui/dialogs";
-import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
+import type { Grade } from "@shared/model";
+import { gradeOptions } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash } from "lucide-react";
 import type { Company } from '@/entities/company';
@@ -74,6 +77,14 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, company, workplace, on
             startIcon={<Hash />}
           />
         </div>
+          <Select
+            id="grade"
+            label="시설 종별"
+            placeholder="종별 선택"
+            options={gradeOptions}
+            value={GRADE_LABEL[form.grade]}
+            onValueChange={(value) => value && handleChange("grade", value as Grade)}
+          />
         <AddressInput
           id="address"
           placeholder="상세주소"

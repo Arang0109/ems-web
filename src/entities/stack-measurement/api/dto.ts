@@ -11,6 +11,14 @@ export type StackMeasurementResponse = {
   id: number;
   stack_id: number;
   pollutant_id: number;
+  cycle: MeasurementCycle;
+  allowance: string;
+}
+
+export type StackMeasurementTableResponse = {
+  id: number;
+  stack_id: number;
+  pollutant_id: number;
   nameKr: string;
   nameEn: string;
   cycle: MeasurementCycle;

@@ -1,3 +1,5 @@
+import type { Grade } from "@shared/model";
+
 export type WorkplaceListResponse = {
   id: number;
   companyId: number;
@@ -7,6 +9,7 @@ export type WorkplaceListResponse = {
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   address: string;
+  grade: Grade;
 }
 
 export type WorkplaceResponse = {
@@ -17,6 +20,7 @@ export type WorkplaceResponse = {
   zipcode: string;
   roadAddress: string;
   address: string;
+  grade: Grade;
 }
 
 export type ContractOverviewResponse = {
@@ -27,18 +31,20 @@ export type ContractOverviewResponse = {
 }
 
 export type WorkplaceRegisterRequest = {
-  companyId: number,
-  name: string,
-  bizNumber: string,
+  companyId: number;
+  name: string;
+  bizNumber: string;
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
-  address: string,
+  address: string;
+  grade: Grade;
 }
 
 export type WorkplaceUpdateRequest = {
-  name: string,
-  bizNumber: string,
+  name: string;
+  bizNumber: string;
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
-  address: string,
+  address: string;
+  grade: Grade;
 }

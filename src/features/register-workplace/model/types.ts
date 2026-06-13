@@ -1,4 +1,5 @@
 import type { Company } from "@entities/company";
+import type { Grade } from "@shared/model";
 
 export type WorkplaceRegisterForm = {
   companyId: number;
@@ -10,6 +11,7 @@ export type WorkplaceRegisterForm = {
   workplaceZipcode: string;
   workplaceRoadAddress: string;
   workplaceAddress: string;
+  grade: Grade;
 }
 
 export const getDefaultWorkplaceRegisterForm = (company?: Company | null): WorkplaceRegisterForm => ({
@@ -22,4 +24,5 @@ export const getDefaultWorkplaceRegisterForm = (company?: Company | null): Workp
   workplaceZipcode: "",
   workplaceRoadAddress: "",
   workplaceAddress: "",
+  grade: "TYPE_1",
 });

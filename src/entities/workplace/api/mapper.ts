@@ -9,6 +9,7 @@ export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   address: trimValue(vo.address),
+  grade: vo.grade,
 });
 
 export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => ({
@@ -17,6 +18,7 @@ export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => 
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   address: trimValue(vo.address),
+  grade: vo.grade,
 });
 
 export const toWorkplaceListItem = (
@@ -30,6 +32,7 @@ export const toWorkplaceListItem = (
   roadAddress: dto.roadAddress,
   address: dto.address,
   bizNumber: dto.bizNumber,
+  grade: dto.grade,
 });
 
 export const toWorkplaceListItems = (

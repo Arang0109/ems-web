@@ -1,8 +1,8 @@
 import type { StackMeasurementListItem } from "../model/types";
-import type { StackMeasurementResponse } from "./dto";
+import type { StackMeasurementTableResponse } from "./dto";
 
 export const toStackMeasurementListItem = (
-  dto: StackMeasurementResponse
+  dto: StackMeasurementTableResponse
 ): StackMeasurementListItem => ({
   id: dto.id,
   stack_id: dto.stack_id,
@@ -16,5 +16,5 @@ export const toStackMeasurementListItem = (
 });
 
 export const toStackMeasurementListItems = (
-  dtos: StackMeasurementResponse[]
+  dtos: StackMeasurementTableResponse[]
 ): StackMeasurementListItem[] => dtos.map(toStackMeasurementListItem);
