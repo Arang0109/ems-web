@@ -111,3 +111,39 @@ export const CompanyTable = ({ onRowClick }: Props) => {
 
 - `createColumnHelper<TableRow>()` 사용
 - 커스텀 셀은 `ui/Cells.tsx`에 분리
+
+---
+
+## Widget Props 규칙
+
+### 크로스 위젯 동작명 금지
+
+Widget의 prop에 다른 Widget의 내부 동작을 암시하는 이름을 쓰지 않는다.
+Widget은 "무엇을 해야 하는지" 알아서는 안 되며, 부모(page)가 콜백으로 의미를 부여한다.
+
+```tsx
+// ❌ Widget이 다른 Widget의 동작을 직접 제어
+<CompanyTable clearWorkplaceTable={refetchWorkplaces} />
+
+// ✅ 의미 중립적인 성공 콜백
+<CompanyTable onSuccess={refetchWorkplaces} />
+```
+
+### 성공 콜백은 `onSuccess`로 통일
+
+CRUD 폼 다이얼로그를 포함하는 테이블 Widget의 성공 콜백 prop은 `onSuccess?: () => void`로 통일한다.
+
+```tsx
+interface Props {
+  onSuccess?: () => void; // 등록/수정/삭제 성공 시 부모가 원하는 동작 주입
+}
+```
+
+Widget 내부의 `refetch`에서 `onSuccess`를 함께 호출한다.
+
+```ts
+const refetch = () => {
+  dataRefetch();
+  onSuccess?.();
+};
+```

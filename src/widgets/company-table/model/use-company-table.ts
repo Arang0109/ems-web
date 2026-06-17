@@ -18,9 +18,10 @@ import { useTableState } from '@shared/model';
 
 interface Props {
   onRowClick: (companyId: number) => void;
+  onSuccess?: () => void;
 }
 
-export const useCompanyTable = ({ onRowClick }: Props) => {
+export const useCompanyTable = ({ onRowClick, onSuccess }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
@@ -28,7 +29,7 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: 5 });
-  const { data, loading, error, refetch } = useCompanies();
+  const { data, loading, error, refetch: companyRefetch } = useCompanies();
 
   const tableData = useMemo(
     () => data?.map(toCompanyRows),
@@ -38,6 +39,11 @@ export const useCompanyTable = ({ onRowClick }: Props) => {
   const handleViewDetail = () => {
     setUpdateModalOpen(true);
   };
+
+  const refetch = () => {
+    companyRefetch();
+    onSuccess?.();
+  }
 
   const table = useReactTable({
     columns: defaultColumns,

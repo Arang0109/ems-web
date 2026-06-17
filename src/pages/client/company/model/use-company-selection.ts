@@ -12,7 +12,7 @@ export const useCompanySelection = ({ onChange }: Props) => {
   const { data: workplaces, fetchWorkplaces, loading, error} = useWorkplaces();
 
   const { data: selectedCompany } = useCompanyDetail({
-    companyId: selectedCompanyId,
+    id: selectedCompanyId,
   });
 
   const handleSelectCompanyRow = (companyId: number) => {
@@ -21,14 +21,16 @@ export const useCompanySelection = ({ onChange }: Props) => {
     fetchWorkplaces(companyId);
   };
 
-  const refetchWorkplaces = () => { if (selectedCompanyId) fetchWorkplaces(selectedCompanyId); };
+  const refetchWorkplaces = () => {
+    fetchWorkplaces(selectedCompanyId);
+  };
 
   return {
     workplaces, selectedCompany,
-    
+
     handleSelectCompanyRow,
     refetchWorkplaces,
-    
+
     loading, error,
   };
 };

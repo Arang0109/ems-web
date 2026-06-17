@@ -22,6 +22,7 @@ interface Props {
 }
 
 export const UpdateCompanyForm = ({ open, onOpenChange, company, onSuccess }: Props) => {
+
   const { form, handleSubmit, handleAddressChange, handleChange } = useUpdateCompany({
     company: company,
     onSuccess: () => {
@@ -37,6 +38,8 @@ export const UpdateCompanyForm = ({ open, onOpenChange, company, onSuccess }: Pr
       onSuccess?.();
     },
   });
+  
+  if (!company) return;
 
   return (
     <FormDialog

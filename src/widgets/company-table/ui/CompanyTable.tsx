@@ -11,9 +11,10 @@ import type { Company } from '@entities/company';
 interface Props {
   selectedCompany: Company | null;
   onRowClick: (companyId: number) => void;
+  onSuccess?: () => void;
 }
 
-export const CompanyTable = ({ selectedCompany, onRowClick }: Props) => {
+export const CompanyTable = ({ selectedCompany, onSuccess, onRowClick }: Props) => {
   const {
     table,
 
@@ -25,7 +26,7 @@ export const CompanyTable = ({ selectedCompany, onRowClick }: Props) => {
     globalFilter, setGlobalFilter,
 
     loading, error, refetch
-  } = useCompanyTable({ onRowClick });
+  } = useCompanyTable({ onRowClick, onSuccess });
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">

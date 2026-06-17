@@ -13,7 +13,7 @@ export const useCompanies = () => {
     setLoading(true);
     setRevision((r) => r + 1);
   }, []);
-
+  
   useEffect(() => {
     let cancelled = false;
     companyApi.getCompanyList()

@@ -1,5 +1,5 @@
-import { useCompanySelection } from "@features/select-company";
-import { useWorkplaceSelection } from "@features/select-workplace";
+import { useCompanySelection } from "./use-company-selection";
+import { useWorkplaceSelection } from "./use-workplace-selection";
 
 export const useClientManagement = () => {
     const workplace = useWorkplaceSelection();

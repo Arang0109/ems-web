@@ -8,9 +8,19 @@ import { useClientManagement } from "./model/use-client-management";
 
 export const ClientManagementPage = () => {
   const {
-    selectedCompany, onSelectCompany,
-    workplaces, workplacesLoading, workplacesError,
-    selectedWorkplace, onSelectWorkplace, refetchWorkplaces,
+    // CompanyTable
+    selectedCompany,
+    onSelectCompany,
+
+    // WorkplaceTable
+    workplaces,
+    workplacesLoading,
+    workplacesError,
+    selectedWorkplace,
+    onSelectWorkplace,
+    refetchWorkplaces,
+
+    // StackTable
     stacks, stacksLoading, stacksError, refetchStacks,
   } = useClientManagement();
 
@@ -22,6 +32,7 @@ export const ClientManagementPage = () => {
         <CompanyTable
           selectedCompany={selectedCompany}
           onRowClick={onSelectCompany}
+          onSuccess={refetchWorkplaces}
         />
         <WorkplaceTable
           workplaces={workplaces}

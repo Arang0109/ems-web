@@ -19,6 +19,32 @@
 
 ---
 
+## pages/model 배치 기준
+
+`model/` 폴더에는 page-scoped coordinator 훅 외에 **이 페이지에서만 쓰이는 선택 훅**도 위치할 수 있다.
+
+### 선택 훅(selection hook) 배치 판단
+
+선택 훅을 `features/select-xxx`로 분리하려면 **여러 페이지에서 실제로 재사용**되어야 한다.
+한 페이지에서만 쓰인다면 `pages/<sub-domain>/model/`에 두는 것이 적절하다.
+
+```
+# ✅ 재사용 없음 → pages/model에 배치
+pages/client/company/model/
+├── use-client-management.ts   # coordinator
+├── use-company-selection.ts   # 이 페이지 전용 선택 훅
+└── use-workplace-selection.ts # 이 페이지 전용 선택 훅
+
+# ✅ 여러 페이지에서 재사용 → features에 배치
+features/select-company/
+└── hooks/use-company-selection.ts
+```
+
+재사용 계획이 없는 시점에 features 슬라이스로 미리 분리하는 것은 과설계다.
+실제 재사용 시점에 features로 승격한다.
+
+---
+
 ## 폴더 구조 원칙
 
 ### 슬라이스 단위 = sub-domain

@@ -4,10 +4,10 @@ import { companyApi } from "../api/api";
 import type { Company } from "./types";
 
 interface Props {
-  companyId: number | null;
+  id: number | null;
 }
 
-export const useCompanyDetail = ({ companyId }: Props) => {
+export const useCompanyDetail = ({ id }: Props) => {
   const [data, setData] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,9 +19,9 @@ export const useCompanyDetail = ({ companyId }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (companyId == null) return;
+    if (id == null) return;
     let cancelled = false;
-    companyApi.getCompany(companyId)
+    companyApi.getCompany(id)
       .then((res) => {
         if (cancelled) return;
         if (res.status) setData(res.data);
@@ -30,7 +30,7 @@ export const useCompanyDetail = ({ companyId }: Props) => {
       .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [revision, companyId]);
+  }, [revision, id]);
 
   return { data, loading, error, refetch };
 };

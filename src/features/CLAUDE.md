@@ -158,6 +158,21 @@ try {
 - 실패: `err instanceof Error ? err.message : '폴백 메시지'` 패턴으로 에러 메시지 추출 후 `toast.error`
 - catch 블록에서 에러를 다시 throw하지 않는다 (Entity 액션 훅이 throw하면 여기서 최종 처리).
 
+#### error 반환 정책
+
+Feature 훅 내부에서 `toast.error`로 에러를 최종 처리한 경우, `error` state를 반환하지 않는다.
+외부에서 에러를 별도로 표시할 UI가 없으면 dead return value가 된다.
+
+```ts
+// ❌ toast로 처리했는데 error도 반환
+return { isLoading, error, handleDelete };
+
+// ✅ toast로 최종 처리 → error 반환 불필요
+return { isLoading, handleDelete };
+```
+
+단, 부모 컴포넌트가 에러 상태를 UI에 별도로 반영해야 하는 경우(예: 인라인 에러 메시지)에는 반환한다.
+
 ---
 
 ## Select 훅 패턴
@@ -165,25 +180,27 @@ try {
 선택 상태와 관련 데이터 페칭을 함께 관리한다.
 entity의 **수동 호출 타입 fetch hook (타입 B)** 을 내부에서 사용한다.
 
-### `useCompanySelection` (`select-company/hooks/useCompanySelection.ts`)
+### 배치 기준 — features vs pages/model
+
+Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
+
+| 조건 | 배치 위치 |
+|------|----------|
+| 여러 페이지에서 재사용 | `features/select-xxx/hooks/` |
+| 특정 페이지 전용 | `pages/<sub-domain>/model/` |
+
+특정 페이지에서만 쓰이는 선택 로직을 features 슬라이스로 분리하는 것은 과설계다.
+작성 시점에 재사용 계획이 없다면 pages/model에 두고, 실제 재사용 시점에 features로 승격한다.
+
+### 반환 인터페이스
 
 | 반환값 | 설명 |
 |--------|------|
-| `selectedCompany` | 현재 선택된 회사 (`Company \| null`) |
-| `workplaces` | 선택된 회사의 사업장 목록 |
-| `handleSelectCompanyRow(company)` | 회사 선택 시 호출, workplaces 자동 페칭 |
-| `refetchWorkplaces()` | 현재 선택된 회사의 workplaces 재조회 |
-| `loading`, `error` | 페칭 상태 |
-
-### `useWorkplaceSelection` (`select-workplace/hooks/useWorkplaceSelection.ts`)
-
-| 반환값 | 설명 |
-|--------|------|
-| `selectedWorkplace` | 현재 선택된 사업장 (`Workplace \| null`) |
-| `stacks` | 선택된 사업장의 굴뚝 목록 |
-| `handleSelectWorkplaceRow(workplace)` | 사업장 선택 시 호출, stacks 자동 페칭 |
-| `clearWorkplaceSelection()` | 선택 초기화 |
-| `refetchStacks()` | 현재 선택된 사업장의 stacks 재조회 |
+| `selectedXxx` | 현재 선택된 항목 |
+| `relatedData` | 선택에 연동되어 페칭된 하위 데이터 |
+| `handleSelectXxxRow(item)` | 선택 핸들러, 연쇄 페칭 포함 |
+| `clearXxxSelection()` | 선택 초기화 (필요 시) |
+| `refetchRelated()` | 연동 데이터 재조회 |
 | `loading`, `error` | 페칭 상태 |
 
 ---
