@@ -5,7 +5,7 @@ export type ContractTableResponse = {
   workplaceId: number;
 
   contractName: string;
-  companyName: string;
+  clientName: string;
   workplaceName: string;  
 
   contractDate: string;            // 계약일자
@@ -20,7 +20,7 @@ export type ContractResponse = {
   workplaceId: number;
   contractName: string;
   workplaceName: string;
-  companyName: string;
+  clientName: string;
   workplaceAddress: string;
 
   contractDate: string;             // 계약일자
@@ -41,7 +41,7 @@ export type ContractResponse = {
 }
 
 export type ContractRegisterRequest = {
-  workplaceId: string;               // 사업장 ID
+  workplaceId: number;               // 사업장 ID
   contractName: string;              // 용역명
 
   contractDate: Date;             // 계약일자

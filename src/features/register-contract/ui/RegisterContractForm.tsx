@@ -126,7 +126,7 @@ export const RegisterContractForm = () => {
               type="number"
               width="w-12"
               value={form.advancePaymentDueDate}
-              onChange={(value) => handleChange("advancePaymentDueDate", Number(value))}
+              onChange={(value) => handleChange("advancePaymentDueDate", value)}
             />
             <InlineInput
               id="delayPenaltyRate"
@@ -135,7 +135,7 @@ export const RegisterContractForm = () => {
               type="number"
               width="w-12"
               value={form.delayPenaltyRate}
-              onChange={(value) => handleChange("delayPenaltyRate", Number(value))}
+              onChange={(value) => handleChange("delayPenaltyRate", value)}
             />
           </div>
           <Textarea

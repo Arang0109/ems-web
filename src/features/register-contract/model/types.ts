@@ -17,8 +17,8 @@ export type ContractRegisterForm = {
   contractGuaranteeAmount: string;  // 계약보증금
   advancePaymentAmount: string;     // 선금
 
-  advancePaymentDueDate: number;    // 선급지급기간
-  delayPenaltyRate: number;         // 지체상금율 (%)
+  advancePaymentDueDate: string;    // 선급지급기간
+  delayPenaltyRate: string;         // 지체상금율 (%)
 
   remark: string;                   // 비고
 }
@@ -40,8 +40,8 @@ export const getDefaultContractForm = (): ContractRegisterForm => ({
   contractGuaranteeAmount: "",
   advancePaymentAmount: "",
 
-  advancePaymentDueDate: 0,
-  delayPenaltyRate: 0,
+  advancePaymentDueDate: "",
+  delayPenaltyRate: "",
 
   remark: "",
 });

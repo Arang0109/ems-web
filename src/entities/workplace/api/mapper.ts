@@ -3,12 +3,12 @@ import type { WorkplaceRegisterRequest, WorkplaceUpdateRequest, WorkplaceListRes
 import type { WorkplaceCreate, WorkplaceUpdate, WorkplaceListItem } from '../model/types';
 
 export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest => ({
-  companyId: vo.companyId,
+  clientId: vo.clientId,
   name: trimValue(vo.name),
   bizNumber: unformatNumber(vo.bizNumber),
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
-  address: trimValue(vo.address),
+  detailAddress: trimValue(vo.address),
   grade: vo.grade,
 });
 
@@ -17,7 +17,7 @@ export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => 
   bizNumber: unformatNumber(vo.bizNumber),
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
-  address: trimValue(vo.address),
+  detailAddress: trimValue(vo.address),
   grade: vo.grade,
 });
 
@@ -25,8 +25,8 @@ export const toWorkplaceListItem = (
   dto: WorkplaceListResponse
 ): WorkplaceListItem => ({
   id: dto.id,
-  companyId: dto.companyId,
-  companyName: dto.companyName,
+  clientId: dto.clientId,
+  clientName: dto.clientName,
   workplaceName: dto.workplaceName,
   zipcode: dto.zipcode,
   roadAddress: dto.roadAddress,

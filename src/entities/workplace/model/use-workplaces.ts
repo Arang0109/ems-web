@@ -9,12 +9,12 @@ export const useWorkplaces = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchWorkplaces = useCallback(async (companyId: number | null) => {
+  const fetchWorkplaces = useCallback(async (clientId: number | null) => {
     setLoading(true);
     setError(null);
     setData([]);
     try {
-      const res = await workplaceApi.getWorkplaces(companyId);
+      const res = await workplaceApi.getWorkplaces(clientId);
       setData(toWorkplaceListItems(res.data));
     } catch {
       setError('데이터를 불러오는 데 실패했습니다.');

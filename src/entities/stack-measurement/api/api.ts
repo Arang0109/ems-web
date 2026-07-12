@@ -1,6 +1,6 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackMeasurementRegisterRequest, StackMeasurementTableResponse, StackMeasurementResponse } from './dto';
+import type { StackMeasurementRegisterRequest, StackMeasurementTableResponse, StackMeasurementResponse, StackMeasurementBatchRegisterRequest, StackMeasurementBatchResponse } from './dto';
 
 export const stackMeasurementApi = {
   getStackMeasurements: async (
@@ -15,6 +15,13 @@ export const stackMeasurementApi = {
     data: StackMeasurementRegisterRequest
   ): Promise<ApiResponseMessage<StackMeasurementResponse>> => {
     const res = await axiosPrivate.post('/stack-measurements', data);
+    return res.data;
+  },
+
+  registerStackMeasurements: async (
+    data: StackMeasurementBatchRegisterRequest
+  ): Promise<ApiResponseMessage<StackMeasurementBatchResponse>> => {
+    const res = await axiosPrivate.post('/stack-measurements/batch', data);
     return res.data;
   },
 }

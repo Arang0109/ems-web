@@ -5,8 +5,8 @@ import type { WorkplaceTableRow } from './types';
 
 export const toWorkplaceRows = (col: WorkplaceListItem): WorkplaceTableRow => ({
   id: col.id,
-  companyId: col.companyId,
-  companyName: col.companyName,
+  clientId: col.clientId,
+  clientName: col.clientName,
   workplaceName: col.workplaceName,
   address: formatAddress(col.roadAddress, col.address),
   bizNumber: formatBusinessNumber(col.bizNumber),

@@ -3,23 +3,23 @@ import type { WorkplaceListItem } from "@entities/workplace";
 
 import type { ContractRegisterForm } from "./types";
 
-import { trimValue, unformatNumber } from "@shared/lib";
+import { trimValue, toNumber } from "@shared/lib";
 
 export const toContractCreate = (
   form: ContractRegisterForm
 ): ContractCreate => ({
-  workplaceId: form.workplaceId,
+  workplaceId: Number(form.workplaceId),
   contractName: trimValue(form.contractName),
   contractDate: form.contractDate,
   startDate: form.startDate,
   completionDate: form.completionDate,
-  contractAmount: Number(unformatNumber(form.contractAmount)),
+  contractAmount: toNumber(form.contractAmount),
   contractAmountUnit: form.contractAmountUnit,
   vatIncluded: form.vatIncluded,
-  contractGuaranteeAmount: Number(unformatNumber(form.contractGuaranteeAmount)),
-  advancePaymentAmount: Number(unformatNumber(form.advancePaymentAmount)),
-  advancePaymentDueDate: form.advancePaymentDueDate,
-  delayPenaltyRate: form.delayPenaltyRate,
+  contractGuaranteeAmount: toNumber(form.contractGuaranteeAmount),
+  advancePaymentAmount: toNumber(form.advancePaymentAmount),
+  advancePaymentDueDate: toNumber(form.advancePaymentDueDate),
+  delayPenaltyRate: toNumber(form.delayPenaltyRate),
   remark: trimValue(form.remark),
 });
 

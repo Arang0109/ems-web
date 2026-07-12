@@ -46,7 +46,7 @@ export const toUpdateRequest = (vo: StackUpdate): StackUpdateRequest => ({
 
 export const toStackListItem = (dto: StackListResponse): StackListItem => ({
   id: dto.id,
-  companyName: dto.companyName,
+  clientName: dto.clientName,
   workplaceName: dto.workplaceName,
   field: dto.field,
   stackName: dto.stackName,
@@ -75,7 +75,7 @@ export const toUpdatePreventionRequest = (vo: PreventionUpdate): PreventionUpdat
 export const toRegisterSubstanceRequest = (vo: TargetSubstanceCreate): TargetSubstanceRegisterRequest => ({
   preventionId: vo.preventionId,
   name: trimValue(vo.name),
-  removalEfficiency: trimValue(vo.removalEfficiency),
+  removalEfficiency: vo.removalEfficiency,
 });
 
 export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({

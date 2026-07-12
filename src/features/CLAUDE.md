@@ -68,8 +68,8 @@ feature-name/
 - `index.ts`에 export하지 않는다 (슬라이스 내부 유틸).
 
 ```ts
-export const validateCompanyFields = (form: CompanyRegisterForm) => {
-  const errors: Partial<Record<keyof CompanyRegisterForm, string>> = {};
+export const validateClientFields = (form: ClientRegisterForm) => {
+  const errors: Partial<Record<keyof ClientRegisterForm, string>> = {};
 
   if (!form.name.trim()) {
     errors.name = "기관명을 입력해주세요.";
@@ -88,11 +88,12 @@ export const validateCompanyFields = (form: CompanyRegisterForm) => {
 ### Mapper (`model/mapper.ts`)
 
 - Form → Entity 도메인 입력 모델 변환 순수 함수
-- 예: `CompanyRegisterForm` → `CompanyCreate`
+- 예: `ClientRegisterForm` → `ClientCreate`
 - API Request DTO로 직접 변환하지 않는다.
-- `@shared/lib/formatters`의 유틸 활용:
+- `@shared/lib`의 유틸 활용:
   - `trimValue(s)` — 앞뒤 공백 제거
-  - `stripFormatting(s)` — 포맷 문자 제거 (숫자만 추출)
+  - `unformatNumber(s)` — 자릿수 코드 정규화 (숫자만 추출, 결과 `string`)
+  - `toNumber(s)` / `toNumberOrNull(s)` — Form 문자열을 `number` / `number | null`로 변환
 - UI 전용 필드는 변환 시 제외
 
 ### Feature Hook (`model/hooks/use-register-xxx.ts`)
@@ -110,13 +111,13 @@ export const validateCompanyFields = (form: CompanyRegisterForm) => {
 
 ```ts
 const [fieldErrors, setFieldErrors] =
-  useState<Partial<Record<keyof CompanyRegisterForm, string>>>();
+  useState<Partial<Record<keyof ClientRegisterForm, string>>>();
 ```
 
 - **onChange 시 해당 필드 에러 즉시 클리어**: 사용자가 수정하는 순간 에러 메시지를 제거한다.
 
 ```ts
-const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
+const handleChange = (name: keyof ClientRegisterForm, value: string) => {
   setForm((prev) => ({ ...prev, [name]: value }));
   setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
 };
@@ -128,7 +129,7 @@ const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
 const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
 
-  const errors = validateCompanyFields(form);
+  const errors = validateClientFields(form);
   if (Object.keys(errors).length > 0) {
     setFieldErrors(errors);
     return; // ← 필수: 에러가 있으면 API 호출하지 않음
@@ -144,7 +145,7 @@ API 호출 결과는 항상 try/catch로 감싸고, `toast`로 사용자에게 �
 
 ```ts
 try {
-  await registerCompany(toCompanyCreate(form));
+  await registerClient(toClientCreate(form));
   toast.success("측정대행 의뢰기관이 등록되었습니다.");
   setForm(getDefaultForm());
   onSuccess();
@@ -209,9 +210,8 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `sign-in/SignInForm.tsx` | `ui/` 없이 루트에 위치 | `ui/SignInForm.tsx`로 이동 |
-| `sign-in/SocialSignIn.tsx` | `ui/` 없이 루트에 위치 | `ui/SocialSignIn.tsx`로 이동 |
-| `contract-overview/use-contract-overview.ts` | `hooks/` 없이 루트에 위치 | `hooks/use-contract-overview.ts`로 이동 |
-| `sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `sign-in/ui/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
+| `sign-in/ui/SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
+| `register-client/ui/RegisterClientForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
 | `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `register-stack-measurement/ui/RegisterStackMeasurementForm.tsx` | 자체 훅과 불일치하는 미완성 폼 — `useRegisterStackMeasurement`는 `rows` 기반 다중행 입력을 반환하나 UI는 존재하지 않는 `form.*` 필드와 미정의 `workplace` 변수를 참조(register-stack 폼 복사 잔재, 현재 컴파일 불가) | 훅 인터페이스(`rows`, `handleAddRow`, `handleRemoveRow`, `handleChange(index, name, value)`)에 맞춰 측정항목(pollutant/cycle/allowance) 다중행 입력 UI로 재작성 |

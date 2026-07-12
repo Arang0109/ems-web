@@ -1,13 +1,34 @@
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+import { RegisterStackMeasurementForm } from "@features/register-stack-measurement";
+
 import type { MeasurementProfile } from "../../model/types";
 
 interface Props {
+  stackId: number | null;
   measurements: MeasurementProfile[];
+  onRefetch?: () => void;
 }
 
-export const MeasurementInfo = ({ measurements }: Props) => {
+export const MeasurementInfo = ({ stackId, measurements, onRefetch }: Props) => {
+  const [registerOpen, setRegisterOpen] = useState(false);
+
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-gray-800">측정항목</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-800">측정항목</h3>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setRegisterOpen(true)}
+          disabled={!stackId}
+        >
+          <Plus size={14} className="mr-1" />
+          측정항목 추가
+        </Button>
+      </div>
 
       {measurements.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-8">
@@ -38,6 +59,13 @@ export const MeasurementInfo = ({ measurements }: Props) => {
           </tbody>
         </table>
       )}
+
+      <RegisterStackMeasurementForm
+        stackId={stackId}
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
+        onSuccess={onRefetch}
+      />
     </div>
   );
 };

@@ -49,6 +49,16 @@ export const stackMeasurementHandlers = [
     });
   }),
 
+  http.post(`${BASE_URL}/stack-measurements/batch`, async ({ request }) => {
+    const body = await request.json() as Record<string, unknown>[];
+    const data = body.map((item, i) => ({ id: Date.now() + i, ...item }));
+    return HttpResponse.json({
+      status: true,
+      message: '측정항목 일괄 등록 성공',
+      data,
+    }, { status: 201 });
+  }),
+
   http.post(`${BASE_URL}/stack-measurements`, async ({ request }) => {
     const body = await request.json() as Record<string, unknown>;
     return HttpResponse.json({

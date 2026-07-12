@@ -8,7 +8,7 @@ export type WorkplaceListItem = WorkplaceListResponse;
 export type ContractOverview = ContractOverviewResponse;
 
 export type WorkplaceCreate = {
-  companyId: number;
+  clientId: number;
   name: string;
   bizNumber: string;
   zipcode: string;

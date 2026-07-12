@@ -62,7 +62,7 @@ export type StackUpdate = {
 
 export type StackListItem = {
   id: number,
-  companyName: string,
+  clientName: string,
   workplaceName: string,
   field: MeasurementField,
   stackName: string,
@@ -129,5 +129,5 @@ export type PreventionUpdate = {
 export type TargetSubstanceCreate = {
   preventionId: number;
   name: string;
-  removalEfficiency: string;
+  removalEfficiency: number | null;
 }

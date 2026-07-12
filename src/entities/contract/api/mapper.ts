@@ -1,4 +1,4 @@
-import { trimValue, unformatNumber } from '@shared/lib';
+import { trimValue } from '@shared/lib';
 import type { ContractRegisterRequest, ContractUpdateRequest } from './dto';
 import type { ContractCreate, ContractUpdate } from '../model/types';
 
@@ -8,11 +8,11 @@ export const toRegisterRequest = (vo: ContractCreate): ContractRegisterRequest =
   contractDate: vo.contractDate,
   startDate: vo.startDate,
   completionDate: vo.completionDate,
-  contractAmount: Number(unformatNumber(String(vo.contractAmount))),
+  contractAmount: vo.contractAmount,
   contractAmountUnit: vo.contractAmountUnit,
   vatIncluded: vo.vatIncluded,
-  contractGuaranteeAmount: Number(unformatNumber(String(vo.contractGuaranteeAmount))),
-  advancePaymentAmount: Number(unformatNumber(String(vo.advancePaymentAmount))),
+  contractGuaranteeAmount: vo.contractGuaranteeAmount,
+  advancePaymentAmount: vo.advancePaymentAmount,
   advancePaymentDueDate: vo.advancePaymentDueDate,
   delayPenaltyRate: vo.delayPenaltyRate,
   remark: trimValue(vo.remark),
@@ -23,11 +23,11 @@ export const toUpdateRequest = (vo: ContractUpdate): ContractUpdateRequest => ({
   contractDate: vo.contractDate,
   startDate: vo.startDate,
   completionDate: vo.completionDate,
-  contractAmount: Number(unformatNumber(String(vo.contractAmount))),
+  contractAmount: vo.contractAmount,
   contractAmountUnit: vo.contractAmountUnit,
   vatIncluded: vo.vatIncluded,
-  contractGuaranteeAmount: Number(unformatNumber(String(vo.contractGuaranteeAmount))),
-  advancePaymentAmount: Number(unformatNumber(String(vo.advancePaymentAmount))),
+  contractGuaranteeAmount: vo.contractGuaranteeAmount,
+  advancePaymentAmount: vo.advancePaymentAmount,
   advancePaymentDueDate: vo.advancePaymentDueDate,
   delayPenaltyRate: vo.delayPenaltyRate,
   remark: trimValue(vo.remark),

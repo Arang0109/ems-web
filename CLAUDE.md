@@ -14,6 +14,29 @@
 
 ---
 
+## 백엔드 서버 참조
+
+프론트의 API·DTO·타입은 백엔드 서버 `ems-server`의 실제 계약에 맞춰 작업한다.
+API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 서버 코드를 확인**한다.
+
+- **서버 경로:** `\\wsl.localhost\Ubuntu-22.04\home\kmsq321\dev_wsl\projects\ems-server`
+- **접근 방법 (WSL):**
+  - Bash 도구 : UNC 경로 `//wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server` 사용
+    (`/home/...` 직접 접근은 마운트 위치가 달라 실패함)
+  - Read / Grep / Glob 도구 : `\\wsl.localhost\Ubuntu-22.04\home\kmsq321\dev_wsl\projects\ems-server\...`
+- **스택:** Java 21 + Spring Boot 3.5.14, Spring Security/JWT, JPA/MySQL, Redis, MapStruct
+- **아키텍처:** 헥사고날(Ports & Adapters) + DDD, 기능 모듈 단위(`auth`, `tenant`, `contract`, `report`, `global`)
+- **API 규칙:** `/api/...` REST 엔드포인트, 모든 응답은 `ApiResponse<T>`로 래핑, 대부분 JWT Bearer 인증 필요
+- **참조 문서 (서버 저장소 내):**
+  - `CLAUDE.md` — 서버 개발 규칙
+  - `ARCHITECTURE.md` — 아키텍처 상세
+  - `docs/DATABASE.md` — DB 스키마
+  - Swagger UI `/swagger-ui.html`, OpenAPI JSON `/v3/api-docs` (서버 실행 시, 기본 8080)
+- **컨트롤러/DTO 위치:** `src/main/java/com/ensolution/ems/{모듈}/presentation/.../controller`
+  (요청/응답 DTO는 같은 모듈의 `request/`·`response/`)
+
+---
+
 ## 환경 설정
 
 - **CSS:** TailwindCSS v4 (`postcss.config.js` 기반, `tailwind.config.js` 없음)
@@ -42,12 +65,12 @@ npx tsc --noEmit  # 타입 체크
 ### 파일명
 
 - React Component : `PascalCase`
-  - `CompanyTable.tsx`
-  - `RegisterCompanyForm.tsx`
+  - `ClientTable.tsx`
+  - `RegisterClientForm.tsx`
 
 - Hook : `kebab-case` + `use-`
-  - `use-company.ts`
-  - `use-register-company.ts`
+  - `use-client.ts`
+  - `use-register-client.ts`
 
 - 일반 함수/유틸 : `kebab-case`
   - `mapper.ts`
@@ -55,7 +78,7 @@ npx tsc --noEmit  # 타입 체크
   - `formatter.ts`
 
 - API : `kebab-case`
-  - `company-api.ts`
+  - `client-api.ts`
   - `contract-api.ts`
 
 - Type : `types.ts`
@@ -68,8 +91,8 @@ npx tsc --noEmit  # 타입 체크
 항상 `PascalCase`
 
 ```tsx
-export const CompanyTable = () => {}
-export const RegisterCompanyForm = () => {}
+export const ClientTable = () => {}
+export const RegisterClientForm = () => {}
 ```
 
 ---
@@ -79,9 +102,9 @@ export const RegisterCompanyForm = () => {}
 항상 `use`로 시작
 
 ```tsx
-useCompany()
-useCompanies()
-useRegisterCompany()
+useClient()
+useClients()
+useRegisterClient()
 ```
 
 - 단수 : 하나의 객체 관리
@@ -90,8 +113,8 @@ useRegisterCompany()
 예)
 
 ```
-useCompany(id)
-useCompanies()
+useClient(id)
+useClients()
 ```
 
 ---
@@ -101,7 +124,7 @@ useCompanies()
 `toXxx` 형태를 사용
 
 ```
-toCompanyRows()
+toClientRows()
 toContractResponse()
 toRegisterRequest()
 ```
@@ -127,14 +150,14 @@ toEntity()
 동사로 시작
 
 ```
-getCompanies()
-getCompany()
+getClients()
+getClient()
 
-createCompany()
+createClient()
 
-updateCompany()
+updateClient()
 
-deleteCompany()
+deleteClient()
 ```
 
 조회는 `fetch`보다 `get`를 사용하여 통일한다.
@@ -174,21 +197,21 @@ Component 이름을 반복하지 않는다.
 
 ```
 interface Props {
-  company: Company;
+  client: Client;
 }
 
-export const CompanyCard = ({ company }: Props) => {}
+export const ClientCard = ({ client }: Props) => {}
 ```
 
 ❌
 
 ```
-interface CompanyCardProps {
-  company: Company;
+interface ClientCardProps {
+  client: Client;
 }
 ```
 
-(파일명이 이미 `CompanyCard.tsx`이므로 `Props`만 사용)
+(파일명이 이미 `ClientCard.tsx`이므로 `Props`만 사용)
 
 ---
 
@@ -198,10 +221,10 @@ interface CompanyCardProps {
 
 ```
 ✅
-import { RegisterCompanyForm } from '@/features/register-company';
+import { RegisterClientForm } from '@/features/register-client';
 
 ❌
-import { RegisterCompanyForm } from '@/features/register-company/ui/RegisterCompanyForm';
+import { RegisterClientForm } from '@/features/register-client/ui/RegisterClientForm';
 ```
 
 ---
@@ -217,8 +240,8 @@ Effect 내부의 동기적 `setState`는 cascading render를 유발한다.
 ```tsx
 // ❌ useEffect로 prop을 state에 동기화
 useEffect(() => {
-  setForm({ name: company.name, ... });
-}, [company]);
+  setForm({ name: client.name, ... });
+}, [client]);
 ```
 
 **권장 패턴 — `key`를 이용한 리마운트**
@@ -237,6 +260,71 @@ const [form, setForm] = useState({
 
 단순히 props의 변경에 따라 내부 상태를 동기화해야 하는 경우에는 useEffect를 사용할 수 있다.
 즉, key 기반 리마운트는 초기화(reset)가 목적일 때 사용하는 패턴이다.
+
+---
+
+## 숫자 타입 처리 규칙
+
+숫자 값이 레이어를 통과할 때의 타입 규칙. 서버 계약(BigDecimal·Long·Double·int)은 JSON에서 number다.
+
+### 핵심 원칙
+
+> **`string`은 UI 입력의 표현일 뿐이며 Form 레이어에만 존재한다.**
+> **Domain 입력 모델부터 안쪽(Domain → DTO → wire)은 숫자는 `number`다.**
+> **string → number 변환은 단 한 곳, Form→Domain 경계(feature mapper)에서 일어난다.**
+
+### 레이어별 타입
+
+| 레이어 | 파일 | 숫자량(금액·율·수량) | 식별자(ID) | 자릿수 문자열(사업자번호·전화·우편·SEMS) |
+|--------|------|----------------------|------------|------------------------------------------|
+| **Form** | `features/*/model/types.ts` | `string` (기본값 `""`) | `string` (Select 값) | `string` |
+| **Form→Domain** | `features/*/model/mapper.ts` | **여기서 변환** | `Number(form.id)` | `unformatNumber` (문자열 유지) |
+| **Domain 입력** | `entities/*/model/types.ts` | `number` (선택필드는 `number \| null`) | `number` | `string` |
+| **Domain→DTO** | `entities/*/api/mapper.ts` | passthrough | passthrough | passthrough |
+| **Request DTO** | `entities/*/api/dto.ts` | `number` (`number \| null`) | `number` | `string` |
+| **표시(Row)** | `widgets/*/model/mapper.ts` | `number` → `formatMoney()` 등 → `string` | — | — |
+
+### 규칙 상세
+
+1. **Form 숫자 필드는 항상 `string`** — 텍스트 입력의 동작(빈 문자열, 포맷팅)과 일치. 기본값은 `""`.
+   순수 정수 필드(율·기간 등)도 예외 없이 `string`으로 둔다.
+2. **변환은 feature mapper에서** — Domain 입력 모델은 의미적으로 `number`. entity mapper(`Domain→DTO`)는
+   숫자를 절대 재변환하지 않고 passthrough한다.
+3. **식별자(ID)** — Domain·DTO 모두 `number`. Select 값은 문자열이므로 feature mapper에서 `Number(form.xxxId)`.
+4. **자릿수 문자열(코드)** — 사업자번호·전화번호·우편번호·SEMS번호 등은 "숫자 값"이 아니라 코드이므로
+   전 레이어 `string`. `unformatNumber`로 숫자 외 문자만 제거(정규화)한다.
+5. **nullable 숫자** — 서버가 nullable(BigDecimal·Double 등)인 필드는 Domain·DTO 모두 `number | null`.
+   빈 입력은 `0`이 아니라 `null`로 보내 "미지정"과 "0"을 구분한다.
+
+### 변환 헬퍼 (`@shared/lib`)
+
+| 헬퍼 | 용도 | 빈값 처리 |
+|------|------|-----------|
+| `toNumber(s)` | **필수** 숫자 필드 파싱 (콤마·공백 제거, 소수·음수 허용) | `0` |
+| `toNumberOrNull(s)` | **선택(nullable)** 숫자 필드 파싱 | `null` |
+| `unformatNumber(s)` | 자릿수 문자열(코드) 정규화 — 결과는 `string` | `''` |
+
+```ts
+// features/*/model/mapper.ts — Form(string) → Domain(number)
+export const toContractCreate = (form: ContractRegisterForm): ContractCreate => ({
+  workplaceId: Number(form.workplaceId),          // ID: string(Select) → number
+  contractAmount: toNumber(form.contractAmount),  // 필수 숫자
+  delayPenaltyRate: toNumber(form.delayPenaltyRate),
+  bizNumber: unformatNumber(form.bizNumber),      // 코드: string 유지
+  ...
+});
+
+// entities/*/api/mapper.ts — Domain(number) → DTO(number): passthrough
+export const toRegisterRequest = (vo: ContractCreate): ContractRegisterRequest => ({
+  workplaceId: vo.workplaceId,      // 재변환 금지
+  contractAmount: vo.contractAmount,
+  ...
+});
+```
+
+> **읽기(응답) 경로는 별개다.** 서버 응답 필드가 문자열이면(예: `allowance`는 서버 응답이 `String`)
+> 응답 DTO는 그 계약(`string`)을 그대로 따르고, 표시 단계(widget mapper)에서 포맷한다.
+> 위 규칙은 쓰기(Form→Domain→요청 DTO) 경로에 적용한다.
 
 ---
 

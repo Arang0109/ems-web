@@ -1,6 +1,6 @@
 import { useWorkplaceTable } from '../model/use-workplace-table';
 
-import type { Company } from '@entities/company';
+import type { Client } from '@entities/client';
 import type { Workplace, WorkplaceListItem } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
@@ -13,7 +13,7 @@ import { Building2 } from 'lucide-react';
 
 interface Props {
   workplaces: WorkplaceListItem[];
-  selectedCompany: Company | null;
+  selectedClient: Client | null;
   selectedWorkplace: Workplace | null;
 
   onRowClick?: (workplace: WorkplaceListItem) => void;
@@ -25,7 +25,7 @@ interface Props {
 
 export const WorkplaceTable = ({
   workplaces,
-  selectedCompany,
+  selectedClient,
   selectedWorkplace,
 
   onRowClick,
@@ -50,9 +50,9 @@ export const WorkplaceTable = ({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-gray-800">사업장 목록</h2>
-            {selectedCompany ? (
+            {selectedClient ? (
               <p className="mt-0.5 text-xs text-blue-600 font-medium truncate">
-                {selectedCompany.name}
+                {selectedClient.name}
               </p>
             ) : (
               <p className="mt-0.5 text-xs text-gray-400">
@@ -61,8 +61,8 @@ export const WorkplaceTable = ({
             )}
           </div>
           <RegisterWorkplaceForm
-            key={selectedCompany?.id}
-            company={selectedCompany}
+            key={selectedClient?.id}
+            client={selectedClient}
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
             onSuccess={onSuccess}
@@ -72,7 +72,7 @@ export const WorkplaceTable = ({
 
       {/* 컨텐츠 */}
       <div className="p-5 flex-1 flex flex-col">
-        {!selectedCompany ? (
+        {!selectedClient ? (
           <TableEmptyState
             icon={<Building2 size={22} className="text-gray-400" />}
             label='사업장 정보 없음'
@@ -84,7 +84,7 @@ export const WorkplaceTable = ({
       </div>
 
       {/* 푸터: 건수 + 페이지네이션 */}
-      {selectedCompany && !loading && !error && (
+      {selectedClient && !loading && !error && (
         <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
           <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
             총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
@@ -105,7 +105,7 @@ export const WorkplaceTable = ({
         key={selectedWorkplace?.id}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        company={selectedCompany}
+        client={selectedClient}
         workplace={selectedWorkplace}
         onSuccess={onSuccess}
       />

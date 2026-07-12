@@ -2,15 +2,15 @@ import type { MeasurementCycle } from "@shared/model";
 
 export type StackMeasurement = {
   id: number;
-  stack_id: number;
-  pollutant_id: number;
+  stackId: number;
+  pollutantId: number;
   cycle: MeasurementCycle;
   allowance: string;
 }
 
 export type StackMeasurementListItem = {
   id: number;
-  stack_id: number;
+  stackId: number;
   pollutant: {
     id: number;
     nameKr: string;
@@ -18,4 +18,11 @@ export type StackMeasurementListItem = {
     cycle: MeasurementCycle;
     allowance: string;
   };
+}
+
+export type StackMeasurementCreate = {
+  stackId: number;
+  pollutantId: number;
+  cycle: MeasurementCycle;
+  allowance: number | null;
 }

@@ -139,7 +139,7 @@ export const Sidebar = () => {
           </div>
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-              ENSolution
+              EMS
             </span>
             <span className="text-[11px] text-sidebar-foreground/50">
               환경 측정 관리 시스템

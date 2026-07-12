@@ -44,7 +44,7 @@ export type StackResponse = {
 
 export type StackListResponse = {
   id: number,
-  companyName: string,
+  clientName: string,
   workplaceName: string,
   field: MeasurementField,
   stackName: string,
@@ -122,5 +122,5 @@ export type PreventionUpdateRequest = {
 export type TargetSubstanceRegisterRequest = {
   preventionId: number;
   name: string;
-  removalEfficiency: string;
+  removalEfficiency: number | null;
 }

@@ -44,13 +44,15 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `pagination/` | Pagination |
 | `semantics/` | PageTitle 등 시맨틱 요소 |
 | `table/` | TanStack Table 기반 공통 테이블 (BasicTable, TableEmptyState) |
+| `tabs/` | Tabs 등 탭 UI |
+| `toasts/` | `toast` (`toast.success`, `toast.error`) — feature 훅의 사용자 피드백 |
 
 **비즈니스 로직 코드에서 반드시 `@shared/ui/*`를 통해 사용할 것**
 (`@/components/ui/*` 직접 import 금지 — shadcn/ui 원본 컴포넌트 파일 내에서만 허용)
 
 ---
 
-## `model/common-types.ts` — 상수 + 타입 패턴
+## `model/types/common-types.ts` — 상수 + 타입 패턴
 
 도메인 전역에서 사용하는 상수와 타입을 한 곳에서 관리한다.
 
@@ -99,24 +101,30 @@ export const contractStatusOptions =
 
 ### 사용
 
-- `common-types.ts` → 타입 및 상수 정의
-- `labels.ts` → 화면 표시 문자열
+- `model/types/common-types.ts` → 타입 및 상수 정의 (예: `MEASUREMENT_CYCLE` + `MeasurementCycle`)
+- `config/labels.ts` → 화면 표시 문자열 (예: `MEASUREMENT_CYCLE_LABEL`, `MEASUREMENT_FIELD_LABEL`)
 - Feature → Select 옵션 생성
 - Widget → 표시 라벨 변환
 
 ---
 
-## `lib/formatters/input.ts` — 입력 포맷팅 유틸
+## `lib/` — 포맷팅·변환 유틸 (`@shared/lib` 배럴로 노출)
 
-| 함수 | 용도 |
-|------|------|
-| `formatBusinessNumber(s)` | `'2383248234'` → `'238-32-48234'` |
-| `formatPhoneNumber(s)` | `'01012345678'` → `'010-1234-5678'` |
-| `stripFormatting(s)` | `'010-1234-5678'` → `'01012345678'` (API 전송 전 정규화) |
-| `trimValue(s)` | 앞뒤 공백 제거 |
+`src/shared/lib/format/*`(도메인별 파일)와 `src/shared/lib/string/*`에 정의하고, `@shared/lib` 배럴에서 노출한다.
+
+| 함수 | 출처 | 용도 |
+|------|------|------|
+| `formatBusinessNumber(s)` | `format/business-number` | `'2383248234'` → `'238-32-48234'` |
+| `formatPhoneNumber(s)` | `format/phone-number` | `'01012345678'` → `'010-1234-5678'` |
+| `formatAddress(road, addr)` | `format/address` | 도로명+상세 주소 결합 |
+| `formatDateTime(s)` | `format/date-time` | 날짜/시간 표시 포맷 |
+| `formatMoney(n)`, `toKoreanAmount(n)` | `format/money` | 금액 표시 포맷 |
+| `unformatNumber(s)` | `format/number` | `'010-1234-5678'` → `'01012345678'` (자릿수 코드 정규화, 결과 `string`) |
+| `toNumber(s)`, `toNumberOrNull(s)` | `format/number` | Form 문자열 → `number`/`number \| null` 변환 |
+| `trimValue(s)` | `string/trim-value` | 앞뒤 공백 제거 |
 
 - 입력 필드에서 실시간 포맷팅에 사용
-- feature mapper에서 API 전송 전 정규화에 사용
+- feature mapper에서 Form → Domain 변환 시 정규화·숫자 변환에 사용 (루트 `CLAUDE.md`의 "숫자 타입 처리 규칙" 참조)
 - widget mapper에서 테이블 표시 포맷팅에 사용
 
 ---
@@ -131,12 +139,14 @@ api/
 └── mocks/
     ├── browser.ts    # MSW 브라우저 워커 설정
     └── handlers/
-        ├── index.ts  # 핸들러 통합
+        ├── index.ts            # 핸들러 통합
         ├── auth.ts
-        ├── company.ts
+        ├── client.ts           # 거래처(회사·사업장) 핸들러
         ├── contract.ts
         ├── dashboard.ts
-        └── stack.ts
+        ├── stack.ts
+        ├── stack-measurement.ts
+        └── pollutants.ts
 ```
 
 새 도메인 MSW 핸들러는 `handlers/` 하위에 도메인별 파일로 분리하고 `handlers/index.ts`에 통합합니다.
@@ -148,14 +158,26 @@ api/
 ```ts
 // 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
 export const handlers = [
-  // [WIP]    로그인 페이지 개발 시 활성화
-  // ...authHandlers,
+  // [READY]    로그인 페이지 개발 시 활성화
+  ...authHandlers,
 
   // [ACTIVE]
   ...dashboardHandlers,
 
   // [READY]
-  // ...companyHandlers,
+  ...clientHandlers,
+
+  // [ACTIVE]
+  ...stackHandlers,
+
+  // [ACTIVE]
+  ...stackMeasurementHandlers,
+
+  // [READY]
+  ...contractHandlers,
+
+  // [ACTIVE]
+  ...pollutantHandlers,
 ];
 ```
 
@@ -163,7 +185,7 @@ export const handlers = [
 
 ### 목업 데이터 작성 기준
 
-1. **필드명은 DTO와 완전히 일치** — `src/entities/[domain]/api/dtos.ts` 응답 타입 기준
+1. **필드명은 DTO와 완전히 일치** — `src/entities/[domain]/api/dto.ts` 응답 타입 기준
 2. **필드값은 `common-types.ts` 상수 규격 사용** — `'AIR' | 'WATER' | 'NOISE_VIBRATION' | 'ODOR'`
 3. **식별자 필드 누락 금지** — `id`, `workplaceId` 등 DTO에 있는 모든 필드 포함
 4. **enum 필드 다양성 확보** — 가능한 모든 값을 최소 1건 이상 포함
