@@ -8,7 +8,7 @@ export const toClientRows = (col: Client): ClientTableRow => ({
   id: col.id,
   name: col.name,
   representative: col.representative,
-  address: formatAddress(col.roadAddress, col.address),
+  address: formatAddress(col.roadAddress, col.detailAddress),
   bizNumber: formatBusinessNumber(col.bizNumber),
 
   manager: col.manager,

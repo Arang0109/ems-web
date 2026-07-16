@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const useRegisterStack = ({ workplace, onSuccess }: Props) => {
-  const { registerStack, isLoading, error } = useRegisterStackAction();
+  const { registerStack, isLoading } = useRegisterStackAction();
 
   const [form, setForm] = useState<StackRegisterForm>(getDefaultStackRegisterForm(workplace));
 
@@ -41,7 +41,6 @@ export const useRegisterStack = ({ workplace, onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

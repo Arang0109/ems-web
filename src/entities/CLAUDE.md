@@ -101,7 +101,7 @@ return { data, loading, error, refetch };
 마운트 시 자동 호출하지 않고, 외부에서 `fetchXxx(id)`를 명시적으로 호출해야 데이터를 로드한다.
 부모 컴포넌트의 선택 이벤트에 의해 트리거되는 종속 데이터에 사용한다.
 
-적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`, `useStackDetail`), `contract` (`useContractDetail`), `stack-measurement` (`useStackMeasurements`)
+적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`, `useStackDetail`), `contract` (`useContractDetail`), `stack-pollutant` (`useStackPollutants`)
 
 ```ts
 return { data, loading, error, fetchWorkplaces };
@@ -138,7 +138,7 @@ return { registerClient, isLoading, error };
 | `workplace` | `useWorkplaces` (수동), `useWorkplaceDetail` (자동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
 | `stack` | `useStacks` (수동), `useStackDetail` (수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction`, `useRegisterSubstanceAction`, `useDeleteSubstanceAction` |
 | `pollutant` | `usePollutants` (자동) | `useRegisterPollutantAction` |
-| `stack-measurement` | `useStackMeasurements` (수동) | `useRegisterStackMeasurementAction` |
+| `stack-pollutant` | `useStackPollutants` (수동) | `useRegisterStackPollutantAction` |
 | `auth` | — | `useAuth`(Context 훅), API: `signInApi`, `signOutApi` |
 | `dashboard` | — (model 훅 없음) | — (API: `dashboardApi`만 존재) |
 
@@ -157,4 +157,4 @@ return { registerClient, isLoading, error };
 | `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
 | `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `TargetSubstance`, `TargetSubstanceCreate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `pollutant` | `Pollutant`, `PollutantCreate` |
-| `stack-measurement` | `StackMeasurement`, `StackMeasurementListItem`, `StackMeasurementCreate` |
+| `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |

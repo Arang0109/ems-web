@@ -11,7 +11,7 @@ export const Divider = ({ text }: DividerProps) => {
         <Separator />
       </div>
       <div className="relative flex justify-center text-[11px]">
-        <span className="px-2 bg-white/95 text-neutral-500">{text}</span>
+        <span className="px-2 bg-background/95 text-muted-foreground">{text}</span>
       </div>
     </div>
   );

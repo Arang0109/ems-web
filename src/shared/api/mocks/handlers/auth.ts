@@ -12,7 +12,10 @@ export const authHandlers = [
         message: '로그인 성공',
         data: {
           accessToken: 'mock-access-token-xyz',
+          tenant: '엔솔루션',
           username: body.username,
+          name: '김관리',
+          role: 'ADMIN', // 관리자 페이지 접근 테스트용. 일반 사용자 흐름 확인 시 'USER'로 변경
         },
       });
     }

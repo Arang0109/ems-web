@@ -6,6 +6,7 @@ import { UpdateClientForm } from '@features/update-client';
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
+import { Panel } from '@shared/ui/cards';
 import type { Client } from '@entities/client';
 
 interface Props {
@@ -29,11 +30,11 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
   } = useClientTable({ onRowClick, onSuccess });
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
-      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+    <Panel>
+      <div className="px-5 pt-5 pb-4 border-b border-border">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-gray-800">의뢰기관 목록</h2>
+            <h2 className="text-sm font-semibold text-foreground">의뢰기관 목록</h2>
           </div>
           <RegisterClientForm
             open={registerModalOpen}
@@ -52,9 +53,9 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
       </div>
 
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
-            총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
+        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
+          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
+            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
           </span>
           <Pagination
             pageIndex={table.getState().pagination.pageIndex}
@@ -75,6 +76,6 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
         client={selectedClient}
         onSuccess={refetch}
       />
-    </div>
+    </Panel>
   );
 }

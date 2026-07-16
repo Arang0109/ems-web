@@ -30,9 +30,8 @@ export const toWorkplaceListItem = (
   workplaceName: dto.workplaceName,
   zipcode: dto.zipcode,
   roadAddress: dto.roadAddress,
-  address: dto.address,
+  detailAddress: dto.detailAddress,
   bizNumber: dto.bizNumber,
-  grade: dto.grade,
 });
 
 export const toWorkplaceListItems = (

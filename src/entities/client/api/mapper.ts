@@ -9,7 +9,7 @@ export const toRegisterRequest = (vo: ClientCreate): ClientRegisterRequest => ({
   representative: trimValue(vo.representative),
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
-  detailAddress: trimValue(vo.address),
+  detailAddress: trimValue(vo.detailAddress),
 
   manager: trimValue(vo.manager),
   email: trimValue(vo.email),
@@ -20,7 +20,7 @@ export const toUpdateRequest = (vo: ClientUpdate): ClientUpdateRequest => ({
   name: trimValue(vo.name),
   bizNumber: unformatNumber(vo.bizNumber),
   representative: trimValue(vo.representative),
-  detailAddress: trimValue(vo.address),
+  detailAddress: trimValue(vo.detailAddress),
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
 

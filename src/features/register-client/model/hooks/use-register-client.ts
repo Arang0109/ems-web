@@ -13,7 +13,7 @@ import { validateClientFields } from "../validator";
 interface Props { onSuccess: () => void; }
 
 export const useRegisterClient = ({ onSuccess }: Props) => {
-  const { registerClient, isLoading, error } = useRegisterClientAction();
+  const { registerClient, isLoading } = useRegisterClientAction();
 
   const [form, setForm] = useState<ClientRegisterForm>(getDefaultForm());
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof ClientRegisterForm, string>>>();
@@ -59,7 +59,6 @@ export const useRegisterClient = ({ onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     fieldErrors,
 

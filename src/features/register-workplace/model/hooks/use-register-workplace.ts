@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
-  const { registerWorkplace, isLoading, error } = useRegisterWorkplaceAction();
+  const { registerWorkplace, isLoading } = useRegisterWorkplaceAction();
 
   const [form, setForm] = useState<WorkplaceRegisterForm>(getDefaultWorkplaceRegisterForm(client));
 
@@ -27,9 +27,9 @@ export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
   const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
     setForm((prev) => ({
       ...prev,
-      zipcode: zipcode,
-      roadAddress,
-      address: detailAddress,
+      workplaceZipcode: zipcode,
+      workplaceRoadAddress: roadAddress,
+      workplaceDetailAddress: detailAddress,
     }));
   };
 
@@ -48,7 +48,6 @@ export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

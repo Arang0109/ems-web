@@ -34,7 +34,7 @@ export const Tabs = ({
         {options.map((opt) => {
           return(
             <TabsContent key={opt.value} value={opt.value}>
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+              <div className="bg-card rounded-2xl p-6 shadow-sm border border-border">
                 {opt.content}
               </div>
             </TabsContent>

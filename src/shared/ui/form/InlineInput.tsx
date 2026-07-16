@@ -44,7 +44,7 @@ export const InlineInput = ({
   return (
     <span className="inline-flex items-center gap-1.5">
       {prefix && (
-        <span className="text-sm text-gray-700 whitespace-nowrap">{prefix}</span>
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{prefix}</span>
       )}
       <InputPrimitive
         id={id}
@@ -62,7 +62,7 @@ export const InlineInput = ({
         className={`${width} text-center`}
       />
       {suffix && (
-        <span className="text-sm text-gray-700 whitespace-nowrap">{suffix}</span>
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{suffix}</span>
       )}
     </span>
   );

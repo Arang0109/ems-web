@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const useUpdateStack = ({ stack, onSuccess }: Props) => {
-  const { updateStack, isLoading, error } = useUpdateStackAction();
+  const { updateStack, isLoading } = useUpdateStackAction();
 
   const [form, setForm] = useState<StackUpdateForm>({
     field: stack?.field ?? "AIR",
@@ -50,7 +50,7 @@ export const useUpdateStack = ({ stack, onSuccess }: Props) => {
 
   return {
     form,
-    isLoading, error,
+    isLoading,
 
     handleChange,
     handleSubmit,

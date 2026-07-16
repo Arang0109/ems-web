@@ -5,7 +5,7 @@ import type { ClientTableRow } from "../model/types";
 import { FileSearchCorner } from "lucide-react";
 
 export const CustomCell = ({ getValue }: CellContext<ClientTableRow, string>) => (
-  <span className="font-medium text-gray-800">{getValue()}</span>
+  <span className="font-medium text-foreground">{getValue()}</span>
 );
 
 export const ActionCell = ({ row, table }: CellContext<ClientTableRow, unknown>) => (

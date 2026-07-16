@@ -48,7 +48,7 @@ export const InputGroup = <T extends string | number>({
     <InputGroupPrimitive>
       {startIcon && 
         <InputGroupAddon
-          className={error? 'text-red-500' : ""}
+          className={error? 'text-destructive' : ""}
         >{startIcon}</InputGroupAddon>}
       <InputGroupInput
         id={id}
@@ -70,11 +70,11 @@ export const InputGroup = <T extends string | number>({
     <Field data-invalid={invalid}>
       <FieldLabel htmlFor={id}>
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       {input}
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
-      {error && <FieldDescription className="text-red-500">{error}</FieldDescription>}
+      {error && <FieldDescription className="text-destructive">{error}</FieldDescription>}
     </Field>
   );
 };

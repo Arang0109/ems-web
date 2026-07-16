@@ -3,9 +3,9 @@ export type ClientResponse = {
   name: string;               // 측정대행 의뢰기관
   bizNumber: string;          // 사업자등록번호 (xxx-xx-xxxxx)
   representative: string;     // 대표자
-  zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
-  address: string;            // 상세주소
+  detailAddress: string;            // 상세주소
+  zipcode: string;           // 우편번호
 
   manager: string;            // 측정대행 의뢰기관 담당자
   email: string;              // E-mail
@@ -16,9 +16,9 @@ export type ClientRegisterRequest = {
   name: string;
   bizNumber: string;
   representative: string;
-  zipcode: string;
   roadAddress: string;
   detailAddress: string;
+  zipcode: string;
 
   manager: string;
   email: string;
@@ -29,9 +29,9 @@ export type ClientUpdateRequest = {
   name: string;
   bizNumber: string;
   representative: string;
-  zipcode: string;
   roadAddress: string;
   detailAddress: string;
+  zipcode: string;
 
   manager: string;
   email: string;

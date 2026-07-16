@@ -1,6 +1,9 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
   MeasurementMethod, PollutantPhase, MeasurementCycle,
+  EquipType, EquipStatus, PitotTubeType,
+  ScheduleStatus, MeasurementType,
+  MeasurementCategory, WeatherCondition, WindDirection,
 } from "../model";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
@@ -57,4 +60,60 @@ export const MEASUREMENT_CYCLE_LABEL: Record<MeasurementCycle, string> = {
   QUARTERLY: '분기',
   SEMI_ANNUAL: '반기',
   ANNUAL: '연 1회',
+};
+
+export const SCHEDULE_STATUS_LABEL: Record<ScheduleStatus, string> = {
+  SCHEDULED: '측정예정',
+  MEASURING: '측정중',
+  ANALYZING: '분석중',
+  COMPLETED: '완료',
+  CANCELED: '취소',
+};
+
+export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
+  SELF: '자가측정용',
+  REFERENCE: '기타참고용',
+};
+
+export const EQUIP_TYPE_LABEL: Record<EquipType, string> = {
+  PARTICLE_SAMPLER: '입자샘플러',
+  GAS_SAMPLER: '가스샘플러',
+  PITOT_TUBE: '피토관',
+  NOZZLE: '노즐',
+  OTHER: '기타',
+};
+
+export const EQUIP_STATUS_LABEL: Record<EquipStatus, string> = {
+  ACTIVE: '사용가능',
+  INACTIVE: '사용중지',
+  MAINTENANCE: '점검중',
+  DELETED: '삭제됨',
+};
+
+export const PITOT_TUBE_TYPE_LABEL: Record<PitotTubeType, string> = {
+  DUST: '먼지',
+  FINE_DUST: '미세먼지',
+  MERCURY: '수은',
+};
+
+export const MEASUREMENT_CATEGORY_LABEL: Record<MeasurementCategory, string> = {
+  GAS: '가스상',
+  HEAVY_METAL: '중금속',
+  DUST: '먼지',
+  MERCURY: '수은',
+};
+
+export const WEATHER_CONDITION_LABEL: Record<WeatherCondition, string> = {
+  CLEAR: '맑음',
+  CLOUDY: '흐림',
+  RAIN: '비',
+  SNOW: '눈',
+};
+
+export const WIND_DIRECTION_LABEL: Record<WindDirection, string> = {
+  CALM: '무풍',
+  N: '북', NNE: '북북동', NE: '북동', ENE: '동북동',
+  E: '동', ESE: '동남동', SE: '남동', SSE: '남남동',
+  S: '남', SSW: '남남서', SW: '남서', WSW: '서남서',
+  W: '서', WNW: '서북서', NW: '북서', NNW: '북북서',
 };

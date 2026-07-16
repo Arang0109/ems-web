@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const useUpdateClient = ({ client, onSuccess }: Props) => {
-  const { updateClient, isLoading, error } = useUpdateClientAction();
+  const { updateClient, isLoading } = useUpdateClientAction();
 
   const [form, setForm] = useState<ClientUpdateForm>({
     name: client?.name ?? '',
@@ -59,7 +59,6 @@ export const useUpdateClient = ({ client, onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

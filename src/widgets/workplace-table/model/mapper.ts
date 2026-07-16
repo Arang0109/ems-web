@@ -8,6 +8,6 @@ export const toWorkplaceRows = (col: WorkplaceListItem): WorkplaceTableRow => ({
   clientId: col.clientId,
   clientName: col.clientName,
   workplaceName: col.workplaceName,
-  address: formatAddress(col.roadAddress, col.address),
+  address: formatAddress(col.roadAddress, col.detailAddress),
   bizNumber: formatBusinessNumber(col.bizNumber),
 });

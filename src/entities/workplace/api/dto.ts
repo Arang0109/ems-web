@@ -8,8 +8,7 @@ export type WorkplaceListResponse = {
   bizNumber: string;
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
-  address: string;
-  grade: Grade;
+  detailAddress: string;
 }
 
 export type WorkplaceResponse = {
@@ -19,7 +18,7 @@ export type WorkplaceResponse = {
   bizNumber: string;
   zipcode: string;
   roadAddress: string;
-  address: string;
+  detailAddress: string;
   grade: Grade;
 }
 

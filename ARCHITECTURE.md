@@ -66,8 +66,8 @@ app → pages → widgets → features → entities → shared
 |--------|---------|
 | pages | `sign-in`, `dashboard`, `client`(하위 `client`, `contract`, `pollutant`) |
 | widgets | `sign-in`, `layouts`, `metrics`, `contract-chart`, `client-table`, `workplace-table`, `stack-table`, `contract-table`, `pollutant-table`, `stack-list-table`, `stack-profile` |
-| features | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `register-client`, `register-workplace`, `register-stack`, `register-contract`, `register-pollutant`, `register-facility`, `register-prevention`, `register-substance`, `register-stack-measurement`, `update-client`, `update-contract`, `update-workplace`, `update-stack`, `update-facility`, `update-prevention`, `delete-substance` |
-| entities | `auth`, `client`, `workplace`, `stack`, `contract`, `dashboard`, `pollutant`, `stack-measurement` |
+| features | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `register-client`, `register-workplace`, `register-stack`, `register-contract`, `register-pollutant`, `register-facility`, `register-prevention`, `register-substance`, `register-stack-pollutant`, `update-client`, `update-contract`, `update-workplace`, `update-stack`, `update-facility`, `update-prevention`, `delete-substance` |
+| entities | `auth`, `client`, `workplace`, `stack`, `contract`, `dashboard`, `pollutant`, `stack-pollutant` |
 | shared | `api`, `hooks`, `icon`, `lib`, `model`, `ui` |
 
 ---
@@ -153,4 +153,4 @@ shared/model/types/common-types (공통 enum/type)
 |------|------|-----------|
 | `features/sign-in/ui/SignInForm.tsx`, `SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@shared/ui/buttons`를 통해 사용 |
 | `features/register-client/ui/RegisterClientForm.tsx`, `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
-| `features/register-stack-measurement/ui/RegisterStackMeasurementForm.tsx` | 자체 훅과 불일치하는 미완성 폼(다른 폼에서 복사된 잔재) | 훅(`rows` 기반 다중행 입력)에 맞게 재작성 |
+| `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx` | 자체 훅과 불일치하는 미완성 폼(다른 폼에서 복사된 잔재) | 훅(`rows` 기반 다중행 입력)에 맞게 재작성 |

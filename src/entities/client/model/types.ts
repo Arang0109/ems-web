@@ -6,9 +6,9 @@ export type ClientCreate = {
   name: string;
   bizNumber: string;
   representative: string;
-  zipcode: string;
   roadAddress: string;
-  address: string;
+  detailAddress: string;
+  zipcode: string;
 
   manager: string;
   email: string;
@@ -19,9 +19,9 @@ export type ClientUpdate = {
   name: string;
   bizNumber: string;
   representative: string;
-  zipcode: string;
   roadAddress: string;
-  address: string;
+  detailAddress: string;
+  zipcode: string;
 
   manager: string;
   email: string;

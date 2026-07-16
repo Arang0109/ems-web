@@ -105,7 +105,7 @@ export const RegisterWorkplaceForm = ({
         <AddressInput
           id="workplaceAddress"
           placeholder="사업장 상세주소"
-          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceAddress }}
+          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceDetailAddress }}
           onChange={handleAddressChange}
         />
       </FieldGroup>

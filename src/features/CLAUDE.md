@@ -214,4 +214,3 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 | `sign-in/ui/SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
 | `register-client/ui/RegisterClientForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
 | `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
-| `register-stack-measurement/ui/RegisterStackMeasurementForm.tsx` | 자체 훅과 불일치하는 미완성 폼 — `useRegisterStackMeasurement`는 `rows` 기반 다중행 입력을 반환하나 UI는 존재하지 않는 `form.*` 필드와 미정의 `workplace` 변수를 참조(register-stack 폼 복사 잔재, 현재 컴파일 불가) | 훅 인터페이스(`rows`, `handleAddRow`, `handleRemoveRow`, `handleChange(index, name, value)`)에 맞춰 측정항목(pollutant/cycle/allowance) 다중행 입력 UI로 재작성 |

@@ -19,24 +19,24 @@ const cards = [
     label: '총 계약건수',
     unit: '건',
     icon: Files,
-    color: 'bg-violet-50 text-violet-600',
-    ring: 'ring-violet-100',
+    color: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-400',
+    ring: 'ring-violet-100 dark:ring-violet-500/20',
   },
   {
     key: 'expiringSoonContractCount' as const,
     label: '만료 예정 (1개월 이하)',
     unit: '건',
     icon: CalendarClock,
-    color: 'bg-orange-50 text-orange-600',
-    ring: 'ring-orange-100',
+    color: 'bg-orange-50 text-orange-600 dark:bg-orange-500/15 dark:text-orange-400',
+    ring: 'ring-orange-100 dark:ring-orange-500/20',
   },
   {
     key: 'expiredContractCount' as const,
     label: '계약 만료',
     unit: '건',
     icon: FileX,
-    color: 'bg-red-50 text-red-600',
-    ring: 'ring-red-100',
+    color: 'bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-400',
+    ring: 'ring-red-100 dark:ring-red-500/20',
   }
 ]
 

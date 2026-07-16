@@ -145,7 +145,7 @@ api/
         ├── contract.ts
         ├── dashboard.ts
         ├── stack.ts
-        ├── stack-measurement.ts
+        ├── stack-pollutant.ts
         └── pollutants.ts
 ```
 
@@ -171,7 +171,7 @@ export const handlers = [
   ...stackHandlers,
 
   // [ACTIVE]
-  ...stackMeasurementHandlers,
+  ...stackPollutantHandlers,
 
   // [READY]
   ...contractHandlers,

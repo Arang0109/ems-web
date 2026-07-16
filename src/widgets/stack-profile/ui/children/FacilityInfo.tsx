@@ -15,9 +15,9 @@ interface Props {
 }
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-gray-50 rounded-xl px-4 py-3">
-    <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-gray-800">{value || '-'}</p>
+  <div className="bg-muted/40 rounded-xl px-4 py-3">
+    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+    <p className="text-sm font-medium text-foreground">{value || '-'}</p>
   </div>
 );
 
@@ -34,7 +34,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-800">배출시설</h3>
+        <h3 className="text-sm font-semibold text-foreground">배출시설</h3>
         <IconButton
           icon={<Plus size={14} />}
           label="배출시설 추가"
@@ -43,7 +43,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
       </div>
 
       {facilities.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">
+        <p className="text-sm text-muted-foreground text-center py-8">
           등록된 배출시설이 없습니다.
         </p>
       ) : (
@@ -53,7 +53,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-500">시설 정보</p>
+                <p className="text-xs font-semibold text-muted-foreground">시설 정보</p>
                 <IconButton
                   icon={<Pencil size={12} />}
                   label="수정"
@@ -65,7 +65,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-500">연료 정보</p>
+              <p className="text-xs font-semibold text-muted-foreground">연료 정보</p>
               <div className="grid grid-cols-3 gap-3">
                 <InfoItem label="연료 유형" value={facility.fuelType} />
                 <InfoItem label="연료 사용량" value={facility.fuelUsage} />

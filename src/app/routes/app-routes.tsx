@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 
-import { PublicRoute, ProtectedRoute } from '.';
+import { PublicRoute, ProtectedRoute, AdminRoute } from '.';
 
 import { MainLayout } from "@widgets/layouts";
 
@@ -11,6 +11,10 @@ import {
   ContractPage, ContractRegisterPage, ContractDetailPage,
   PollutantPage,
 } from "@pages/client";
+import { AdminMemberPage } from "@pages/admin";
+import { EquipmentPage } from "@pages/equipment";
+import { StaffPage } from "@pages/staff";
+import { SchedulePage, ScheduleRegisterPage, ScheduleDetailPage } from "@pages/schedule";
 
 export const AppRoutes = () => (
   <BrowserRouter>
@@ -36,6 +40,20 @@ export const AppRoutes = () => (
         <Route path="/stacks" element={<StackPage />} />
         <Route path="/stacks/:stackId" element={<StackDetailPage />} />
         <Route path="/pollutants" element={<PollutantPage />} />
+        <Route path="/equipment" element={<EquipmentPage />} />
+        <Route path="/staff" element={<StaffPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/schedule/register" element={<ScheduleRegisterPage />} />
+        <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} />
+
+        <Route
+          path="/admin/members"
+          element={
+            <AdminRoute>
+              <AdminMemberPage />
+            </AdminRoute>
+          }
+        />
       </Route>
     </Routes>
   </BrowserRouter>

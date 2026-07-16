@@ -1,5 +1,5 @@
 import type { Prevention, Stack, Facility, TargetSubstance } from "@entities/stack";
-import type { StackMeasurementListItem } from "@entities/stack-measurement";
+import type { StackPollutantListItem } from "@/entities/stack-pollutant";
 import type { FacilityProfile, MeasurementProfile, PreventionProfile, StackProfile, TargetSubstanceProfile } from "./types";
 import {
   MEASUREMENT_FIELD_LABEL,
@@ -63,10 +63,10 @@ const toFacilityProfile = (data: Facility): FacilityProfile => ({
 });
 
 export const toMeasurementProfiles = (
-  data: StackMeasurementListItem[]
+  data: StackPollutantListItem[]
 ): MeasurementProfile[] => data.map(toMeasurementProfile);
 
-const toMeasurementProfile = (data: StackMeasurementListItem): MeasurementProfile => ({
+const toMeasurementProfile = (data: StackPollutantListItem): MeasurementProfile => ({
   nameKr: value(data.pollutant.nameKr),
   nameEn: value(data.pollutant.nameEn),
   cycle: MEASUREMENT_CYCLE_LABEL[data.pollutant.cycle] ?? data.pollutant.cycle,

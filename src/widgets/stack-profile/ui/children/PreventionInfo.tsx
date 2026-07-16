@@ -28,10 +28,10 @@ const SubstanceItem = ({ substance, onRefetch }: SubstanceItemProps) => {
   });
 
   return (
-    <div className="bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between">
+    <div className="bg-muted/40 rounded-xl px-4 py-3 flex items-center justify-between">
       <div>
-        <p className="text-xs text-gray-400 mb-0.5">{substance.name}</p>
-        <p className="text-sm font-medium text-gray-800">{substance.removalEfficiency || '-'}</p>
+        <p className="text-xs text-muted-foreground mb-0.5">{substance.name}</p>
+        <p className="text-sm font-medium text-foreground">{substance.removalEfficiency || '-'}</p>
       </div>
       <IconButton
         icon={<Trash2 size={12} />}
@@ -46,9 +46,9 @@ const SubstanceItem = ({ substance, onRefetch }: SubstanceItemProps) => {
 };
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-gray-50 rounded-xl px-4 py-3">
-    <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-gray-800">{value || '-'}</p>
+  <div className="bg-muted/40 rounded-xl px-4 py-3">
+    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+    <p className="text-sm font-medium text-foreground">{value || '-'}</p>
   </div>
 );
 
@@ -72,7 +72,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-800">방지시설</h3>
+        <h3 className="text-sm font-semibold text-foreground">방지시설</h3>
         <IconButton
           icon={<Plus size={14} />}
           label="방지시설 추가"
@@ -81,7 +81,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
       </div>
 
       {preventions.length === 0 ? (
-        <p className="text-sm text-gray-400 text-center py-8">
+        <p className="text-sm text-muted-foreground text-center py-8">
           등록된 방지시설이 없습니다.
         </p>
       ) : (
@@ -91,7 +91,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-500">시설 정보</p>
+                <p className="text-xs font-semibold text-muted-foreground">시설 정보</p>
                 <IconButton
                   icon={<Pencil size={12} />}
                   label="수정"
@@ -104,7 +104,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-gray-500">대상 물질</p>
+                <p className="text-xs font-semibold text-muted-foreground">대상 물질</p>
                 <IconButton
                   icon={<Plus size={12} />}
                   label="대상물질 추가"
@@ -123,7 +123,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 py-2">등록된 대상물질이 없습니다.</p>
+                <p className="text-xs text-muted-foreground py-2">등록된 대상물질이 없습니다.</p>
               )}
             </div>
           </div>

@@ -55,11 +55,11 @@ stack-profile/
         ├── StackBasicInfo.tsx
         ├── FacilityInfo.tsx
         ├── PreventionInfo.tsx
-        └── MeasurementInfo.tsx   # register-stack-measurement feature 폼 조합
+        └── MeasurementInfo.tsx   # register-stack-pollutant feature 폼 조합
 ```
 
 - 탭 컨테이너(`StackProfile.tsx`)는 `@shared/ui/tabs`의 `Tabs`로 구성하고, 각 탭 본문은 `ui/children/`의 서브 컴포넌트가 담당한다.
-- 하위 탭이 feature(등록 폼 등)를 조합할 수 있다. 예: `MeasurementInfo.tsx` → `@features/register-stack-measurement`.
+- 하위 탭이 feature(등록 폼 등)를 조합할 수 있다. 예: `MeasurementInfo.tsx` → `@features/register-stack-pollutant`.
 
 ---
 

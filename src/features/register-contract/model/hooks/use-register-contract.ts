@@ -14,7 +14,7 @@ export const useRegisterContract = () => {
   const { data: workplaces, fetchWorkplaces } = useWorkplaces();
   const navigate = useNavigate();
 
-  const { registerContract, isLoading, error } = useRegisterContractAction();
+  const { registerContract, isLoading } = useRegisterContractAction();
 
   const [form, setForm] = useState<ContractRegisterForm>(getDefaultContractForm());
 
@@ -47,14 +47,13 @@ export const useRegisterContract = () => {
 
     if (selected) {
       handleChange("workplaceName", selected.workplaceName);
-      handleChange("workplaceAddress", selected.address ?? "");
+      handleChange("workplaceAddress", selected.roadAddress + " (" + selected.detailAddress + ")");
     }
   };
 
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

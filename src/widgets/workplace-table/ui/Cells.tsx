@@ -5,7 +5,7 @@ import type { WorkplaceTableRow } from '../model/types';
 import { FileSearchCorner } from "lucide-react";
 
 export const CustomCell = ({ getValue }: CellContext<WorkplaceTableRow, string>) => (
-  <span className="font-medium text-gray-800">{getValue()}</span>
+  <span className="font-medium text-foreground">{getValue()}</span>
 );
 
 export const ActionCell = ({ row, table }: CellContext<WorkplaceTableRow, unknown>) => (
