@@ -85,8 +85,15 @@ export const Select = ({
     return null;
   };
 
+  // Base UI Select.Value는 items 매핑이 없으면 선택된 원시 value를 그대로 렌더링한다.
+  // options/groups를 { value, label } 배열로 평탄화해 root에 넘겨 라벨이 표시되도록 한다.
+  const items: SelectOption[] = groups
+    ? groups.flatMap((group) => group.options)
+    : (options ?? []);
+
   const select = (
     <SelectPrimitive
+      items={items}
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
@@ -105,7 +112,7 @@ export const Select = ({
     <Field>
       <FieldLabel htmlFor={id}>
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       {select}
       {helperText && <FieldDescription>{helperText}</FieldDescription>}

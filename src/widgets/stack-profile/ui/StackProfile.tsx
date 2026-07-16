@@ -37,7 +37,7 @@ export const StackProfile = () => {
     {
       value: "measurements",
       label: "측정항목",
-      content: <MeasurementInfo measurements={measurements} />
+      content: <MeasurementInfo stackId={stackIdNum} measurements={measurements} onRefetch={refetch} />
     },
     {
       value: "history",

@@ -5,5 +5,8 @@ export type SignInRequest = {
 
 export type SignInResponse = {
   accessToken: string;
+  tenant: string;
   username: string;
+  name: string;
+  role: string;
 }

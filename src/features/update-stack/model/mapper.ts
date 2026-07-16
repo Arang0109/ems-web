@@ -1,6 +1,6 @@
-import type { StackUpdate } from "@/entities/stack/model/types";
+import type { StackUpdate } from "@entities/stack";
 import type { StackUpdateForm } from "./types";
-import { trimValue } from "@/shared/lib";
+import { trimValue } from "@shared/lib";
 
 
 export const toStackUpdate = (

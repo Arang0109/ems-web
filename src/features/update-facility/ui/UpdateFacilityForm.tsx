@@ -7,24 +7,21 @@ import { FieldGroup, InputGroup, SectionTitle } from '@shared/ui/form';
 import { Factory } from 'lucide-react';
 
 interface Props {
-  stackId: number;
   facility: Facility | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
-export const UpdateFacilityForm = ({ stackId, facility, open, onOpenChange, onSuccess }: Props) => {
+export const UpdateFacilityForm = ({ facility, open, onOpenChange, onSuccess }: Props) => {
   const close = () => onOpenChange(false);
 
   const { form, handleChange, handleSubmit } = useUpdateFacility({
-    stackId,
     facility,
     onSuccess: () => { close(); onSuccess?.(); },
   });
 
   const { handleDelete } = useDeleteFacility({
-    stackId,
     facility,
     onSuccess: () => { close(); onSuccess?.(); },
   });

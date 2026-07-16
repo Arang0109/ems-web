@@ -2,7 +2,7 @@ import type { ContractAmountUnit } from "@entities/contract";
 
 export type ContractUpdateForm = {
   // 읽기 전용 (UI 표시만, DTO에 포함되지 않음)
-  companyName: string;
+  clientName: string;
   workplaceName: string;
   workplaceAddress: string;
 
@@ -16,13 +16,13 @@ export type ContractUpdateForm = {
   vatIncluded: boolean;
   contractGuaranteeAmount: string;
   advancePaymentAmount: string;
-  advancePaymentDueDate: number;
-  delayPenaltyRate: number;
+  advancePaymentDueDate: string;
+  delayPenaltyRate: string;
   remark: string;
 };
 
 export const getDefaultContractUpdateForm = (): ContractUpdateForm => ({
-  companyName: "",
+  clientName: "",
   workplaceName: "",
   workplaceAddress: "",
   contractName: "",
@@ -34,7 +34,7 @@ export const getDefaultContractUpdateForm = (): ContractUpdateForm => ({
   vatIncluded: false,
   contractGuaranteeAmount: "",
   advancePaymentAmount: "",
-  advancePaymentDueDate: 0,
-  delayPenaltyRate: 0,
+  advancePaymentDueDate: "",
+  delayPenaltyRate: "",
   remark: "",
 });

@@ -1,29 +1,32 @@
 import { Divider } from "@shared/ui/borders";
-import type { Company } from "@entities/company";
+import type { Client } from "@entities/client";
 
-import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 import { formatBusinessNumber, unformatNumber } from '@shared/lib';
+import type { Grade } from "@shared/model";
+import { gradeOptions } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, User2, Factory } from "lucide-react";
 
 import { useRegisterWorkplace } from "../model/hooks/use-register-workplace";
 
 interface RegisterWorkplaceFormProps {
-  company: Company | null;
+  client: Client | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
 
 export const RegisterWorkplaceForm = ({
-  company,
+  client,
   open,
   onOpenChange,
   onSuccess,
 }: RegisterWorkplaceFormProps) => {
   const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterWorkplace({
-    company,
+    client,
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -37,15 +40,15 @@ export const RegisterWorkplaceForm = ({
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
       submitLabel='등록'
-      disabled={!company}
+      disabled={!client}
     >
       <FieldGroup>
         <SectionTitle>의뢰기관 정보</SectionTitle>
         <InputGroup
-          id="companyName"
+          id="clientName"
           label="측정대행 의뢰기관"
           placeholder="측정대행 의뢰기관"
-          value={company?.name ?? ''}
+          value={client?.name ?? ''}
           helperText="사업자등록증상에 기재된 상호"
           startIcon={<Building2 />}
           disabled
@@ -53,10 +56,10 @@ export const RegisterWorkplaceForm = ({
         />
         <div className="grid grid-cols-2 gap-4">
           <InputGroup
-            id="companyBizNumber"
+            id="clientBizNumber"
             label="의뢰기관 사업자등록번호"
             placeholder="사업자등록번호"
-            value={company?.bizNumber ?? ''}
+            value={client?.bizNumber ?? ''}
             startIcon={<Hash />}
             disabled
             readOnly
@@ -65,7 +68,7 @@ export const RegisterWorkplaceForm = ({
             id="representative"
             label="대표자"
             placeholder="대표자"
-            value={company?.representative ?? ''}
+            value={client?.representative ?? ''}
             startIcon={<User2 />}
             disabled
             readOnly
@@ -91,10 +94,18 @@ export const RegisterWorkplaceForm = ({
           onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
         />
+        <Select
+          id="grade"
+          label="시설 종별"
+          placeholder="종별 선택"
+          options={gradeOptions}
+          value={GRADE_LABEL[form.grade]}
+          onValueChange={(value) => value && handleChange("grade", value as Grade)}
+        />
         <AddressInput
           id="workplaceAddress"
           placeholder="사업장 상세주소"
-          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceAddress }}
+          value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceDetailAddress }}
           onChange={handleAddressChange}
         />
       </FieldGroup>

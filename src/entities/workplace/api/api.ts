@@ -14,8 +14,8 @@ export const workplaceApi = {
     return res.data;
   },
 
-  getWorkplaces: async (companyId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {
-    const params = companyId != null ? { companyId } : {};
+  getWorkplaces: async (clientId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {
+    const params = clientId != null ? { clientId } : {};
     const res = await axiosPrivate.get('/workplaces', { params });
     return res.data;
   },

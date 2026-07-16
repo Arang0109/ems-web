@@ -2,7 +2,7 @@ export type ContractTableRow = {
   id: number;
   workplaceId: number;
   field: string;
-  companyName: string;
+  clientName: string;
   workplaceName: string;
   contractName: string;
   taskPeriod: string;

@@ -68,8 +68,8 @@ feature-name/
 - `index.ts`에 export하지 않는다 (슬라이스 내부 유틸).
 
 ```ts
-export const validateCompanyFields = (form: CompanyRegisterForm) => {
-  const errors: Partial<Record<keyof CompanyRegisterForm, string>> = {};
+export const validateClientFields = (form: ClientRegisterForm) => {
+  const errors: Partial<Record<keyof ClientRegisterForm, string>> = {};
 
   if (!form.name.trim()) {
     errors.name = "기관명을 입력해주세요.";
@@ -88,11 +88,12 @@ export const validateCompanyFields = (form: CompanyRegisterForm) => {
 ### Mapper (`model/mapper.ts`)
 
 - Form → Entity 도메인 입력 모델 변환 순수 함수
-- 예: `CompanyRegisterForm` → `CompanyCreate`
+- 예: `ClientRegisterForm` → `ClientCreate`
 - API Request DTO로 직접 변환하지 않는다.
-- `@shared/lib/formatters`의 유틸 활용:
+- `@shared/lib`의 유틸 활용:
   - `trimValue(s)` — 앞뒤 공백 제거
-  - `stripFormatting(s)` — 포맷 문자 제거 (숫자만 추출)
+  - `unformatNumber(s)` — 자릿수 코드 정규화 (숫자만 추출, 결과 `string`)
+  - `toNumber(s)` / `toNumberOrNull(s)` — Form 문자열을 `number` / `number | null`로 변환
 - UI 전용 필드는 변환 시 제외
 
 ### Feature Hook (`model/hooks/use-register-xxx.ts`)
@@ -110,13 +111,13 @@ export const validateCompanyFields = (form: CompanyRegisterForm) => {
 
 ```ts
 const [fieldErrors, setFieldErrors] =
-  useState<Partial<Record<keyof CompanyRegisterForm, string>>>();
+  useState<Partial<Record<keyof ClientRegisterForm, string>>>();
 ```
 
 - **onChange 시 해당 필드 에러 즉시 클리어**: 사용자가 수정하는 순간 에러 메시지를 제거한다.
 
 ```ts
-const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
+const handleChange = (name: keyof ClientRegisterForm, value: string) => {
   setForm((prev) => ({ ...prev, [name]: value }));
   setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
 };
@@ -128,7 +129,7 @@ const handleChange = (name: keyof CompanyRegisterForm, value: string) => {
 const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
 
-  const errors = validateCompanyFields(form);
+  const errors = validateClientFields(form);
   if (Object.keys(errors).length > 0) {
     setFieldErrors(errors);
     return; // ← 필수: 에러가 있으면 API 호출하지 않음
@@ -144,7 +145,7 @@ API 호출 결과는 항상 try/catch로 감싸고, `toast`로 사용자에게 �
 
 ```ts
 try {
-  await registerCompany(toCompanyCreate(form));
+  await registerClient(toClientCreate(form));
   toast.success("측정대행 의뢰기관이 등록되었습니다.");
   setForm(getDefaultForm());
   onSuccess();
@@ -158,6 +159,21 @@ try {
 - 실패: `err instanceof Error ? err.message : '폴백 메시지'` 패턴으로 에러 메시지 추출 후 `toast.error`
 - catch 블록에서 에러를 다시 throw하지 않는다 (Entity 액션 훅이 throw하면 여기서 최종 처리).
 
+#### error 반환 정책
+
+Feature 훅 내부에서 `toast.error`로 에러를 최종 처리한 경우, `error` state를 반환하지 않는다.
+외부에서 에러를 별도로 표시할 UI가 없으면 dead return value가 된다.
+
+```ts
+// ❌ toast로 처리했는데 error도 반환
+return { isLoading, error, handleDelete };
+
+// ✅ toast로 최종 처리 → error 반환 불필요
+return { isLoading, handleDelete };
+```
+
+단, 부모 컴포넌트가 에러 상태를 UI에 별도로 반영해야 하는 경우(예: 인라인 에러 메시지)에는 반환한다.
+
 ---
 
 ## Select 훅 패턴
@@ -165,25 +181,27 @@ try {
 선택 상태와 관련 데이터 페칭을 함께 관리한다.
 entity의 **수동 호출 타입 fetch hook (타입 B)** 을 내부에서 사용한다.
 
-### `useCompanySelection` (`select-company/hooks/useCompanySelection.ts`)
+### 배치 기준 — features vs pages/model
+
+Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
+
+| 조건 | 배치 위치 |
+|------|----------|
+| 여러 페이지에서 재사용 | `features/select-xxx/hooks/` |
+| 특정 페이지 전용 | `pages/<sub-domain>/model/` |
+
+특정 페이지에서만 쓰이는 선택 로직을 features 슬라이스로 분리하는 것은 과설계다.
+작성 시점에 재사용 계획이 없다면 pages/model에 두고, 실제 재사용 시점에 features로 승격한다.
+
+### 반환 인터페이스
 
 | 반환값 | 설명 |
 |--------|------|
-| `selectedCompany` | 현재 선택된 회사 (`Company \| null`) |
-| `workplaces` | 선택된 회사의 사업장 목록 |
-| `handleSelectCompanyRow(company)` | 회사 선택 시 호출, workplaces 자동 페칭 |
-| `refetchWorkplaces()` | 현재 선택된 회사의 workplaces 재조회 |
-| `loading`, `error` | 페칭 상태 |
-
-### `useWorkplaceSelection` (`select-workplace/hooks/useWorkplaceSelection.ts`)
-
-| 반환값 | 설명 |
-|--------|------|
-| `selectedWorkplace` | 현재 선택된 사업장 (`Workplace \| null`) |
-| `stacks` | 선택된 사업장의 굴뚝 목록 |
-| `handleSelectWorkplaceRow(workplace)` | 사업장 선택 시 호출, stacks 자동 페칭 |
-| `clearWorkplaceSelection()` | 선택 초기화 |
-| `refetchStacks()` | 현재 선택된 사업장의 stacks 재조회 |
+| `selectedXxx` | 현재 선택된 항목 |
+| `relatedData` | 선택에 연동되어 페칭된 하위 데이터 |
+| `handleSelectXxxRow(item)` | 선택 핸들러, 연쇄 페칭 포함 |
+| `clearXxxSelection()` | 선택 초기화 (필요 시) |
+| `refetchRelated()` | 연동 데이터 재조회 |
 | `loading`, `error` | 페칭 상태 |
 
 ---
@@ -192,9 +210,7 @@ entity의 **수동 호출 타입 fetch hook (타입 B)** 을 내부에서 사용
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `sign-in/SignInForm.tsx` | `ui/` 없이 루트에 위치 | `ui/SignInForm.tsx`로 이동 |
-| `sign-in/SocialSignIn.tsx` | `ui/` 없이 루트에 위치 | `ui/SocialSignIn.tsx`로 이동 |
-| `contract-overview/use-contract-overview.ts` | `hooks/` 없이 루트에 위치 | `hooks/use-contract-overview.ts`로 이동 |
-| `sign-in/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `register-company/ui/RegisterCompanyForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `sign-in/ui/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
+| `sign-in/ui/SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
+| `register-client/ui/RegisterClientForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
 | `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |

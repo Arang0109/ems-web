@@ -7,7 +7,7 @@ import { CustomCell, PathCell } from '../ui/Cells';
 const columnHelper = createColumnHelper<StackTableRow>();
 
 export const defaultColumns = [
-  columnHelper.accessor('companyName', {
+  columnHelper.accessor('clientName', {
     header: '측정대행 의뢰기관',
     cell: CustomCell,
     enableGlobalFilter: false,

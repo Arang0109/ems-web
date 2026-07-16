@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
-  const { updateWorkplace, isLoading, error } = useUpdateWorkplaceAction();
+  const { updateWorkplace, isLoading } = useUpdateWorkplaceAction();
 
   const [form, setForm] = useState<WorkplaceUpdateForm>({
     name: workplace?.name ?? '',
@@ -23,6 +23,7 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
     zipcode: workplace?.zipcode ?? '',
     roadAddress: workplace?.roadAddress ?? '',
     address: workplace?.address ?? "",
+    grade: workplace?.grade ?? "TYPE_1",
   });
 
   const handleChange = (name: keyof WorkplaceUpdateForm, value: string) => {
@@ -55,7 +56,6 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

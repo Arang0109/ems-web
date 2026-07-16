@@ -7,10 +7,10 @@ export const SignInWidget = () => {
     <div className="space-y-6">
       {/* 헤더 */}
       <header className="mb-8 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900">
-          Environment Solution
+        <h1 className="text-2xl font-bold text-foreground">
+          EMS
         </h1>
-        <p className="mt-1 text-xs text-neutral-600/80">환경측정 업무를 더 쉽고 빠르게</p>
+        <p className="mt-1 text-xs text-muted-foreground">환경측정 업무를 더 쉽고 빠르게</p>
       </header>
       <SignInForm />
       <Divider text="또는" />

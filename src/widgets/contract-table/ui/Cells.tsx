@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { DetailViewButton } from "@/shared/ui/buttons/DetailViewButton";
 
 export const CustomCell = ({ getValue }: CellContext<ContractTableRow, string>) => (
-  <span className="font-medium text-gray-800">{getValue()}</span>
+  <span className="font-medium text-foreground">{getValue()}</span>
 )
 
 export const DateCell = ({ getValue }: CellContext<ContractTableRow, string>) => (
-  <span className="font-medium text-gray-800">{getValue()} 일</span>
+  <span className="font-medium text-foreground">{getValue()} 일</span>
 )
 
 export const PathCell = ({ row }: CellContext<ContractTableRow, unknown>) => {

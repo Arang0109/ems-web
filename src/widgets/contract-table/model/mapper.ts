@@ -5,7 +5,7 @@ export const toContractRows = (row: ContractListItem): ContractTableRow => ({
   id: row.id,
   workplaceId: row.workplaceId,
   field: row.fields,
-  companyName: row.companyName,
+  clientName: row.clientName,
   workplaceName: row.workplaceName,
   contractName: row.contractName,
   taskPeriod: row.taskPeriod,

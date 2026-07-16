@@ -10,6 +10,7 @@ import { Building2 } from 'lucide-react';
 import { BasicTable, TableEmptyState } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
+import { Panel } from '@shared/ui/cards';
 
 interface Props {
   stacks: StackListItem[];
@@ -29,18 +30,18 @@ export const StackTable = ({
   } = useStackTable({ stacks });
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
+    <Panel>
       {/* 헤더 */}
-      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+      <div className="px-5 pt-5 pb-4 border-b border-border">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-gray-800">측정시설 목록</h2>
+            <h2 className="text-sm font-semibold text-foreground">측정시설 목록</h2>
             {selectedWorkplace ? (
-              <p className="mt-0.5 text-xs text-blue-600 font-medium truncate">
+              <p className="mt-0.5 text-xs text-blue-600 dark:text-blue-400 font-medium truncate">
                 {selectedWorkplace.name}
               </p>
             ) : (
-              <p className="mt-0.5 text-xs text-gray-400">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 사업장을 선택해주세요
               </p>
             )}
@@ -63,7 +64,7 @@ export const StackTable = ({
       <div className="p-5 flex-1 flex flex-col">
         {!selectedWorkplace ? (
           <TableEmptyState
-            icon={<Building2 size={22} className="text-gray-400" />}
+            icon={<Building2 size={22} className="text-muted-foreground" />}
             label='측정시설 정보 없음'
             subLabel={<span>위쪽에서 사업장을 선택하면<br />해당 측정시설 목록이 표시됩니다.</span>}
           />
@@ -74,9 +75,9 @@ export const StackTable = ({
 
       {/* 푸터: 건수 + 페이지네이션 */}
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
-            총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
+        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
+          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
+            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
           </span>
           <Pagination
             pageIndex={table.getState().pagination.pageIndex}
@@ -89,6 +90,6 @@ export const StackTable = ({
           />
         </div>
       )}
-    </div>
+    </Panel>
   );
 }

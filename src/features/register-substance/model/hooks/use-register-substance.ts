@@ -7,12 +7,11 @@ import { getDefaultSubstanceRegisterForm, type SubstanceRegisterForm } from '../
 import { toSubstanceCreate } from '../mapper';
 
 interface Props {
-  stackId: number;
   preventionId: number;
   onSuccess: () => void;
 }
 
-export const useRegisterSubstance = ({ stackId, preventionId, onSuccess }: Props) => {
+export const useRegisterSubstance = ({ preventionId, onSuccess }: Props) => {
   const { registerSubstance, isLoading } = useRegisterSubstanceAction();
   const [form, setForm] = useState<SubstanceRegisterForm>(getDefaultSubstanceRegisterForm());
 
@@ -23,7 +22,7 @@ export const useRegisterSubstance = ({ stackId, preventionId, onSuccess }: Props
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await registerSubstance(stackId, preventionId, toSubstanceCreate(form));
+      await registerSubstance(toSubstanceCreate(preventionId, form));
       toast.success('대상물질이 등록되었습니다.');
       onSuccess();
     } catch (err) {

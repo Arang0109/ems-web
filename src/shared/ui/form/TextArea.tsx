@@ -46,7 +46,7 @@ export const Textarea = ({
     <Field>
       <FieldLabel htmlFor={id}>
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <TextareaPrimitive
         id={id}

@@ -24,7 +24,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
     <ShadcnTable>
       <TableHeader>
         {table.getHeaderGroups().map((hg) => (
-          <TableRow key={hg.id} className="bg-gray-50/70 hover:bg-gray-50/70">
+          <TableRow key={hg.id} className="bg-muted/50 hover:bg-muted/50">
             {hg.headers.map((header) => {
               const canSort = header.column.getCanSort();
               const sorted = header.column.getIsSorted();
@@ -35,7 +35,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
                   className={canSort ? 'cursor-pointer select-none' : ''}
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                 >
-                  <span className="inline-flex items-center text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <span className="inline-flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     {flexRender(header.column.columnDef.header, header.getContext())}
                     {canSort && <SortIcon sorted={sorted} />}
                   </span>
@@ -49,13 +49,13 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
       <TableBody>
         {error ? (
           <TableRow>
-            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-red-500">
+            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-destructive">
               {error}
             </TableCell>
           </TableRow>
         ) : rows.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-gray-400">
+            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-muted-foreground">
               검색 결과가 없습니다.
             </TableCell>
           </TableRow>
@@ -63,7 +63,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
           rows.map((row) => (
             <TableRow
               key={row.id}
-              className="cursor-pointer hover:bg-gray-50"
+              className="cursor-pointer hover:bg-muted/50"
               onClick={() => onRowClick?.(row.original)}
             >
               {row.getVisibleCells().map((cell) => (

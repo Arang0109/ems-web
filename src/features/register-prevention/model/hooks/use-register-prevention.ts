@@ -22,7 +22,7 @@ export const useRegisterPrevention = ({ stackId, onSuccess }: Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await registerPrevention(stackId, toPreventionCreate(form));
+      await registerPrevention(toPreventionCreate(stackId, form));
       toast.success('방지시설이 등록되었습니다.');
       onSuccess();
     } catch (err) {

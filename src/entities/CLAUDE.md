@@ -6,16 +6,16 @@
 
 ## 책임 범위
 
-- 순수 도메인 타입 정의 (`Company`, `Workplace` 등)
+- 순수 도메인 타입 정의 (`Client`, `Workplace` 등)
 - API 호출 함수 정의 (CRUD)
 - 서버 응답/요청 DTO 정의
 - 데이터 페칭 훅 (`useCompanies`, `useWorkplaces` 등)
-- CRUD 액션 훅 (`useRegisterCompanyAction`, `useUpdateCompanyAction` 등)
+- CRUD 액션 훅 (`useRegisterClientAction`, `useUpdateClientAction` 등)
 
 ## 금지 사항
 
-- **Form 타입 금지** — `CompanyRegisterForm` 등은 해당 feature의 `model/`에 위치
-- **UI 표현 타입 금지** — `CompanyTableRow` 등은 해당 widget의 `model/`에 위치
+- **Form 타입 금지** — `ClientRegisterForm` 등은 해당 feature의 `model/`에 위치
+- **UI 표현 타입 금지** — `ClientTableRow` 등은 해당 widget의 `model/`에 위치
 - **mapper 함수 `model/`에 위치 금지** — mapper는 `api/`에 위치
 
 ## 외부 노출 원칙
@@ -25,10 +25,10 @@
 
 ```ts
 // ✅ 허용
-export type { Company } from './model/types';
+export type { Client } from './model/types';
 
 // ❌ 금지
-export type { CompanyCreateRequest } from './api/dto';
+export type { ClientCreateRequest } from './api/dto';
 ```
 
 ---
@@ -90,7 +90,7 @@ Domain 입력 모델 → 요청 DTO, 응답 DTO → Domain 변환 순수 함수�
 마운트 시 자동으로 API를 호출하고, `refetch()`로 재조회를 트리거한다.
 `revision` state를 증가시켜 `useEffect`를 재실행하는 패턴을 사용한다.
 
-적용 entity: `company` (`useCompanies`), `contract` (`useContracts`), `pollutant` (`usePollutants`)
+적용 entity: `client` (`useClients`, `useClientDetail`), `contract` (`useContracts`), `workplace` (`useWorkplaceDetail`), `pollutant` (`usePollutants`)
 
 ```ts
 return { data, loading, error, refetch };
@@ -101,7 +101,7 @@ return { data, loading, error, refetch };
 마운트 시 자동 호출하지 않고, 외부에서 `fetchXxx(id)`를 명시적으로 호출해야 데이터를 로드한다.
 부모 컴포넌트의 선택 이벤트에 의해 트리거되는 종속 데이터에 사용한다.
 
-적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`), `contract` (`useContractDetail`)
+적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`, `useStackDetail`), `contract` (`useContractDetail`), `stack-pollutant` (`useStackPollutants`)
 
 ```ts
 return { data, loading, error, fetchWorkplaces };
@@ -113,7 +113,7 @@ return { data, loading, error, fetchWorkplaces };
 `isLoading`, `error` 상태를 직접 관리한다.
 
 ```ts
-return { registerCompany, isLoading, error };
+return { registerClient, isLoading, error };
 ```
 
 ✅ 허용
@@ -133,11 +133,16 @@ return { registerCompany, isLoading, error };
 
 | Entity | 페칭 훅 | 액션 훅 |
 |--------|---------|---------|
-| `company` | `useCompanies` (자동) | `useRegisterCompanyAction`, `useUpdateCompanyAction`, `useDeleteCompanyAction` |
+| `client` | `useClients` (자동), `useClientDetail` (자동) | `useRegisterClientAction`, `useUpdateClientAction`, `useDeleteClientAction` |
 | `contract` | `useContracts` (자동), `useContractDetail` (수동) | `useRegisterContractAction`, `useUpdateContractAction` |
-| `workplace` | `useWorkplaces` (수동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
-| `stack` | `useStacks` (수동) | `useRegisterStackAction` |
+| `workplace` | `useWorkplaces` (수동), `useWorkplaceDetail` (자동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
+| `stack` | `useStacks` (수동), `useStackDetail` (수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction`, `useRegisterSubstanceAction`, `useDeleteSubstanceAction` |
 | `pollutant` | `usePollutants` (자동) | `useRegisterPollutantAction` |
+| `stack-pollutant` | `useStackPollutants` (수동) | `useRegisterStackPollutantAction` |
+| `auth` | — | `useAuth`(Context 훅), API: `signInApi`, `signOutApi` |
+| `dashboard` | — (model 훅 없음) | — (API: `dashboardApi`만 존재) |
+
+> `auth`, `dashboard`는 표준 CRUD 패턴을 따르지 않는다. `auth`는 인증 Context(`useAuth`, `AuthContext`)와 로그인/로그아웃 API를, `dashboard`는 조회 전용 `dashboardApi`만 노출하며 model 레이어 훅이 없다.
 
 ---
 
@@ -147,8 +152,9 @@ return { registerCompany, isLoading, error };
 
 | Entity | 노출 타입 |
 |--------|-----------|
-| `company` | `Company`, `CompanyCreate`, `CompanyUpdate` |
+| `client` | `Client`, `ClientCreate`, `ClientUpdate` |
 | `contract` | `Contract`, `ContractListItem`, `ContractDetail`, `ContractCreate`, `ContractUpdate`, `ContractAmountUnit` |
 | `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
-| `stack` | `Stack`, `StackCreate`, `StackListItem` |
+| `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `TargetSubstance`, `TargetSubstanceCreate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `pollutant` | `Pollutant`, `PollutantCreate` |
+| `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |

@@ -19,17 +19,43 @@
 
 ---
 
+## pages/model 배치 기준
+
+`model/` 폴더에는 page-scoped coordinator 훅 외에 **이 페이지에서만 쓰이는 선택 훅**도 위치할 수 있다.
+
+### 선택 훅(selection hook) 배치 판단
+
+선택 훅을 `features/select-xxx`로 분리하려면 **여러 페이지에서 실제로 재사용**되어야 한다.
+한 페이지에서만 쓰인다면 `pages/<sub-domain>/model/`에 두는 것이 적절하다.
+
+```
+# ✅ 재사용 없음 → pages/model에 배치
+pages/client/client/model/
+├── use-client-management.ts   # coordinator
+├── use-client-selection.ts    # 이 페이지 전용 선택 훅
+└── use-workplace-selection.ts # 이 페이지 전용 선택 훅
+
+# ✅ 여러 페이지에서 재사용 → features에 배치
+features/select-client/
+└── hooks/use-client-selection.ts
+```
+
+재사용 계획이 없는 시점에 features 슬라이스로 미리 분리하는 것은 과설계다.
+실제 재사용 시점에 features로 승격한다.
+
+---
+
 ## 폴더 구조 원칙
 
 ### 슬라이스 단위 = sub-domain
 
-`company/`, `contract/` 등 **sub-domain이 독립 슬라이스**이며, 각자 `index.ts`를 보유합니다.
+`client/`, `contract/` 등 **sub-domain이 독립 슬라이스**이며, 각자 `index.ts`를 보유합니다.
 도메인 그룹 폴더(`client/`)는 라우팅 네임스페이스 역할만 하며, `index.ts`에서 sub-domain을 re-export만 합니다.
 
 ```
 client/
-├── index.ts          # export * from "./company"; export * from "./contract"; ...
-├── company/
+├── index.ts          # export * from "./client"; export * from "./contract"; ...
+├── client/
 │   ├── index.ts      # sub-domain public API
 │   └── ...
 ├── contract/
@@ -96,9 +122,9 @@ sub-domain/
 
 | sub-domain | 라우트 | 페이지 |
 |------------|--------|--------|
-| `client/company` | `/clients` | ClientManagementPage |
-| `client/company` | `/stacks` | StackPage |
-| `client/company` | `/stacks/:stackId` | StackDetailPage |
+| `client/client` | `/clients` | ClientManagementPage |
+| `client/client` | `/stacks` | StackPage |
+| `client/client` | `/stacks/:stackId` | StackDetailPage |
 | `client/contract` | `/contracts` | ContractPage |
 | `client/contract` | `/contracts/register` | ContractRegisterPage |
 | `client/contract` | `/contracts/:contractId` | ContractDetailPage |

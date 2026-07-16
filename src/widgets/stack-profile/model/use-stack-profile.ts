@@ -1,21 +1,21 @@
 import { useEffect } from 'react';
 
 import { useStackDetail } from '@entities/stack';
-import { useStackMeasurements } from '@entities/stack-measurement';
+import { useStackPollutants } from '@/entities/stack-pollutant';
 
 import { toStackProfile, toMeasurementProfiles } from './mapper';
 
 export const useStackProfile = (stackId: string | undefined) => {
   const { data, loading, error, fetchStack } = useStackDetail();
-  const { data: measurements, loading: measurementsLoading, fetchStackMeasurements } = useStackMeasurements();
+  const { data: measurements, loading: measurementsLoading, fetchStackPollutants } = useStackPollutants();
   const { stack, preventions, facilities } = data ?? {};
 
   useEffect(() => {
     if (!stackId) return;
     const id = Number(stackId);
     fetchStack(id);
-    fetchStackMeasurements(id);
-  }, [stackId, fetchStack, fetchStackMeasurements]);
+    fetchStackPollutants(id);
+  }, [stackId, fetchStack, fetchStackPollutants]);
 
   return {
     stack: stack ?? null,
@@ -30,7 +30,7 @@ export const useStackProfile = (stackId: string | undefined) => {
       if (!stackId) return;
       const id = Number(stackId);
       fetchStack(id);
-      fetchStackMeasurements(id);
+      fetchStackPollutants(id);
     },
   };
 }

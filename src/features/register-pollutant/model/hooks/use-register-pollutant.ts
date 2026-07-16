@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const useRegisterPollutant = ({ onSuccess }: Props) => {
-  const { registerPollutant, isLoading, error } = useRegisterPollutantAction();
+  const { registerPollutant, isLoading } = useRegisterPollutantAction();
 
   const [form, setForm] = useState<PollutantRegisterForm>(getDefaultForm());
 
@@ -39,6 +39,6 @@ export const useRegisterPollutant = ({ onSuccess }: Props) => {
     handleSubmit,
     handleChange,
 
-    isLoading, error
+    isLoading
   }
 }

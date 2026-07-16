@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const useDeleteWorkplace = ({ workplace, onSuccess }: Props) => {
-  const { deleteWorkplace, isLoading, error } = useDeleteWorkplaceAction();
+  const { deleteWorkplace, isLoading } = useDeleteWorkplaceAction();
 
   const handleDelete = async () => {
     if (!workplace) return;
@@ -25,7 +25,6 @@ export const useDeleteWorkplace = ({ workplace, onSuccess }: Props) => {
 
   return {
     isLoading,
-    error,
 
     handleDelete,
   }

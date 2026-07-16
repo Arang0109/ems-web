@@ -4,21 +4,21 @@ import type { WorkplaceRegisterForm } from "../types";
 import { getDefaultWorkplaceRegisterForm } from "../types";
 import { toWorkplaceCreate } from "../mapper";
 
-import type { Company } from "@entities/company";
+import type { Client } from "@entities/client";
 import { useRegisterWorkplaceAction } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
 import type { AddressValue } from "@shared/model";
 
 interface Props {
-  company: Company | null;
+  client: Client | null;
   onSuccess: () => void;
 }
 
-export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
-  const { registerWorkplace, isLoading, error } = useRegisterWorkplaceAction();
+export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
+  const { registerWorkplace, isLoading } = useRegisterWorkplaceAction();
 
-  const [form, setForm] = useState<WorkplaceRegisterForm>(getDefaultWorkplaceRegisterForm(company));
+  const [form, setForm] = useState<WorkplaceRegisterForm>(getDefaultWorkplaceRegisterForm(client));
 
   const handleChange = (name: keyof WorkplaceRegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -27,9 +27,9 @@ export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
   const handleAddressChange = ({ zipcode, roadAddress, detailAddress }: AddressValue) => {
     setForm((prev) => ({
       ...prev,
-      zipcode: zipcode,
-      roadAddress,
-      address: detailAddress,
+      workplaceZipcode: zipcode,
+      workplaceRoadAddress: roadAddress,
+      workplaceDetailAddress: detailAddress,
     }));
   };
 
@@ -48,7 +48,6 @@ export const useRegisterWorkplace = ({ company, onSuccess }: Props) => {
   return {
     form,
     isLoading,
-    error,
 
     handleSubmit,
     handleChange,

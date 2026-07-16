@@ -23,7 +23,7 @@ export const useRegisterFacility = ({ stackId, onSuccess }: Props) => {
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await registerFacility(stackId, toFacilityCreate(form));
+      await registerFacility(toFacilityCreate(stackId, form));
       toast.success('배출시설이 등록되었습니다.');
       onSuccess();
     } catch (err) {

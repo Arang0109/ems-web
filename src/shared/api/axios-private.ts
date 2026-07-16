@@ -2,14 +2,9 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { axiosPublic } from '@/shared/api/axios-public';
 import type { ApiResponseMessage } from '@shared/model';
 
-const baseURL = import.meta.env.DEV ? 'http://localhost:8080/api' : '/api';
-
 export const axiosPrivate = axios.create({
-  baseURL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
 
 axiosPrivate.interceptors.request.use(

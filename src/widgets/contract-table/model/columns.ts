@@ -11,7 +11,7 @@ export const defaultColumns = [
     cell: CustomCell,
     enableSorting: false,
   }),
-  columnHelper.accessor('companyName', {
+  columnHelper.accessor('clientName', {
     header: '측정대행 의뢰기관',
     cell: CustomCell,
   }),

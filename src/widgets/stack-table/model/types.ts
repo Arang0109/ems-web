@@ -1,6 +1,6 @@
 export type StackTableRow = {
   id: number;
-  companyName: string;
+  clientName: string;
   workplaceName: string;
   field: string;
   stackName: string;

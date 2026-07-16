@@ -3,6 +3,7 @@ import { useStackListTable } from '../model/use-stack-list-table';
 import { BasicTable } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Pagination } from '@shared/ui/pagination';
+import { Panel } from '@shared/ui/cards';
 
 export const StackListTable = () => {
   const {
@@ -12,9 +13,9 @@ export const StackListTable = () => {
   } = useStackListTable();
 
   return (
-    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 overflow-hidden">
-      <div className="px-5 pt-5 pb-4 border-b border-gray-100">
-        <h2 className="text-sm font-semibold text-gray-800">측정시설 목록</h2>
+    <Panel>
+      <div className="px-5 pt-5 pb-4 border-b border-border">
+        <h2 className="text-sm font-semibold text-foreground">측정시설 목록</h2>
       </div>
 
       <div className="flex items-center justify-start mt-3">
@@ -26,9 +27,9 @@ export const StackListTable = () => {
       </div>
 
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-gray-400 leading-none">
-            총 <span className="font-medium text-gray-600">{table.getFilteredRowModel().rows.length}</span>건
+        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
+          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
+            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
           </span>
           <Pagination
             pageIndex={table.getState().pagination.pageIndex}
@@ -41,6 +42,6 @@ export const StackListTable = () => {
           />
         </div>
       )}
-    </div>
+    </Panel>
   );
 };

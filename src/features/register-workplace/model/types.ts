@@ -1,25 +1,28 @@
-import type { Company } from "@entities/company";
+import type { Client } from "@entities/client";
+import type { Grade } from "@shared/model";
 
 export type WorkplaceRegisterForm = {
-  companyId: number;
-  companyName: string;
-  companyBizNumber: string;
+  clientId: number;
+  clientName: string;
+  clientBizNumber: string;
   representative: string;
   workplaceName: string;
   workplaceBizNumber: string;
   workplaceZipcode: string;
   workplaceRoadAddress: string;
-  workplaceAddress: string;
+  workplaceDetailAddress: string;
+  grade: Grade;
 }
 
-export const getDefaultWorkplaceRegisterForm = (company?: Company | null): WorkplaceRegisterForm => ({
-  companyId: company?.id ?? 0,
-  companyName: company?.name ?? "",
-  companyBizNumber: company?.bizNumber ?? "",
-  representative: company?.representative ?? "",
+export const getDefaultWorkplaceRegisterForm = (client?: Client | null): WorkplaceRegisterForm => ({
+  clientId: client?.id ?? 0,
+  clientName: client?.name ?? "",
+  clientBizNumber: client?.bizNumber ?? "",
+  representative: client?.representative ?? "",
   workplaceName: "",
   workplaceBizNumber: "",
   workplaceZipcode: "",
   workplaceRoadAddress: "",
-  workplaceAddress: "",
+  workplaceDetailAddress: "",
+  grade: "TYPE_1",
 });

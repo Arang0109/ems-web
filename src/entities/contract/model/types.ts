@@ -3,7 +3,7 @@ export type ContractListItem = {
   workplaceId: number;
 
   contractName: string;
-  companyName: string;
+  clientName: string;
   workplaceName: string;
 
   contractDate: string;
@@ -18,7 +18,7 @@ export type ContractDetail = {
   workplaceId: number;
   contractName: string;
   workplaceName: string;
-  companyName: string;
+  clientName: string;
   workplaceAddress: string;
 
   contractDate: string;
@@ -61,7 +61,7 @@ export type Contract = {
 }
 
 export type ContractCreate = {
-  workplaceId: string;
+  workplaceId: number;
   contractName: string;
 
   contractDate: Date;

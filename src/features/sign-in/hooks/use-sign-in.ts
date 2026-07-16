@@ -52,7 +52,13 @@ export const useSignIn = () => {
        setError(false);
 
       toast.success('로그인에 성공했습니다.');
-      login(res.data.accessToken);
+      login({
+        accessToken: res.data.accessToken,
+        tenant: res.data.tenant,
+        username: res.data.username,
+        name: res.data.name,
+        role: res.data.role,
+      });
       navigate("/dashboard", { replace: true });
 
     } catch (error: unknown) {

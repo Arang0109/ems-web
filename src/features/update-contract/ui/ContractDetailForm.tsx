@@ -31,13 +31,13 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) =>
           </Button>
         </div>
 
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
 
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
-            id="companyName"
+            id="clientName"
             label="측정대행 의뢰기관"
-            value={form.companyName}
+            value={form.clientName}
             onChange={() => {}}
             disabled
             readOnly
@@ -145,7 +145,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) =>
             type="number"
             width="w-12"
             value={form.advancePaymentDueDate}
-            onChange={(value) => handleChange("advancePaymentDueDate", Number(value))}
+            onChange={(value) => handleChange("advancePaymentDueDate", value)}
           />
           <InlineInput
             id="delayPenaltyRate"
@@ -154,7 +154,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) =>
             type="number"
             width="w-12"
             value={form.delayPenaltyRate}
-            onChange={(value) => handleChange("delayPenaltyRate", Number(value))}
+            onChange={(value) => handleChange("delayPenaltyRate", value)}
           />
         </div>
 

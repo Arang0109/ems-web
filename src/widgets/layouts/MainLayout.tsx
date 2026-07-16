@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@shared/ui/sidebar";
 import { Sidebar } from "./Sidebar";
 
 export const MainLayout = () => {
@@ -8,7 +8,7 @@ export const MainLayout = () => {
     <SidebarProvider>
       <Sidebar />
       {/* main */}
-      <main className="flex-1 min-h-screen bg-gray-50">
+      <main className="flex-1 min-h-screen bg-muted/40">
         <SidebarTrigger className="md:hidden" />
         <Outlet />
       </main>

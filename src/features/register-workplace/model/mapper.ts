@@ -6,10 +6,11 @@ import { unformatNumber, trimValue } from "@shared/lib";
 export const toWorkplaceCreate = (
   form: WorkplaceRegisterForm
 ): WorkplaceCreate => ({
-  companyId: form.companyId,
+  clientId: form.clientId,
   name: trimValue(form.workplaceName),
   bizNumber: unformatNumber(form.workplaceBizNumber),
   zipcode: form.workplaceZipcode,
   roadAddress: form.workplaceRoadAddress,
-  address: trimValue(form.workplaceAddress),
+  address: trimValue(form.workplaceDetailAddress),
+  grade: form.grade,
 });

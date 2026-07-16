@@ -4,20 +4,23 @@ import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 import type { Workplace } from '@entities/workplace';
 
 import { FormDialog } from "@shared/ui/dialogs";
-import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
+import type { Grade } from "@shared/model";
+import { gradeOptions } from "@shared/model";
+import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash } from "lucide-react";
-import type { Company } from '@/entities/company';
+import type { Client } from '@/entities/client';
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  company: Company | null;
+  client: Client | null;
   workplace: Workplace | null;
   onSuccess?: () => void;
 }
 
-export const UpdateWorkplaceForm = ({ open, onOpenChange, company, workplace, onSuccess }: Props) => {
+export const UpdateWorkplaceForm = ({ open, onOpenChange, client, workplace, onSuccess }: Props) => {
   const { form, handleSubmit, handleAddressChange, handleChange } = useUpdateWorkplace({
     workplace: workplace,
     onSuccess: () => {
@@ -49,10 +52,10 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, company, workplace, on
         {/* 기관 정보 */}
         <SectionTitle>사업장 정보</SectionTitle>
         <InputGroup
-          id="companyName"
+          id="clientName"
           label="측정대행 의뢰기관"
           placeholder="측정대행 의뢰기관"
-          value={company?.name ?? ''}
+          value={client?.name ?? ''}
           helperText="사업자등록증상에 기재된 상호"
           startIcon={<Building2 />}
           disabled
@@ -74,6 +77,14 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, company, workplace, on
             startIcon={<Hash />}
           />
         </div>
+          <Select
+            id="grade"
+            label="시설 종별"
+            placeholder="종별 선택"
+            options={gradeOptions}
+            value={GRADE_LABEL[form.grade]}
+            onValueChange={(value) => value && handleChange("grade", value as Grade)}
+          />
         <AddressInput
           id="address"
           placeholder="상세주소"

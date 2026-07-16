@@ -1,0 +1,127 @@
+import { Plus, Trash2 } from "lucide-react";
+
+import type { EquipmentSpecForm } from "../model/types";
+
+import { InputGroup, Select, SectionTitle } from "@shared/ui/form";
+import { pitotTubeTypeOptions } from "@shared/model";
+
+type SpecScalarField = 'totalVolume' | 'orificeDp' | 'yd' | 'pitotTubeType';
+
+interface Props {
+  type: string;
+  spec: EquipmentSpecForm;
+  error?: string;
+  onSpecChange: (name: SpecScalarField, value: string) => void;
+  onAddCoefficient: () => void;
+  onRemoveCoefficient: (index: number) => void;
+  onCoefficientChange: (index: number, field: 'coefficient' | 'velocity', value: string) => void;
+  onAddDiameter: () => void;
+  onRemoveDiameter: (index: number) => void;
+  onDiameterChange: (index: number, value: string) => void;
+}
+
+const AddRowButton = ({ label, onClick }: { label: string; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+  >
+    <Plus className="size-4" /> {label}
+  </button>
+);
+
+const RemoveRowButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="inline-flex items-center justify-center text-muted-foreground hover:text-destructive"
+    aria-label="행 삭제"
+  >
+    <Trash2 className="size-4" />
+  </button>
+);
+
+export const SpecFields = ({
+  type,
+  spec,
+  error,
+  onSpecChange,
+  onAddCoefficient,
+  onRemoveCoefficient,
+  onCoefficientChange,
+  onAddDiameter,
+  onRemoveDiameter,
+  onDiameterChange,
+}: Props) => {
+  if (!type) {
+    return <p className="text-sm text-muted-foreground">장비 종류를 먼저 선택하면 사양을 입력할 수 있습니다.</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <SectionTitle>사양</SectionTitle>
+
+      {type === 'PARTICLE_SAMPLER' && (
+        <div className="grid md:grid-cols-3 gap-4">
+          <InputGroup id="totalVolume" label="총유량" placeholder="총유량" value={spec.totalVolume}
+            onChange={(v) => onSpecChange('totalVolume', v)} />
+          <InputGroup id="orificeDp" label="오리피스 ΔP" placeholder="오리피스 ΔP" value={spec.orificeDp}
+            onChange={(v) => onSpecChange('orificeDp', v)} />
+          <InputGroup id="yd" label="Yd" placeholder="Yd" value={spec.yd}
+            onChange={(v) => onSpecChange('yd', v)} />
+        </div>
+      )}
+
+      {(type === 'GAS_SAMPLER' || type === 'OTHER') && (
+        <InputGroup id="totalVolume" label="총유량" placeholder="총유량" value={spec.totalVolume}
+          onChange={(v) => onSpecChange('totalVolume', v)} />
+      )}
+
+      {type === 'PITOT_TUBE' && (
+        <div className="space-y-4">
+          <Select
+            id="pitotTubeType"
+            label="피토관 종류"
+            placeholder="피토관 종류 선택"
+            options={pitotTubeTypeOptions}
+            value={spec.pitotTubeType}
+            onValueChange={(v) => onSpecChange('pitotTubeType', v ?? '')}
+          />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">계수 목록</span>
+              <AddRowButton label="계수 추가" onClick={onAddCoefficient} />
+            </div>
+            {spec.coefficients.map((c, i) => (
+              <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
+                <InputGroup id={`coefficient-${i}`} placeholder="계수" value={c.coefficient}
+                  onChange={(v) => onCoefficientChange(i, 'coefficient', v)} />
+                <InputGroup id={`velocity-${i}`} placeholder="유속" value={c.velocity}
+                  onChange={(v) => onCoefficientChange(i, 'velocity', v)} />
+                <RemoveRowButton onClick={() => onRemoveCoefficient(i)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {type === 'NOZZLE' && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">직경 목록</span>
+            <AddRowButton label="직경 추가" onClick={onAddDiameter} />
+          </div>
+          {spec.diameters.map((d, i) => (
+            <div key={i} className="grid grid-cols-[1fr_auto] items-center gap-2">
+              <InputGroup id={`diameter-${i}`} placeholder="직경" value={d.diameter}
+                onChange={(v) => onDiameterChange(i, v)} />
+              <RemoveRowButton onClick={() => onRemoveDiameter(i)} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+};
