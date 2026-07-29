@@ -21,9 +21,9 @@ interface Props {
 }
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-xl px-4 py-3">
-    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-foreground break-all">{value}</p>
+  <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
+    <p className="text-caption text-muted-foreground mb-0.5">{label}</p>
+    <p className="text-body-4 text-foreground break-all">{value}</p>
   </div>
 );
 
@@ -32,7 +32,7 @@ export const MeasurementInfo = ({ scheduleId, snapshot, editable, onRefetch }: P
   const [clientEditOpen, setClientEditOpen] = useState(false);
 
   if (!snapshot) {
-    return <p className="text-sm text-muted-foreground text-center py-8">측정정보가 없습니다.</p>;
+    return <p className="text-body-2 text-muted-foreground text-center py-8">측정정보가 없습니다.</p>;
   }
 
   const { basicInfo, team, client, items } = snapshot;
@@ -123,22 +123,22 @@ export const MeasurementInfo = ({ scheduleId, snapshot, editable, onRefetch }: P
       <div className="space-y-3">
         <SectionTitle>측정항목</SectionTitle>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-2">등록된 측정항목이 없습니다.</p>
+          <p className="text-body-2 text-muted-foreground py-2">등록된 측정항목이 없습니다.</p>
         ) : (
-          <table className="w-full text-sm">
+          <table className="w-full text-body-3">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground">오염물질명</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground">영문명</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground">측정방법</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground">측정주기</th>
-                <th className="text-left py-2 px-3 text-xs font-semibold text-muted-foreground">허용기준</th>
+                <th className="text-left py-2 px-3 text-label text-muted-foreground">오염물질명</th>
+                <th className="text-left py-2 px-3 text-label text-muted-foreground">영문명</th>
+                <th className="text-left py-2 px-3 text-label text-muted-foreground">측정방법</th>
+                <th className="text-left py-2 px-3 text-label text-muted-foreground">측정주기</th>
+                <th className="text-left py-2 px-3 text-label text-muted-foreground">허용기준</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.stackPollutantId} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
-                  <td className="py-3 px-3 font-medium text-foreground">{value(item.nameKr)}</td>
+                  <td className="py-3 px-3 text-body-4 text-foreground">{value(item.nameKr)}</td>
                   <td className="py-3 px-3 text-muted-foreground">{value(item.nameEn)}</td>
                   <td className="py-3 px-3 text-foreground">{MEASUREMENT_METHOD_LABEL[item.method] ?? item.method}</td>
                   <td className="py-3 px-3 text-foreground">{MEASUREMENT_CYCLE_LABEL[item.cycle] ?? item.cycle}</td>

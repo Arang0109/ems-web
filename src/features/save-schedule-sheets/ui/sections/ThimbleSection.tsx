@@ -12,7 +12,7 @@ interface Props {
 // 원통여지 — 입자상 시트 전용 (측정여지번호 / 바탕여지번호)
 export const ThimbleSection = ({ particle, editable, onChange }: Props) => (
   <SectionAccordion title="원통여지" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-nav">
       <table className="w-full border-collapse min-w-[480px]">
         <tbody>
           <tr>

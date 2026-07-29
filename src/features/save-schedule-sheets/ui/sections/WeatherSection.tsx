@@ -16,7 +16,7 @@ const display = (v: number | null | undefined): string => (v == null ? "-" : Str
 
 export const WeatherSection = ({ weather, calc, editable, onChange }: Props) => (
   <SectionAccordion title="기상정보 입력" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-nav">
       <table className="w-full border-collapse min-w-[720px]">
         <tbody>
           <tr>

@@ -121,12 +121,12 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
 
   return (
     <div className="bg-background">
-      <h1 className="text-center text-base md:text-2xl font-bold tracking-widest mb-3">
+      <h1 className="text-center text-h3 md:text-h1 tracking-widest mb-3">
         대기시료 채취기록지
       </h1>
 
       <div className="overflow-x-auto mx-auto">
-        <table className="border-collapse text-[9px] leading-tight w-full" style={{ minWidth: "800px" }}>
+        <table className="border-collapse text-caption leading-tight w-full" style={{ minWidth: "800px" }}>
           {/* 총 23 컬럼 */}
           <colgroup>
             {Array.from({ length: 19 }, (_, i) => <col key={i} style={{ width: "4%" }} />)}

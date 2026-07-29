@@ -53,13 +53,13 @@ export const RegisterStackPollutantForm = ({
           <button
             type="button"
             onClick={handleAddRow}
-            className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            className="inline-flex items-center gap-1 text-body-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
           >
             <Plus className="size-4" /> 항목 추가
           </button>
         </div>
 
-        <div className="grid grid-cols-[2fr_1fr_1fr_auto] items-center gap-2 px-1 text-xs font-semibold text-muted-foreground">
+        <div className="grid grid-cols-[2fr_1fr_1fr_auto] items-center gap-2 px-1 text-label text-muted-foreground">
           <span>오염물질</span>
           <span>측정 주기</span>
           <span>허용 기준</span>

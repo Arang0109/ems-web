@@ -1,1 +1,1 @@
-export { FieldGroup } from "@/components/ui/field";
+export { FieldGroup } from "@shared/ui/primitives";

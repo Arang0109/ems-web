@@ -22,7 +22,7 @@ export const TableSelectCell = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full pl-2 sm:pl-3 pr-8 py-2 sm:py-2.5 text-xs sm:text-sm
+        className="w-full pl-2 sm:pl-3 pr-8 py-2 sm:py-2.5 text-body-3
           bg-transparent appearance-none cursor-pointer
           focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring
           disabled:cursor-not-allowed disabled:opacity-50"

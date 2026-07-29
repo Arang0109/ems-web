@@ -59,9 +59,9 @@ export const NozzleRecommendModal = ({ open, onOpenChange, sheet, externals, onS
         />
 
         <div className="space-y-2">
-          <p className="text-sm font-medium">오리피스 차압 범위 (mmH₂O)</p>
+          <p className="text-body-4">오리피스 차압 범위 (mmH₂O)</p>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-14">최소 {minDp}</span>
+            <span className="text-caption text-muted-foreground w-14">최소 {minDp}</span>
             <input
               type="range" min={0} max={60} value={minDp}
               onChange={(e) => setMinDp(Math.min(Number(e.target.value), maxDp))}
@@ -69,7 +69,7 @@ export const NozzleRecommendModal = ({ open, onOpenChange, sheet, externals, onS
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground w-14">최대 {maxDp}</span>
+            <span className="text-caption text-muted-foreground w-14">최대 {maxDp}</span>
             <input
               type="range" min={0} max={60} value={maxDp}
               onChange={(e) => setMaxDp(Math.max(Number(e.target.value), minDp))}
@@ -79,20 +79,20 @@ export const NozzleRecommendModal = ({ open, onOpenChange, sheet, externals, onS
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium">노즐 추천 목록 ({filtered.length}건)</p>
+          <p className="text-body-4">노즐 추천 목록 ({filtered.length}건)</p>
 
           {!hasNozzles && (
-            <p className="text-sm text-muted-foreground py-2">
+            <p className="text-body-2 text-muted-foreground py-2">
               배정된 노즐 장비의 노즐경 정보가 없습니다. 측정장비 탭에서 노즐을 배정해주세요.
             </p>
           )}
           {hasNozzles && !calcReady && (
-            <p className="text-sm text-muted-foreground py-2">
+            <p className="text-body-2 text-muted-foreground py-2">
               계산에 필요한 입력(대기압·수분량·배출가스 농도·측정점 온도/동압)이 부족합니다.
             </p>
           )}
           {hasNozzles && calcReady && filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground py-2">범위에 맞는 노즐이 없습니다. 차압 범위를 조정해주세요.</p>
+            <p className="text-body-2 text-muted-foreground py-2">범위에 맞는 노즐이 없습니다. 차압 범위를 조정해주세요.</p>
           )}
 
           {filtered.map((r) => (
@@ -100,10 +100,10 @@ export const NozzleRecommendModal = ({ open, onOpenChange, sheet, externals, onS
               key={r.nozzleSize}
               type="button"
               onClick={() => onSelect(String(r.nozzleSize))}
-              className="w-full rounded-lg border border-border p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
+              className="w-full rounded-nav border border-border p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
             >
-              <p className="text-sm font-semibold">노즐직경 {r.nozzleSize} cm</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-body-4">노즐직경 {r.nozzleSize} cm</p>
+              <p className="text-caption text-muted-foreground mt-1">
                 오리피스차압 {display(r.orificeDp)} mmH₂O · 채취시간 {display(r.samplingTime)} 분 · 채취량 {display(r.Vm)} m³
               </p>
             </button>

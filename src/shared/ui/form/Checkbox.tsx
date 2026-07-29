@@ -1,5 +1,5 @@
 import { Checkbox as BaseCheckbox } from "@/components/ui/checkbox";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel } from "@shared/ui/primitives"
 
 interface CheckboxProps {
   id?: string;

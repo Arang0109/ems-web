@@ -48,7 +48,7 @@ export const SheetsEditor = ({ scheduleId, initialSheets, snapshot, editable, ex
           {sheets.map((sheet, index) => (
             <div
               key={index}
-              className={`flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+              className={`flex items-center gap-1 rounded-nav border px-3 py-1.5 text-body-2 transition-colors ${
                 index === activeIndex
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:bg-muted/50"
@@ -65,7 +65,7 @@ export const SheetsEditor = ({ scheduleId, initialSheets, snapshot, editable, ex
             </div>
           ))}
           {sheets.length === 0 && (
-            <span className="text-sm text-muted-foreground">등록된 기록지가 없습니다.</span>
+            <span className="text-body-2 text-muted-foreground">등록된 기록지가 없습니다.</span>
           )}
         </div>
 
@@ -128,13 +128,13 @@ export const SheetsEditor = ({ scheduleId, initialSheets, snapshot, editable, ex
           )}
         </>
       ) : (
-        <p className="text-sm text-muted-foreground text-center py-8">
+        <p className="text-body-2 text-muted-foreground text-center py-8">
           {editable ? "기록지를 추가하여 측정 데이터를 입력하세요." : "입력된 측정 데이터가 없습니다."}
         </p>
       )}
 
       {!editable && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-caption text-muted-foreground">
           완료 또는 취소된 측정계획은 측정 데이터를 수정할 수 없습니다.
         </p>
       )}

@@ -20,7 +20,7 @@ const PERSON_FIELDS: { name: keyof ScheduleBasicInfoForm; label: string }[] = [
 // 측정계획 단위(공통) 시료채취 시각·담당자 — 시트 전환과 무관하게 유지된다.
 // 시트별 채취시각(수분·입자상)은 각 섹션에서 따로 입력한다.
 export const BasicInfoFields = ({ basicInfoForm, editable, onChange }: Props) => (
-  <div className="space-y-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+  <div className="space-y-3 rounded-nav border border-border bg-muted/30 px-4 py-3">
     <div className="flex flex-wrap items-center gap-3">
       <SectionTitle>시료채취 시간</SectionTitle>
       <InlineInput
@@ -35,7 +35,7 @@ export const BasicInfoFields = ({ basicInfoForm, editable, onChange }: Props) =>
         value={basicInfoForm.samplingEndedAt} disabled={!editable}
         onChange={(v) => onChange("samplingEndedAt", v)}
       />
-      <span className="text-xs text-muted-foreground">
+      <span className="text-caption text-muted-foreground">
         모든 기록지의 공통 값이며 저장 시 함께 반영됩니다.
       </span>
     </div>

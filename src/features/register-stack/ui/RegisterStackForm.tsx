@@ -9,7 +9,7 @@ import { FieldGroup, InputGroup, Select, SectionTitle, HorizontalRadioGroup } fr
 import type { Grade, MeasurementField } from "@shared/model";
 import { GRADE_LABEL } from "@shared/config";
 
-import { Building2, Hash, Factory } from "lucide-react";
+import { Building2, Hash, Factory, Plus } from "lucide-react";
 
 interface Props {
   workplace: Workplace | null;
@@ -35,7 +35,7 @@ export const RegisterStackForm = ({
 
   return(
     <FormDialog
-      triggerLabel='측정시설 등록'
+      triggerLabel={<><Plus /> 측정시설 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

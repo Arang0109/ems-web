@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
 export interface SelectOption {

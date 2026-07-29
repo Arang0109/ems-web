@@ -31,7 +31,7 @@ export const ReportPreviewModal = ({
       <ReportPreviewContent sheet={sheet} preview={preview} snapshot={snapshot}
         basicInfoForm={basicInfoForm} externals={externals} />
     ) : (
-      <p className="text-sm text-muted-foreground py-6 text-center">미리보기할 기록지가 없습니다.</p>
+      <p className="text-body-2 text-muted-foreground py-6 text-center">미리보기할 기록지가 없습니다.</p>
     )}
   </FormDialog>
 );

@@ -4,8 +4,8 @@ import {
   Field,
   FieldDescription,
   FieldLabel,
-} from "@/components/ui/field";
-import { Textarea as TextareaPrimitive } from "@/components/ui/textarea";
+} from "@shared/ui/primitives";
+import { Textarea as TextareaPrimitive } from "@shared/ui/primitives";
 
 interface TextareaProps {
   id?: string;

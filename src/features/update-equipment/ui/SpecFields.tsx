@@ -24,7 +24,7 @@ const AddRowButton = ({ label, onClick }: { label: string; onClick: () => void }
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+    className="inline-flex items-center gap-1 text-body-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
   >
     <Plus className="size-4" /> {label}
   </button>
@@ -87,7 +87,7 @@ export const SpecFields = ({
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">계수 목록</span>
+              <span className="text-body-4 text-foreground">계수 목록</span>
               <AddRowButton label="계수 추가" onClick={onAddCoefficient} />
             </div>
             {spec.coefficients.map((c, i) => (
@@ -106,7 +106,7 @@ export const SpecFields = ({
       {type === 'NOZZLE' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">직경 목록</span>
+            <span className="text-body-4 text-foreground">직경 목록</span>
             <AddRowButton label="직경 추가" onClick={onAddDiameter} />
           </div>
           {spec.diameters.map((d, i) => (
@@ -119,7 +119,7 @@ export const SpecFields = ({
         </div>
       )}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-body-2 text-destructive">{error}</p>}
     </div>
   );
 };

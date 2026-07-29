@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
 import { Input as InputField } from "@/components/ui/input";
 
 interface InputProps<T = string | number> {

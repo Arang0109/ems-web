@@ -1,8 +1,8 @@
 import { useKakaoPostcode } from '@clroot/react-kakao-postcode';
 
-import { Field, FieldLabel } from '@/components/ui/field';
-import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
-import { Button } from "@shared/ui/buttons/Button";
+import { Field, FieldLabel } from '@shared/ui/primitives';
+import { InputGroup, InputGroupInput, InputGroupAddon } from '@shared/ui/primitives';
+import { Button } from "@shared/ui/buttons";
 import type { AddressValue } from '@shared/model';
 
 import { Hash, MapPinned, House } from 'lucide-react';

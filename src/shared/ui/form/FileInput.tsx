@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
 import { X } from "lucide-react";
 
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { Button } from "@/components/ui/button";
+import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
+import { Button } from "@shared/ui/buttons";
 
 interface Props {
   id?: string;
@@ -66,7 +66,7 @@ export const FileInput = ({
           {buttonLabel}
         </Button>
 
-        <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+        <span className="min-w-0 flex-1 truncate text-body-2 text-muted-foreground">
           {file?.name ?? placeholder}
         </span>
 

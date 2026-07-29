@@ -18,16 +18,16 @@ export const SummaryCard = ({
 }: SummaryCardProps) => {
   return(
     <div
-      className="bg-card rounded-2xl shadow-sm border border-border px-5 py-4 flex items-center gap-4"
+      className="bg-card rounded-panel shadow-sm border border-border px-5 py-4 flex items-center gap-4"
     >
-      <div className={`w-11 h-11 rounded-xl flex items-center justify-center ring-2 shrink-0 ${color} ${ring}`}>
+      <div className={`w-11 h-11 rounded-icon-tile flex items-center justify-center ring-2 shrink-0 ${color} ${ring}`}>
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-muted-foreground truncate">{label}</p>
-        <p className="text-2xl font-bold text-foreground leading-tight">
+        <p className="text-caption text-muted-foreground truncate">{label}</p>
+        <p className="text-display text-foreground">
           {count}
-          <span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span>
+          <span className="text-body-2 text-muted-foreground ml-1">{unit}</span>
         </p>
       </div>
     </div>

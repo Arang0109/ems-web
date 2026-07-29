@@ -10,7 +10,7 @@ export const Link = ({ className, ...props }: LinkProps) => (
   <RouterLink
     {...props}
     className={cn(
-      "text-sm text-muted-foreground hover:underline",
+      "text-body-2 text-muted-foreground hover:underline",
       className
     )}
   />

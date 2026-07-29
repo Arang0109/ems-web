@@ -216,7 +216,7 @@ export const UpdateScheduleClientForm = ({
           />
         </div>
 
-        <p className="text-xs text-muted-foreground">
+        <p className="text-caption text-muted-foreground">
           기준산소농도·형태·치수를 변경하면 저장된 측정 데이터가 서버에서 재계산됩니다.
         </p>
       </FieldGroup>

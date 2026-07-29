@@ -1,13 +1,13 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import { SearchIcon } from 'lucide-react';
 
-import { Field } from '@/components/ui/field';
+import { Field } from '@shared/ui/primitives';
 
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/ui/input-group"
+} from "@shared/ui/primitives"
 
 interface SearchProps {
   filter: string;

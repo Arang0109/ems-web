@@ -20,8 +20,8 @@ export const SectionAccordion = ({
         onClick={() => setOpen((v) => !v)}
         className={`w-full flex items-center justify-between
           bg-secondary text-secondary-foreground border border-border
-          text-xs font-semibold py-2 px-3 tracking-wide
-          ${open ? "rounded-t-lg" : "rounded-lg"}`}
+          text-label py-2 px-3 tracking-wide
+          ${open ? "rounded-t-nav" : "rounded-nav"}`}
       >
         <span>{title}</span>
         <ChevronDown

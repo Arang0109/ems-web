@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@shared/ui/primitives';
 import { SortIcon } from '@/shared/assets';
 
 interface BasicTableProps<TData> {
@@ -35,7 +35,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
                   className={canSort ? 'cursor-pointer select-none' : ''}
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                 >
-                  <span className="inline-flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                  <span className="inline-flex items-center text-label text-muted-foreground uppercase tracking-wide">
                     {flexRender(header.column.columnDef.header, header.getContext())}
                     {canSort && <SortIcon sorted={sorted} />}
                   </span>
@@ -49,13 +49,13 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
       <TableBody>
         {error ? (
           <TableRow>
-            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-destructive">
+            <TableCell colSpan={colCount} className="py-16 text-center text-body-2 text-destructive">
               {error}
             </TableCell>
           </TableRow>
         ) : rows.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={colCount} className="py-16 text-center text-sm text-muted-foreground">
+            <TableCell colSpan={colCount} className="py-16 text-center text-body-2 text-muted-foreground">
               검색 결과가 없습니다.
             </TableCell>
           </TableRow>
@@ -67,7 +67,7 @@ export const BasicTable = <TData,>({ table, error, onRowClick }: BasicTableProps
               onClick={() => onRowClick?.(row.original)}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className='text-xs'>
+                <TableCell key={cell.id} className='text-body-3'>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

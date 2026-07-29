@@ -2,9 +2,9 @@ import React from "react";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Button } from "@shared/ui/buttons";
+import { Calendar } from "@shared/ui/primitives";
+import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
 import {
   Popover,
   PopoverContent,

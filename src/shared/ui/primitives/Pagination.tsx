@@ -1,7 +1,9 @@
 import * as React from "react"
 
+import { type VariantProps } from "class-variance-authority"
+
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@shared/ui/buttons"
 import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react"
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
@@ -35,9 +37,14 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 
 type PaginationLinkProps = {
   isActive?: boolean
-} & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">
+  size?: VariantProps<typeof buttonVariants>["size"]
+} & React.ComponentProps<"a">
 
+/**
+ * 버튼 모양의 앵커.
+ * 이관 전에는 Base UI Button 의 `nativeButton={false}` + `render` 조합을 썼으나,
+ * 자체 Button 은 순수 <button> 이므로 buttonVariants 클래스를 <a> 에 직접 입힌다.
+ */
 function PaginationLink({
   className,
   isActive,
@@ -45,19 +52,15 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <Button
-      variant={isActive ? "outline" : "ghost"}
-      size={size}
-      className={cn(className)}
-      nativeButton={false}
-      render={
-        <a
-          aria-current={isActive ? "page" : undefined}
-          data-slot="pagination-link"
-          data-active={isActive}
-          {...props}
-        />
-      }
+    <a
+      aria-current={isActive ? "page" : undefined}
+      data-slot="pagination-link"
+      data-active={isActive}
+      className={cn(
+        buttonVariants({ variant: isActive ? "outline" : "ghost", size }),
+        className
+      )}
+      {...props}
     />
   )
 }

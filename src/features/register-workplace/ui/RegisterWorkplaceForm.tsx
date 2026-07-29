@@ -8,7 +8,7 @@ import type { Grade } from "@shared/model";
 import { gradeOptions } from "@shared/model";
 import { GRADE_LABEL } from "@shared/config";
 
-import { Building2, Hash, User2, Factory } from "lucide-react";
+import { Building2, Hash, User2, Factory, Plus } from "lucide-react";
 
 import { useRegisterWorkplace } from "../model/hooks/use-register-workplace";
 
@@ -35,7 +35,7 @@ export const RegisterWorkplaceForm = ({
 
   return (
     <FormDialog
-      triggerLabel='측정대상 사업장 등록'
+      triggerLabel={<><Plus /> 측정대상 사업장 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

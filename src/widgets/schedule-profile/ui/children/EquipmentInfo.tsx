@@ -17,9 +17,9 @@ interface Props {
 }
 
 const SpecItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-xl px-4 py-3">
-    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-foreground break-all">{value}</p>
+  <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
+    <p className="text-caption text-muted-foreground mb-0.5">{label}</p>
+    <p className="text-body-4 text-foreground break-all">{value}</p>
   </div>
 );
 
@@ -31,7 +31,7 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
     <div className="space-y-5">
       {/* 장비가 없어도 배정 버튼은 보여야 하므로 조기 반환하지 않는다 */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">측정장비</h3>
+        <h3 className="text-h3 text-foreground">측정장비</h3>
         {canEdit && (
           <IconButton
             icon={<Pencil size={12} />}
@@ -43,16 +43,16 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
       </div>
 
       {equipments.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-8">등록된 측정장비가 없습니다.</p>
+        <p className="text-body-2 text-muted-foreground text-center py-8">등록된 측정장비가 없습니다.</p>
       )}
 
       {equipments.map((equip) => (
-        <div key={equip.equipmentId} className="rounded-xl border border-border p-4 space-y-3">
+        <div key={equip.equipmentId} className="rounded-icon-tile border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+            <span className="rounded-button bg-primary/10 px-2 py-0.5 text-label text-primary">
               {EQUIP_TYPE_LABEL[equip.type] ?? equip.type}
             </span>
-            <span className="text-sm font-semibold text-foreground">
+            <span className="text-body-4 text-foreground">
               {value(equip.equipmentName || equip.modelName)}
             </span>
           </div>

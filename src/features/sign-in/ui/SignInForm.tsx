@@ -2,7 +2,7 @@ import { useSignIn } from "../hooks/use-sign-in";
 
 import { Input, Checkbox } from "@shared/ui/form";
 import { Link } from "@shared/ui/links";
-import { Button } from "@/components/ui/button";
+import { Button } from "@shared/ui/buttons";
 
 
 export const SignInForm = () => {

@@ -78,15 +78,15 @@ export const RegisterScheduleForm = () => {
               <SectionTitle>측정항목</SectionTitle>
               <span className="text-destructive">*</span>
               {fieldErrors?.pollutantIds && (
-                <span className="text-xs text-destructive">{fieldErrors.pollutantIds}</span>
+                <span className="text-caption text-destructive">{fieldErrors.pollutantIds}</span>
               )}
             </div>
             {stackPollutantsLoading ? (
-              <p className="text-sm text-muted-foreground">측정항목을 불러오는 중...</p>
+              <p className="text-body-2 text-muted-foreground">측정항목을 불러오는 중...</p>
             ) : stackPollutants.length === 0 ? (
-              <p className="text-sm text-muted-foreground">등록된 측정항목이 없습니다.</p>
+              <p className="text-body-2 text-muted-foreground">등록된 측정항목이 없습니다.</p>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 rounded-lg border border-border p-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 rounded-nav border border-border p-4">
                 {stackPollutants.map((item) => (
                   <Checkbox
                     key={item.id}

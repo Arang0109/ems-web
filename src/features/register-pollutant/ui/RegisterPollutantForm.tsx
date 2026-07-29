@@ -2,10 +2,10 @@ import { useRegisterPollutant } from "../model/hooks/use-register-pollutant";
 import { measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions } from "../model/types";
 
 // UI
-import { FieldGroup } from "@/components/ui/field";
+
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle, Select } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
 
 // Icon
 import { User2Icon, Hash } from "lucide-react";

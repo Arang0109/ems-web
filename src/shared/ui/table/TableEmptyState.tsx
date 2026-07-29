@@ -13,8 +13,8 @@ export const TableEmptyState = ({
         {icon}
       </div>
       <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground/70 mt-0.5">{subLabel}</p>
+        <p className="text-body-4 text-muted-foreground">{label}</p>
+        <p className="text-caption text-muted-foreground/70 mt-0.5">{subLabel}</p>
       </div>
     </div>
   );

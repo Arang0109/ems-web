@@ -77,9 +77,9 @@ export const SamplingPointSection = ({
 
   return (
     <SectionAccordion title="측정점정보" defaultOpen>
-      <div className="border-x border-b border-border rounded-b-lg">
+      <div className="border-x border-b border-border rounded-b-nav">
         <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-caption text-muted-foreground">
             연도 단면적 <span className="font-semibold text-foreground">{display(quantity?.area)}</span> m² ·
             규정 요구 측정점 수 <span className="font-semibold text-foreground">{display(preview?.samplingPointCnt)}</span>
           </p>
@@ -98,7 +98,7 @@ export const SamplingPointSection = ({
                 <TableLabelCell>측정점</TableLabelCell>
                 {points.map((_, i) => (
                   <th key={i} scope="col"
-                    className="bg-muted border border-border p-1 text-center text-[10px] sm:text-xs font-semibold text-foreground whitespace-nowrap">
+                    className="bg-muted border border-border p-1 text-center text-label text-foreground whitespace-nowrap">
                     <span className="inline-flex items-center gap-1">
                       {i + 1} 지점
                       {editable && n > 1 && (

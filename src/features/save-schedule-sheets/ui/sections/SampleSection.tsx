@@ -23,13 +23,13 @@ export const SampleSection = ({ samples, editable, onSampleChange, onAddSample, 
     </div>
 
     {samples.length === 0 ? (
-      <p className="text-sm text-muted-foreground py-2">등록된 시료가 없습니다.</p>
+      <p className="text-body-2 text-muted-foreground py-2">등록된 시료가 없습니다.</p>
     ) : (
       <div className="space-y-3">
         {samples.map((sample, index) => (
-          <div key={index} className="rounded-lg border border-border p-3 space-y-2">
+          <div key={index} className="rounded-nav border border-border p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground">시료 #{index + 1}</span>
+              <span className="text-label text-muted-foreground">시료 #{index + 1}</span>
               <Button type="button" variant="ghost" size="sm" onClick={() => onRemoveSample(index)} disabled={!editable}>
                 <Trash2 size={14} />
               </Button>

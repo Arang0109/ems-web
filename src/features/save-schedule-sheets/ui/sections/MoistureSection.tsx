@@ -16,7 +16,7 @@ const display = (v: number | null | undefined): string => (v == null ? "-" : Str
 // 구버전과 동일한 8열 구조: [라벨|전|후|계산] × 2묶음. "전/후 입력 → 차이·환산 계산" 패턴.
 export const MoistureSection = ({ moisture, calc, editable, onChange }: Props) => (
   <SectionAccordion title="수분량 계산" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-nav">
       <table className="w-full border-collapse min-w-[880px] table-fixed">
         <colgroup>
           <col style={{ width: "17%" }} /><col style={{ width: "11%" }} />

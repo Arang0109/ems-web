@@ -29,7 +29,7 @@ export const ExhaustGasSection = ({
   exhaustGas, calc, standardOxygen, editable, onChange, onReadingChange,
 }: Props) => (
   <SectionAccordion title="배출가스정보" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-nav">
       <table className="w-full border-collapse min-w-[720px]">
         <tbody>
           <tr>

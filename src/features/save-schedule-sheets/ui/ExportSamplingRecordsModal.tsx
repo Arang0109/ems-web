@@ -39,7 +39,7 @@ export const ExportSamplingRecordsModal = ({
     />
 
     {/* 기록지 종류만큼 파일이 만들어져 ZIP으로 묶이므로 미리 알린다. */}
-    <p className="mt-3 text-xs text-muted-foreground">
+    <p className="mt-3 text-caption text-muted-foreground">
       기록지 종류별로 엑셀 파일이 생성되어 ZIP으로 압축된 뒤 내려받아집니다.
     </p>
   </FormDialog>

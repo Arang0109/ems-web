@@ -4,8 +4,8 @@ import {
   InputGroup as InputGroupPrimitive,
   InputGroupInput,
   InputGroupAddon
-} from "@/components/ui/input-group";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+} from "@shared/ui/primitives";
+import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
 
 interface InputGroupProps<T = string> {
   id?: string;

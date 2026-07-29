@@ -32,14 +32,14 @@ export const TableInputCell = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? ""}
         disabled={disabled}
-        className="w-full p-2 sm:px-3 sm:py-2.5 text-xs sm:text-sm bg-transparent
+        className="w-full p-2 sm:px-3 sm:py-2.5 text-body-3 bg-transparent
           focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring
           disabled:cursor-not-allowed disabled:opacity-50"
         min={min}
         max={max}
         step={step}
       />
-      {unit && <span className="pr-1.5 text-[10px] text-muted-foreground shrink-0"><i>{unit}</i></span>}
+      {unit && <span className="pr-1.5 text-caption text-muted-foreground shrink-0"><i>{unit}</i></span>}
     </div>
   </td>
 );

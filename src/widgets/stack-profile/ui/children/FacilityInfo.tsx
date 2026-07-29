@@ -15,9 +15,9 @@ interface Props {
 }
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-xl px-4 py-3">
-    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-foreground">{value || '-'}</p>
+  <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
+    <p className="text-caption text-muted-foreground mb-0.5">{label}</p>
+    <p className="text-body-4 text-foreground">{value || '-'}</p>
   </div>
 );
 
@@ -34,7 +34,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">배출시설</h3>
+        <h3 className="text-h3 text-foreground">배출시설</h3>
         <IconButton
           icon={<Plus size={14} />}
           label="배출시설 추가"
@@ -43,7 +43,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
       </div>
 
       {facilities.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">
+        <p className="text-body-2 text-muted-foreground text-center py-8">
           등록된 배출시설이 없습니다.
         </p>
       ) : (
@@ -53,7 +53,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-muted-foreground">시설 정보</p>
+                <p className="text-label text-muted-foreground">시설 정보</p>
                 <IconButton
                   icon={<Pencil size={12} />}
                   label="수정"

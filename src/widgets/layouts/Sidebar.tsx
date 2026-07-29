@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useLocation } from "react-router";
 
 import {
-  House,
+  LayoutDashboard,
   Building2,
   FileText,
   Gauge,
   PieChart,
   Wrench,
   Activity,
-  ShieldUser,
+  Award,
 } from "lucide-react";
 
 import {
@@ -34,7 +34,7 @@ type MenuItem = SidebarNavItem & {
 };
 
 const MAIN_MENU_ITEMS: MenuItem[] = [
-  { icon: House, label: "대시보드", path: "/dashboard" },
+  { icon: LayoutDashboard, label: "대시보드", path: "/dashboard" },
   {
     icon: Building2,
     label: "기준정보",
@@ -74,7 +74,7 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
 
 const ADMIN_MENU_ITEMS: MenuItem[] = [
   {
-    icon: ShieldUser,
+    icon: Award,
     label: "관리자",
     roles: ["ADMIN"],
     subItems: [
@@ -148,7 +148,7 @@ export const Sidebar = () => {
   return (
     <AppSidebar
       header={
-        <SidebarBrandHeader icon={Activity} title="EMS" subtitle="환경 측정 관리 시스템" />
+        <SidebarBrandHeader icon={Activity} title="EnvBridge" subtitle="환경 측정 관리 시스템" />
       }
       footer={
         <SidebarUserFooter name={user?.name} subtitle={user?.tenant} onLogout={logout} />

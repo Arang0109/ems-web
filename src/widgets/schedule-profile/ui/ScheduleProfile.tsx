@@ -30,10 +30,10 @@ export const ScheduleProfile = () => {
   );
 
   if (loading) {
-    return <p className="text-sm text-muted-foreground text-center py-12">불러오는 중...</p>;
+    return <p className="text-body-2 text-muted-foreground text-center py-12">불러오는 중...</p>;
   }
   if (error || !snapshot) {
-    return <p className="text-sm text-destructive text-center py-12">{error ?? "측정계획을 찾을 수 없습니다."}</p>;
+    return <p className="text-body-2 text-destructive text-center py-12">{error ?? "측정계획을 찾을 수 없습니다."}</p>;
   }
 
   const tabOptions = [
@@ -68,10 +68,10 @@ export const ScheduleProfile = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground">관리번호</span>
-        <span className="text-sm font-semibold text-foreground">{value(snapshot.referenceNumber)}</span>
+        <span className="text-body-2 text-muted-foreground">관리번호</span>
+        <span className="text-body-4 text-foreground">{value(snapshot.referenceNumber)}</span>
         {status && (
-          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+          <span className="rounded-button bg-primary/10 px-2 py-0.5 text-label text-primary">
             {SCHEDULE_STATUS_LABEL[status]}
           </span>
         )}

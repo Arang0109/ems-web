@@ -34,7 +34,8 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 
 | 디렉토리 | 내용 |
 |----------|------|
-| `badges/` | BadgeWithIcon 등 |
+| `badges/` | Badge(pill), StatusDot(운영 상태 점+텍스트), tones |
+| `primitives/` | shadcn/ui 에서 이관한 저수준 프리미티브 (Field, InputGroup, Table, Pagination, Calendar, Label, Textarea) — **비즈니스 코드에서 직접 쓰지 말 것**, 각 카테고리 래퍼 경유 |
 | `borders/` | Divider 등 |
 | `buttons/` | IconButton, DetailViewButton 등 버튼 컴포넌트 |
 | `cards/` | SummaryCard 등 |

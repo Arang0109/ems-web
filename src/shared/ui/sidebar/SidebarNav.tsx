@@ -37,7 +37,8 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
   <SidebarContent className="px-2 py-2">
     {groups.map((group) => (
       <SidebarGroup key={group.label} className="p-0">
-        <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+        <SidebarGroupLabel
+          className={cn("text-body-1")}>{group.label}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             {group.items.map((item) =>
@@ -47,6 +48,7 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
                   <SidebarMenuButton
                     onClick={() => onToggle(item)}
                     isActive={isActive(item)}
+                    className={cn("text-body-1")}
                   >
                     <item.icon />
                     <span>{item.label}</span>
@@ -65,6 +67,7 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
                           <SidebarMenuSubButton
                             render={<Link to={sub.path} />}
                             isActive={isSubActive(sub)}
+                            className={cn("text-body-1")}
                           >
                             <span>{sub.label}</span>
                           </SidebarMenuSubButton>
@@ -79,6 +82,7 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
                   <SidebarMenuButton
                     render={<Link to={item.path!} />}
                     isActive={isActive(item)}
+                    className={cn("text-body-1")}
                   >
                     <item.icon />
                     <span>{item.label}</span>

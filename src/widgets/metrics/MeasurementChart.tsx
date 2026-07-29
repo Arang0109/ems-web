@@ -18,9 +18,9 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-popover border border-border shadow-lg rounded-xl px-3 py-2 text-sm">
-      <p className="text-muted-foreground text-xs mb-0.5">{label}</p>
-      <p className="font-semibold text-foreground">{payload[0].value.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">건</span></p>
+    <div className="bg-popover border border-border shadow-lg rounded-icon-tile px-3 py-2 text-body-2">
+      <p className="text-muted-foreground text-caption mb-0.5">{label}</p>
+      <p className="text-body-4 text-foreground">{payload[0].value.toLocaleString()}<span className="text-muted-foreground font-normal ml-1">건</span></p>
     </div>
   );
 };
@@ -31,27 +31,27 @@ export const MeasurementChart = ({ stats }: Props) => {
   const max = Math.max(...stats.map((d) => d.count));
 
   return (
-    <div className="bg-card rounded-2xl shadow-sm border border-border p-6 flex flex-col gap-4">
+    <div className="bg-card rounded-panel shadow-sm border border-border p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-base font-semibold text-foreground">측정건수 현황</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">기간별 측정 건수 추이</p>
+          <h2 className="text-h3 text-foreground">측정건수 현황</h2>
+          <p className="text-caption text-muted-foreground mt-0.5">기간별 측정 건수 추이</p>
         </div>
       </div>
 
       <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
-        <div className="bg-indigo-50 dark:bg-indigo-500/15 rounded-xl px-4 py-3">
-          <p className="text-xs text-indigo-400">총 측정건수</p>
-          <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300 mt-0.5">
+        <div className="bg-indigo-50 dark:bg-indigo-500/15 rounded-icon-tile px-4 py-3">
+          <p className="text-caption text-indigo-400">총 측정건수</p>
+          <p className="text-h2 text-indigo-700 dark:text-indigo-300 mt-0.5">
             {total.toLocaleString()}
-            <span className="text-sm font-normal text-indigo-400 ml-1">건</span>
+            <span className="text-body-2 text-indigo-400 ml-1">건</span>
           </p>
         </div>
-        <div className="bg-muted/40 rounded-xl px-4 py-3">
-          <p className="text-xs text-muted-foreground">최다 측정</p>
-          <p className="text-xl font-bold text-foreground mt-0.5">
+        <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
+          <p className="text-caption text-muted-foreground">최다 측정</p>
+          <p className="text-h2 text-foreground mt-0.5">
             {max.toLocaleString()}
-            <span className="text-sm font-normal text-muted-foreground ml-1">건</span>
+            <span className="text-body-2 text-muted-foreground ml-1">건</span>
           </p>
         </div>
       </div>

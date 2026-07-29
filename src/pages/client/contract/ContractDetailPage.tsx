@@ -18,8 +18,8 @@ export const ContractDetailPage = () => {
   return (
     <div className="p-6 space-y-5 min-h-full">
       <PageTitle title="계약서 상세" description="계약서 상세정보 관리 페이지입니다." />
-      {loading && <p className="text-sm text-muted-foreground">불러오는 중...</p>}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {loading && <p className="text-body-2 text-muted-foreground">불러오는 중...</p>}
+      {error && <p className="text-body-2 text-destructive">{error}</p>}
       {data && (
         <Panel>
           <ContractDetailForm

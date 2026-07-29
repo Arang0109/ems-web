@@ -31,7 +31,7 @@ export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) =>
           </Button>
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-body-2 text-destructive">{error}</p>}
 
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup

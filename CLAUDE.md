@@ -11,6 +11,8 @@
 - **아키텍처:** Feature-Sliced Design (FSD)
 - **스택:** React + TypeScript + Vite + TailwindCSS v4 + shadcn/ui + MSW
 - **아키텍처 상세:** [ARCHITECTURE.md](./ARCHITECTURE.md) 참조
+- **디자인 시스템:** [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) 참조
+  (컬러·타이포·간격·코너 토큰, 컴포넌트 현황, shadcn 제거 진행 상황)
 
 ---
 

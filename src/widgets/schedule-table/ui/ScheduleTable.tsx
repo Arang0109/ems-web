@@ -30,8 +30,8 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
 
       {!loading && !error && (
         <div className="pt-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
-            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
+          <span className="inline-flex items-center gap-0.5 text-caption text-muted-foreground leading-none">
+            총 <span className="font-semibold text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
           </span>
           <Pagination
             pageIndex={table.getState().pagination.pageIndex}

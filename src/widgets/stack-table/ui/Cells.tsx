@@ -5,7 +5,7 @@ import type { StackTableRow } from '../model/types';
 import { DetailViewButton } from '@shared/ui/buttons';
 
 export const CustomCell = ({ getValue }: CellContext<StackTableRow, string>) => (
-  <span className="font-medium text-foreground">{getValue()}</span>
+  <span className="text-body-4 text-foreground">{getValue()}</span>
 );
 
 export const PathCell = ({ row }: CellContext<StackTableRow, unknown>) => {

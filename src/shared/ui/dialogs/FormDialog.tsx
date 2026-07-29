@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@shared/ui/buttons"
 import {
   Dialog as DialogPrimitive,
   DialogClose,
@@ -19,7 +19,7 @@ const SIZE_CLASS = {
 } as const;
 
 interface DialogProps {
-  triggerLabel?: string;
+  triggerLabel?: React.ReactNode;
   title?: string;
   description?: string;
   children: React.ReactNode;
@@ -58,7 +58,7 @@ export function FormDialog({
   return (
     <DialogPrimitive open={open} onOpenChange={onOpenChange}>
       {triggerLabel && (
-        <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
+        <DialogTrigger disabled={disabled} render={<Button variant="default">{triggerLabel}</Button>} />
       )}
       <DialogContent className={cn(SIZE_CLASS[size], "flex max-h-[90vh] flex-col")}>
         <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">

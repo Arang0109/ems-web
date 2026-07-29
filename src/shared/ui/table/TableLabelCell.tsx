@@ -13,7 +13,7 @@ export const TableLabelCell = ({
     colSpan={colSpan}
     rowSpan={rowSpan}
     className="bg-muted border border-border p-1 md:p-2
-      text-center text-[10px] sm:text-xs font-semibold text-foreground whitespace-nowrap"
+      text-center text-label text-foreground whitespace-nowrap"
   >
     {children}
   </th>
