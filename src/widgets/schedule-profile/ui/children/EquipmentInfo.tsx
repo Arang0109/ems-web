@@ -1,10 +1,19 @@
-import type { EquipmentSnapshot } from "@entities/schedule";
+import { useState } from "react";
+import { Pencil } from "lucide-react";
+
+import type { EquipmentSnapshot, TeamSnapshot } from "@entities/schedule";
+import { UpdateScheduleEquipmentsForm } from "@features/update-schedule-equipments";
 import { EQUIP_TYPE_LABEL } from "@shared/config";
+import { IconButton } from "@shared/ui/buttons";
 
 import { value, describeEquipmentSpec } from "../../model/mapper";
 
 interface Props {
+  scheduleId: number | null;
+  team: TeamSnapshot;
   equipments: EquipmentSnapshot[];
+  editable: boolean;
+  onRefetch: () => void;
 }
 
 const SpecItem = ({ label, value }: { label: string; value: string }) => (
@@ -14,13 +23,29 @@ const SpecItem = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-export const EquipmentInfo = ({ equipments }: Props) => {
-  if (equipments.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">등록된 측정장비가 없습니다.</p>;
-  }
+export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetch }: Props) => {
+  const [editOpen, setEditOpen] = useState(false);
+  const canEdit = editable && scheduleId !== null;
 
   return (
     <div className="space-y-5">
+      {/* 장비가 없어도 배정 버튼은 보여야 하므로 조기 반환하지 않는다 */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground">측정장비</h3>
+        {canEdit && (
+          <IconButton
+            icon={<Pencil size={12} />}
+            label="장비 변경"
+            size="xs"
+            onClick={() => setEditOpen(true)}
+          />
+        )}
+      </div>
+
+      {equipments.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-8">등록된 측정장비가 없습니다.</p>
+      )}
+
       {equipments.map((equip) => (
         <div key={equip.equipmentId} className="rounded-xl border border-border p-4 space-y-3">
           <div className="flex items-center gap-2">
@@ -42,6 +67,18 @@ export const EquipmentInfo = ({ equipments }: Props) => {
           </div>
         </div>
       ))}
+
+      {canEdit && (
+        // 배정이 바뀌면 key가 바뀌어 폼이 새 값으로 리마운트된다.
+        <UpdateScheduleEquipmentsForm
+          key={`${team.particleSamplerId}-${team.gasSamplerId}-${team.pitotTubeId}-${team.nozzleId}`}
+          scheduleId={scheduleId}
+          team={team}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onSuccess={onRefetch}
+        />
+      )}
     </div>
   );
 };

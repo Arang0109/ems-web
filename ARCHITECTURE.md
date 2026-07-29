@@ -66,7 +66,7 @@ app → pages → widgets → features → entities → shared
 |--------|---------|
 | pages | `sign-in`, `dashboard`, `client`(하위 `client`, `contract`, `pollutant`) |
 | widgets | `sign-in`, `layouts`, `metrics`, `contract-chart`, `client-table`, `workplace-table`, `stack-table`, `contract-table`, `pollutant-table`, `stack-list-table`, `stack-profile` |
-| features | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `register-client`, `register-workplace`, `register-stack`, `register-contract`, `register-pollutant`, `register-facility`, `register-prevention`, `register-substance`, `register-stack-pollutant`, `update-client`, `update-contract`, `update-workplace`, `update-stack`, `update-facility`, `update-prevention`, `delete-substance` |
+| features | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `register-client`, `register-workplace`, `register-stack`, `register-contract`, `register-pollutant`, `register-facility`, `register-prevention`, `register-stack-pollutant`, `update-client`, `update-contract`, `update-workplace`, `update-stack`, `update-facility`, `update-prevention` |
 | entities | `auth`, `client`, `workplace`, `stack`, `contract`, `dashboard`, `pollutant`, `stack-pollutant` |
 | shared | `api`, `hooks`, `icon`, `lib`, `model`, `ui` |
 

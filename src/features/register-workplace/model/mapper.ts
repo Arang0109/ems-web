@@ -12,5 +12,7 @@ export const toWorkplaceCreate = (
   zipcode: form.workplaceZipcode,
   roadAddress: form.workplaceRoadAddress,
   address: trimValue(form.workplaceDetailAddress),
+  facilityManager: trimValue(form.facilityManager),
+  samplingWitness: trimValue(form.samplingWitness),
   grade: form.grade,
 });

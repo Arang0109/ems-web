@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 
-import { PublicRoute, ProtectedRoute, AdminRoute } from '.';
+import { PublicRoute, ProtectedRoute, AdminRoute, PlatformRoute } from '.';
 
-import { MainLayout } from "@widgets/layouts";
+import { MainLayout, PlatformLayout } from "@widgets/layouts";
 
 import { SignInPage } from "@pages/sign-in";
 import { Dashboard } from "@pages/dashboard";
@@ -12,6 +12,7 @@ import {
   PollutantPage,
 } from "@pages/client";
 import { AdminMemberPage } from "@pages/admin";
+import { PlatformTenantPage } from "@pages/platform";
 import { EquipmentPage } from "@pages/equipment";
 import { StaffPage } from "@pages/staff";
 import { SchedulePage, ScheduleRegisterPage, ScheduleDetailPage } from "@pages/schedule";
@@ -54,6 +55,19 @@ export const AppRoutes = () => (
             </AdminRoute>
           }
         />
+      </Route>
+
+      {/* 플랫폼 운영자 콘솔 (PLATFORM_ADMIN 전용) — tenant 앱과 분리된 레이아웃 */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <PlatformRoute>
+              <PlatformLayout />
+            </PlatformRoute>
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/platform/tenants" element={<PlatformTenantPage />} />
       </Route>
     </Routes>
   </BrowserRouter>

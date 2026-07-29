@@ -73,54 +73,59 @@ export type StackDetailResponse = {
   facilities: FacilityResponse[];
 }
 
-export type TargetSubstanceResponse = {
-  id: number;
-  name: string;
-  removalEfficiency: string;
-}
-
 export type PreventionResponse = {
   id: number;
   stackId: number;
   name: string;
-  targets: TargetSubstanceResponse[];
+  capacity: number | null;
+  targetName: string | null;
+  removalEfficiency: string | null;
 }
 
 export type FacilityResponse = {
   id: number;
   stackId: number;
   name: string;
-  fuelUsage: string;
-  fuelInput: string;
-  fuelType: string;
+  fuelUsage: string | null;
+  productOutput: string | null;
+  incinerationAmount: string | null;
+  fuelInput: string | null;
+  fuelType: string | null;
+  unit: string | null;
 }
 
 export type FacilityRegisterRequest = {
   stackId: number;
   name: string;
   fuelUsage: string;
+  productOutput: string;
+  incinerationAmount: string;
   fuelInput: string;
   fuelType: string;
+  unit: string;
 }
 
 export type FacilityUpdateRequest = {
   name: string;
   fuelUsage: string;
+  productOutput: string;
+  incinerationAmount: string;
   fuelInput: string;
   fuelType: string;
+  unit: string;
 }
 
 export type PreventionRegisterRequest = {
   stackId: number;
   name: string;
+  capacity: number | null;
+  targetName: string;
+  removalEfficiency: string;
 }
 
 export type PreventionUpdateRequest = {
   name: string;
-}
-
-export type TargetSubstanceRegisterRequest = {
-  preventionId: number;
-  name: string;
-  removalEfficiency: number | null;
+  capacity: number | null;
+  targetName: string;
+  removalEfficiency: string;
 }

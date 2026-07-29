@@ -136,7 +136,7 @@ return { registerClient, isLoading, error };
 | `client` | `useClients` (자동), `useClientDetail` (자동) | `useRegisterClientAction`, `useUpdateClientAction`, `useDeleteClientAction` |
 | `contract` | `useContracts` (자동), `useContractDetail` (수동) | `useRegisterContractAction`, `useUpdateContractAction` |
 | `workplace` | `useWorkplaces` (수동), `useWorkplaceDetail` (자동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
-| `stack` | `useStacks` (수동), `useStackDetail` (수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction`, `useRegisterSubstanceAction`, `useDeleteSubstanceAction` |
+| `stack` | `useStacks` (수동), `useStackDetail` (수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction` |
 | `pollutant` | `usePollutants` (자동) | `useRegisterPollutantAction` |
 | `stack-pollutant` | `useStackPollutants` (수동) | `useRegisterStackPollutantAction` |
 | `auth` | — | `useAuth`(Context 훅), API: `signInApi`, `signOutApi` |
@@ -155,6 +155,6 @@ return { registerClient, isLoading, error };
 | `client` | `Client`, `ClientCreate`, `ClientUpdate` |
 | `contract` | `Contract`, `ContractListItem`, `ContractDetail`, `ContractCreate`, `ContractUpdate`, `ContractAmountUnit` |
 | `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
-| `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `TargetSubstance`, `TargetSubstanceCreate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
+| `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `pollutant` | `Pollutant`, `PollutantCreate` |
 | `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |

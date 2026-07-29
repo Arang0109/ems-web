@@ -108,6 +108,22 @@ export const RegisterWorkplaceForm = ({
           value={{ zipcode: form.workplaceZipcode, roadAddress: form.workplaceRoadAddress, detailAddress: form.workplaceDetailAddress }}
           onChange={handleAddressChange}
         />
+        <InputGroup
+          id="facilityManager"
+          label="배출시설 관리자"
+          placeholder="배출시설 관리자"
+          value={form.facilityManager}
+          onChange={(value) => handleChange("facilityManager", value)}
+          startIcon={<User2 />}
+        />
+        <InputGroup
+          id="samplingWitness"
+          label="환경기술인"
+          placeholder="채취 증인"
+          value={form.samplingWitness}
+          onChange={(value) => handleChange("samplingWitness", value)}
+          startIcon={<User2 />}
+        />
       </FieldGroup>
     </FormDialog>
   );

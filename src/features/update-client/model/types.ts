@@ -3,7 +3,7 @@ export type ClientUpdateForm = {
   representative: string;
   zipcode: string;
   roadAddress: string;
-  address: string;
+  detailAddress: string;
   bizNumber: string;
 
   manager: string;
@@ -16,7 +16,7 @@ export const getDefaultForm = (): ClientUpdateForm => ({
   bizNumber: "",
   zipcode: "",
   roadAddress: "",
-  address: "",
+  detailAddress: "",
   representative: "",
   manager: "",
   email: "",

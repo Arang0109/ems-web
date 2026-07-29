@@ -61,15 +61,14 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
                   onClick={() => handleEditClick(facility)}
                 />
               </div>
-              <InfoItem label="배출시설명" value={facility.name} />
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground">연료 정보</p>
-              <div className="grid grid-cols-3 gap-3">
-                <InfoItem label="연료 유형" value={facility.fuelType} />
+              <div className="grid grid-cols-7 gap-3">
+                <InfoItem label="배출시설명" value={facility.name} />
+                <InfoItem label="제품 생산량" value={facility.productOutput} />
                 <InfoItem label="연료 사용량" value={facility.fuelUsage} />
-                <InfoItem label="연료 투입량" value={facility.fuelInput} />
+                <InfoItem label="소각량" value={facility.incinerationAmount} />
+                <InfoItem label="원료 투입량" value={facility.fuelInput} />
+                <InfoItem label="종류" value={facility.fuelType} />
+                <InfoItem label="단위" value={facility.unit} />
               </div>
             </div>
           </div>

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-import type { MeasurementSheet } from "@entities/schedule";
-import { useSaveSheetsAction } from "@entities/schedule";
+import type {
+  BasicInfo, MeasurementSheet, SheetCalcExternals, SheetCalcPreview, TeamSnapshot,
+} from "@entities/schedule";
+import { calcSheetPreview, calcRequiredPointCount, useSaveSheetsAction } from "@entities/schedule";
 import type { MeasurementCategory } from "@shared/model";
 import { toast } from "@shared/ui/toasts";
 
@@ -9,35 +11,47 @@ import type { SheetForm } from "../types";
 import { getDefaultSheetForm } from "../types";
 import { toSheetSave, fromSheet } from "../mapper";
 import { validateSheetFields } from "../validator";
+import { useScheduleBasicInfo } from "./use-schedule-basic-info";
+import { useExportSamplingRecords } from "./use-export-sampling-records";
 
 interface Params {
   scheduleId: number | null;
   initialSheets: MeasurementSheet[];
+  basicInfo: BasicInfo | null;
+  team: TeamSnapshot | null;
   editable: boolean;
+  externals: SheetCalcExternals;
   onSaved?: () => void;
 }
 
 // 측정계획의 전체 시트 세트를 관리한다. 서버 PUT은 시트 전체 교체이므로 일괄 저장한다.
-export const useSaveSheets = ({ scheduleId, initialSheets, editable, onSaved }: Params) => {
+// 계산값 표시는 previewCalc(서버 파이프라인 풀 미러링)가 담당한다 — 저장 후에도 폼 값에서 동일하게 재현된다.
+export const useSaveSheets = ({
+  scheduleId, initialSheets, basicInfo, team, editable, externals, onSaved,
+}: Params) => {
   const { saveSheets, isLoading } = useSaveSheetsAction();
+  const scheduleBasicInfo = useScheduleBasicInfo({ scheduleId, basicInfo, team });
 
   const [sheets, setSheets] = useState<SheetForm[]>(() => initialSheets.map(fromSheet));
-  // 서버 계산결과가 담긴 시트(표시 전용). 활성 시트의 계산값을 read-only로 보여줄 때 참조.
-  const [calcSheets, setCalcSheets] = useState<(MeasurementSheet | null)[]>(initialSheets);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const activeSheet = sheets[activeIndex] ?? null;
-  const activeCalcSheet = calcSheets[activeIndex] ?? null;
+
+  // 활성 시트 입력에서 서버 계산값을 프론트에서 실시간으로 재현한 미리보기(effect 금지, 파생만).
+  const previewCalc = useMemo<SheetCalcPreview | null>(
+    () => (activeSheet ? calcSheetPreview(toSheetSave(activeSheet), externals) : null),
+    [activeSheet, externals],
+  );
 
   const addSheet = (category: MeasurementCategory) => {
-    setSheets((prev) => [...prev, getDefaultSheetForm(category)]);
-    setCalcSheets((prev) => [...prev, null]);
+    // 측정점 수는 굴뚝 치수 기반 규정 요구수로 자동 생성(치수 미입력이면 1개). 수동 조정 가능.
+    const pointCount = calcRequiredPointCount(externals) ?? 1;
+    setSheets((prev) => [...prev, getDefaultSheetForm(category, pointCount)]);
     setActiveIndex(sheets.length);
   };
 
   const removeSheet = (index: number) => {
     setSheets((prev) => prev.filter((_, i) => i !== index));
-    setCalcSheets((prev) => prev.filter((_, i) => i !== index));
     setActiveIndex((cur) => (cur >= index && cur > 0 ? cur - 1 : cur));
   };
 
@@ -45,40 +59,66 @@ export const useSaveSheets = ({ scheduleId, initialSheets, editable, onSaved }: 
     setSheets((prev) => prev.map((s, i) => (i === activeIndex ? updater(s) : s)));
   };
 
-  const handleSave = async () => {
-    if (scheduleId == null) return;
+  // 저장 본체 — 검증 → 공통정보 → 시트 → 서버 계산결과 재동기화. 성공하면 true.
+  // "측정 데이터 저장"과 "저장 후 채취기록지 다운로드" 두 진입점이 공유한다(로직 중복 방지).
+  // 성공 toast는 호출부가 낸다 — 다운로드 경로에서 저장·다운로드 toast가 겹치지 않도록.
+  const runSave = async (): Promise<boolean> => {
+    if (scheduleId == null) return false;
 
     const errors = sheets.flatMap(validateSheetFields);
     if (errors.length > 0) {
       toast.error(errors[0]);
-      return;
+      return false;
     }
 
     try {
+      // 공통 정보(채취시간·담당자)를 먼저 반영한다. 실패하면 시트는 건드리지 않아
+      // "시트만 저장되고 공통 정보는 실패"하는 부분 성공 상태가 생기지 않는다.
+      await scheduleBasicInfo.saveBasicInfo();
+
       const detail = await saveSheets(scheduleId, sheets.map(toSheetSave));
-      const savedSheets = detail.snapshot.sheets;
-      setCalcSheets(savedSheets);
-      setSheets(savedSheets.map(fromSheet));
-      toast.success("측정 데이터가 저장되었습니다.");
+      // 서버 계산결과가 반영된 최신 시트로 폼을 동기화한다.
+      setSheets(detail.snapshot.sheets.map(fromSheet));
       onSaved?.();
+      return true;
     } catch (err) {
       const message = err instanceof Error ? err.message : "저장에 실패했습니다.";
       toast.error(message);
+      return false;
     }
   };
+
+  const handleSave = async () => {
+    if (!(await runSave())) return;
+    toast.success("측정 데이터가 저장되었습니다.");
+  };
+
+  // 다운로드 시나리오는 저장 경로를 그대로 재사용한다(runSave 주입).
+  const samplingRecordsExport = useExportSamplingRecords({ scheduleId, saveBeforeExport: runSave });
 
   return {
     sheets,
     activeIndex,
     activeSheet,
-    activeCalcSheet,
+    previewCalc,
     editable,
-    isLoading,
+    // 다운로드 진행 중에도 저장 버튼이 잠기도록 합성한다.
+    isLoading: isLoading || scheduleBasicInfo.isLoading || samplingRecordsExport.isExporting,
+    basicInfoForm: scheduleBasicInfo.form,
 
+    handleBasicInfoChange: scheduleBasicInfo.handleChange,
     setActiveIndex,
     addSheet,
     removeSheet,
     updateActiveSheet,
     handleSave,
+
+    // 채취기록지 다운로드
+    isExportDialogOpen: samplingRecordsExport.isDialogOpen,
+    templateFile: samplingRecordsExport.templateFile,
+    isExporting: samplingRecordsExport.isExporting,
+    setExportDialogOpen: samplingRecordsExport.setIsDialogOpen,
+    handleSelectTemplate: samplingRecordsExport.handleSelectTemplate,
+    handleExport: samplingRecordsExport.handleExport,
   };
 };

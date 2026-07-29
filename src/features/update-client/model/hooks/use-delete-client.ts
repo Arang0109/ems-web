@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const useDeleteClient = ({ client, onSuccess }: Props) => {
-  const { deleteClient, isLoading, error } = useDeleteClientAction();
+  const { deleteClient, isLoading } = useDeleteClientAction();
 
   const handleDelete = async () => {
     if (!client) return;

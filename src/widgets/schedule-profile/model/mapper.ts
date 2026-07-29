@@ -21,7 +21,9 @@ export const orientationLabel = (v?: string | null): string =>
   v ? (ORIENTATION_LABEL[v as keyof typeof ORIENTATION_LABEL] ?? v) : "-";
 
 // 측정시설 치수(원형=지름, 사각형=가로×세로) 표시
-export const describeDimension = (shape: Shape, horizontal: string, vertical: string): string => {
+export const describeDimension = (
+  shape: Shape, horizontal: number | null, vertical: number | null,
+): string => {
   if (shape === "CIRCULAR") return `${value(horizontal)} m`;
   if (shape === "RECTANGULAR") return `${value(horizontal)} m × ${value(vertical)} m`;
   return "-";

@@ -3,13 +3,11 @@ import type {
   StackRegisterRequest, StackListResponse, StackDetailResponse, StackUpdateRequest,
   FacilityRegisterRequest, FacilityUpdateRequest,
   PreventionRegisterRequest, PreventionUpdateRequest,
-  TargetSubstanceRegisterRequest,
 } from './dto';
 import type {
   FacilityCreate, FacilityUpdate,
   StackCreate, StackDetail, StackListItem, StackUpdate,
   PreventionCreate, PreventionUpdate,
-  TargetSubstanceCreate,
 } from '../model/types';
 
 export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
@@ -26,8 +24,11 @@ export const toRegisterFacilityRequest = (vo: FacilityCreate): FacilityRegisterR
   stackId: vo.stackId,
   name: trimValue(vo.name),
   fuelUsage: trimValue(vo.fuelUsage),
+  productOutput: trimValue(vo.productOutput),
+  incinerationAmount: trimValue(vo.incinerationAmount),
   fuelInput: trimValue(vo.fuelInput),
-  fuelType: trimValue(vo.fuelType)
+  fuelType: trimValue(vo.fuelType),
+  unit: trimValue(vo.unit),
 })
 
 export const toUpdateRequest = (vo: StackUpdate): StackUpdateRequest => ({
@@ -59,23 +60,26 @@ export const toStackListItems = (dtos: StackListResponse[]): StackListItem[] => 
 export const toUpdateFacilityRequest = (vo: FacilityUpdate): FacilityUpdateRequest => ({
   name: trimValue(vo.name),
   fuelUsage: trimValue(vo.fuelUsage),
+  productOutput: trimValue(vo.productOutput),
+  incinerationAmount: trimValue(vo.incinerationAmount),
   fuelInput: trimValue(vo.fuelInput),
   fuelType: trimValue(vo.fuelType),
+  unit: trimValue(vo.unit),
 });
 
 export const toRegisterPreventionRequest = (vo: PreventionCreate): PreventionRegisterRequest => ({
   stackId: vo.stackId,
   name: trimValue(vo.name),
+  capacity: vo.capacity,
+  targetName: trimValue(vo.targetName),
+  removalEfficiency: trimValue(vo.removalEfficiency),
 });
 
 export const toUpdatePreventionRequest = (vo: PreventionUpdate): PreventionUpdateRequest => ({
   name: trimValue(vo.name),
-});
-
-export const toRegisterSubstanceRequest = (vo: TargetSubstanceCreate): TargetSubstanceRegisterRequest => ({
-  preventionId: vo.preventionId,
-  name: trimValue(vo.name),
-  removalEfficiency: vo.removalEfficiency,
+  capacity: vo.capacity,
+  targetName: trimValue(vo.targetName),
+  removalEfficiency: trimValue(vo.removalEfficiency),
 });
 
 export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
@@ -99,17 +103,18 @@ export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
   preventions: (dto.preventions ?? []).map((data) => ({
     id: data.id,
     name: data.name,
-    targets: (data.targets ?? []).map((t) => ({
-      id: t.id,
-      name: t.name,
-      removalEfficiency: t.removalEfficiency,
-    })),
+    capacity: data.capacity ?? null,
+    targetName: data.targetName ?? '',
+    removalEfficiency: data.removalEfficiency ?? '',
   })),
   facilities: (dto.facilities ?? []).map((data) => ({
     id: data.id,
     name: data.name,
-    fuelUsage: data.fuelUsage,
-    fuelInput: data.fuelInput,
-    fuelType: data.fuelType,
+    fuelUsage: data.fuelUsage ?? '',
+    productOutput: data.productOutput ?? '',
+    incinerationAmount: data.incinerationAmount ?? '',
+    fuelInput: data.fuelInput ?? '',
+    fuelType: data.fuelType ?? '',
+    unit: data.unit ?? '',
   })),
 });

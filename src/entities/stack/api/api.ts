@@ -4,7 +4,6 @@ import type {
   StackRegisterRequest, StackUpdateRequest, StackListResponse, StackDetailResponse, StackResponse,
   FacilityRegisterRequest, FacilityUpdateRequest,
   PreventionRegisterRequest, PreventionUpdateRequest,
-  TargetSubstanceRegisterRequest,
 } from './dto';
 
 export const stackApi = {
@@ -55,18 +54,7 @@ export const stackApi = {
   },
 
   deletePrevention: async (preventionId: number): Promise<ApiResponseMessage<void>> => {
-    console.log(preventionId)
     const res = await axiosPrivate.delete(`/preventions/${preventionId}`);
-    return res.data;
-  },
-
-  registerSubstance: async (data: TargetSubstanceRegisterRequest): Promise<ApiResponseMessage<void>> => {
-    const res = await axiosPrivate.post(`/target-substances`, data);
-    return res.data;
-  },
-
-  deleteSubstance: async (substanceId: number): Promise<ApiResponseMessage<void>> => {
-    const res = await axiosPrivate.delete(`/target-substances/${substanceId}`);
     return res.data;
   },
 }

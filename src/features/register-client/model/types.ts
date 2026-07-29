@@ -5,7 +5,7 @@ export type ClientRegisterForm = {
 
   zipcode: string;
   roadAddress: string;
-  address: string;
+  detailAddress: string;
 
   manager: string;
   email: string;
@@ -19,7 +19,7 @@ export const getDefaultForm = (): ClientRegisterForm => ({
   bizNumber: "",
   zipcode: "",
   roadAddress: "",
-  address: "",
+  detailAddress: "",
   representative: "",
   manager: "",
   email: "",

@@ -121,15 +121,18 @@ const buildSnapshot = (schedule: MockSchedule) => ({
         stackId: schedule.stackId, field: schedule.measurementField,
         name: schedule.stackName ?? '1호 배출구', semsNumber: '1234567890', grade: 'TYPE_1',
         businessCategory: '화학제품 제조업', mainProduct: '합성수지',
-        standardOxygen: STANDARD_OXYGEN, height: '25', horizontalLength: '1.2', verticalLength: '0',
+        standardOxygen: STANDARD_OXYGEN, height: 25, horizontalLength: 1.2, verticalLength: null,
         shape: 'CIRCULAR', orientation: 'VERTICAL',
         facilities: [
-          { facilityId: 1, name: '보일러 #1', fuelUsage: 'LNG', fuelInput: '500', fuelType: '기체' },
+          {
+            facilityId: 1, name: '보일러 #1', fuelUsage: 'LNG', productOutput: '1200',
+            incinerationAmount: '0', fuelInput: '500', fuelType: '기체', unit: 'kg/h',
+          },
         ],
         preventions: [
           {
-            preventionId: 1, name: '여과집진기',
-            targetSubstances: [{ targetSubstanceId: 1, name: '먼지', removalEfficiency: 99.5 }],
+            preventionId: 1, name: '여과집진기', capacity: 500,
+            targetName: '먼지', removalEfficiency: '99.5',
           },
         ],
       },

@@ -14,6 +14,8 @@ export type WorkplaceCreate = {
   zipcode: string;
   roadAddress: string;
   address: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }
 
@@ -23,5 +25,7 @@ export type WorkplaceUpdate = {
   zipcode: string;
   roadAddress: string;
   address: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade
 }

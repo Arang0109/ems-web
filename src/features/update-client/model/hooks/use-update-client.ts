@@ -22,7 +22,7 @@ export const useUpdateClient = ({ client, onSuccess }: Props) => {
     representative: client?.representative ?? '',
     zipcode: client?.zipcode ?? '',
     roadAddress: client?.roadAddress ?? '',
-    address: client?.address ?? "",
+    detailAddress: client?.detailAddress ?? "",
     bizNumber: client?.bizNumber ?? "",
     manager: client?.manager ?? "",
     email: client?.email ?? "",
@@ -38,7 +38,7 @@ export const useUpdateClient = ({ client, onSuccess }: Props) => {
       ...prev,
       zipcode: zipcode,
       roadAddress,
-      address: detailAddress,
+      detailAddress,
     }));
   };
 

@@ -150,8 +150,8 @@ type StackDetailRow = {
   orientation: Orientation;
   createdAt: string;
   modifiedAt: string;
-  preventions: { id: number; stackId: number; name: string; targets: {id:number; name: string; removalEfficiency: string}[]; }[];
-  facilities: { id: number; stackId: number; name: string; fuelUsage: string; fuelInput: string; fuelType: string }[];
+  preventions: { id: number; stackId: number; name: string; capacity: number | null; targetName: string; removalEfficiency: string }[];
+  facilities: { id: number; stackId: number; name: string; fuelUsage: string; productOutput: string; incinerationAmount: string; fuelInput: string; fuelType: string; unit: string }[];
 };
 
 const stackDetails: Record<number, StackDetailRow> = {
@@ -163,12 +163,12 @@ const stackDetails: Record<number, StackDetailRow> = {
     shape: 'CIRCULAR', orientation: 'VERTICAL',
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2025-11-15T14:30:00',
     preventions: [
-      { id: 1, stackId: 1001, name: '전기집진시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
-      { id: 2, stackId: 1001, name: '세정집진시설', targets: [{id:1, name:"가스상", removalEfficiency:"90"}, {id:1, name:"입자상", removalEfficiency:"75"}] },
+      { id: 1, stackId: 1001, name: '전기집진시설', capacity: 500, targetName: '입자상', removalEfficiency: '95.1' },
+      { id: 2, stackId: 1001, name: '세정집진시설', capacity: null, targetName: '가스상', removalEfficiency: '90' },
     ],
     facilities: [
-      { id: 1, stackId: 1001, name: '보일러 1호기', fuelUsage: '500', fuelInput: 'LNG', fuelType: '기체연료' },
-      { id: 2, stackId: 1001, name: '소각로 1호기', fuelUsage: '200', fuelInput: '경유', fuelType: '액체연료' },
+      { id: 1, stackId: 1001, name: '보일러 1호기', fuelUsage: '500', productOutput: '1200', incinerationAmount: '0', fuelInput: 'LNG', fuelType: '기체연료', unit: 'kg/h' },
+      { id: 2, stackId: 1001, name: '소각로 1호기', fuelUsage: '200', productOutput: '0', incinerationAmount: '350', fuelInput: '경유', fuelType: '액체연료', unit: 'L/h' },
     ],
   },
   1002: {
@@ -179,10 +179,10 @@ const stackDetails: Record<number, StackDetailRow> = {
     shape: 'CIRCULAR', orientation: 'VERTICAL',
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2026-01-20T11:00:00',
     preventions: [
-      { id: 3, stackId: 1002, name: '여과집진시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
+      { id: 3, stackId: 1002, name: '여과집진시설', capacity: 300, targetName: '입자상', removalEfficiency: '95.1' },
     ],
     facilities: [
-      { id: 3, stackId: 1002, name: '건조시설 1호기', fuelUsage: '300', fuelInput: '등유', fuelType: '액체연료' },
+      { id: 3, stackId: 1002, name: '건조시설 1호기', fuelUsage: '300', productOutput: '800', incinerationAmount: '0', fuelInput: '등유', fuelType: '액체연료', unit: 'L/h' },
     ],
   },
   1008: {
@@ -193,11 +193,11 @@ const stackDetails: Record<number, StackDetailRow> = {
     shape: 'RECTANGULAR', orientation: 'HORIZONTAL',
     createdAt: '2024-05-12T08:00:00', modifiedAt: '2025-08-22T16:00:00',
     preventions: [
-      { id: 4, stackId: 1008, name: '폐수처리시설', targets: [{id:1, name:"입자상", removalEfficiency:"95.1"}] },
+      { id: 4, stackId: 1008, name: '폐수처리시설', capacity: 120, targetName: '용존성', removalEfficiency: '88' },
     ],
     facilities: [
-      { id: 4, stackId: 1008, name: '반응조 1호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
-      { id: 5, stackId: 1008, name: '반응조 2호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
+      { id: 4, stackId: 1008, name: '반응조 1호기', fuelUsage: '0', productOutput: '450', incinerationAmount: '0', fuelInput: '-', fuelType: '-', unit: 'm³/일' },
+      { id: 5, stackId: 1008, name: '반응조 2호기', fuelUsage: '0', productOutput: '380', incinerationAmount: '0', fuelInput: '-', fuelType: '-', unit: 'm³/일' },
     ],
   },
   1019: {
@@ -209,7 +209,7 @@ const stackDetails: Record<number, StackDetailRow> = {
     createdAt: '2024-02-14T10:00:00', modifiedAt: '2025-09-16T09:00:00',
     preventions: [],
     facilities: [
-      { id: 6, stackId: 1019, name: '프레스 1호기', fuelUsage: '0', fuelInput: '-', fuelType: '-' },
+      { id: 6, stackId: 1019, name: '프레스 1호기', fuelUsage: '0', productOutput: '2000', incinerationAmount: '0', fuelInput: '-', fuelType: '-', unit: 'ea/일' },
     ],
   },
 };
@@ -261,7 +261,7 @@ export const stackHandlers = [
     return HttpResponse.json({
       status: true,
       message: '방지시설 등록 성공',
-      data: { id: Date.now(), targets: [], ...body }
+      data: { id: Date.now(), ...body }
     }, { status: 201 });
   }),
 
@@ -305,24 +305,6 @@ export const stackHandlers = [
     return HttpResponse.json({
       status: true,
       message: `${params.facilityId} 연료시설 삭제 완료`,
-      data: null,
-    });
-  }),
-
-  // 대상물질 (target-substances)
-  http.post(`${BASE_URL}/target-substances`, async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
-    return HttpResponse.json({
-      status: true,
-      message: '대상물질 등록 성공',
-      data: { id: Date.now(), ...body }
-    }, { status: 201 });
-  }),
-
-  http.delete(`${BASE_URL}/target-substances/:substanceId`, ({ params }) => {
-    return HttpResponse.json({
-      status: true,
-      message: `${params.substanceId} 대상물질 삭제 완료`,
       data: null,
     });
   }),

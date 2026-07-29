@@ -39,11 +39,11 @@ export const RegisterFacilityForm = ({ stackId, open, onOpenChange, onSuccess }:
         />
         <div className="grid md:grid-cols-3 gap-4">
           <InputGroup
-            id="fuelType"
-            label="연료 유형"
-            placeholder="예: 경유, LNG"
-            value={form.fuelType}
-            onChange={value => handleChange('fuelType', value)}
+            id="productOutput"
+            label="제품 생산량"
+            placeholder="예: 1000"
+            value={form.productOutput}
+            onChange={value => handleChange('productOutput', value)}
           />
           <InputGroup
             id="fuelUsage"
@@ -53,11 +53,32 @@ export const RegisterFacilityForm = ({ stackId, open, onOpenChange, onSuccess }:
             onChange={value => handleChange('fuelUsage', value)}
           />
           <InputGroup
+            id="incinerationAmount"
+            label="소각량"
+            placeholder="예: 200"
+            value={form.incinerationAmount}
+            onChange={value => handleChange('incinerationAmount', value)}
+          />
+          <InputGroup
             id="fuelInput"
-            label="연료 투입량"
+            label="원료 투입량"
             placeholder="예: 50L"
             value={form.fuelInput}
             onChange={value => handleChange('fuelInput', value)}
+          />
+          <InputGroup
+            id="fuelType"
+            label="종류"
+            placeholder="예: 경유, LNG"
+            value={form.fuelType}
+            onChange={value => handleChange('fuelType', value)}
+          />
+          <InputGroup
+            id="unit"
+            label="단위"
+            placeholder="예: kg/h"
+            value={form.unit}
+            onChange={value => handleChange('unit', value)}
           />
         </div>
       </FieldGroup>

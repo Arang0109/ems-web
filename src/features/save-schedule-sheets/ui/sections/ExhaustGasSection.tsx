@@ -1,69 +1,82 @@
-import { Plus, Trash2 } from "lucide-react";
+import type { SheetCalcPreview } from "@entities/schedule";
+import { SectionAccordion } from "@shared/ui/accordion";
+import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
 
-import { Input, SectionTitle } from "@shared/ui/form";
-import { Button } from "@shared/ui/buttons";
-
-import type { ExhaustGasForm, GasReadingForm } from "../../model/types";
+import type { ExhaustGasForm, GasColumnKey } from "../../model/types";
+import { GAS_READING_COUNT } from "../../model/types";
 
 interface Props {
   exhaustGas: ExhaustGasForm;
-  gasDensity: number | null;
-  o2CorrectionFactor: number | null;
+  calc: SheetCalcPreview["exhaustGas"] | null;
+  standardOxygen: number | null;      // 기준산소농도 (측정시설 원장, read-only)
   editable: boolean;
   onChange: (patch: Partial<ExhaustGasForm>) => void;
-  onReadingChange: (index: number, patch: Partial<GasReadingForm>) => void;
-  onAddReading: () => void;
-  onRemoveReading: (index: number) => void;
+  onReadingChange: (key: GasColumnKey, index: number, value: string) => void;
 }
 
-const display = (v: number | null): string => (v == null ? "-" : String(v));
-const GAS_COLS: { key: keyof GasReadingForm; label: string }[] = [
-  { key: "o2", label: "O₂ (%)" },
-  { key: "co2", label: "CO₂ (%)" },
-  { key: "co", label: "CO (ppm)" },
-  { key: "nox", label: "NOx (ppm)" },
-  { key: "sox", label: "SOx (ppm)" },
+const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
+
+// 가스 성분별 행: 라벨 | 1~3회 입력 | 평균(계산)
+const GAS_ROWS: { key: GasColumnKey; label: string; avgKey: keyof SheetCalcPreview["exhaustGas"] }[] = [
+  { key: "o2", label: "O₂ (%)", avgKey: "o2Avg" },
+  { key: "co2", label: "CO₂ (%)", avgKey: "co2Avg" },
+  { key: "co", label: "CO (%)", avgKey: "coAvg" },
+  { key: "nox", label: "NOx (ppm)", avgKey: "noxAvg" },
+  { key: "sox", label: "SOx (ppm)", avgKey: "soxAvg" },
 ];
 
 export const ExhaustGasSection = ({
-  exhaustGas, gasDensity, o2CorrectionFactor, editable,
-  onChange, onReadingChange, onAddReading, onRemoveReading,
+  exhaustGas, calc, standardOxygen, editable, onChange, onReadingChange,
 }: Props) => (
-  <section className="space-y-3">
-    <div className="flex items-center justify-between">
-      <SectionTitle>배출가스</SectionTitle>
-      <Button type="button" variant="outline" size="sm" onClick={onAddReading} disabled={!editable}>
-        <Plus size={14} className="mr-1" />측정 회수 추가
-      </Button>
-    </div>
-
-    <div className="space-y-2">
-      {exhaustGas.readings.map((reading, index) => (
-        <div key={index} className="flex items-end gap-2">
-          <span className="w-8 pb-2 text-xs text-muted-foreground">#{index + 1}</span>
-          <div className="grid grid-cols-5 gap-2 flex-1">
-            {GAS_COLS.map((col) => (
-              <Input key={col.key} label={index === 0 ? col.label : undefined} type="number"
-                value={reading[col.key]}
-                onChange={(v) => onReadingChange(index, { [col.key]: v })}
-                disabled={!editable} />
+  <SectionAccordion title="배출가스정보" defaultOpen>
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+      <table className="w-full border-collapse min-w-[720px]">
+        <tbody>
+          <tr>
+            <TableLabelCell>항목</TableLabelCell>
+            {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
+              <TableLabelCell key={i}>{i + 1}회</TableLabelCell>
             ))}
-          </div>
-          <Button type="button" variant="ghost" size="sm" onClick={() => onRemoveReading(index)}
-            disabled={!editable || exhaustGas.readings.length <= 1}>
-            <Trash2 size={14} />
-          </Button>
-        </div>
-      ))}
-    </div>
+            <TableLabelCell>평균</TableLabelCell>
+          </tr>
 
-    <div className="grid md:grid-cols-4 gap-3">
-      <Input label="가스분석기 시작시간" type="time" value={exhaustGas.gasAnalyzerStartTime}
-        onChange={(v) => onChange({ gasAnalyzerStartTime: v })} disabled={!editable} />
-      <Input label="THC 분석기 시작시간" type="time" value={exhaustGas.thcAnalyzerStartTime}
-        onChange={(v) => onChange({ thcAnalyzerStartTime: v })} disabled={!editable} />
-      <Input label="배출가스밀도 (계산)" value={display(gasDensity)} readOnly disabled />
-      <Input label="산소보정계수 (계산)" value={display(o2CorrectionFactor)} readOnly disabled />
+          {GAS_ROWS.map((row) => (
+            <tr key={row.key}>
+              <TableLabelCell>{row.label}</TableLabelCell>
+              {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
+                <TableInputCell key={i} type="number" value={exhaustGas[row.key][i] ?? ""} step={0.1}
+                  onChange={(v) => onReadingChange(row.key, i, v)} disabled={!editable} />
+              ))}
+              <TableResultCell value={display(calc?.[row.avgKey] as number | null)} />
+            </tr>
+          ))}
+
+          <tr>
+            <TableLabelCell>N₂ (%)</TableLabelCell>
+            <TableResultCell value={display(calc?.n2)} unit="%" colSpan={GAS_READING_COUNT + 1} />
+          </tr>
+          <tr>
+            <TableLabelCell>기준산소농도</TableLabelCell>
+            <TableResultCell value={display(standardOxygen)} unit="%" colSpan={GAS_READING_COUNT + 1} />
+          </tr>
+          <tr>
+            <TableLabelCell>산소보정계수</TableLabelCell>
+            <TableResultCell value={display(calc?.o2CorrectionFactor)} colSpan={GAS_READING_COUNT + 1} />
+          </tr>
+          <tr>
+            <TableLabelCell>표준상태 배출가스밀도 (ρ)</TableLabelCell>
+            <TableResultCell value={display(calc?.standardGasDensity)} unit="kg/Sm³" colSpan={GAS_READING_COUNT + 1} />
+          </tr>
+          <tr>
+            <TableLabelCell colSpan={2}>가스분석기 측정 시작시간</TableLabelCell>
+            <TableInputCell type="time" value={exhaustGas.gasAnalyzerStartTime}
+              onChange={(v) => onChange({ gasAnalyzerStartTime: v })} disabled={!editable} />
+            <TableLabelCell>THC 측정 시작시간</TableLabelCell>
+            <TableInputCell type="time" value={exhaustGas.thcAnalyzerStartTime}
+              onChange={(v) => onChange({ thcAnalyzerStartTime: v })} disabled={!editable} />
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </section>
+  </SectionAccordion>
 );

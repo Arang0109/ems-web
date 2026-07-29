@@ -1,0 +1,49 @@
+import { useLocation } from "react-router";
+
+import { Building2, ServerCog } from "lucide-react";
+
+import {
+  AppSidebar,
+  SidebarBrandHeader,
+  SidebarNav,
+  SidebarUserFooter,
+  type SidebarNavGroup,
+} from "@shared/ui/sidebar";
+import { useSignOut } from "@features/sign-out";
+import { useAuth } from "@entities/auth";
+
+// ─── 메뉴 구조 (플랫폼 운영자 전용) ──────────────────────────────────────────
+const PLATFORM_MENU: SidebarNavGroup[] = [
+  {
+    label: "platform",
+    items: [
+      { icon: Building2, label: "고객사 관리", path: "/platform/tenants" },
+    ],
+  },
+];
+
+// ─── PlatformSidebar ────────────────────────────────────────────────────────
+export const PlatformSidebar = () => {
+  const location = useLocation();
+  const { logout } = useSignOut();
+  const { user } = useAuth();
+
+  return (
+    <AppSidebar
+      header={
+        <SidebarBrandHeader icon={ServerCog} title="EMS 운영" subtitle="플랫폼 운영자 콘솔" />
+      }
+      footer={
+        <SidebarUserFooter name={user?.name} subtitle="플랫폼 운영자" onLogout={logout} />
+      }
+    >
+      <SidebarNav
+        groups={PLATFORM_MENU}
+        isActive={(item) => (item.path ? location.pathname === item.path : false)}
+        isSubActive={(sub) => location.pathname === sub.path}
+        isOpen={() => false}
+        onToggle={() => {}}
+      />
+    </AppSidebar>
+  );
+};

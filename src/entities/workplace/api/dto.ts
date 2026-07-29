@@ -9,6 +9,9 @@ export type WorkplaceListResponse = {
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;
+  facilityManager: string;
+  samplingWitness: string;
+  grade: Grade;
 }
 
 export type WorkplaceResponse = {
@@ -19,6 +22,8 @@ export type WorkplaceResponse = {
   zipcode: string;
   roadAddress: string;
   detailAddress: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }
 
@@ -36,6 +41,8 @@ export type WorkplaceRegisterRequest = {
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }
 
@@ -45,5 +52,7 @@ export type WorkplaceUpdateRequest = {
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }

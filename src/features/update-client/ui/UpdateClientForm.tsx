@@ -80,7 +80,7 @@ export const UpdateClientForm = ({ open, onOpenChange, client, onSuccess }: Prop
         <AddressInput
           id="address"
           placeholder="상세주소"
-          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
+          value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.detailAddress }}
           onChange={handleAddressChange}
         />
 

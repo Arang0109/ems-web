@@ -11,6 +11,8 @@ export type WorkplaceRegisterForm = {
   workplaceZipcode: string;
   workplaceRoadAddress: string;
   workplaceDetailAddress: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }
 
@@ -24,5 +26,7 @@ export const getDefaultWorkplaceRegisterForm = (client?: Client | null): Workpla
   workplaceZipcode: "",
   workplaceRoadAddress: "",
   workplaceDetailAddress: "",
+  facilityManager: "",
+  samplingWitness: "",
   grade: "TYPE_1",
 });

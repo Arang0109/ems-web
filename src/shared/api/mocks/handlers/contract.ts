@@ -11,7 +11,7 @@ export const contractHandlers = [
         {
           id: 1,
           workplaceId: 101,
-          fields: '대기, 수질',
+          fields: 'AIR,WATER',
           clientName: '(주)한국환경기술',
           workplaceName: '(주)한국환경기술 서울본사',
           contractName: '대기오염물질 측정대행 용역',
@@ -22,7 +22,7 @@ export const contractHandlers = [
         {
           id: 2,
           workplaceId: 106,
-          fields: '수질',
+          fields: 'WATER',
           clientName: '동아화학공업',
           workplaceName: '동아화학공업 부산본사',
           contractName: '수질오염물질 측정대행 용역',
@@ -33,7 +33,7 @@ export const contractHandlers = [
         {
           id: 3,
           workplaceId: 112,
-          fields: '소음진동',
+          fields: 'NOISE_VIBRATION',
           clientName: '삼진제조(주)',
           workplaceName: '삼진제조(주) 구미공장',
           contractName: '소음·진동 측정대행 용역',
@@ -44,7 +44,7 @@ export const contractHandlers = [
         {
           id: 4,
           workplaceId: 110,
-          fields: '악취',
+          fields: 'ODOR',
           clientName: '(주)그린에너지',
           workplaceName: '(주)그린에너지 세종사업장',
           contractName: '악취 측정대행 용역',
@@ -55,7 +55,7 @@ export const contractHandlers = [
         {
           id: 5,
           workplaceId: 128,
-          fields: '대기',
+          fields: 'AIR',
           clientName: '현대에너지(주)',
           workplaceName: '현대에너지(주) 여수사업장',
           contractName: '굴뚝 자동측정기기 측정대행 용역',
@@ -66,7 +66,7 @@ export const contractHandlers = [
         {
           id: 6,
           workplaceId: 120,
-          fields: '수질',
+          fields: 'WATER',
           clientName: '세진중공업(주)',
           workplaceName: '세진중공업(주) 거제조선소',
           contractName: '폐수 수질 측정대행 용역',

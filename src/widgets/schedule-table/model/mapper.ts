@@ -11,11 +11,11 @@ const toMeasurementTypeLabel = (value: string | null): string => {
 
 export const toScheduleRows = (item: ScheduleListItem): ScheduleTableRow => ({
   id: String(item.id),
-  measureDate: item.measureDate ? item.measureDate.slice(0, 10) : "-",
+  measureDate: item.sampledAt ? item.sampledAt.slice(0, 10) : "-",
   status: item.status,
   referenceNumber: item.referenceNumber ?? "-",
   measurementField: MEASUREMENT_FIELD_LABEL[item.measurementField],
-  measurementType: toMeasurementTypeLabel(item.measurementType),
+  measurementType: toMeasurementTypeLabel(item.schedulePurpose),
   clientName: item.clientName ?? "-",
   stackName: item.stackName ?? "-",
   teamName: item.teamName ?? "-",

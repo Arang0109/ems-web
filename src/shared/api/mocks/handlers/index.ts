@@ -1,4 +1,6 @@
+// 아래 도메인 핸들러는 필요 시 import와 spread를 함께 해제한다.
 import { authHandlers } from './auth';
+import { tenantHandlers } from './tenant';
 import { dashboardHandlers } from './dashboard';
 import { clientHandlers } from './client';
 import { stackHandlers } from './stack';
@@ -12,8 +14,11 @@ import { scheduleHandlers } from './schedule';
 
 // 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
 export const handlers = [
-  // [ACTIVE]   관리자 페이지 개발용 (role 포함 로그인)
+  // [ACTIVE]   로그인(role 포함) — 관리자/플랫폼 운영자 콘솔 접근용
   ...authHandlers,
+
+  // [ACTIVE]   플랫폼 운영자 콘솔 — 고객사 발급/조회
+  ...tenantHandlers,
 
   // [ACTIVE]
   ...dashboardHandlers,
@@ -34,7 +39,7 @@ export const handlers = [
   ...pollutantHandlers,
 
   // [ACTIVE]   회원 관리(관리자 페이지) + 팀 사수·부사수 조회
-  ...memberHandlers,
+  // ...memberHandlers,
   ...roleHandlers,
 
   // [ACTIVE]   측정장비 관리

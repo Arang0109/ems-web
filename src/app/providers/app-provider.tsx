@@ -7,7 +7,7 @@ import { AuthProvider } from "@app/providers";
 export const AppProvider = ({ children }: { children: React.ReactNode }) => (
   <ThemeProvider
     attribute="class"
-    defaultTheme="dark"
+    defaultTheme="light"
     enableSystem={false}
     disableTransitionOnChange
   >

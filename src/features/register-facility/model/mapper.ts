@@ -7,4 +7,7 @@ export const toFacilityCreate = (stackId: number, form: FacilityRegisterForm): F
   fuelType: form.fuelType,
   fuelUsage: form.fuelUsage,
   fuelInput: form.fuelInput,
+  productOutput: form.productOutput,
+  incinerationAmount: form.incinerationAmount,
+  unit: form.unit,
 });

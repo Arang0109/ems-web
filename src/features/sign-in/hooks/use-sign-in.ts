@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 
-import { signInApi, useAuth } from "@entities/auth";
+import { signInApi, useAuth, isPlatformAdmin } from "@entities/auth";
 
 import { mapSignInFormDataToRequest } from "../model/mapper";
 import type { SignInFormData } from "../model/types";
@@ -59,7 +59,8 @@ export const useSignIn = () => {
         name: res.data.name,
         role: res.data.role,
       });
-      navigate("/dashboard", { replace: true });
+      // 플랫폼 운영자는 운영자 콘솔로, 그 외(고객사 유저)는 대시보드로
+      navigate(isPlatformAdmin(res.data.role) ? "/platform/tenants" : "/dashboard", { replace: true });
 
     } catch (error: unknown) {
       setError(true);

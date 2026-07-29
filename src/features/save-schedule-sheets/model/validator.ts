@@ -5,7 +5,7 @@ export const validateSheetFields = (form: SheetForm): string[] => {
   const errors: string[] = [];
 
   const label = form.category;
-  if (form.measurementPoints.length === 0) {
+  if (form.samplingPoints.length === 0) {
     errors.push(`[${label}] 측정점을 1개 이상 입력해주세요.`);
   }
 

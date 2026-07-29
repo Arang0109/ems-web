@@ -1,6 +1,6 @@
-import type { Prevention, Stack, Facility, TargetSubstance } from "@entities/stack";
+import type { Stack } from "@entities/stack";
 import type { StackPollutantListItem } from "@/entities/stack-pollutant";
-import type { FacilityProfile, MeasurementProfile, PreventionProfile, StackProfile, TargetSubstanceProfile } from "./types";
+import type { MeasurementProfile, StackProfile } from "./types";
 import {
   MEASUREMENT_FIELD_LABEL,
   GRADE_LABEL,
@@ -36,31 +36,6 @@ export const toStackProfile = (data: Stack): StackProfile => {
       : "-",
   };
 };
-
-export const toPreventionProfiles = (
-  data: Prevention[]
-): PreventionProfile[] => data.map(toPreventionProfile);
-
-export const toFacilityProfiles = (
-  data: Facility[]
-): FacilityProfile[] => data.map(toFacilityProfile);
-
-const toPreventionProfile = (data: Prevention): PreventionProfile => ({
-  name: value(data.name),
-  targets: data.targets?.map(toTargetProfile) ?? [],
-});
-
-const toTargetProfile = (data: TargetSubstance): TargetSubstanceProfile => ({
-  name: value(data.name),
-  removalEfficiency: value(data.removalEfficiency),
-});
-
-const toFacilityProfile = (data: Facility): FacilityProfile => ({
-  name: value(data.name),
-  fuelUsage: value(data.fuelUsage),
-  fuelInput: value(data.fuelInput),
-  fuelType: value(data.fuelType),
-});
 
 export const toMeasurementProfiles = (
   data: StackPollutantListItem[]

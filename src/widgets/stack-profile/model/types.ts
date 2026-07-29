@@ -11,23 +11,6 @@ export type StackProfile = {
   orientation: string;
 }
 
-export type PreventionProfile = {
-  name: string;
-  targets: TargetSubstanceProfile[];
-}
-
-export type TargetSubstanceProfile = {
-  name: string;
-  removalEfficiency: string;
-}
-
-export type FacilityProfile = {
-  name: string;
-  fuelUsage: string;
-  fuelInput: string;
-  fuelType: string;
-}
-
 export type MeasurementProfile = {
   nameKr: string;
   nameEn: string;

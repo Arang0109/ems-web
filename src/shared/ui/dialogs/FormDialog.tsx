@@ -31,6 +31,8 @@ interface DialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   disabled?: boolean;
+  submitDisabled?: boolean;   // 제출 버튼 비활성 (disabled는 트리거 버튼용이라 분리)
+  loadingLabel?: string;      // 로딩 중 제출 버튼 문구. 기본 "제출 중..."
   isLoading?: boolean;
   size?: keyof typeof SIZE_CLASS;
 }
@@ -48,6 +50,8 @@ export function FormDialog({
   open,
   onOpenChange,
   disabled,
+  submitDisabled,
+  loadingLabel = '제출 중...',
   isLoading,
   size = "default",
 }: DialogProps) {
@@ -73,7 +77,11 @@ export function FormDialog({
               <Button variant="destructive" onClick={onDelete}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
             )}
             <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            {submitLabel && <Button type="submit">{isLoading ? "제출 중..." : submitLabel}</Button>}
+            {submitLabel && (
+              <Button type="submit" disabled={submitDisabled}>
+                {isLoading ? loadingLabel : submitLabel}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>
