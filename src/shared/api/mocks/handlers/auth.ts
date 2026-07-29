@@ -6,6 +6,21 @@ export const authHandlers = [
   http.post(`${BASE_URL}/auth/sign-in`, async ({ request }) => {
     const body = await request.json() as { username: string; password: string };
 
+    // 플랫폼 운영자(전역) 목 로그인 — /platform 콘솔 접근 테스트용
+    if (body.username === 'platform' && body.password === '1234') {
+      return HttpResponse.json({
+        status: true,
+        message: '로그인 성공',
+        data: {
+          accessToken: 'mock-platform-token-xyz',
+          tenant: '플랫폼',
+          username: body.username,
+          name: '운영자',
+          role: 'PLATFORM_ADMIN',
+        },
+      });
+    }
+
     if (body.username === 'admin' && body.password === '1234') {
       return HttpResponse.json({
         status: true,

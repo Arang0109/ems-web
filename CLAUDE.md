@@ -55,8 +55,13 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
 npm run dev       # 개발 서버 (MSW 포함)
 npm run build     # 빌드
 npm run preview   # 빌드 미리보기
-npx tsc --noEmit  # 타입 체크
+npx tsc -b        # 타입 체크 (--noEmit 은 쓰지 말 것 — 아래 참고)
 ```
+
+> ⚠️ **타입 체크는 `npx tsc -b` 를 쓴다. `npx tsc --noEmit` 은 검사하는 파일이 0개라 항상 통과한다.**
+> 루트 `tsconfig.json` 이 `files: []` + `references` 구조(solution-style)인데, `references` 는
+> 빌드 모드(`-b`)에서만 따라가기 때문이다. `npm run build` 의 `tsc -b && vite build` 와
+> 동일한 검사여야 실제 빌드 실패를 미리 잡을 수 있다.
 
 ---
 

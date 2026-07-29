@@ -6,6 +6,8 @@ export type WorkplaceUpdateForm = {
   roadAddress: string;
   address: string;
   bizNumber: string;
+  facilityManager: string;
+  samplingWitness: string;
   grade: Grade;
 }
 
@@ -15,5 +17,7 @@ export const getDefaultForm = (): WorkplaceUpdateForm => ({
   zipcode: "",
   roadAddress: "",
   address: "",
+  facilityManager: "",
+  samplingWitness: "",
   grade:"TYPE_1",
 });

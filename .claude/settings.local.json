@@ -10,7 +10,30 @@
       "Bash(git push *)",
       "PowerShell(Get-ChildItem -Path \"C:\\\\dev\\\\projects\\\\new\\\\ensolution-front-fsd\" -Recurse -Directory | Where-Object { $_.FullName -match \"\\(pages|features|widgets|entities\\)\" } | Sort-Object FullName | Select-Object -First 100)",
       "Bash(Remove-Item -Recurse -Force \"C:\\\\dev\\\\projects\\\\new\\\\ems-web\\\\src\\\\features\\\\select-company\")",
-      "Bash(Remove-Item -Recurse -Force \"C:\\\\dev\\\\projects\\\\new\\\\ems-web\\\\src\\\\features\\\\select-workplace\")"
+      "Bash(Remove-Item -Recurse -Force \"C:\\\\dev\\\\projects\\\\new\\\\ems-web\\\\src\\\\features\\\\select-workplace\")",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/tenant/application/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/tenant/application/port/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/tenant/application/command/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/tenant/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/tenant/infrastructure/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/auth/presentation/controller/**)",
+      "Bash(grep -rn \"o2Concentration\\\\|soxConcentration\" //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server --include=*.java | head -30)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/**)",
+      "Bash(grep -rn -A 15 \"averageTreatNullAsZero\" //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/schedule/application/calculation/ | head -40)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/schedule/application/**)",
+      "Bash(docker buildx *)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/**)",
+      "Read(///wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server/src/main/java/com/ensolution/ems/**)",
+      "Bash(grep -iE '\\\\.\\(xlsx|xls|docx|jrxml|jasper|ftl|html|xml\\)$')",
+      "Bash(grep -iv \"//\")",
+      "Bash(git -C //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server log --oneline -30)",
+      "Bash(git -C //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server show 63094ec --stat)",
+      "Bash(git -C //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server status --short)",
+      "Bash(ssh *)",
+      "Bash(wsl.exe *)",
+      "Bash(mysql *)"
     ]
   }
 }

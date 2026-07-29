@@ -25,3 +25,6 @@ dist-ssr
 
 # environment variable
 .env/*
+
+# deploy — 로컬 접속 정보(EC2 IP·SSH 키 경로 등), 커밋 금지
+deploy/deploy.local.sh

@@ -6,4 +6,7 @@ export const toFacilityUpdate = (form: FacilityUpdateForm): FacilityUpdate => ({
   fuelType: form.fuelType,
   fuelUsage: form.fuelUsage,
   fuelInput: form.fuelInput,
+  productOutput: form.productOutput,
+  incinerationAmount: form.incinerationAmount,
+  unit: form.unit,
 });

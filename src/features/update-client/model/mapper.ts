@@ -11,7 +11,7 @@ export const toClientUpdate = (
   representative: trimValue(form.representative),
   zipcode: form.zipcode,
   roadAddress: form.roadAddress,
-  address: trimValue(form.address),
+  detailAddress: trimValue(form.detailAddress),
   manager: trimValue(form.manager),
   email: trimValue(form.email),
   tel: unformatNumber(form.tel),

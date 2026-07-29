@@ -22,7 +22,9 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
     bizNumber: workplace?.bizNumber ?? "",
     zipcode: workplace?.zipcode ?? '',
     roadAddress: workplace?.roadAddress ?? '',
-    address: workplace?.address ?? "",
+    address: workplace?.detailAddress ?? "",
+    facilityManager: workplace?.facilityManager ?? "",
+    samplingWitness: workplace?.samplingWitness ?? "",
     grade: workplace?.grade ?? "TYPE_1",
   });
 

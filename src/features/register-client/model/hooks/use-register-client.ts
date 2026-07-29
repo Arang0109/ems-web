@@ -32,7 +32,7 @@ export const useRegisterClient = ({ onSuccess }: Props) => {
       ...prev,
       zipcode: zipcode,
       roadAddress,
-      address: detailAddress,
+      detailAddress: detailAddress,
     }));
   };
 

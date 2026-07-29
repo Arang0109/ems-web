@@ -1,28 +1,55 @@
-import type { MeasurementSheet } from "@entities/schedule";
+import { useState } from "react";
+
+import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
+import { toNumberOrNull } from "@shared/lib";
 
 import type {
-  SheetForm, WeatherForm, MoistureForm, ExhaustGasForm, GasReadingForm,
-  MeasurementPointForm, SampleForm, ParticleSampleForm,
+  SheetForm, WeatherForm, MoistureForm, ExhaustGasForm, GasColumnKey,
+  SamplingPointForm, SampleForm, ParticleForm,
 } from "../model/types";
 import {
-  getDefaultGasReadingForm, getDefaultMeasurementPointForm, getDefaultSampleForm,
+  getDefaultSamplingPointForm, getDefaultSampleForm,
   isParticleCategory,
 } from "../model/types";
 import { WeatherSection } from "./sections/WeatherSection";
 import { MoistureSection } from "./sections/MoistureSection";
 import { ExhaustGasSection } from "./sections/ExhaustGasSection";
-import { MeasurementPointSection } from "./sections/MeasurementPointSection";
+import { SamplingPointSection } from "./sections/SamplingPointSection";
+import { ThimbleSection } from "./sections/ThimbleSection";
 import { SampleSection } from "./sections/SampleSection";
-import { ParticleSection } from "./sections/ParticleSection";
+import { NozzleRecommendModal } from "./NozzleRecommendModal";
 
 interface Props {
   sheet: SheetForm;
-  calcSheet: MeasurementSheet | null;
+  previewCalc: SheetCalcPreview | null;
+  externals: SheetCalcExternals;
   editable: boolean;
   onChange: (updater: (sheet: SheetForm) => SheetForm) => void;
 }
 
-export const SheetFormView = ({ sheet, calcSheet, editable, onChange }: Props) => {
+// 채취 종료시간 = 시작시간 + Σ지점별 채취시간(분). 시작이 없으면 빈 값.
+const calcSamplingEndTime = (start: string, points: SamplingPointForm[]): string => {
+  if (!start) return "";
+  const [h, m] = start.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return "";
+  const total = points.reduce((acc, p) => acc + (toNumberOrNull(p.samplingTime) ?? 0), 0);
+  const totalMin = h * 60 + m + Math.round(total);
+  const hh = String(Math.floor(totalMin / 60) % 24).padStart(2, "0");
+  const mm = String(totalMin % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+
+const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
+  ...sheet,
+  particle: {
+    ...sheet.particle,
+    samplingEndTime: calcSamplingEndTime(sheet.particle.samplingStartTime, sheet.samplingPoints),
+  },
+});
+
+export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChange }: Props) => {
+  const [nozzleModalOpen, setNozzleModalOpen] = useState(false);
+
   const patchWeather = (patch: Partial<WeatherForm>) =>
     onChange((s) => ({ ...s, weather: { ...s.weather, ...patch } }));
 
@@ -32,38 +59,33 @@ export const SheetFormView = ({ sheet, calcSheet, editable, onChange }: Props) =
   const patchExhaust = (patch: Partial<ExhaustGasForm>) =>
     onChange((s) => ({ ...s, exhaustGas: { ...s.exhaustGas, ...patch } }));
 
-  const patchReading = (index: number, patch: Partial<GasReadingForm>) =>
+  const patchReading = (key: GasColumnKey, index: number, value: string) =>
     onChange((s) => ({
       ...s,
       exhaustGas: {
         ...s.exhaustGas,
-        readings: s.exhaustGas.readings.map((r, i) => (i === index ? { ...r, ...patch } : r)),
+        [key]: s.exhaustGas[key].map((v, i) => (i === index ? value : v)),
       },
     }));
 
-  const addReading = () =>
-    onChange((s) => ({
-      ...s,
-      exhaustGas: { ...s.exhaustGas, readings: [...s.exhaustGas.readings, getDefaultGasReadingForm()] },
-    }));
-
-  const removeReading = (index: number) =>
-    onChange((s) => ({
-      ...s,
-      exhaustGas: { ...s.exhaustGas, readings: s.exhaustGas.readings.filter((_, i) => i !== index) },
-    }));
-
-  const patchPoint = (index: number, patch: Partial<MeasurementPointForm>) =>
-    onChange((s) => ({
-      ...s,
-      measurementPoints: s.measurementPoints.map((p, i) => (i === index ? { ...p, ...patch } : p)),
-    }));
+  const patchPoint = (index: number, patch: Partial<SamplingPointForm>) =>
+    onChange((s) => {
+      const next = {
+        ...s,
+        samplingPoints: s.samplingPoints.map((p, i) => (i === index ? { ...p, ...patch } : p)),
+      };
+      // 채취시간이 바뀌면 종료시간을 재계산한다.
+      return "samplingTime" in patch ? withAutoEndTime(next) : next;
+    });
 
   const addPoint = () =>
-    onChange((s) => ({ ...s, measurementPoints: [...s.measurementPoints, getDefaultMeasurementPointForm()] }));
+    onChange((s) => ({ ...s, samplingPoints: [...s.samplingPoints, getDefaultSamplingPointForm()] }));
 
   const removePoint = (index: number) =>
-    onChange((s) => ({ ...s, measurementPoints: s.measurementPoints.filter((_, i) => i !== index) }));
+    onChange((s) => withAutoEndTime({
+      ...s,
+      samplingPoints: s.samplingPoints.filter((_, i) => i !== index),
+    }));
 
   const patchSample = (index: number, patch: Partial<SampleForm>) =>
     onChange((s) => ({
@@ -75,37 +97,59 @@ export const SheetFormView = ({ sheet, calcSheet, editable, onChange }: Props) =
   const removeSample = (index: number) =>
     onChange((s) => ({ ...s, samples: s.samples.filter((_, i) => i !== index) }));
 
-  const patchParticle = (patch: Partial<ParticleSampleForm>) =>
-    onChange((s) => ({ ...s, particleSample: { ...s.particleSample, ...patch } }));
+  const patchParticle = (patch: Partial<ParticleForm>) =>
+    onChange((s) => {
+      const next = { ...s, particle: { ...s.particle, ...patch } };
+      return "samplingStartTime" in patch ? withAutoEndTime(next) : next;
+    });
 
   const particle = isParticleCategory(sheet.category);
+  const nozzleOptions = externals.nozzleDiameters.map((d) => ({ value: String(d), label: `${d} cm` }));
 
   return (
-    <div className="space-y-6">
-      <WeatherSection weather={sheet.weather} pa={calcSheet?.weather.pa ?? null}
+    <div className="space-y-4">
+      <WeatherSection weather={sheet.weather} calc={previewCalc?.weather ?? null}
         editable={editable} onChange={patchWeather} />
 
-      <MoistureSection moisture={sheet.moisture} xw={calcSheet?.moisture.xw ?? null}
+      <MoistureSection moisture={sheet.moisture} calc={previewCalc?.moisture ?? null}
         editable={editable} onChange={patchMoisture} />
 
-      <ExhaustGasSection exhaustGas={sheet.exhaustGas}
-        gasDensity={calcSheet?.exhaustGas.gasDensity ?? null}
-        o2CorrectionFactor={calcSheet?.exhaustGas.o2CorrectionFactor ?? null}
-        editable={editable} onChange={patchExhaust}
-        onReadingChange={patchReading} onAddReading={addReading} onRemoveReading={removeReading} />
+      <ExhaustGasSection exhaustGas={sheet.exhaustGas} calc={previewCalc?.exhaustGas ?? null}
+        standardOxygen={externals.standardOxygen}
+        editable={editable} onChange={patchExhaust} onReadingChange={patchReading} />
 
-      <MeasurementPointSection points={sheet.measurementPoints}
-        avgTg={calcSheet?.avgTg ?? null} avgPv={calcSheet?.avgPv ?? null} avgPs={calcSheet?.avgPs ?? null}
-        editable={editable} onPointChange={patchPoint} onAddPoint={addPoint} onRemovePoint={removePoint} />
+      <SamplingPointSection
+        isParticle={particle}
+        points={sheet.samplingPoints}
+        particle={sheet.particle}
+        preview={previewCalc}
+        nozzleOptions={nozzleOptions}
+        editable={editable}
+        onPointChange={patchPoint}
+        onAddPoint={addPoint}
+        onRemovePoint={removePoint}
+        onParticleChange={patchParticle}
+        onOpenNozzleRecommend={() => setNozzleModalOpen(true)}
+      />
 
       {particle && (
         <>
-          <ParticleSection particle={sheet.particleSample} cp={calcSheet?.particleSample.Cp ?? null}
-            editable={editable} onChange={patchParticle} />
+          <ThimbleSection particle={sheet.particle} editable={editable} onChange={patchParticle} />
           <SampleSection samples={sheet.samples} editable={editable}
             onSampleChange={patchSample} onAddSample={addSample} onRemoveSample={removeSample} />
         </>
       )}
+
+      <NozzleRecommendModal
+        open={nozzleModalOpen}
+        onOpenChange={setNozzleModalOpen}
+        sheet={sheet}
+        externals={externals}
+        onSelect={(nozzleSize) => {
+          patchParticle({ nozzleSize });
+          setNozzleModalOpen(false);
+        }}
+      />
     </div>
   );
 };

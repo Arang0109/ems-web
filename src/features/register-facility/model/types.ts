@@ -3,6 +3,9 @@ export type FacilityRegisterForm = {
   fuelType: string;
   fuelUsage: string;
   fuelInput: string;
+  productOutput: string;
+  incinerationAmount: string;
+  unit: string;
 }
 
 export const getDefaultFacilityRegisterForm = (): FacilityRegisterForm => ({
@@ -10,4 +13,7 @@ export const getDefaultFacilityRegisterForm = (): FacilityRegisterForm => ({
   fuelType: '',
   fuelUsage: '',
   fuelInput: '',
+  productOutput: '',
+  incinerationAmount: '',
+  unit: '',
 });

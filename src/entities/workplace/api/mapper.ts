@@ -9,6 +9,8 @@ export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   detailAddress: trimValue(vo.address),
+  facilityManager: trimValue(vo.facilityManager),
+  samplingWitness: trimValue(vo.samplingWitness),
   grade: vo.grade,
 });
 
@@ -18,6 +20,8 @@ export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => 
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   detailAddress: trimValue(vo.address),
+  facilityManager: trimValue(vo.facilityManager),
+  samplingWitness: trimValue(vo.samplingWitness),
   grade: vo.grade,
 });
 
@@ -32,6 +36,9 @@ export const toWorkplaceListItem = (
   roadAddress: dto.roadAddress,
   detailAddress: dto.detailAddress,
   bizNumber: dto.bizNumber,
+  facilityManager: dto.facilityManager,
+  samplingWitness: dto.samplingWitness,
+  grade: dto.grade,
 });
 
 export const toWorkplaceListItems = (

@@ -9,7 +9,7 @@ import type { Grade } from "@shared/model";
 import { gradeOptions } from "@shared/model";
 import { GRADE_LABEL } from "@shared/config";
 
-import { Building2, Hash } from "lucide-react";
+import { Building2, Hash, User2 } from "lucide-react";
 import type { Client } from '@/entities/client';
 
 interface Props {
@@ -90,6 +90,22 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, client, workplace, onS
           placeholder="상세주소"
           value={{ zipcode: form.zipcode, roadAddress: form.roadAddress, detailAddress: form.address }}
           onChange={handleAddressChange}
+        />
+        <InputGroup
+          id="facilityManager"
+          label="배출시설 관리자"
+          placeholder="배출시설 관리자"
+          value={form.facilityManager}
+          onChange={(value) => handleChange("facilityManager", value)}
+          startIcon={<User2 />}
+        />
+        <InputGroup
+          id="samplingWitness"
+          label="환경기술인"
+          placeholder="채취 증인"
+          value={form.samplingWitness}
+          onChange={(value) => handleChange("samplingWitness", value)}
+          startIcon={<User2 />}
         />
       </FieldGroup>
     </FormDialog>

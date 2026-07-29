@@ -85,12 +85,8 @@ export const getStackDetailDefault = (): StackDetail => ({
 export type Prevention = {
   id: number;
   name: string;
-  targets: TargetSubstance[];
-}
-
-export type TargetSubstance = {
-  id: number;
-  name: string;
+  capacity: number | null;
+  targetName: string;
   removalEfficiency: string;
 }
 
@@ -98,36 +94,45 @@ export type Facility = {
   id: number;
   name: string;
   fuelUsage: string;
+  productOutput: string;
+  incinerationAmount: string;
   fuelInput: string;
   fuelType: string;
+  unit: string;
 }
 
 export type FacilityCreate = {
   stackId: number;
   name: string;
   fuelUsage: string;
+  productOutput: string;
+  incinerationAmount: string;
   fuelInput: string;
   fuelType: string;
+  unit: string;
 }
 
 export type FacilityUpdate = {
   name: string;
   fuelUsage: string;
+  productOutput: string;
+  incinerationAmount: string;
   fuelInput: string;
   fuelType: string;
+  unit: string;
 }
 
 export type PreventionCreate = {
   stackId: number;
   name: string;
+  capacity: number | null;
+  targetName: string;
+  removalEfficiency: string;
 }
 
 export type PreventionUpdate = {
   name: string;
-}
-
-export type TargetSubstanceCreate = {
-  preventionId: number;
-  name: string;
-  removalEfficiency: number | null;
+  capacity: number | null;
+  targetName: string;
+  removalEfficiency: string;
 }

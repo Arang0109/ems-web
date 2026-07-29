@@ -1,34 +1,49 @@
-import { Input, Select, SectionTitle } from "@shared/ui/form";
+import type { SheetCalcPreview } from "@entities/schedule";
 import { weatherConditionOptions, windDirectionOptions } from "@shared/model";
+import { SectionAccordion } from "@shared/ui/accordion";
+import { TableLabelCell, TableInputCell, TableResultCell, TableSelectCell } from "@shared/ui/table";
 
 import type { WeatherForm } from "../../model/types";
 
 interface Props {
   weather: WeatherForm;
-  pa: number | null;
+  calc: SheetCalcPreview["weather"] | null;
   editable: boolean;
   onChange: (patch: Partial<WeatherForm>) => void;
 }
 
-const display = (v: number | null): string => (v == null ? "-" : String(v));
+const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
-export const WeatherSection = ({ weather, pa, editable, onChange }: Props) => (
-  <section className="space-y-3">
-    <SectionTitle>기상 정보</SectionTitle>
-    <div className="grid md:grid-cols-3 gap-3">
-      <Input id="pressure" label="대기압 (hPa)" type="number" value={weather.pressure}
-        onChange={(v) => onChange({ pressure: v })} disabled={!editable} />
-      <Select id="weatherCondition" label="기상" placeholder="선택" value={weather.weatherCondition}
-        options={weatherConditionOptions} onValueChange={(v) => onChange({ weatherCondition: v ?? "" })} disabled={!editable} />
-      <Input label="기온 (°C)" type="number" value={weather.temperature}
-        onChange={(v) => onChange({ temperature: v })} disabled={!editable} />
-      <Input label="습도 (%)" type="number" value={weather.humidity}
-        onChange={(v) => onChange({ humidity: v })} disabled={!editable} />
-      <Select id="windDirection" label="풍향" placeholder="선택" value={weather.windDirection}
-        options={windDirectionOptions} onValueChange={(v) => onChange({ windDirection: v ?? "" })} disabled={!editable} />
-      <Input label="풍속 (m/s)" type="number" value={weather.windSpeed}
-        onChange={(v) => onChange({ windSpeed: v })} disabled={!editable} />
-      <Input label="대기압 Pa (mmHg, 계산)" value={display(pa)} readOnly disabled />
+export const WeatherSection = ({ weather, calc, editable, onChange }: Props) => (
+  <SectionAccordion title="기상정보 입력" defaultOpen>
+    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
+      <table className="w-full border-collapse min-w-[720px]">
+        <tbody>
+          <tr>
+            <TableLabelCell colSpan={2}>대기압 (hPa)</TableLabelCell>
+            <TableLabelCell>기온 (°C)</TableLabelCell>
+            <TableLabelCell>습도 (%)</TableLabelCell>
+            <TableLabelCell>기상</TableLabelCell>
+            <TableLabelCell>풍향</TableLabelCell>
+            <TableLabelCell>풍속 (m/s)</TableLabelCell>
+          </tr>
+          <tr>
+            <TableInputCell type="number" value={weather.pressure} unit="hPa" min={0.1} step={0.1}
+              onChange={(v) => onChange({ pressure: v })} disabled={!editable} />
+            <TableResultCell value={display(calc?.pa)} unit="mmHg" />
+            <TableInputCell type="number" value={weather.temperature} unit="°C" step={0.1}
+              onChange={(v) => onChange({ temperature: v })} disabled={!editable} />
+            <TableInputCell type="number" value={weather.humidity} unit="%" min={0} max={100} step={0.1}
+              onChange={(v) => onChange({ humidity: v })} disabled={!editable} />
+            <TableSelectCell value={weather.weatherCondition} options={weatherConditionOptions}
+              onChange={(v) => onChange({ weatherCondition: v })} disabled={!editable} />
+            <TableSelectCell value={weather.windDirection} options={windDirectionOptions}
+              onChange={(v) => onChange({ windDirection: v })} disabled={!editable} />
+            <TableInputCell type="number" value={weather.windSpeed} unit="m/s" min={0} max={50} step={0.1}
+              onChange={(v) => onChange({ windSpeed: v })} disabled={!editable} />
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </section>
+  </SectionAccordion>
 );

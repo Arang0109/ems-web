@@ -1,0 +1,95 @@
+# EMS 개발 서버 — 단일 EC2(t4g.medium, ARM64, 4GB) 5개 서비스 구성
+# 이미지는 로컬에서 arm64로 빌드 후 docker save/load로 전송하여 사용.
+# 시크릿은 같은 디렉토리의 .env 파일에서 주입 (.env.example 참고).
+# 메모리 캡은 mem_limit 을 쓴다 (deploy.resources.limits 도 Compose V2에서 동작하지만 더 장황하다).
+
+services:
+  frontend:
+    image: ems-web:arm64
+    ports:
+      - "80:80"          # 외부 노출은 이 포트뿐 (nginx가 정적 서빙 + /api 프록시)
+    depends_on:
+      - backend
+    restart: unless-stopped
+    mem_limit: 128m
+
+  backend:
+    image: ems-server:arm64
+    environment:
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx640m"
+      # MySQL 8 caching_sha2_password + 비-SSL 연결에는 allowPublicKeyRetrieval 필요.
+      # application.yaml의 spring.datasource.url을 통째로 덮어씀(재빌드 없이 적용).
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ems?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8"
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_NAME: ems
+      DB_USER: ems
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis            # application.yaml에서 ${REDIS_HOST} 참조하도록 수정됨
+      REDIS_PORT: "6379"
+      MONGO_HOST: mongo
+      MONGO_PORT: "27017"
+      MONGO_DB: ems
+      JWT_SECRET: ${JWT_SECRET}
+      AT_VALID: "3600000"
+      RT_VALID: "25200000"
+      # 운영자(PLATFORM_ADMIN) 최초 부트스트랩 — 서버의 PlatformAdminInitializer가 읽는다.
+      # 서버의 .env는 .dockerignore 대상이라 컨테이너 안에 없다. 값은 반드시 여기로 주입된다.
+      # 계정 생성을 확인한 뒤 .env에서 PLATFORM_BOOTSTRAP_ENABLED=false로 되돌린다.
+      PLATFORM_BOOTSTRAP_ENABLED: ${PLATFORM_BOOTSTRAP_ENABLED:-false}
+      PLATFORM_ADMIN_USERNAME: ${PLATFORM_ADMIN_USERNAME:-}
+      PLATFORM_ADMIN_PASSWORD: ${PLATFORM_ADMIN_PASSWORD:-}
+      PLATFORM_ADMIN_NAME: ${PLATFORM_ADMIN_NAME:-운영자}
+      PLATFORM_ADMIN_EMAIL: ${PLATFORM_ADMIN_EMAIL:-}
+      PLATFORM_ADMIN_DEPARTMENT: ${PLATFORM_ADMIN_DEPARTMENT:-}
+      PLATFORM_ADMIN_TEL: ${PLATFORM_ADMIN_TEL:-}
+      PLATFORM_SYSTEM_TENANT_NAME: ${PLATFORM_SYSTEM_TENANT_NAME:-플랫폼}
+      # 속성명은 system-tenant-biz-number 지만 환경변수는 _BIZ 로 끝난다(application.yaml 기준).
+      PLATFORM_SYSTEM_TENANT_BIZ: ${PLATFORM_SYSTEM_TENANT_BIZ:-0000000000}
+    depends_on:
+      - mysql
+      - redis
+      - mongo
+    restart: unless-stopped
+    mem_limit: 1024m
+
+  mysql:
+    image: mysql:8.0
+    command:
+      - "--innodb-buffer-pool-size=192M"
+      - "--max-connections=50"
+      - "--performance-schema=OFF"
+    environment:
+      MYSQL_DATABASE: ems
+      MYSQL_USER: ems
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - /data/mysql:/var/lib/mysql
+    restart: unless-stopped
+    mem_limit: 512m
+
+  redis:
+    image: redis:7-alpine
+    command:
+      - "redis-server"
+      - "--maxmemory"
+      - "128mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
+      - "--appendonly"
+      - "yes"
+    volumes:
+      - /data/redis:/data
+    restart: unless-stopped
+    mem_limit: 192m
+
+  mongo:
+    image: mongo:7
+    command:
+      - "--wiredTigerCacheSizeGB"
+      - "0.25"
+    volumes:
+      - /data/mongo:/data/db
+    restart: unless-stopped
+    mem_limit: 512m

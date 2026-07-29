@@ -1,30 +1,45 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Download, Eye, Plus, X } from "lucide-react";
 
-import type { MeasurementSheet } from "@entities/schedule";
+import type { MeasurementSheet, ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
 import { measurementCategoryOptions } from "@shared/model";
 import type { MeasurementCategory } from "@shared/model";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { Select } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
+import { Divider } from "@shared/ui/borders";
 
 import { useSaveSheets } from "../model/hooks/use-save-sheets";
+import { BasicInfoFields } from "./BasicInfoFields";
 import { SheetFormView } from "./SheetFormView";
+import { ReportPreviewModal } from "./report/ReportPreviewModal";
+import { ExportSamplingRecordsModal } from "./ExportSamplingRecordsModal";
 
 interface Props {
   scheduleId: number | null;
   initialSheets: MeasurementSheet[];
+  snapshot: ScheduleSnapshot | null;    // 기록지 미리보기용 (업체·시설·팀 정보)
   editable: boolean;
+  externals: SheetCalcExternals;
   onSaved?: () => void;
 }
 
-export const SheetsEditor = ({ scheduleId, initialSheets, editable, onSaved }: Props) => {
+export const SheetsEditor = ({ scheduleId, initialSheets, snapshot, editable, externals, onSaved }: Props) => {
   const {
-    sheets, activeIndex, activeSheet, activeCalcSheet, isLoading,
-    setActiveIndex, addSheet, removeSheet, updateActiveSheet, handleSave,
-  } = useSaveSheets({ scheduleId, initialSheets, editable, onSaved });
+    sheets, activeIndex, activeSheet, previewCalc, isLoading, basicInfoForm,
+    setActiveIndex, addSheet, removeSheet, updateActiveSheet, handleSave, handleBasicInfoChange,
+    isExportDialogOpen, templateFile, isExporting,
+    setExportDialogOpen, handleSelectTemplate, handleExport,
+  } = useSaveSheets({
+    scheduleId, initialSheets,
+    basicInfo: snapshot?.basicInfo ?? null,
+    // 채취자 표기명은 team 스냅샷 소관이라 함께 넘긴다.
+    team: snapshot?.team ?? null,
+    editable, externals, onSaved,
+  });
 
   const [newCategory, setNewCategory] = useState<MeasurementCategory>("GAS");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -68,18 +83,44 @@ export const SheetsEditor = ({ scheduleId, initialSheets, editable, onSaved }: P
           </div>
         )}
       </div>
+      <Divider />
+
+      {/* 측정계획 단위 공통 값이므로 시트 탭 바깥에 둔다(시트 전환·시트 0개와 무관하게 유지). */}
+      <BasicInfoFields
+        basicInfoForm={basicInfoForm}
+        editable={editable}
+        onChange={handleBasicInfoChange}
+      />
 
       {activeSheet ? (
         <>
+          <div className="flex justify-end">
+            <Button type="button" variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
+              <Eye size={14} className="mr-1" />기록지 미리보기
+            </Button>
+          </div>
+
           <SheetFormView
             key={activeIndex}
             sheet={activeSheet}
-            calcSheet={activeCalcSheet}
+            previewCalc={previewCalc}
+            externals={externals}
             editable={editable}
             onChange={updateActiveSheet}
           />
+          {/* 시트가 0개면 이 버튼이 없어 공통 채취시간만 단독 저장할 수는 없다.
+              시트 0개로 PUT /sheets를 보내면 전체 시트 삭제가 되므로 현 구조를 유지한다. */}
           {editable && (
-            <div className="flex justify-end pt-2">
+            <div className="flex justify-end gap-2 pt-2">
+              {/* 서버는 "저장된" 데이터로 엑셀을 채우므로 다운로드는 항상 저장을 먼저 수행한다. */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setExportDialogOpen(true)}
+                disabled={isLoading || scheduleId == null}
+              >
+                <Download size={14} className="mr-1" />저장 후 채취기록지 다운로드
+              </Button>
               <Button type="button" onClick={handleSave} disabled={isLoading || scheduleId == null}>
                 {isLoading ? "저장 중..." : "측정 데이터 저장"}
               </Button>
@@ -97,6 +138,25 @@ export const SheetsEditor = ({ scheduleId, initialSheets, editable, onSaved }: P
           완료 또는 취소된 측정계획은 측정 데이터를 수정할 수 없습니다.
         </p>
       )}
+
+      <ReportPreviewModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        sheet={activeSheet}
+        preview={previewCalc}
+        snapshot={snapshot}
+        basicInfoForm={basicInfoForm}
+        externals={externals}
+      />
+
+      <ExportSamplingRecordsModal
+        open={isExportDialogOpen}
+        onOpenChange={setExportDialogOpen}
+        templateFile={templateFile}
+        isLoading={isExporting}
+        onSelectTemplate={handleSelectTemplate}
+        onSubmit={handleExport}
+      />
     </div>
   );
 };

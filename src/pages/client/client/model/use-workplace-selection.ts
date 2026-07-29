@@ -10,7 +10,9 @@ const toWorkplace = (item: WorkplaceListItem): Workplace => ({
   bizNumber: item.bizNumber,
   zipcode: item.zipcode,
   roadAddress: item.roadAddress,
-  address: item.address,
+  detailAddress: item.detailAddress,
+  facilityManager: item.facilityManager,
+  samplingWitness: item.samplingWitness,
   grade: item.grade,
 });
 

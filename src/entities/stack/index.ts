@@ -3,7 +3,6 @@ export { stackApi } from "./api/api";
 export type {
   Stack, StackCreate, StackUpdate, StackListItem, StackDetail,
   Prevention, PreventionCreate, PreventionUpdate,
-  TargetSubstance, TargetSubstanceCreate,
   Facility, FacilityCreate, FacilityUpdate,
 } from "./model/types";
 
@@ -17,5 +16,3 @@ export { useDeleteFacilityAction } from "./model/use-delete-facility-action";
 export { useRegisterPreventionAction } from "./model/use-register-prevention-action";
 export { useUpdatePreventionAction } from "./model/use-update-prevention-action";
 export { useDeletePreventionAction } from "./model/use-delete-prevention-action";
-export { useRegisterSubstanceAction } from "./model/use-register-substance-action";
-export { useDeleteSubstanceAction } from "./model/use-delete-substance-action";

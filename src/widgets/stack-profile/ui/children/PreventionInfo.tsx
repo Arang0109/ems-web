@@ -1,49 +1,18 @@
 import { useState } from 'react';
 
-import type { Prevention, TargetSubstance } from '@entities/stack';
+import type { Prevention } from '@entities/stack';
 import { RegisterPreventionForm } from '@features/register-prevention';
 import { UpdatePreventionForm } from '@features/update-prevention';
-import { RegisterSubstanceForm } from '@features/register-substance';
-import { useDeleteSubstance } from '@features/delete-substance';
 
 import { Divider } from '@shared/ui/borders';
 import { IconButton } from '@shared/ui/buttons';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil } from 'lucide-react';
 
 interface Props {
   stackId: number;
   preventions: Prevention[];
   onRefetch: () => void;
 }
-
-interface SubstanceItemProps {
-  substance: TargetSubstance;
-  onRefetch: () => void;
-}
-
-const SubstanceItem = ({ substance, onRefetch }: SubstanceItemProps) => {
-  const { isLoading, handleDelete } = useDeleteSubstance({
-    substance,
-    onSuccess: onRefetch,
-  });
-
-  return (
-    <div className="bg-muted/40 rounded-xl px-4 py-3 flex items-center justify-between">
-      <div>
-        <p className="text-xs text-muted-foreground mb-0.5">{substance.name}</p>
-        <p className="text-sm font-medium text-foreground">{substance.removalEfficiency || '-'}</p>
-      </div>
-      <IconButton
-        icon={<Trash2 size={12} />}
-        label="삭제"
-        size="xs"
-        variant="destructive"
-        onClick={handleDelete}
-        disabled={isLoading}
-      />
-    </div>
-  );
-};
 
 const InfoItem = ({ label, value }: { label: string; value: string }) => (
   <div className="bg-muted/40 rounded-xl px-4 py-3">
@@ -53,20 +22,13 @@ const InfoItem = ({ label, value }: { label: string; value: string }) => (
 );
 
 export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
-  const [registerPreventionOpen, setRegisterPreventionOpen] = useState(false);
-  const [updatePreventionOpen, setUpdatePreventionOpen] = useState(false);
+  const [registerOpen, setRegisterOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
   const [selectedPrevention, setSelectedPrevention] = useState<Prevention | null>(null);
-  const [registerSubstanceOpen, setRegisterSubstanceOpen] = useState(false);
-  const [registerSubstancePreventionId, setRegisterSubstancePreventionId] = useState<number | null>(null);
 
   const handleEditClick = (prevention: Prevention) => {
     setSelectedPrevention(prevention);
-    setUpdatePreventionOpen(true);
-  };
-
-  const handleAddSubstanceClick = (preventionId: number) => {
-    setRegisterSubstancePreventionId(preventionId);
-    setRegisterSubstanceOpen(true);
+    setUpdateOpen(true);
   };
 
   return (
@@ -76,7 +38,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
         <IconButton
           icon={<Plus size={14} />}
           label="방지시설 추가"
-          onClick={() => setRegisterPreventionOpen(true)}
+          onClick={() => setRegisterOpen(true)}
         />
       </div>
 
@@ -88,7 +50,6 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
         preventions.map((prevention, index) => (
           <div key={prevention.id} className="space-y-5">
             {index > 0 && <Divider />}
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground">시설 정보</p>
@@ -99,32 +60,15 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
                   onClick={() => handleEditClick(prevention)}
                 />
               </div>
-              <InfoItem label="방지시설명" value={prevention.name} />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-muted-foreground">대상 물질</p>
-                <IconButton
-                  icon={<Plus size={12} />}
-                  label="대상물질 추가"
-                  size="xs"
-                  onClick={() => handleAddSubstanceClick(prevention.id)}
+              <div className="grid grid-cols-4 gap-3">
+                <InfoItem label="방지시설명" value={prevention.name} />
+                <InfoItem
+                  label="용량"
+                  value={prevention.capacity != null ? String(prevention.capacity) : ''}
                 />
+                <InfoItem label="대상물질명" value={prevention.targetName} />
+                <InfoItem label="제거 효율" value={prevention.removalEfficiency} />
               </div>
-              {prevention.targets.length > 0 ? (
-                <div className="grid grid-cols-2 gap-3">
-                  {prevention.targets.map((target) => (
-                    <SubstanceItem
-                      key={target.id}
-                      substance={target}
-                      onRefetch={onRefetch}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground py-2">등록된 대상물질이 없습니다.</p>
-              )}
             </div>
           </div>
         ))
@@ -132,28 +76,18 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
 
       <RegisterPreventionForm
         stackId={stackId}
-        open={registerPreventionOpen}
-        onOpenChange={setRegisterPreventionOpen}
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
         onSuccess={onRefetch}
       />
 
       <UpdatePreventionForm
         key={selectedPrevention?.id}
         prevention={selectedPrevention}
-        open={updatePreventionOpen}
-        onOpenChange={setUpdatePreventionOpen}
+        open={updateOpen}
+        onOpenChange={setUpdateOpen}
         onSuccess={onRefetch}
       />
-
-      {registerSubstancePreventionId !== null && (
-        <RegisterSubstanceForm
-          key={registerSubstancePreventionId}
-          preventionId={registerSubstancePreventionId}
-          open={registerSubstanceOpen}
-          onOpenChange={setRegisterSubstanceOpen}
-          onSuccess={onRefetch}
-        />
-      )}
     </div>
   );
 };

@@ -1,0 +1,15 @@
+# 이 파일을 복사해서 deploy.local.sh 로 만들고 실제 값을 채운다.
+#   cp deploy/deploy.local.sh.example deploy/deploy.local.sh
+# deploy.local.sh 는 .gitignore 의 `deploy/deploy.local.sh` 항목으로 커밋되지 않는다.
+# redeploy-frontend.sh / redeploy-backend.sh 가 이 값들을 source 한다.
+#
+# 경로는 Git Bash 형식으로 쓴다: C:\dev\key.pem → /c/dev/key.pem
+
+EC2_HOST="0.0.0.0"                     # EC2 퍼블릭 IP 또는 도메인
+SSH_USER="ec2-user"                    # Amazon Linux 2023 기본 사용자
+SSH_KEY="/c/path/to/your-key.pem"      # SSH 프라이빗 키 경로
+REMOTE_DIR="/home/ec2-user/ems"        # EC2에서 docker-compose.yml + .env 가 있는 경로
+
+# 백엔드(ems-server) 저장소 경로 — redeploy-backend.sh 만 사용한다.
+# WSL 안의 저장소를 UNC 경로로 지정한다. WSL이 실행 중이어야 한다.
+SERVER_REPO="//wsl.localhost/Ubuntu-22.04/home/you/projects/ems-server"
