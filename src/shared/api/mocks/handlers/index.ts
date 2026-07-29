@@ -39,7 +39,7 @@ export const handlers = [
   ...pollutantHandlers,
 
   // [ACTIVE]   회원 관리(관리자 페이지) + 팀 사수·부사수 조회
-  // ...memberHandlers,
+  ...memberHandlers,
   ...roleHandlers,
 
   // [ACTIVE]   측정장비 관리
