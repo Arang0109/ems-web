@@ -3,9 +3,12 @@ export interface MeasurementCountChart {
   count: number;
 }
 
-export interface DashboardOverview {
+export interface OverallStats {
   workplaceCount: number;
   stackCount: number;
   totalMeasurements: number;
-  thisMonthMeasurements: number;
+}
+
+export interface MonthlyStats {
+  monthlyMeasurements: number;
 }

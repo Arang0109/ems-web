@@ -5,10 +5,10 @@ import { Sidebar } from "./Sidebar";
 export const MainLayout = () => {
 
   return (
-    <SidebarProvider>
+    <SidebarProvider className="flex justify-center">
       <Sidebar />
       {/* main */}
-      <main className="flex-1 min-h-screen bg-muted/40">
+      <main className="flex-1 max-w-380 min-h-screen bg-canvas px-7.5 py-10">
         <SidebarTrigger className="md:hidden" />
         <Outlet />
       </main>

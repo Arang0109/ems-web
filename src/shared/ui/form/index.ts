@@ -7,6 +7,7 @@ export { Textarea } from "./TextArea";
 export { HorizontalRadioGroup } from "./HorizontalRadioGroup";
 export { Select } from "./Select";
 export { DatePicker } from "./DatePicker";
+export { DateRangePicker } from "./DateRangePicker";
 export { AddressInput } from "./AddressInput";
 export { FileInput } from "./FileInput";
 
@@ -14,3 +15,4 @@ export { SectionTitle } from "./SectionTitle";
 export { FieldGroup } from "./FieldGroup";
 export type { RadioOption } from "./HorizontalRadioGroup";
 export type { SelectOption, SelectGroupOption } from "./Select";
+export type { DateRange } from "./DateRangePicker";

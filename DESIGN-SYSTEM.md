@@ -233,7 +233,8 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 **하드코딩 팔레트 직색 치환 — 62곳** (Success/Info 는 브랜드 초록으로 통합하기로 결정)
 - `widgets/metrics/SummaryCards.tsx` — 카드 색상 스킴. 대표 지표 1장만 초록, 나머지 중성
-- `widgets/metrics/MeasurementChart.tsx` — `#6366f1` 하드코딩 → `var(--chart-1)`
+- ~~`widgets/metrics/MeasurementChart.tsx`~~ — **완료.** 피그마 차트 디자인 적용과 함께
+  `#6366f1` 하드코딩을 걷어내고 `var(--chart-1)`·`var(--ink)`·`var(--rule)` 로 전환
 - `widgets/contract-chart/ContractChart.tsx`
 - `shared/ui/cards/SummaryCard.tsx` — default prop 의 파랑
 - `widgets/stack-table` · `workplace-table` — 선택 항목 강조 파랑

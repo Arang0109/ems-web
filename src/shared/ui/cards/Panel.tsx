@@ -12,7 +12,7 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 export const Panel = ({ className, children, ...props }: Props) => (
   <div
     className={cn(
-      "bg-card rounded-panel p-5 shadow-sm border border-border overflow-hidden",
+      "bg-surface rounded-panel overflow-hidden",
       className
     )}
     {...props}
