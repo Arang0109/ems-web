@@ -53,9 +53,10 @@ export type StackUpdate = {
   grade: Grade;
   businessCategory: string;
   mainProduct: string;
-  height: string;
-  horizontalLength: string;
-  verticalLength: string;
+  /** 서버 계약이 nullable Double — 미입력은 0 이 아니라 null 로 보낸다 */
+  height: number | null;
+  horizontalLength: number | null;
+  verticalLength: number | null;
   shape: Shape;
   orientation: Orientation;
 }

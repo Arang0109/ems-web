@@ -1,6 +1,6 @@
 import type { StackUpdate } from "@entities/stack";
 import type { StackUpdateForm } from "./types";
-import { trimValue } from "@shared/lib";
+import { toNumberOrNull, trimValue } from "@shared/lib";
 
 
 export const toStackUpdate = (
@@ -12,9 +12,9 @@ export const toStackUpdate = (
   grade: form.grade,
   businessCategory: trimValue(form.businessCategory),
   mainProduct: trimValue(form.mainProduct),
-  height: trimValue(form.height),
-  horizontalLength: trimValue(form.horizontalLength),
-  verticalLength: trimValue(form.verticalLength),
+  height: toNumberOrNull(form.height),
+  horizontalLength: toNumberOrNull(form.horizontalLength),
+  verticalLength: toNumberOrNull(form.verticalLength),
   shape: form.shape,
   orientation: form.orientation
 })

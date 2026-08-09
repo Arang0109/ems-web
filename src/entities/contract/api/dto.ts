@@ -31,8 +31,8 @@ export type ContractResponse = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
-  contractGuaranteeAmount: number;  // 계약보증금
-  advancePaymentAmount: number;     // 선금
+  contractGuaranteeAmount: number | null;  // 계약보증금 (서버 BigDecimal nullable)
+  advancePaymentAmount: number | null;     // 선금 (서버 BigDecimal nullable)
 
   advancePaymentDueDate: number;    // 선급지급기간
   delayPenaltyRate: number;         // 지체상금율 (%)
@@ -52,8 +52,8 @@ export type ContractRegisterRequest = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
-  contractGuaranteeAmount: number;  // 계약보증금
-  advancePaymentAmount: number;     // 선금
+  contractGuaranteeAmount: number | null;  // 계약보증금 (서버 BigDecimal nullable)
+  advancePaymentAmount: number | null;     // 선금 (서버 BigDecimal nullable)
 
   advancePaymentDueDate: number;    // 선급지급기간
   delayPenaltyRate: number;         // 지체상금율 (%)
@@ -72,8 +72,8 @@ export type ContractUpdateRequest = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
-  contractGuaranteeAmount: number;  // 계약보증금
-  advancePaymentAmount: number;     // 선금
+  contractGuaranteeAmount: number | null;  // 계약보증금 (서버 BigDecimal nullable)
+  advancePaymentAmount: number | null;     // 선금 (서버 BigDecimal nullable)
 
   advancePaymentDueDate: number;    // 선급지급기간
   delayPenaltyRate: number;         // 지체상금율 (%)

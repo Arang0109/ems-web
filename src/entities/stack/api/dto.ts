@@ -17,9 +17,10 @@ export type StackUpdateRequest = {
   grade: Grade;
   businessCategory: string;
   mainProduct: string;
-  height: string;
-  horizontalLength: string;
-  verticalLength: string;
+  /** 서버 `UpdateStackRequest` 는 Double(nullable). 응답(`StackResponse`)은 String 이라 읽기/쓰기가 비대칭이다. */
+  height: number | null;
+  horizontalLength: number | null;
+  verticalLength: number | null;
   shape: Shape;
   orientation: Orientation;
 }

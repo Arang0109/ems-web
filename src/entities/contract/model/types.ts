@@ -29,8 +29,8 @@ export type ContractDetail = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;
 
-  contractGuaranteeAmount: number;
-  advancePaymentAmount: number;
+  contractGuaranteeAmount: number | null;
+  advancePaymentAmount: number | null;
 
   advancePaymentDueDate: number;
   delayPenaltyRate: number;
@@ -51,8 +51,8 @@ export type Contract = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;             // 부가세 여부
 
-  contractGuaranteeAmount: number;  // 계약보증금
-  advancePaymentAmount: number;     // 선금
+  contractGuaranteeAmount: number | null;  // 계약보증금
+  advancePaymentAmount: number | null;     // 선금
 
   advancePaymentDueDate: string;    // 선급지급기간
   delayPenaltyRate: number;         // 지체상금율 (%)
@@ -72,8 +72,8 @@ export type ContractCreate = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;
 
-  contractGuaranteeAmount: number;
-  advancePaymentAmount: number;
+  contractGuaranteeAmount: number | null;
+  advancePaymentAmount: number | null;
 
   advancePaymentDueDate: number;
   delayPenaltyRate: number;
@@ -92,8 +92,8 @@ export type ContractUpdate = {
   contractAmountUnit: ContractAmountUnit;
   vatIncluded: boolean;
 
-  contractGuaranteeAmount: number;
-  advancePaymentAmount: number;
+  contractGuaranteeAmount: number | null;
+  advancePaymentAmount: number | null;
 
   advancePaymentDueDate: number;
   delayPenaltyRate: number;

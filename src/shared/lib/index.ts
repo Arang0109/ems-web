@@ -1,5 +1,6 @@
 export { formatAddress } from "./format/address";
 export { unformatNumber, toNumber, toNumberOrNull } from "./format/number";
+export { toFormValue } from "./format/form-value";
 export { formatBusinessNumber } from "./format/business-number";
 export { formatDateTime, formatMonthDay } from "./format/date-time";
 export { formatFileSize } from "./format/file-size";

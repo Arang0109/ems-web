@@ -1,43 +1,26 @@
 import { useMemo } from 'react';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
+import { useNavigate } from 'react-router-dom';
+
 import { useContracts } from '@entities/contract';
 
 import { defaultColumns } from '../model/columns';
 import { toContractRows } from '../model/mapper';
+import type { ContractTableRow } from '../model/types';
 
-import { useTableState } from '@shared/model';
+import { useDataTable } from '@shared/model';
 
 export const useContractTable = () => {
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination,
-  } = useTableState({ pageSize: 20 });
+  const navigate = useNavigate();
 
   const { data, loading, error } = useContracts();
   const tableData = useMemo(() => data.map(toContractRows), [data]);
 
-  const table = useReactTable({
-    columns: defaultColumns,
+  const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    columns: defaultColumns,
+    pageSize: 20,
+    onViewDetail: (row: ContractTableRow) => navigate(`/contracts/${row.id}`),
   });
 
   return { table, loading, error, globalFilter, setGlobalFilter };

@@ -11,7 +11,7 @@ export const useDeleteScheduleAction = () => {
     setError(null);
 
     try {
-      const result = await scheduleApi.delteSchedule(id);
+      const result = await scheduleApi.deleteSchedule(id);
       if (!result.status) {
         throw new Error(result.message ?? '서버 연결에 실패했습니다.');
       }

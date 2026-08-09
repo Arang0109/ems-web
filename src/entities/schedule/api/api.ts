@@ -49,7 +49,7 @@ export const scheduleApi = {
     return res.data;
   },
 
-  delteSchedule: async (id: number): Promise<ApiResponseMessage<void>> => {
+  deleteSchedule: async (id: number): Promise<ApiResponseMessage<void>> => {
     const res = await axiosPrivate.delete(`/schedules/${id}`);
     return res.data;
   },
