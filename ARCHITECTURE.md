@@ -14,24 +14,21 @@ src/
 ├── features/     # 사용자 시나리오, 비즈니스 액션
 ├── entities/     # 비즈니스 엔티티 (도메인 타입 + API + 상태)
 ├── shared/       # 재사용 가능한 공통 모듈
-│   ├── api/      # axios 인스턴스, MSW 핸들러
-│   ├── hooks/    # 공통 훅
-│   ├── icon/     # 공통 아이콘
-│   ├── lib/      # 유틸리티 (formatters 등)
-│   ├── model/    # 공통 타입, 상수
-│   └── ui/       # 공통 UI 컴포넌트
-│       ├── badges/
-│       ├── borders/
-│       ├── buttons/
-│       ├── cards/
-│       ├── dialogs/
-│       ├── form/
-│       ├── links/
-│       ├── pagination/
-│       ├── semantics/
-│       ├── table/
-│       ├── tabs/
-│       └── toasts/
+│   ├── api/      # axios 인스턴스, MSW 핸들러, blob 에러 처리
+│   ├── config/   # 공통 레이블맵(labels.ts), 공통 상수(constants.ts)
+│   ├── lib/      # 유틸리티 (format/, string/, file/)
+│   ├── model/    # 공통 타입·상수(types/), 공통 훅(hooks/)
+│   └── ui/       # 공통 UI 컴포넌트 (20개 카테고리)
+│       ├── accordion/   ├── layout/
+│       ├── badges/      ├── links/
+│       ├── borders/     ├── nav/
+│       ├── buttons/     ├── pagination/
+│       ├── cards/       ├── primitives/
+│       ├── dialogs/     ├── semantics/
+│       ├── feedback/    ├── sidebar/
+│       ├── form/        ├── skeletons/
+│       ├── table/       ├── tabs/
+│       ├── theme/       └── toasts/
 ├── components/   # shadcn/ui CLI 자동 생성 경로 (FSD 예외 허용)
 └── lib/          # shadcn/ui 유틸 (cn 함수 등) (FSD 예외 허용)
 ```
@@ -62,13 +59,15 @@ app → pages → widgets → features → entities → shared
 
 ## 현재 구현된 슬라이스
 
-| 레이어 | 슬라이스 |
-|--------|---------|
-| pages | `sign-in`, `dashboard`, `client`(하위 `client`, `contract`, `pollutant`) |
-| widgets | `sign-in`, `layouts`, `metrics`, `contract-chart`, `client-table`, `workplace-table`, `stack-table`, `contract-table`, `pollutant-table`, `stack-list-table`, `stack-profile` |
-| features | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `register-client`, `register-workplace`, `register-stack`, `register-contract`, `register-pollutant`, `register-facility`, `register-prevention`, `register-stack-pollutant`, `update-client`, `update-contract`, `update-workplace`, `update-stack`, `update-facility`, `update-prevention` |
-| entities | `auth`, `client`, `workplace`, `stack`, `contract`, `dashboard`, `pollutant`, `stack-pollutant` |
-| shared | `api`, `hooks`, `icon`, `lib`, `model`, `ui` |
+| 레이어 | 개수 | 슬라이스 |
+|--------|------|---------|
+| pages | 8 그룹 / 라우트 17개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`), `equipment`, `schedule`, `staff`, `admin`(하위 `member`·`document`), `platform`(하위 `tenant`) |
+| widgets | 20 | `sign-in`, `layouts`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `schedule-profile`, `tenant-table` |
+| features | 34 | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `save-schedule-sheets`, `download-document`, `add-document-version`, `register-*`(client·workplace·stack·contract·pollutant·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·facility·prevention·document·equipment·member·team·schedule-client·schedule-equipments) |
+| entities | 14 | `auth`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `document`, `equipment`, `member`, `schedule`, `team`, `tenant` |
+| shared | — | `api`, `config`, `lib`, `model`, `ui` |
+
+> 슬라이스가 추가·삭제되면 이 표를 갱신한다. 개수는 `ls -1 src/<레이어> | grep -v CLAUDE.md | wc -l` 로 실측한다.
 
 ---
 
@@ -144,13 +143,25 @@ shared/model/types/common-types (공통 enum/type)
 
 ---
 
-## 알려진 FSD 위반 사항 (개선 필요)
+## FSD 준수 현황
 
-레이어별 세부 위반 목록은 각 레이어 `CLAUDE.md`의 "알려진 위반 사항" 절을 참조한다.
-대표적인 미해소 항목은 다음과 같다.
+정기 점검 기준(최종 확인: Phase 1~3 정리 완료 시점):
+
+| 항목 | 상태 |
+|------|------|
+| 레이어 단방향 의존성 위반 | **0건** |
+| 슬라이스 간 cross-import (같은 레이어) | **0건** |
+| `index.ts` 없는 슬라이스 | **0건** |
+| 비즈니스 레이어의 `@/components/ui/*` 직접 import | **0건** (`src/shared/ui/` 래퍼 경유) |
+| API 함수 네이밍(`get~`) | 전수 준수 |
+
+### 남은 개선 항목
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `features/sign-in/ui/SignInForm.tsx`, `SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@shared/ui/buttons`를 통해 사용 |
-| `features/register-client/ui/RegisterClientForm.tsx`, `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
-| `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx` | 자체 훅과 불일치하는 미완성 폼(다른 폼에서 복사된 잔재) | 훅(`rows` 기반 다중행 입력)에 맞게 재작성 |
+| `entities/auth/index.ts` | `SignInRequest`/`SignInResponse` DTO 를 public API 로 노출 | auth 액션 훅을 만들어 DTO 노출 제거 |
+| `entities/dashboard` | `model/` 자체가 없어 DTO 4종을 그대로 노출 | `model/types.ts` + 페칭 훅 신설 |
+| `features/{sign-in,sign-out,contract-overview}` | `entities/*/api/api.ts` 직접 호출 (entity 훅 부재가 원인) | 위 두 항목 해소 시 함께 정리 |
+| `features/{sign-in,sign-out,contract-overview}` | 훅이 슬라이스 루트 `hooks/` 에 위치 | `model/hooks/` 로 이동 |
+| `src/shared/ui/*`, `src/widgets/schedule-profile/**` | `@/lib/utils` 의 `cn` 직접 사용 | shadcn 관행으로 인정할지 `@shared/lib` 로 이전할지 미결정 |
+| `src/components/variants/buttonVariants.ts` | `shared/ui/buttons/button-variants.ts` 와 중복 | `components/ui/button.tsx` → `sheet`/`dialog`/`sidebar` 체인과 함께 정리 |

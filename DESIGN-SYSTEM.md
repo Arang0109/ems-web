@@ -192,6 +192,30 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행 (좌 라벨 / 우 값 + 하단 구분선). MO 48px → 데스크탑 38px |
 | `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기 |
 | `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
+| `PageLayout` | `shared/ui/layout/PageLayout.tsx` | 페이지 셸 — 제목 + 액션 + 본문 |
+| `Panel`, `SummaryCard`, `SummaryCardGroup` | `shared/ui/cards/` | 카드 셸 / 지표 타일 / 제목+타일 그리드 |
+| `EmptyText` | `shared/ui/feedback/EmptyText.tsx` | 패널 안 한 줄 빈 상태 |
+| `Skeleton`, `SkeletonPanel` | `shared/ui/skeletons/` | 자리표시 원자 / 패널 단위 로딩 |
+| `DateRangePicker` | `shared/ui/form/DateRangePicker.tsx` | 기간 선택 |
+| `SidebarMobileBar` | `shared/ui/sidebar/SidebarMobileBar.tsx` | 모바일 상단 바 |
+| `BasicTable` 외 테이블 부품 | `shared/ui/table/` | 아래 "반응형 테이블" 참조 |
+
+### 반응형 테이블
+
+`BasicTable` 은 렌더러가 아니라 **조합기**다. `useIsMobile`(md 미만)로 두 렌더러를 전환한다.
+
+```
+BasicTable
+├── DesktopTable    (md 이상)  — 표 형태. 셀 타이포·정렬 아이콘 담당
+└── MobileCardList  (md 미만)  — 카드 목록
+    └── derive-card-config     — 위젯의 model/mobile-card.tsx 선언을 카드 필드로 변환
+```
+
+셸 부품: `TablePanel`(패널 셸) · `TableFooterBar` + `TablePagination`(하단 바) ·
+`TableEmptyState`(빈 상태) · `RowActionCell`(행 상세보기 버튼) · `SortIcon`.
+
+> **모바일 1순위 원칙의 구현체가 이 구조다.** 새 테이블 위젯은 데스크탑 표만 만들지 말고
+> `model/mobile-card.tsx` 로 카드 표현을 함께 선언한다.
 
 **Button variant** (이름은 기존 호출부 호환을 위해 유지)
 
@@ -224,7 +248,7 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 `Field` `InputGroup` `Table` `Pagination` `Calendar` `Label` `Textarea`
 
-### 잔존 shadcn — `src/components/ui/` (13개 · 1,635줄)
+### 잔존 shadcn — `src/components/ui/` (12개 · 1,508줄)
 
 | 파일 | 줄 | Base UI 의존 |
 |---|---|---|
@@ -233,7 +257,6 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | `dialog` | 155 | dialog |
 | `sheet` | 135 | dialog |
 | `popover` | 88 | popover |
-| `tabs` | 80 | tabs |
 | `tooltip` | 66 | tooltip |
 | `radio-group` | 36 | radio, radio-group |
 | `checkbox` | 27 | checkbox |
@@ -242,11 +265,14 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | `input` | 20 | input |
 | `skeleton` | 13 | — |
 
+여기에 `src/components/variants/buttonVariants.ts`(47줄)가 붙어 총 1,555줄이다.
+이 파일은 `shared/ui/buttons/button-variants.ts` 와 **중복**이며, `components/ui/button.tsx`
+체인을 정리할 때 함께 삭제한다.
+
 > `sheet` `tooltip` `skeleton` `button` `input` `separator` 는 **전부 `sidebar.tsx` 가 물고 있다.**
 > sidebar 하나를 처리하면 6개가 함께 풀린다.
 >
-> `tabs` 는 **사용처가 0이다** — `shared/ui/tabs/Tabs.tsx` 가 Base UI `tabs` 를 직접 쓰도록 바뀌었다.
-> 파일만 삭제하면 되며, 삭제 시 12개 · 1,555줄이 된다.
+> `tabs` (80줄)는 사용처가 0이라 **삭제 완료**했다.
 
 ---
 
@@ -347,17 +373,31 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 - `app-provider.tsx` 의 `ThemeProvider` 제거
 - `shared/ui/theme/ThemeToggle.tsx` 삭제 (사용처: `SidebarUserFooter` 1곳)
 - `shared/ui/toasts/Toaster.tsx` 의 `useTheme()` → `theme="light"` 고정
-- `dark:` variant 제거 — **20개 파일**
+- `dark:` variant 제거 — **13개 파일** (`components/ui/`{checkbox,input,radio-group,select},
+  `components/variants/buttonVariants.ts`, `features/`{register-equipment/SpecFields,
+  register-stack-pollutant/Form, update-equipment/InspectionFields, update-equipment/SpecFields},
+  `shared/ui/primitives/`{Field,InputGroup,Textarea}, `widgets/stack-table/ui/StackTable`)
 - `package.json` 의 `next-themes` 제거
 - ⚠️ 현재 다크 토글을 누르면 구 shadcn neutral 팔레트가 나온다. `defaultTheme="light"` 라 기본 사용엔 영향 없음
 
-**하드코딩 팔레트 직색 치환 — 62곳** (Success/Info 는 브랜드 초록으로 통합하기로 결정)
-- `widgets/metrics/SummaryCards.tsx` — 카드 색상 스킴. 대표 지표 1장만 초록, 나머지 중성
-- ~~`widgets/metrics/MeasurementChart.tsx`~~ — **완료.** 피그마 차트 디자인 적용과 함께
-  `#6366f1` 하드코딩을 걷어내고 `var(--chart-1)`·`var(--ink)`·`var(--rule)` 로 전환
-- `widgets/contract-chart/ContractChart.tsx`
-- `shared/ui/cards/SummaryCard.tsx` — default prop 의 파랑
-- `widgets/stack-table` · `workplace-table` — 선택 항목 강조 파랑
+**하드코딩 팔레트 직색 치환 — 5곳** (Success/Info 는 브랜드 초록으로 통합하기로 결정)
+
+실측 재집계 결과 초기 추정(62곳)보다 훨씬 적다. 남은 것은 전부 "링크형 텍스트 버튼"의 파랑이다.
+
+- `features/register-equipment/ui/SpecFields.tsx:27` — `text-blue-600 hover:text-blue-700`
+- `features/update-equipment/ui/SpecFields.tsx:27` — 위와 동일
+- `features/update-equipment/ui/InspectionFields.tsx:76` — 위와 동일
+- `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx:56` — 위와 동일
+- `widgets/stack-table/ui/StackTable.tsx:37` — 라이트는 이미 `text-brand-primary`,
+  `dark:text-blue-400` 만 잔존 (다크모드 제거 항목과 중복)
+
+여기에 `components/variants/buttonVariants.ts` 의 variant 색상이 남아 있으나
+이 파일은 shadcn 제거 4단계에서 통째로 없어진다.
+
+> 완료분: `widgets/metrics/MeasurementChart.tsx`(차트 색 토큰화),
+> `shared/ui/cards/SummaryCard.tsx`(색 스킴 prop 자체가 제거되어 토큰만 사용),
+> `widgets/workplace-table`(선택 강조 토큰화).
+> 삭제분: `widgets/metrics/SummaryCards.tsx`, `widgets/contract-chart/ContractChart.tsx`
 
 ### 2순위 — shadcn 제거 4단계
 
@@ -368,6 +408,8 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 | 항목 | 선택지 |
 |---|---|
+| **테이블 셀 타이포** | `DesktopTable` 이 `text-body-3 text-ink-soft` 로 셀 타이포를 정하는데, 위젯 6개의 `CustomCell` 이 `text-body-4 text-foreground` 로 덧씌우고 5개는 덧씌우지 않는다. 어느 쪽으로 통일할지 결정 필요 (`CustomCell` 11개 제거의 전제) |
+| **`TablePanel` 헤더 여백** | 현행 인라인 헤더(`px-5 pt-5 pb-4 border-b`) vs `TablePanel`(`bg-canvas p-2`). 11개 화면 시각 변화를 동반한다 |
 | **사이드바 메뉴 글꼴** | `text-body-1`(14/700, 스펙) / `font-semibold`(14/600, 요청) / 활성 항목만 강조 |
 | **`IconButton` 기본 variant** | `ghost`(현재, 테두리 없음) / `outline`(피그마 ICON ONLY) — 테이블 행 12곳에 영향 |
 | **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가 |
@@ -375,14 +417,16 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 ### 4순위 — 정리
 
-- **`src/app/App.css` 삭제** — Vite 스캐폴딩 잔재, import 되는 곳 0건
+- ~~**`src/app/App.css` 삭제**~~ — **완료.** import 0건이던 Vite 스캐폴딩 잔재 제거
 - **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다
 - **`계약 상태` 배지 적용** — `CONTRACT_STATUS_LABEL`(정상/만료 임박/만료)이 라벨맵만 있고
   테이블에서 문자열 그대로 렌더된다. 피그마의 "만료 임박" 배지가 갈 자리
 - ~~**폼 입력 글씨 16px 문제**~~ — **완료(8단계).** `text-base md:text-sm` → `text-body-3`
 - ~~**기존 타입 오류 8건**~~ — **해소됨.** `features/update-schedule-client` 리팩터링 과정에서 정리되어
   2026-07-30 기준 `npx tsc -b --force` 오류 0건
-- **`ring-ring/50` 잔존 3곳** — `primitives/Calendar.tsx` · `components/ui/tabs.tsx` ·
+- **`ring-ring/50` 잔존 1곳** — `components/variants/buttonVariants.ts`
+  (나머지는 `ring-ring/12` 로 이미 정리됨. `Calendar.tsx` 에는 애초에 없었고 `tabs.tsx` 는 삭제됨)
+- ~~`primitives/Calendar.tsx` · `components/ui/tabs.tsx`~~ —
   `components/variants/buttonVariants.ts`. 피그마의 12% 규정은 **입력 필드** 스펙이고 이 3개는
   입력 필드가 아니어서 8단계 범위에서 제외했다. 통일할지는 판단 필요
 

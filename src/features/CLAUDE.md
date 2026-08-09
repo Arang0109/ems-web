@@ -39,14 +39,27 @@ feature-name/
     └── XxxForm.tsx
 ```
 
-### Select Feature (select-xxx)
+### 대형 폼 Feature (save-schedule-sheets 등)
+
+섹션이 많은 폼은 표준 구조를 확장한다.
 
 ```
 feature-name/
 ├── index.ts
-└── hooks/              # feature 루트 바로 아래, 폴더명 반드시 복수형
-    └── useXxxSelection.ts
+├── model/
+│   ├── types.ts
+│   ├── mapper.ts
+│   ├── validator.ts
+│   ├── section-progress.ts   # 섹션별 입력 진행도 계산
+│   └── hooks/
+└── ui/
+    ├── XxxEditor.tsx         # 섹션 조합 셸
+    ├── sections/             # 섹션 단위 컴포넌트 + shell-props.ts
+    └── report/               # 인쇄/미리보기 전용 뷰
 ```
+
+> **훅은 `model/hooks/` 에 둔다.** 슬라이스 루트 `hooks/` 를 쓰는 슬라이스가
+> `sign-in`·`sign-out`·`contract-overview` 3개 남아 있으나 규칙 위반이며 정리 대상이다.
 
 ---
 
@@ -126,6 +139,8 @@ const handleChange = (name: keyof ClientRegisterForm, value: string) => {
 - **submit 시 검증 → 에러 있으면 조기 반환**: 검증 실패 시 API를 호출하지 않고 반드시 return한다.
 
 ```ts
+// React 19 의 `React.SubmitEvent` 를 쓴다. `React.FormEvent` 는 @types/react 가
+// 비권장으로 안내하는 타입이다.
 const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
 
@@ -187,11 +202,13 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 조건 | 배치 위치 |
 |------|----------|
-| 여러 페이지에서 재사용 | `features/select-xxx/hooks/` |
+| 여러 페이지에서 재사용 | `features/select-xxx/model/hooks/` |
 | 특정 페이지 전용 | `pages/<sub-domain>/model/` |
 
 특정 페이지에서만 쓰이는 선택 로직을 features 슬라이스로 분리하는 것은 과설계다.
 작성 시점에 재사용 계획이 없다면 pages/model에 두고, 실제 재사용 시점에 features로 승격한다.
+
+> 현재 `select-*` feature 는 **0개**다. 선택 훅은 전부 `pages/*/model/use-*-selection.ts` 에 있다.
 
 ### 반환 인터페이스
 
@@ -210,7 +227,8 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `sign-in/ui/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `sign-in/ui/SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `register-client/ui/RegisterClientForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
-| `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `sign-in/hooks/`, `sign-out/hooks/`, `contract-overview/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
+| `sign-in/hooks/use-sign-in.ts` | `signInApi` 직접 호출 (`entities/auth` 에 액션 훅이 없음) | entity 액션 훅 신설 후 경유 |
+| `sign-in/model/mapper.ts` | Form → **Request DTO** 직접 변환 | 도메인 입력 모델을 거치도록 변경 |
+| `dashboard-summary/model/use-dashboard.ts` | `dashboardApi` 직접 호출, 훅이 `model/` 직하 | `entities/dashboard` 에 `model/` 신설 후 경유 |
+| `contract-overview/hooks/use-contract-overview.ts` | `workplaceApi` 직접 호출 | entity 페칭 훅 경유 |

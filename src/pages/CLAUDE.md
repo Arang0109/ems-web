@@ -148,14 +148,25 @@ sub-domain/
 
 ## 현재 페이지 목록
 
-| sub-domain | 라우트 | 페이지 |
-|------------|--------|--------|
-| `client/client` | `/clients` | ClientManagementPage |
-| `client/client` | `/stacks` | StackPage |
-| `client/client` | `/stacks/:stackId` | StackDetailPage |
-| `client/contract` | `/contracts` | ContractPage |
-| `client/contract` | `/contracts/register` | ContractRegisterPage |
-| `client/contract` | `/contracts/:contractId` | ContractDetailPage |
-| `client/pollutant` | `/pollutants` | PollutantPage |
-| `dashboard` | `/dashboard` | Dashboard |
-| `sign-in` | `/` | SignInPage |
+| 그룹 / sub-domain | 라우트 | 페이지 | 가드 |
+|------------------|--------|--------|------|
+| `sign-in` | `/` | SignInPage | PublicRoute |
+| `dashboard` | `/dashboard` | Dashboard | ProtectedRoute |
+| `client/client` | `/clients` | ClientManagementPage | ProtectedRoute |
+| `client/client` | `/stacks` | StackPage | ProtectedRoute |
+| `client/client` | `/stacks/:stackId` | StackDetailPage | ProtectedRoute |
+| `client/contract` | `/contracts` | ContractPage | ProtectedRoute |
+| `client/contract` | `/contracts/register` | ContractRegisterPage | ProtectedRoute |
+| `client/contract` | `/contracts/:contractId` | ContractDetailPage | ProtectedRoute |
+| `client/pollutant` | `/pollutants` | PollutantPage | ProtectedRoute |
+| `equipment` | `/equipment` | EquipmentPage | ProtectedRoute |
+| `staff` | `/staff` | StaffPage | ProtectedRoute |
+| `schedule` | `/schedule` | SchedulePage | ProtectedRoute |
+| `schedule` | `/schedule/register` | ScheduleRegisterPage | ProtectedRoute |
+| `schedule` | `/schedule/:scheduleId` | ScheduleDetailPage | ProtectedRoute |
+| `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
+| `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
+| `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
+
+> 단일 페이지 도메인(`equipment`, `staff`, `schedule`)은 sub-domain 폴더 없이
+> 그룹 폴더 직하에 페이지를 두는 평면 배치를 허용한다. 페이지가 늘어나면 분리한다.

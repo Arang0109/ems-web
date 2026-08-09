@@ -15,7 +15,7 @@
 
 ## 두 가지 위젯 패턴
 
-### 패턴 A — 단순 위젯 (layouts, metrics, contract-chart 등)
+### 패턴 A — 단순 위젯 (layouts, metrics, dashboard-stats, dashboard-alerts, sign-in)
 
 ```
 widget-name/
@@ -23,7 +23,11 @@ widget-name/
 └── ComponentName.tsx   # ui/ 없이 루트에 위치 허용
 ```
 
-### 패턴 B — 테이블 위젯 (client-table, workplace-table, stack-table, contract-table, pollutant-table, stack-list-table 등)
+### 패턴 B — 테이블 위젯 (13개)
+
+`client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `contract-table`,
+`pollutant-table`, `document-table`, `equipment-table`, `member-table`, `team-table`,
+`team-schedule-table`, `schedule-table`, `tenant-table`
 
 ```
 widget-name/
@@ -32,13 +36,14 @@ widget-name/
 │   ├── types.ts            # TableRow 타입 정의
 │   ├── columns.ts          # TanStack Table ColumnDef 정의
 │   ├── mapper.ts           # Entity → TableRow 변환 함수
-│   └── use-xxx-table.ts   # 테이블 상태 관리 훅
+│   ├── mobile-card.tsx     # 모바일 카드 표현 선언 (선택)
+│   └── use-xxx-table.ts    # 테이블 상태 관리 훅
 └── ui/
     ├── XxxTable.tsx        # 메인 테이블 컴포넌트 (렌더링만 담당)
     └── Cells.tsx           # 커스텀 셀 컴포넌트
 ```
 
-### 패턴 C — 프로파일/상세 위젯 (stack-profile)
+### 패턴 C — 프로파일/상세 위젯 (stack-profile, schedule-profile)
 
 탭 또는 여러 상세 섹션으로 하나의 도메인 객체를 보여주는 위젯. 탭·섹션별 하위 컴포넌트를 `ui/children/`에 분리한다.
 
@@ -98,28 +103,52 @@ export function toClientRows(row: ClientListResponse): ClientTableRow {
 
 테이블 컴포넌트가 UI 렌더링만 담당할 수 있도록, 상태·데이터·로직을 훅으로 분리한다.
 
+**`useDataTable`(`@shared/model`)을 쓴다.** `useReactTable` 을 직접 호출하지 않는다 —
+`useDataTable` 이 정렬·필터·페이지네이션 배선과 `meta` 주입을 책임지므로,
+상세보기 콜백 키가 어긋나는 버그(실제로 발생했던 클래스)가 구조적으로 불가능해진다.
+
 ```typescript
 export const useClientTable = ({ onRowClick }: Props) => {
-  // 모달 상태
-  const [registerModalOpen, setRegisterModalOpen] = useState(false);
-  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  // 모달 상태 — boolean 은 is 접두어
+  const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [detailClient, setDetailClient] = useState<Client | null>(null);
 
-  // 테이블 상태 (정렬, 필터, 페이지네이션)
-  const { sorting, setSorting, globalFilter, setGlobalFilter, pagination, setPagination } = useTableState({ pageSize: 5 });
-
-  // 데이터 페칭
   const { data, loading, error, refetch } = useClients();
-
-  // Entity → TableRow 변환
   const tableData = useMemo(() => data?.map(toClientRows), [data]);
 
-  // TanStack Table 인스턴스
-  const table = useReactTable({ columns: defaultColumns, data: tableData, ... });
+  const { table, globalFilter, setGlobalFilter } = useDataTable({
+    data: tableData,
+    columns: defaultColumns,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,           // @shared/config — 매직넘버 금지
+    onViewDetail: (row) => { /* 모달 열기 또는 navigate */ },
+  });
 
   return { table, loading, error, refetch, globalFilter, setGlobalFilter, ... };
 };
 ```
+
+> **현황:** `useDataTable` 채택은 5개 위젯(`client-`, `contract-`, `document-`,
+> `pollutant-`, `workplace-table`)이고 나머지 8개는 아직 `useTableState` + `useReactTable`
+> 직접 호출이다. 신규 위젯은 반드시 `useDataTable` 을 쓰고, 기존 위젯도 손댈 때 전환한다.
+
+### 공통 셸 조합
+
+테이블 위젯의 셸 마크업은 직접 쓰지 않고 `@shared/ui/table` 의 부품을 조합한다.
+
+| 부품 | 역할 |
+|------|------|
+| `TablePanel` | 패널 셸 — 제목 + 액션 슬롯 + 본문 + footer 슬롯 |
+| `BasicTable` | `DesktopTable` + `MobileCardList` 조합기 (md 미만에서 카드 전환) |
+| `TableFooterBar` | 건수 + 페이지네이션 바 |
+| `TablePagination` | 페이지 이동 |
+| `TableEmptyState` | 빈 상태 |
+| `RowActionCell` | 행 상세보기 버튼 — `useDataTable({ onViewDetail })` 이 주입한 콜백을 읽는다 |
+
+### 모바일 대응
+
+`BasicTable` 은 `useIsMobile`(`@shared/model`) 로 md 미만을 감지해 카드 목록으로 전환한다.
+카드 표현은 `model/mobile-card.tsx` 에 선언형으로 정의하고 `mobileCard` prop 으로 넘긴다
+(`MobileCardConfig | false`). 현재 `client-table`, `schedule-table` 이 사용한다.
 
 **컴포넌트는 훅의 반환값을 구조분해하여 렌더링만 담당한다:**
 
@@ -134,6 +163,10 @@ export const ClientTable = ({ onRowClick }: Props) => {
 
 - `createColumnHelper<TableRow>()` 사용
 - 커스텀 셀은 `ui/Cells.tsx`에 분리
+- 상세보기 컬럼은 `columnHelper.display({ id: 'actions', cell: RowActionCell })` 로 쓴다.
+  위젯마다 `ActionCell`/`PathCell` 을 따로 만들지 않는다.
+- `declare module '@tanstack/react-table'` 로 `TableMeta` 를 위젯에서 재선언하지 않는다.
+  공통 선언은 `shared/model/types/table-types.ts` 에 있다.
 
 ---
 
