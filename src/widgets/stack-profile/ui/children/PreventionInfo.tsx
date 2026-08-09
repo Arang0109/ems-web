@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { toFormValue } from "@shared/lib";
+
 import type { Prevention } from '@entities/stack';
 import { RegisterPreventionForm } from '@features/register-prevention';
 import { UpdatePreventionForm } from '@features/update-prevention';
@@ -64,7 +66,7 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
                 <InfoItem label="방지시설명" value={prevention.name} />
                 <InfoItem
                   label="용량"
-                  value={prevention.capacity != null ? String(prevention.capacity) : ''}
+                  value={toFormValue(prevention.capacity)}
                 />
                 <InfoItem label="대상물질명" value={prevention.targetName} />
                 <InfoItem label="제거 효율" value={prevention.removalEfficiency} />

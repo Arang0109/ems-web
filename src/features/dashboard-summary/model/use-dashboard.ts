@@ -11,6 +11,8 @@ import {
   toExpiringContracts, toInspectionDues,
 } from './mapper';
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 export const useDashboard = () => {
   const [stats, setStats] = useState<MeasurementCountChart[] | null>(null);
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
@@ -34,7 +36,7 @@ export const useDashboard = () => {
         setExpiringContracts(toExpiringContracts(summaryData.data));
         setInspectionDueEquipments(toInspectionDues(summaryData.data));
       } catch {
-        setError('데이터를 불러오는 데 실패했습니다.');
+        setError(ERROR_MESSAGE.FETCH);
       } finally {
         setIsLoading(false);
       }

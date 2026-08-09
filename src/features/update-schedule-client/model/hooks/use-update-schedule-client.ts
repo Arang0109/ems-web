@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { toFormValue } from "@shared/lib";
+
 import { useChangeClientAction } from "@entities/schedule";
 import type { ClientSnapshot } from "@entities/schedule";
 
@@ -15,9 +17,6 @@ interface Props {
   client: ClientSnapshot;
   onSuccess: () => void;
 }
-
-// number | null → Form string. null은 ""로 두어 "미지정"과 0을 구분한다.
-const toText = (v: number | null): string => (v != null ? String(v) : "");
 
 export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props) => {
   const { changeClient, isLoading } = useChangeClientAction();
@@ -47,10 +46,10 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     stackGrade: stack.grade,
     businessCategory: stack.businessCategory ?? "",
     mainProduct: stack.mainProduct ?? "",
-    standardOxygen: toText(stack.standardOxygen),
-    height: toText(stack.height),
-    horizontalLength: toText(stack.horizontalLength),
-    verticalLength: toText(stack.verticalLength),
+    standardOxygen: toFormValue(stack.standardOxygen),
+    height: toFormValue(stack.height),
+    horizontalLength: toFormValue(stack.horizontalLength),
+    verticalLength: toFormValue(stack.verticalLength),
     shape: stack.shape,
     orientation: stack.orientation,
   });

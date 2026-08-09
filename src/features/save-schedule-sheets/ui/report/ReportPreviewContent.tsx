@@ -1,5 +1,5 @@
 import type { ParticleSamplerSpec, ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
-import { toNumberOrNull } from "@shared/lib";
+import { addMinutes, toNumberOrNull } from "@shared/lib";
 import {
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
 } from "@shared/config";
@@ -27,14 +27,6 @@ const VCell = ({
     {children}
   </td>
 );
-
-const addMinutes = (time: string, minutes: number): string => {
-  if (!time) return "--:--";
-  const [h, m] = time.split(":").map(Number);
-  if (Number.isNaN(h) || Number.isNaN(m)) return "--:--";
-  const total = h * 60 + m + minutes;
-  return `${String(Math.floor(total / 60) % 24).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
-};
 
 const fmt = (v: number | null | undefined, scale: number): string =>
   v == null || Number.isNaN(v) ? "" : v.toFixed(scale);
@@ -374,10 +366,10 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
             <tr>
               <TableLabelCell colSpan={5}>[ 가스상 및 VOCs 물질 ]</TableLabelCell>
               <VCell colSpan={12}>
-                가스분석기 측정시간 ( {sheet.exhaustGas.gasAnalyzerStartTime || "--:--"} ~ {addMinutes(sheet.exhaustGas.gasAnalyzerStartTime, 15)} )
+                가스분석기 측정시간 ( {sheet.exhaustGas.gasAnalyzerStartTime || "--:--"} ~ {addMinutes(sheet.exhaustGas.gasAnalyzerStartTime, 15) ?? "--:--"} )
               </VCell>
               <VCell colSpan={6}>
-                THC 측정시간 ( {sheet.exhaustGas.thcAnalyzerStartTime || "--:--"} ~ {addMinutes(sheet.exhaustGas.thcAnalyzerStartTime, 30)} )
+                THC 측정시간 ( {sheet.exhaustGas.thcAnalyzerStartTime || "--:--"} ~ {addMinutes(sheet.exhaustGas.thcAnalyzerStartTime, 30) ?? "--:--"} )
               </VCell>
             </tr>
             <tr>

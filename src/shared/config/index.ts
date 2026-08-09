@@ -12,3 +12,5 @@ export {
   TENANT_STATUS_LABEL, SUBSCRIPTION_PLAN_LABEL,
   USER_ROLE_LABEL,
 } from "./labels";
+
+export { TABLE_PAGE_SIZE, ERROR_MESSAGE } from "./constants";

@@ -14,6 +14,8 @@ import { toStackRows } from '../model/mapper';
 
 import { useTableState } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   stacks: StackListItem[];
 }
@@ -25,7 +27,7 @@ export const useStackTable = ({ stacks }: Props) => {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination,
-  } = useTableState({ pageSize: 10 });
+  } = useTableState({ pageSize: TABLE_PAGE_SIZE.DEFAULT });
 
   const tableData = useMemo(() => stacks.map(toStackRows), [stacks]);
 

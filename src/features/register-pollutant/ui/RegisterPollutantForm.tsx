@@ -1,5 +1,5 @@
 import { useRegisterPollutant } from "../model/hooks/use-register-pollutant";
-import { measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions } from "../model/types";
+import { measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions } from "@shared/model";
 
 // UI
 

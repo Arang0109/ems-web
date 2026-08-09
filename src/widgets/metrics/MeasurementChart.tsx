@@ -12,6 +12,8 @@ import { IconButton } from '@shared/ui/buttons';
 import { DateRangePicker, type DateRange } from '@shared/ui/form';
 import { useIsMobile } from '@shared/model';
 
+import { formatMoney } from "@shared/lib";
+
 /**
  * 측정건수 추이 차트.
  *
@@ -52,7 +54,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     <div className="bg-surface border border-rule shadow-lg rounded-icon-tile px-3 py-2">
       <p className="text-caption text-muted-ink mb-0.5">{label}</p>
       <p className="text-body-4 text-ink">
-        {payload[0].value.toLocaleString()}
+        {formatMoney(payload[0].value)}
         <span className="text-caption text-muted-ink ml-1">건</span>
       </p>
     </div>

@@ -8,6 +8,8 @@ import type { PollutantTableRow } from '../model/types';
 
 import { useDataTable } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 export const usePollutantTable = () => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   // 상세 모달은 후속 작업 — 선택된 행만 보관해 둔다
@@ -24,7 +26,7 @@ export const usePollutantTable = () => {
   const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
     columns: defaultColumns,
-    pageSize: 10,
+    pageSize: TABLE_PAGE_SIZE.DEFAULT,
     onViewDetail: handleViewDetail,
   });
 

@@ -1,27 +1,26 @@
-import { trimValue, unformatNumber } from '@shared/lib';
 import type { WorkplaceRegisterRequest, WorkplaceUpdateRequest, WorkplaceListResponse } from './dto';
 import type { WorkplaceCreate, WorkplaceUpdate, WorkplaceListItem } from '../model/types';
 
 export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest => ({
   clientId: vo.clientId,
-  name: trimValue(vo.name),
-  bizNumber: unformatNumber(vo.bizNumber),
+  name: vo.name,
+  bizNumber: vo.bizNumber,
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
-  detailAddress: trimValue(vo.address),
-  facilityManager: trimValue(vo.facilityManager),
-  samplingWitness: trimValue(vo.samplingWitness),
+  detailAddress: vo.address,
+  facilityManager: vo.facilityManager,
+  samplingWitness: vo.samplingWitness,
   grade: vo.grade,
 });
 
 export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => ({
-  name: trimValue(vo.name),
-  bizNumber: unformatNumber(vo.bizNumber),
+  name: vo.name,
+  bizNumber: vo.bizNumber,
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
-  detailAddress: trimValue(vo.address),
-  facilityManager: trimValue(vo.facilityManager),
-  samplingWitness: trimValue(vo.samplingWitness),
+  detailAddress: vo.address,
+  facilityManager: vo.facilityManager,
+  samplingWitness: vo.samplingWitness,
   grade: vo.grade,
 });
 

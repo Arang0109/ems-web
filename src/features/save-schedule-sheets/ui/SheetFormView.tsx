@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
-import { toNumberOrNull } from "@shared/lib";
+import { addMinutes, toNumberOrNull } from "@shared/lib";
 import { ChipNav } from "@shared/ui/nav";
 
 import type {
@@ -35,14 +35,8 @@ const sectionDomId = (id: SheetSectionId): string => `sheet-section-${id}`;
 
 // 채취 종료시간 = 시작시간 + Σ지점별 채취시간(분). 시작이 없으면 빈 값.
 const calcSamplingEndTime = (start: string, points: SamplingPointForm[]): string => {
-  if (!start) return "";
-  const [h, m] = start.split(":").map(Number);
-  if (Number.isNaN(h) || Number.isNaN(m)) return "";
   const total = points.reduce((acc, p) => acc + (toNumberOrNull(p.samplingTime) ?? 0), 0);
-  const totalMin = h * 60 + m + Math.round(total);
-  const hh = String(Math.floor(totalMin / 60) % 24).padStart(2, "0");
-  const mm = String(totalMin % 60).padStart(2, "0");
-  return `${hh}:${mm}`;
+  return addMinutes(start, total) ?? "";
 };
 
 const withAutoEndTime = (sheet: SheetForm): SheetForm => ({

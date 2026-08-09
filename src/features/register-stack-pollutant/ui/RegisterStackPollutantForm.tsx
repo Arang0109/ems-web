@@ -72,8 +72,8 @@ export const RegisterStackPollutantForm = ({
               id={`pollutant-${index}`}
               placeholder="오염물질 선택"
               options={pollutantOptions}
-              value={row.pollutantId ? String(row.pollutantId) : undefined}
-              onValueChange={(value) => value && handleChange(index, "pollutantId", Number(value))}
+              value={row.pollutantId || undefined}
+              onValueChange={(value) => value && handleChange(index, "pollutantId", value)}
             />
             <Select
               id={`cycle-${index}`}

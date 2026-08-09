@@ -8,6 +8,8 @@ import type { ClientTableRow } from '../model/types';
 
 import { useDataTable } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   onRowClick: (clientId: number) => void;
   onSuccess?: () => void;
@@ -33,7 +35,7 @@ export const useClientTable = ({ onRowClick, onSuccess }: Props) => {
   const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
     columns: defaultColumns,
-    pageSize: 5,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,
     onViewDetail: handleViewDetail,
   });
 

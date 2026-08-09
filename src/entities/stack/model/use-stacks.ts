@@ -4,6 +4,8 @@ import type { StackListItem } from "./types";
 import { toStackListItems } from "../api/mapper";
 import { stackApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 export const useStacks = () => {
   const [data, setData] = useState<StackListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export const useStacks = () => {
       const res = await stackApi.getStacks(workplaceId);
       setData(toStackListItems(res.data));
     } catch {
-      setError('데이터를 불러오는 데 실패했습니다.');
+      setError(ERROR_MESSAGE.FETCH);
     } finally {
       setLoading(false);
     }

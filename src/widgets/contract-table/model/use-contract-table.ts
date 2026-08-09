@@ -10,6 +10,8 @@ import type { ContractTableRow } from '../model/types';
 
 import { useDataTable } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 export const useContractTable = () => {
   const navigate = useNavigate();
 
@@ -19,7 +21,7 @@ export const useContractTable = () => {
   const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
     columns: defaultColumns,
-    pageSize: 20,
+    pageSize: TABLE_PAGE_SIZE.WIDE,
     onViewDetail: (row: ContractTableRow) => navigate(`/contracts/${row.id}`),
   });
 

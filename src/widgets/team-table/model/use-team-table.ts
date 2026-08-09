@@ -16,6 +16,8 @@ import type { TeamTableRow } from './types';
 
 import { useTableState } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   onRowClick: (teamId: number) => void;
   onSuccess?: () => void;
@@ -28,7 +30,7 @@ export const useTeamTable = ({ onRowClick, onSuccess }: Props) => {
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 5 });
+    pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.COMPACT });
   const { data, loading, error, refetch: teamRefetch } = useTeams();
 
   const tableData = useMemo(

@@ -4,6 +4,8 @@ import type { StackPollutantListItem } from "./types";
 import { toStackPollutantListItems } from "../api/mapper";
 import { stackPollutantApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 export const useStackPollutants = () => {
   const [data, setData] = useState<StackPollutantListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +20,7 @@ export const useStackPollutants = () => {
       const res = await stackPollutantApi.getStackPollutants(stackId);
       setData(toStackPollutantListItems(res.data));
     } catch {
-      setError('데이터를 불러오는 데 실패했습니다.');
+      setError(ERROR_MESSAGE.FETCH);
     } finally {
       setLoading(false);
     }

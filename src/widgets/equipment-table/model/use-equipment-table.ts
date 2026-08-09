@@ -17,6 +17,8 @@ import type { EquipmentTableRow } from './types';
 
 import { useTableState } from '@shared/model';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   type: EquipType;
   onRowClick: (equipmentId: string) => void;
@@ -33,7 +35,7 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 5 });
+    pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.COMPACT });
   const { data, loading, error, refetch: equipmentRefetch } = useEquipments(type);
 
   const tableData = useMemo(

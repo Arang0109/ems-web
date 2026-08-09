@@ -8,7 +8,7 @@ export const toStackPollutantCreates = (
   rows: FormRow[]
 ): StackPollutantCreate[] => rows.map((row) => ({
   stackId,
-  pollutantId: row.pollutantId,
+  pollutantId: Number(row.pollutantId),
   cycle: row.cycle,
   allowance: toNumberOrNull(row.allowance),
 }));

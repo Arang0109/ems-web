@@ -6,7 +6,7 @@ export { formatDateTime, formatMonthDay } from "./format/date-time";
 export { formatFileSize } from "./format/file-size";
 export { formatMoney, toKoreanAmount } from "./format/money";
 export { formatPhoneNumber } from "./format/phone-number"
-export { formatTime, unformatTime } from "./format/time";
+export { formatTime, unformatTime, addMinutes } from "./format/time";
 
 export { trimValue } from "./string/trim-value";
 

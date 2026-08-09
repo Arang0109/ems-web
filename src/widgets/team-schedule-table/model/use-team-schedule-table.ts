@@ -14,6 +14,8 @@ import { useTableState } from '@shared/model';
 import type { ScheduleListItem } from '@entities/schedule';
 import { toTeamScheduleRows } from '../model/mapper';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   schedules: ScheduleListItem[];
 }
@@ -25,7 +27,7 @@ export const useTeamScheduleTable = ({ schedules }: Props) => {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination,
-  } = useTableState({ pageSize: 10 });
+  } = useTableState({ pageSize: TABLE_PAGE_SIZE.DEFAULT });
 
   const tableData = useMemo(() => schedules.map(toTeamScheduleRows), [schedules]);
 

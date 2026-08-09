@@ -5,6 +5,7 @@ import {
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
   DOCUMENT_CATEGORY_LABEL, CONTRACT_AMOUNT_UNIT_LABEL,
+  MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
 } from "@shared/config";
 
 export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
@@ -34,6 +35,8 @@ export const INSPECTION_RESULT = ['PASS', 'FAIL'] as const;
 // 측정 기록지(sheet) — 카테고리 / 기상 / 풍향
 export const MEASUREMENT_CATEGORY = ['GAS', 'HEAVY_METAL', 'DUST', 'MERCURY'] as const;
 export const WEATHER_CONDITION = ['CLEAR', 'CLOUDY', 'RAIN', 'SNOW'] as const;
+export const WIND_DIRECTION = ['CALM', 'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'] as const;
+
 // 문서(document) 분류 — 서버 global.common.enums.DocumentCategory 와 동일한 규격
 export const DOCUMENT_CATEGORY = ['REPORT_TEMPLATE', 'SAMPLING_RECORD_TEMPLATE', 'CONTRACT', 'CERTIFICATE', 'ETC'] as const;
 
@@ -48,8 +51,6 @@ export const SUBSCRIPTION_PLAN = ['BASIC', 'PRO', 'ENTERPRISE', 'INTERNAL'] as c
 
 // tenant 범위 사용자 역할. 플랫폼 운영자(PLATFORM_ADMIN)는 entities/auth 가 별도로 관리한다.
 export const USER_ROLES = ['ADMIN', 'LAB', 'FIELD'] as const;
-
-export const WIND_DIRECTION = ['CALM', 'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'] as const;
 
 export type ContractStatus = typeof CONTRACT_STATUS[number];
 export type Grade = typeof GRADE[number];
@@ -151,6 +152,16 @@ export const weatherConditionOptions = WEATHER_CONDITION.map((condition) => ({
 export const windDirectionOptions = WIND_DIRECTION.map((direction) => ({
   value: direction,
   label: WIND_DIRECTION_LABEL[direction],
+}));
+
+export const measurementMethodOptions = MEASUREMENT_METHOD.map((method) => ({
+  value: method,
+  label: MEASUREMENT_METHOD_LABEL[method],
+}));
+
+export const pollutantPhaseOptions = POLLUTANT_PHASE.map((phase) => ({
+  value: phase,
+  label: POLLUTANT_PHASE_LABEL[phase],
 }));
 
 export const documentCategoryOptions = DOCUMENT_CATEGORY.map((category) => ({

@@ -8,6 +8,8 @@ import type {
 import type { InspectionType } from "@shared/model";
 import { INSPECTION_TYPE } from "@shared/model";
 
+import { toFormValue } from "@shared/lib";
+
 // 검사(inspection) 폼 — register-equipment와 동일 구조를 별도 소유한다(피처 간 공유 불가).
 // 최종 수검일·다음 예정일은 검사 실시 기록 API가 갱신하므로 수정 폼에서는 읽기 전용이다.
 export type InspectionItemForm = {
@@ -45,8 +47,6 @@ export type EquipmentUpdateForm = {
   spec: EquipmentSpecForm;
 };
 
-const numToStr = (n: number | null | undefined): string => (n == null ? '' : String(n));
-
 const getDefaultInspectionForms = (): InspectionItemForm[] =>
   INSPECTION_TYPE.map((type) => ({
     type,
@@ -66,7 +66,7 @@ const toInspectionForms = (equipment: Equipment): InspectionItemForm[] =>
     return {
       type: base.type,
       enabled: item.enabled,
-      cycleMonths: numToStr(item.cycleMonths),
+      cycleMonths: toFormValue(item.cycleMonths),
       lastInspectedAt: item.lastInspectedAt ?? '',
       nextDueDate: item.nextDueDate ?? '',
       notificationEnabled: item.notificationEnabled,
@@ -91,12 +91,12 @@ const toSpecForm = (equipment: Equipment): EquipmentSpecForm => {
   switch (equipment.type) {
     case 'PARTICLE_SAMPLER': {
       const s = equipment.spec as ParticleSamplerSpec;
-      return { ...base, totalVolume: numToStr(s.totalVolume), orificeDp: numToStr(s.orificeDp), yd: numToStr(s.yd) };
+      return { ...base, totalVolume: toFormValue(s.totalVolume), orificeDp: toFormValue(s.orificeDp), yd: toFormValue(s.yd) };
     }
     case 'GAS_SAMPLER':
     case 'OTHER': {
       const s = equipment.spec as GasSamplerSpec;
-      return { ...base, totalVolume: numToStr(s.totalVolume) };
+      return { ...base, totalVolume: toFormValue(s.totalVolume) };
     }
     case 'PITOT_TUBE': {
       const s = equipment.spec as PitotTubeSpec;
@@ -104,14 +104,14 @@ const toSpecForm = (equipment: Equipment): EquipmentSpecForm => {
         ...base,
         pitotTubeType: s.pitotTubeType ?? '',
         coefficients: (s.coefficients ?? []).map((c) => ({
-          coefficient: numToStr(c.coefficient),
-          velocity: numToStr(c.velocity),
+          coefficient: toFormValue(c.coefficient),
+          velocity: toFormValue(c.velocity),
         })),
       };
     }
     case 'NOZZLE': {
       const s = equipment.spec as NozzleSpec;
-      return { ...base, diameters: (s.diameters ?? []).map((d) => ({ diameter: numToStr(d.diameter) })) };
+      return { ...base, diameters: (s.diameters ?? []).map((d) => ({ diameter: toFormValue(d.diameter) })) };
     }
     default:
       return base;
@@ -133,7 +133,7 @@ export const getDefaultForm = (equipment: Equipment | null): EquipmentUpdateForm
     modelName: equipment.modelName ?? '',
     equipmentName: equipment.equipmentName ?? '',
     alias: equipment.alias ?? '',
-    price: numToStr(equipment.price),
+    price: toFormValue(equipment.price),
     manufacturer: equipment.manufacturer ?? '',
     originCountry: equipment.originCountry ?? '',
     purchaseDate: equipment.purchaseDate ?? '',

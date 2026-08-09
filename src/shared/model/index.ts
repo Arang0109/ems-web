@@ -12,6 +12,7 @@ export {
   DOCUMENT_CATEGORY, CONTRACT_AMOUNT_UNIT,
   TENANT_STATUS, SUBSCRIPTION_PLAN, SUBSCRIPTION_PLAN_OPTIONS, USER_ROLES,
   documentCategoryOptions, contractAmountUnitOptions,
+  measurementMethodOptions, pollutantPhaseOptions,
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
   equipTypeOptions, equipStatusOptions, pitotTubeTypeOptions, measurementCycleOptions,
   inspectionTypeOptions, inspectionResultOptions,

@@ -4,6 +4,8 @@ import type { ScheduleDetail } from "./types";
 import { toScheduleDetail } from "../api/mapper";
 import { scheduleApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 // 타입 B(수동 호출): 부모(useParams)에서 fetchSchedule(id)를 명시 호출해야 로드된다.
 export const useScheduleDetail = () => {
   const [data, setData] = useState<ScheduleDetail | null>(null);
@@ -22,7 +24,7 @@ export const useScheduleDetail = () => {
       }
       setData(toScheduleDetail(res.data));
     } catch {
-      setError("데이터를 불러오는 데 실패했습니다.");
+      setError(ERROR_MESSAGE.FETCH);
     } finally {
       setLoading(false);
     }

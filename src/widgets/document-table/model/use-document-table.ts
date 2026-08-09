@@ -10,6 +10,8 @@ import { defaultColumns } from './columns';
 import { toDocumentRows } from './mapper';
 import type { DocumentTableRow } from './types';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   category: DocumentCategory;
   onRowClick: (documentId: number) => void;
@@ -33,7 +35,7 @@ export const useDocumentTable = ({ category, onRowClick, onSuccess }: Props) => 
   const { table, globalFilter, setGlobalFilter } = useDataTable<DocumentTableRow>({
     data: tableData,
     columns: defaultColumns,
-    pageSize: 5,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,
     onViewDetail: () => setDetailModalOpen(true),
     overrides: {
       meta: {

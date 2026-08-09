@@ -14,11 +14,13 @@ import { useTableState } from '@shared/model';
 import { defaultColumns } from './columns';
 import { toScheduleRows } from './mapper';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 export const useScheduleTable = () => {
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 10 });
+    pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.DEFAULT });
 
   const { data, loading, error } = useSchedules();
 

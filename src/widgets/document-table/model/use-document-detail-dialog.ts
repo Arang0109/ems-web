@@ -10,6 +10,8 @@ import { versionColumns } from './version-columns';
 import { toDocumentVersionRows } from './mapper';
 import type { DocumentVersionTableRow } from './types';
 
+import { TABLE_PAGE_SIZE } from "@shared/config";
+
 interface Props {
   document: Document | null;
   /** 상세 모달 열림 여부. 닫혀 있으면 버전 목록을 조회하지 않는다. */
@@ -33,7 +35,7 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
   const { table } = useDataTable<DocumentVersionTableRow>({
     data: versionData,
     columns: versionColumns,
-    pageSize: 5,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,
     overrides: {
       meta: {
         onDownloadDocumentVersion: (row: DocumentVersionTableRow) =>
