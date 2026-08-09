@@ -3,8 +3,10 @@ import { format } from "date-fns";
 import { useUpdateEquipment } from "../model/hooks/use-update-equipment";
 import { useDeleteEquipment } from "../model/hooks/use-delete-equipment";
 import { SpecFields } from "./SpecFields";
+import { InspectionFields } from "./InspectionFields";
 
 import type { Equipment } from "@entities/equipment";
+import type { InspectionType } from "@shared/model";
 
 // UI
 import { FormDialog } from "@shared/ui/dialogs";
@@ -18,9 +20,13 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   equipment: Equipment | null;
   onSuccess?: () => void;
+  /** 검사 이력 다이얼로그 열기 — 같은 레이어 슬라이스를 직접 참조하지 않도록 위젯이 주입한다. */
+  onOpenInspectionHistory?: (type: InspectionType) => void;
 }
 
-export const UpdateEquipmentForm = ({ open, onOpenChange, equipment, onSuccess }: Props) => {
+export const UpdateEquipmentForm = ({
+  open, onOpenChange, equipment, onSuccess, onOpenInspectionHistory,
+}: Props) => {
   const {
     form,
     fieldErrors,
@@ -32,6 +38,7 @@ export const UpdateEquipmentForm = ({ open, onOpenChange, equipment, onSuccess }
     handleAddDiameter,
     handleRemoveDiameter,
     handleDiameterChange,
+    handleInspectionChange,
     handleSubmit,
   } = useUpdateEquipment({
     equipment,
@@ -125,10 +132,17 @@ export const UpdateEquipmentForm = ({ open, onOpenChange, equipment, onSuccess }
             onChange={(date) => handleChange('purchaseDate', date ? format(date, 'yyyy-MM-dd') : '')}
           />
         </div>
-        <InputGroup id="calibrationCycle" label="교정주기(개월)" placeholder="교정주기"
-          value={form.calibrationCycle} onChange={(v) => handleChange('calibrationCycle', v)} />
         <Textarea id="remark" label="비고" placeholder="비고"
           value={form.remark} onChange={(v) => handleChange('remark', v)} rows={2} />
+
+        <Divider />
+
+        <InspectionFields
+          inspections={form.inspections}
+          error={fieldErrors?.inspections}
+          onChange={handleInspectionChange}
+          onOpenHistory={onOpenInspectionHistory}
+        />
 
         <Divider />
 

@@ -48,7 +48,7 @@ export const StackProfile = () => {
 
   return(
     <div>
-      <Tabs gap={5} options={tabOptions} />
+      <Tabs options={tabOptions} />
     </div>
   );
 }

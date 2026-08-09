@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { Send, X, Trash2 } from "lucide-react";
 
 // 모달 너비 프리셋
 const SIZE_CLASS = {
@@ -74,11 +75,11 @@ export function FormDialog({
           </div>
           <DialogFooter className="mt-5 shrink-0">
             {deleteLabel && (
-              <Button variant="destructive" onClick={onDelete}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
+              <Button variant="destructive" onClick={onDelete} startIcon={Trash2}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
             )}
-            <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
+            <DialogClose render={<Button variant="outline" startIcon={X}>{cancelLabel}</Button>} />
             {submitLabel && (
-              <Button type="submit" disabled={submitDisabled}>
+              <Button type="submit" disabled={submitDisabled} startIcon={Send}>
                 {isLoading ? loadingLabel : submitLabel}
               </Button>
             )}

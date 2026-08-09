@@ -33,7 +33,12 @@
       "Bash(git -C //wsl.localhost/Ubuntu-22.04/home/kmsq321/dev_wsl/projects/ems-server status --short)",
       "Bash(ssh *)",
       "Bash(wsl.exe *)",
-      "Bash(mysql *)"
+      "Bash(mysql *)",
+      "Bash(node -e \"const {twMerge}=require\\('tailwind-merge'\\); console.log\\(JSON.stringify\\(twMerge\\('p-2 align-middle whitespace-nowrap','text-body-3 text-ink-soft'\\)\\)\\); console.log\\(JSON.stringify\\(twMerge\\('text-label text-ink-soft'\\)\\)\\); console.log\\(JSON.stringify\\(twMerge\\('text-body-3 text-destructive'\\)\\)\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(git stash *)",
+      "PowerShell(npx tsc -b)",
+      "PowerShell(npm run build 2>&1)"
     ]
   }
 }

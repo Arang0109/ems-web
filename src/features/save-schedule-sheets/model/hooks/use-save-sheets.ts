@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 import type {
-  BasicInfo, MeasurementSheet, SheetCalcExternals, SheetCalcPreview, TeamSnapshot,
+  ScheduleSnapshot, SheetCalcPreview, SheetCalcExternals
 } from "@entities/schedule";
 import { calcSheetPreview, calcRequiredPointCount, useSaveSheetsAction } from "@entities/schedule";
 import type { MeasurementCategory } from "@shared/model";
@@ -16,10 +16,7 @@ import { useExportSamplingRecords } from "./use-export-sampling-records";
 
 interface Params {
   scheduleId: number | null;
-  initialSheets: MeasurementSheet[];
-  basicInfo: BasicInfo | null;
-  team: TeamSnapshot | null;
-  editable: boolean;
+  snapshot: ScheduleSnapshot | null;
   externals: SheetCalcExternals;
   onSaved?: () => void;
 }
@@ -27,12 +24,17 @@ interface Params {
 // 측정계획의 전체 시트 세트를 관리한다. 서버 PUT은 시트 전체 교체이므로 일괄 저장한다.
 // 계산값 표시는 previewCalc(서버 파이프라인 풀 미러링)가 담당한다 — 저장 후에도 폼 값에서 동일하게 재현된다.
 export const useSaveSheets = ({
-  scheduleId, initialSheets, basicInfo, team, editable, externals, onSaved,
+  scheduleId, snapshot, externals, onSaved,
 }: Params) => {
   const { saveSheets, isLoading } = useSaveSheetsAction();
-  const scheduleBasicInfo = useScheduleBasicInfo({ scheduleId, basicInfo, team });
+  const { form: basicInfoForm, isLoading: isBasicInfoLoading, handleChange, saveBasicInfo } = useScheduleBasicInfo(
+    {
+      scheduleId,
+      basicInfo: snapshot?.basicInfo ?? null,
+      team: snapshot?.team ?? null
+    });
 
-  const [sheets, setSheets] = useState<SheetForm[]>(() => initialSheets.map(fromSheet));
+  const [sheets, setSheets] = useState<SheetForm[]>(() => snapshot?.sheets.map(fromSheet) ?? []);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const activeSheet = sheets[activeIndex] ?? null;
@@ -74,7 +76,7 @@ export const useSaveSheets = ({
     try {
       // 공통 정보(채취시간·담당자)를 먼저 반영한다. 실패하면 시트는 건드리지 않아
       // "시트만 저장되고 공통 정보는 실패"하는 부분 성공 상태가 생기지 않는다.
-      await scheduleBasicInfo.saveBasicInfo();
+      await saveBasicInfo();
 
       const detail = await saveSheets(scheduleId, sheets.map(toSheetSave));
       // 서버 계산결과가 반영된 최신 시트로 폼을 동기화한다.
@@ -101,12 +103,11 @@ export const useSaveSheets = ({
     activeIndex,
     activeSheet,
     previewCalc,
-    editable,
     // 다운로드 진행 중에도 저장 버튼이 잠기도록 합성한다.
-    isLoading: isLoading || scheduleBasicInfo.isLoading || samplingRecordsExport.isExporting,
-    basicInfoForm: scheduleBasicInfo.form,
+    isLoading: isLoading || isBasicInfoLoading || samplingRecordsExport.isExporting,
+    basicInfoForm: basicInfoForm,
 
-    handleBasicInfoChange: scheduleBasicInfo.handleChange,
+    handleBasicInfoChange: handleChange,
     setActiveIndex,
     addSheet,
     removeSheet,
@@ -115,10 +116,9 @@ export const useSaveSheets = ({
 
     // 채취기록지 다운로드
     isExportDialogOpen: samplingRecordsExport.isDialogOpen,
-    templateFile: samplingRecordsExport.templateFile,
+    samplingRecordTemplate: samplingRecordsExport.template,
     isExporting: samplingRecordsExport.isExporting,
     setExportDialogOpen: samplingRecordsExport.setIsDialogOpen,
-    handleSelectTemplate: samplingRecordsExport.handleSelectTemplate,
     handleExport: samplingRecordsExport.handleExport,
   };
 };

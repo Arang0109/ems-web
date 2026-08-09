@@ -192,6 +192,10 @@
   --radius-panel: 11px;
   --radius-dialog: 13px;
 
+  /* ─── 피그마 카드 그림자 (영속) ────────────────────────────────
+     예) shadow-panel — 섹션 카드·패널의 기본 입체감 */
+  --shadow-panel: 0 2px 8px 0 rgba(18, 31, 24, 0.06);
+
   /* ─── shadcn 호환 shim (t-shirt 램프를 스펙 값으로 재지정) ───────
      shadcn 제거 시 이 7줄을 삭제하면 된다. */
   --radius-sm: 5px; /* row action */

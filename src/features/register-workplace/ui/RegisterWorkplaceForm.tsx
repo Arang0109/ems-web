@@ -35,7 +35,7 @@ export const RegisterWorkplaceForm = ({
 
   return (
     <FormDialog
-      triggerLabel={<><Plus /> 측정대상 사업장 등록</>}
+      triggerLabel={<><Plus /> 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

@@ -14,6 +14,16 @@ type StackPollutantRow = {
 };
 
 const measurementsByStack: Record<number, StackPollutantRow[]> = {
+  // 측정계획 상세(schedule 핸들러 stackId: 1)의 측정항목 카드용.
+  // 스냅샷 items(먼지·질소산화물)를 포함해 "현재 측정 항목 / 나머지" 분기를 모두 태운다.
+  1: [
+    { id: 101, stackId: 1, pollutantId: 1, nameKr: '먼지',       nameEn: 'Dust', cycle: 'QUARTERLY', allowance: '30 mg/Sm³' },
+    { id: 102, stackId: 1, pollutantId: 2, nameKr: '질소산화물', nameEn: 'NOx',  cycle: 'QUARTERLY', allowance: '150 ppm' },
+    { id: 103, stackId: 1, pollutantId: 3, nameKr: '황산화물',   nameEn: 'SOx',  cycle: 'QUARTERLY', allowance: '180 ppm' },
+    { id: 104, stackId: 1, pollutantId: 4, nameKr: '염화수소',   nameEn: 'HCl',  cycle: 'MONTHLY',   allowance: '10 ppm' },
+    { id: 105, stackId: 1, pollutantId: 5, nameKr: '일산화탄소', nameEn: 'CO',   cycle: 'MONTHLY',   allowance: '200 ppm' },
+    { id: 106, stackId: 1, pollutantId: 11, nameKr: '암모니아',  nameEn: 'NH3',  cycle: 'ANNUAL',    allowance: '30 ppm' },
+  ],
   1001: [
     { id: 1, stackId: 1001, pollutantId: 1, nameKr: '먼지',        nameEn: 'Dust',             cycle: 'MONTHLY',     allowance: '30 mg/Sm³' },
     { id: 2, stackId: 1001, pollutantId: 2, nameKr: '황산화물',    nameEn: 'SOx',              cycle: 'QUARTERLY',   allowance: '180 ppm' },

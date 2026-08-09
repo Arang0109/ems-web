@@ -1,7 +1,8 @@
 export { formatAddress } from "./format/address";
 export { unformatNumber, toNumber, toNumberOrNull } from "./format/number";
 export { formatBusinessNumber } from "./format/business-number";
-export { formatDateTime } from "./format/date-time";
+export { formatDateTime, formatMonthDay } from "./format/date-time";
+export { formatFileSize } from "./format/file-size";
 export { formatMoney, toKoreanAmount } from "./format/money";
 export { formatPhoneNumber } from "./format/phone-number"
 export { formatTime, unformatTime } from "./format/time";

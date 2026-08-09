@@ -1,12 +1,16 @@
-import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { useMemo, useState } from "react";
+import { SquarePen } from "lucide-react";
 
 import type { EquipmentSnapshot, TeamSnapshot } from "@entities/schedule";
 import { UpdateScheduleEquipmentsForm } from "@features/update-schedule-equipments";
-import { EQUIP_TYPE_LABEL } from "@shared/config";
+import { EQUIP_TYPE_LABEL, EQUIP_TYPE_DESCRIPTION } from "@shared/config";
+import { SectionAccordion } from "@shared/ui/accordion";
+import { Badge } from "@shared/ui/badges";
 import { IconButton } from "@shared/ui/buttons";
+import { DetailRow } from "@shared/ui/form";
 
-import { value, describeEquipmentSpec } from "../../model/mapper";
+import { value, describeEquipmentSpec, sortEquipmentsByType } from "../../model/mapper";
+import type { EquipmentSpecItem } from "../../model/types";
 
 interface Props {
   scheduleId: number | null;
@@ -16,56 +20,71 @@ interface Props {
   onRefetch: () => void;
 }
 
-const SpecItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
-    <p className="text-caption text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-body-4 text-foreground break-all">{value}</p>
-  </div>
-);
+/** 장비 카드의 DOM id — 스크롤 이동·딥링크 앵커 */
+const cardDomId = (equipmentId: string): string => `equipment-card-${equipmentId}`;
+
+const SpecValue = ({ item }: { item: EquipmentSpecItem }) =>
+  "chips" in item ? (
+    <span className="flex flex-wrap justify-end gap-1">
+      {item.chips.length === 0 ? (
+        "-"
+      ) : (
+        item.chips.map((chip) => (
+          <Badge key={chip} tone="brand">
+            {chip}
+          </Badge>
+        ))
+      )}
+    </span>
+  ) : (
+    <>{item.value}</>
+  );
 
 export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetch }: Props) => {
   const [editOpen, setEditOpen] = useState(false);
   const canEdit = editable && scheduleId !== null;
 
+  const sorted = useMemo(() => sortEquipmentsByType(equipments), [equipments]);
+
+  // 현장에서 한눈에 확인하는 화면이라 모든 카드를 펼친 상태로 시작한다.
+  const [closedIds, setClosedIds] = useState<Record<string, boolean>>({});
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* 장비가 없어도 배정 버튼은 보여야 하므로 조기 반환하지 않는다 */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-h3 text-foreground">측정장비</h3>
-        {canEdit && (
+      {canEdit && (
+        <div className="sticky top-0 z-10 flex items-center justify-end gap-2 bg-canvas py-2">
           <IconButton
-            icon={<Pencil size={12} />}
+            icon={<SquarePen size={19} />}
             label="장비 변경"
-            size="xs"
+            variant="outline"
             onClick={() => setEditOpen(true)}
           />
-        )}
-      </div>
-
-      {equipments.length === 0 && (
-        <p className="text-body-2 text-muted-foreground text-center py-8">등록된 측정장비가 없습니다.</p>
+        </div>
       )}
 
-      {equipments.map((equip) => (
-        <div key={equip.equipmentId} className="rounded-icon-tile border border-border p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="rounded-button bg-primary/10 px-2 py-0.5 text-label text-primary">
-              {EQUIP_TYPE_LABEL[equip.type] ?? equip.type}
-            </span>
-            <span className="text-body-4 text-foreground">
-              {value(equip.equipmentName || equip.modelName)}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <SpecItem label="관리번호" value={value(equip.managementNumber)} />
-            <SpecItem label="시리얼번호" value={value(equip.serialNumber)} />
-            <SpecItem label="모델명" value={value(equip.modelName)} />
-            <SpecItem label="제조사" value={value(equip.manufacturer)} />
-            {describeEquipmentSpec(equip).map((spec) => (
-              <SpecItem key={spec.label} label={spec.label} value={spec.value} />
+      {sorted.length === 0 && (
+        <p className="py-8 text-center text-body-2 text-muted-ink">등록된 측정장비가 없습니다.</p>
+      )}
+
+      {sorted.map((equip) => (
+        <SectionAccordion
+          key={equip.equipmentId}
+          id={cardDomId(equip.equipmentId)}
+          title={EQUIP_TYPE_LABEL[equip.type] ?? equip.type}
+          subtitle={EQUIP_TYPE_DESCRIPTION[equip.type]}
+          open={!closedIds[equip.equipmentId]}
+          onOpenChange={(open) => {
+            setClosedIds((prev) => ({ ...prev, [equip.equipmentId]: !open }));
+          }}
+        >
+          <div className="grid gap-x-5 gap-y-2 md:grid-cols-2 xl:grid-cols-5">
+            <DetailRow label="별칭" value={value(equip.alias)} />
+            {describeEquipmentSpec(equip).map((item) => (
+              <DetailRow key={item.label} label={item.label} value={<SpecValue item={item} />} />
             ))}
           </div>
-        </div>
+        </SectionAccordion>
       ))}
 
       {canEdit && (

@@ -28,7 +28,15 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
   // 부모가 key로 리마운트하므로 prop은 초기값으로만 쓴다(useEffect 동기화 금지).
   const [form, setForm] = useState<ScheduleClientUpdateForm>({
     name: client.name ?? "",
+    bizNumber: client.bizNumber ?? "",
+    representative: client.representative ?? "",
+    zipcode: client.zipcode ?? "",
+    roadAddress: client.roadAddress ?? "",
+    detailAddress: client.detailAddress ?? "",
+    email: client.email ?? "",
+    tel: client.tel ?? "",
     workplaceName: workplace.name ?? "",
+    workplaceBizNumber: workplace.bizNumber ?? "",
     workplaceGrade: workplace.grade,
     workplaceZipcode: workplace.zipcode ?? "",
     workplaceRoadAddress: workplace.roadAddress ?? "",
@@ -55,7 +63,14 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleAddressChange = (
+  // 의뢰기관과 사업장이 각자 주소를 가지므로 핸들러를 분리한다.
+  const handleClientAddressChange = (
+    { zipcode, roadAddress, detailAddress }: AddressValue,
+  ) => {
+    setForm((prev) => ({ ...prev, zipcode, roadAddress, detailAddress }));
+  };
+
+  const handleWorkplaceAddressChange = (
     { zipcode, roadAddress, detailAddress }: AddressValue,
   ) => {
     setForm((prev) => ({
@@ -86,5 +101,8 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     }
   };
 
-  return { form, fieldErrors, isLoading, handleChange, handleAddressChange, handleSubmit };
+  return {
+    form, fieldErrors, isLoading, handleChange,
+    handleClientAddressChange, handleWorkplaceAddressChange, handleSubmit,
+  };
 };

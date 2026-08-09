@@ -24,7 +24,7 @@ export const TableInputCell = ({
   max?: number;
   step?: number;
 }) => (
-  <td colSpan={colSpan} className="border border-border">
+  <td colSpan={colSpan} className="border border-rule">
     <div className="flex items-center">
       <input
         value={value}
@@ -32,14 +32,15 @@ export const TableInputCell = ({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? ""}
         disabled={disabled}
-        className="w-full p-2 sm:px-3 sm:py-2.5 text-body-3 bg-transparent
-          focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring
-          disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full p-2 sm:px-3 sm:py-2.5 text-body-3 text-ink bg-transparent
+          placeholder:text-muted-ink
+          focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-primary
+          disabled:cursor-not-allowed disabled:text-muted-ink"
         min={min}
         max={max}
         step={step}
       />
-      {unit && <span className="pr-1.5 text-caption text-muted-foreground shrink-0"><i>{unit}</i></span>}
+      {unit && <span className="pr-1.5 text-caption text-muted-ink shrink-0"><i>{unit}</i></span>}
     </div>
   </td>
 );

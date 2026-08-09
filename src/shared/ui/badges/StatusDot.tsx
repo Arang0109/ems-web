@@ -1,10 +1,12 @@
 import { cn } from '@/lib/utils';
 
-import { TONE_DOT, TONE_TEXT, type StatusTone } from './tones';
+import { TONE_DOT, TONE_SURFACE, TONE_TEXT, type StatusTone } from './tones';
 
 interface Props {
   tone: StatusTone;
   label: string;
+  /** 톤 면색을 깐 알약 형태로 감싼다 (모바일 카드 헤더 등) */
+  pill?: boolean;
   className?: string;
 }
 
@@ -15,11 +17,12 @@ interface Props {
  * 따라서 label 은 필수이며, 같은 톤을 여러 상태가 공유해도 무방하다.
  * (예: 측정중·분석중은 둘 다 progress 이고 텍스트로 구분된다.)
  */
-export const StatusDot = ({ tone, label, className }: Props) => (
+export const StatusDot = ({ tone, label, pill, className }: Props) => (
   <span
     className={cn(
-      'inline-flex items-center gap-1.5 text-body-4 whitespace-nowrap',
+      'inline-flex items-center gap-1.5 whitespace-nowrap',
       TONE_TEXT[tone],
+      pill && cn('rounded-full px-3 py-1', TONE_SURFACE[tone]),
       className
     )}
   >

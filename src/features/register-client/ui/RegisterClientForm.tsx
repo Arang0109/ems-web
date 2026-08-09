@@ -28,7 +28,7 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
 
   return (
     <FormDialog
-      triggerLabel={<><Plus /> 측정대행 의뢰기관 등록</>}
+      triggerLabel={<><Plus /> 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

@@ -1,20 +1,12 @@
 import { useState, useMemo } from 'react';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
 import { useClients } from '@entities/client';
 
 import { defaultColumns } from '../model/columns';
 import { toClientRows } from '../model/mapper';
 import type { ClientTableRow } from '../model/types';
 
-import { useTableState } from '@shared/model';
+import { useDataTable } from '@shared/model';
 
 interface Props {
   onRowClick: (clientId: number) => void;
@@ -25,16 +17,9 @@ export const useClientTable = ({ onRowClick, onSuccess }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 5 });
   const { data, loading, error, refetch: clientRefetch } = useClients();
 
-  const tableData = useMemo(
-    () => data?.map(toClientRows),
-    [data]
-  );
+  const tableData = useMemo(() => data.map(toClientRows), [data]);
 
   const handleViewDetail = () => {
     setUpdateModalOpen(true);
@@ -45,22 +30,11 @@ export const useClientTable = ({ onRowClick, onSuccess }: Props) => {
     onSuccess?.();
   }
 
-  const table = useReactTable({
-    columns: defaultColumns,
+  const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    meta: { onViewClientDetail: handleViewDetail },
+    columns: defaultColumns,
+    pageSize: 5,
+    onViewDetail: handleViewDetail,
   });
 
   const handleRowClick = onRowClick

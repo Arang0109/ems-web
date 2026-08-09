@@ -1,10 +1,11 @@
-import { Hash, Factory, Building2 } from "lucide-react";
+import { Hash, Factory, Building2, User2Icon, Phone, MailIcon } from "lucide-react";
 
 import type { ClientSnapshot } from "@entities/schedule";
 import {
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
 } from "@shared/model";
 import type { Grade, MeasurementField, Orientation, Shape } from "@shared/model";
+import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from "@shared/lib";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import {
@@ -25,7 +26,8 @@ export const UpdateScheduleClientForm = ({
   scheduleId, client, open, onOpenChange, onSuccess,
 }: Props) => {
   const {
-    form, fieldErrors, isLoading, handleChange, handleAddressChange, handleSubmit,
+    form, fieldErrors, isLoading, handleChange,
+    handleClientAddressChange, handleWorkplaceAddressChange, handleSubmit,
   } = useUpdateScheduleClient({
     scheduleId,
     client,
@@ -49,19 +51,74 @@ export const UpdateScheduleClientForm = ({
     >
       <FieldGroup>
         <SectionTitle>의뢰기관 정보</SectionTitle>
-        
+
+        <InputGroup
+          id="name"
+          label="측정대행 의뢰기관"
+          placeholder="측정대행 의뢰기관"
+          value={form.name}
+          onChange={(value) => handleChange("name", value)}
+          invalid={!!fieldErrors?.name}
+          error={fieldErrors?.name}
+          startIcon={<Building2 />}
+        />
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <InputGroup
+            id="bizNumber"
+            label="사업자등록번호"
+            placeholder="사업자등록번호"
+            value={formatBusinessNumber(form.bizNumber)}
+            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
+            invalid={!!fieldErrors?.bizNumber}
+            error={fieldErrors?.bizNumber}
+            startIcon={<Hash />}
+          />
+          <InputGroup
+            id="representative"
+            label="대표자"
+            placeholder="대표자"
+            value={form.representative}
+            onChange={(value) => handleChange("representative", value)}
+            startIcon={<User2Icon />}
+          />
+        </div>
+
+        <AddressInput
+          id="clientAddress"
+          placeholder="상세주소"
+          value={{
+            zipcode: form.zipcode,
+            roadAddress: form.roadAddress,
+            detailAddress: form.detailAddress,
+          }}
+          onChange={handleClientAddressChange}
+        />
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <InputGroup
+            id="tel"
+            label="전화번호"
+            placeholder="전화번호"
+            value={formatPhoneNumber(form.tel)}
+            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
+            startIcon={<Phone />}
+          />
+          <InputGroup
+            id="email"
+            label="이메일"
+            placeholder="이메일"
+            value={form.email}
+            onChange={(value) => handleChange("email", value)}
+            startIcon={<MailIcon />}
+          />
+        </div>
+
+        <Divider />
+
+        <SectionTitle>사업장 정보</SectionTitle>
 
         <div className="grid md:grid-cols-3 gap-4">
-          <InputGroup
-            id="name"
-            label="측정대행 의뢰기관"
-            placeholder="측정대행 의뢰기관"
-            value={form.name}
-            onChange={(value) => handleChange("name", value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
-            startIcon={<Building2 />}
-          />
           <InputGroup
             id="workplaceName"
             label="측정대상 사업장"
@@ -71,6 +128,17 @@ export const UpdateScheduleClientForm = ({
             invalid={!!fieldErrors?.workplaceName}
             error={fieldErrors?.workplaceName}
             startIcon={<Building2 />}
+          />
+          <InputGroup
+            id="workplaceBizNumber"
+            label="사업자등록번호"
+            placeholder="사업자등록번호"
+            value={formatBusinessNumber(form.workplaceBizNumber)}
+            onChange={(value) =>
+              handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
+            invalid={!!fieldErrors?.workplaceBizNumber}
+            error={fieldErrors?.workplaceBizNumber}
+            startIcon={<Hash />}
           />
           <Select
             id="workplaceGrade"
@@ -90,7 +158,7 @@ export const UpdateScheduleClientForm = ({
             roadAddress: form.workplaceRoadAddress,
             detailAddress: form.workplaceDetailAddress,
           }}
-          onChange={(value) => handleAddressChange(value)}
+          onChange={handleWorkplaceAddressChange}
         />
 
         <Divider />

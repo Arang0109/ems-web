@@ -7,11 +7,11 @@ type MockSchedule = {
   stackId: number;
   teamId: number;
   measurementField: 'AIR' | 'WATER' | 'NOISE_VIBRATION' | 'ODOR';
-  measureDate: string;              // LocalDateTime
-  measurementType: string | null;
+  sampledAt: string;              // LocalDateTime
   status: 'SCHEDULED' | 'MEASURING' | 'ANALYZING' | 'COMPLETED' | 'CANCELED';
   referenceNumber: string | null;
   clientName: string | null;
+  workplaceName: string | null;
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
@@ -21,29 +21,29 @@ const now = '2026-07-14T09:00:00';
 
 let schedules: MockSchedule[] = [
   {
-    id: 1, stackId: 1, teamId: 1, measurementField: 'AIR', measureDate: '2026-07-20T09:00:00',
-    measurementType: 'SELF', status: 'SCHEDULED', referenceNumber: 'KGAR-26-01-001',
-    clientName: '한국환경공단', stackName: '1호 배출구', teamName: '측정 1팀', createdAt: now,
+    id: 1, stackId: 1, teamId: 1, measurementField: 'AIR', sampledAt: '2026-07-20',
+    status: 'SCHEDULED', referenceNumber: 'KGAR-26-01-001',
+    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 172', teamName: '1팀', createdAt: now,
   },
   {
-    id: 2, stackId: 2, teamId: 2, measurementField: 'ODOR', measureDate: '2026-07-18T13:00:00',
-    measurementType: 'REFERENCE', status: 'MEASURING', referenceNumber: 'KGAR-26-01-002',
-    clientName: '대성산업', stackName: '2호 배출구', teamName: '측정 2팀', createdAt: now,
+    id: 2, stackId: 2, teamId: 2, measurementField: 'AIR', sampledAt: '2026-07-18',
+    status: 'MEASURING', referenceNumber: 'KGAR-26-01-002',
+    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 173', teamName: '2팀', createdAt: now,
   },
   {
-    id: 3, stackId: 3, teamId: 1, measurementField: 'WATER', measureDate: '2026-07-10T10:30:00',
-    measurementType: 'SELF', status: 'ANALYZING', referenceNumber: 'KGAR-26-01-003',
-    clientName: '삼성전자', stackName: '폐수 배출구', teamName: '측정 1팀', createdAt: now,
+    id: 3, stackId: 3, teamId: 1, measurementField: 'AIR', sampledAt: '2026-07-10',
+    status: 'ANALYZING', referenceNumber: 'KGAR-26-01-003',
+    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 174', teamName: '1팀', createdAt: now,
   },
   {
-    id: 4, stackId: 4, teamId: 3, measurementField: 'NOISE_VIBRATION', measureDate: '2026-06-30T15:00:00',
-    measurementType: 'REFERENCE', status: 'COMPLETED', referenceNumber: 'KGAR-26-01-004',
-    clientName: 'LG화학', stackName: '북측 경계', teamName: '측정 3팀', createdAt: now,
+    id: 4, stackId: 4, teamId: 3, measurementField: 'AIR', sampledAt: '2026-06-30',
+    status: 'COMPLETED', referenceNumber: 'KGAR-26-01-004',
+    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 175', teamName: '3팀', createdAt: now,
   },
   {
-    id: 5, stackId: 5, teamId: 2, measurementField: 'AIR', measureDate: '2026-06-25T11:00:00',
-    measurementType: 'SELF', status: 'CANCELED', referenceNumber: null,
-    clientName: '현대제철', stackName: '3호 배출구', teamName: '측정 2팀', createdAt: now,
+    id: 5, stackId: 5, teamId: 2, measurementField: 'AIR', sampledAt: '2026-06-25',
+    status: 'CANCELED', referenceNumber: null,
+    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 176', teamName: '2팀', createdAt: now,
   },
 ];
 
@@ -101,9 +101,8 @@ const buildSnapshot = (schedule: MockSchedule) => ({
   status: schedule.status,
   basicInfo: {
     referenceNumber: schedule.referenceNumber,
-    measureDate: schedule.measureDate,
+    sampledAt: schedule.sampledAt,
     measurementField: schedule.measurementField,
-    measurementType: schedule.measurementType,
   },
   team: {
     teamId: schedule.teamId, teamName: schedule.teamName ?? '측정팀',
@@ -142,24 +141,41 @@ const buildSnapshot = (schedule: MockSchedule) => ({
     {
       equipmentId: 'eq-ps-1', type: 'PARTICLE_SAMPLER', managementNumber: 'PS-001', serialNumber: 'SN-PS-001',
       modelName: 'APEX-PS', equipmentName: '입자상 채취기', alias: 'PS1', manufacturer: 'Apex',
-      calibrationCycle: 12, lastCalibrationDate: '2026-01-15',
+      inspections: [
+        { type: 'PRECISION_INSPECTION', enabled: true, cycleMonths: 24, lastInspectedAt: '2025-01-15', nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'CALIBRATION', enabled: true, cycleMonths: 12, lastInspectedAt: '2026-01-15', nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'GENERAL_TEST', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+      ],
       spec: { totalVolume: 1000, orificeDp: 1.84, yd: 0.99 },
     },
     {
       equipmentId: 'eq-gs-1', type: 'GAS_SAMPLER', managementNumber: 'GS-001', serialNumber: 'SN-GS-001',
       modelName: 'APEX-GS', equipmentName: '가스상 채취기', alias: 'GS1', manufacturer: 'Apex',
-      calibrationCycle: 12, lastCalibrationDate: '2026-01-15', spec: { totalVolume: 800 },
+      inspections: [
+        { type: 'PRECISION_INSPECTION', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'CALIBRATION', enabled: true, cycleMonths: 12, lastInspectedAt: '2026-01-15', nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'GENERAL_TEST', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+      ],
+      spec: { totalVolume: 800 },
     },
     {
       equipmentId: 'eq-pt-1', type: 'PITOT_TUBE', managementNumber: 'PT-001', serialNumber: 'SN-PT-001',
       modelName: 'S-Type', equipmentName: '피토관', alias: 'PT1', manufacturer: 'Dwyer',
-      calibrationCycle: 12, lastCalibrationDate: '2026-01-15',
+      inspections: [
+        { type: 'PRECISION_INSPECTION', enabled: true, cycleMonths: 24, lastInspectedAt: '2026-01-15', nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'CALIBRATION', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'GENERAL_TEST', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+      ],
       spec: { pitotTubeType: 'DUST', coefficients: [{ coefficient: 0.84, velocity: 5 }, { coefficient: 0.85, velocity: 10 }] },
     },
     {
       equipmentId: 'eq-nz-1', type: 'NOZZLE', managementNumber: 'NZ-001', serialNumber: 'SN-NZ-001',
       modelName: 'Nozzle-Set', equipmentName: '노즐', alias: 'NZ1', manufacturer: 'Apex',
-      calibrationCycle: 12, lastCalibrationDate: '2026-01-15',
+      inspections: [
+        { type: 'PRECISION_INSPECTION', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'CALIBRATION', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+        { type: 'GENERAL_TEST', enabled: false, cycleMonths: null, lastInspectedAt: null, nextDueDateOverride: null, notificationEnabled: true },
+      ],
       spec: { diameters: [{ diameter: 0.6 }, { diameter: 0.8 }, { diameter: 1.0 }] },
     },
   ],
@@ -178,8 +194,8 @@ const buildSnapshot = (schedule: MockSchedule) => ({
 
 const buildScheduleResponse = (schedule: MockSchedule) => ({
   id: schedule.id, tenantId: 1, stackId: schedule.stackId, teamId: schedule.teamId,
-  measurementField: schedule.measurementField, measureDate: schedule.measureDate,
-  measurementType: schedule.measurementType, status: schedule.status,
+  measurementField: schedule.measurementField, sampledAt: schedule.sampledAt,
+  status: schedule.status,
   referenceNumber: schedule.referenceNumber, createdAt: schedule.createdAt, modifiedAt: schedule.createdAt,
   snapshot: buildSnapshot(schedule),
 });
@@ -227,7 +243,7 @@ export const scheduleHandlers = [
     const duplicated = schedules.some(
       (s) => s.stackId === body.stackId
         && s.teamId === body.teamId
-        && s.measureDate === body.measureDate,
+        && s.sampledAt === body.sampledAt,
     );
     if (duplicated) {
       return HttpResponse.json(
@@ -241,10 +257,10 @@ export const scheduleHandlers = [
       stackId: body.stackId ?? 0,
       teamId: body.teamId ?? 0,
       measurementField: body.measurementField ?? 'AIR',
-      measureDate: body.measureDate ?? now,
-      measurementType: body.measurementType ?? null,
+      sampledAt: body.sampledAt ?? now,
       status: 'SCHEDULED',
       referenceNumber: body.referenceNumber ?? null,
+      workplaceName: null,
       clientName: null,
       stackName: null,
       teamName: null,

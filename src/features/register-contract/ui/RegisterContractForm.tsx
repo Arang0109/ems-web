@@ -5,6 +5,7 @@ import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LAB
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
 import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
+import { Send } from "lucide-react";
 
 export const RegisterContractForm = () => {
   const { 
@@ -22,7 +23,7 @@ export const RegisterContractForm = () => {
       <FieldGroup>
           <div className="flex justify-between">
             <SectionTitle>계약 정보</SectionTitle>
-            <Button type="submit">계약 작성</Button>
+            <Button type="submit" startIcon={Send}>계약</Button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">

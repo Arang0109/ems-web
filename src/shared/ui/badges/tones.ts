@@ -23,6 +23,18 @@ export const TONE_DOT: Record<StatusTone, string> = {
   warning: 'bg-warning',
 };
 
+/**
+ * pill 형태로 감쌀 때의 면 색상.
+ * 피그마 모바일 카드의 상태 칩(진행 중 = Brand Soft, 그 외 = Rule 50%)에서 왔다.
+ */
+export const TONE_SURFACE: Record<StatusTone, string> = {
+  pending: 'bg-rule/50',
+  progress: 'bg-brand-soft',
+  done: 'bg-rule/50',
+  danger: 'bg-danger-soft',
+  warning: 'bg-warning-soft',
+};
+
 /** StatusDot 의 텍스트 색상 */
 export const TONE_TEXT: Record<StatusTone, string> = {
   pending: 'text-ink',

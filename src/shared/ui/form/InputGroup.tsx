@@ -20,6 +20,10 @@ interface InputGroupProps<T = string> {
   readOnly?: boolean;
   required?: boolean;
   helperText?: string;
+  
+  min?: number;
+  max?: number;
+  step?: number;
 
   invalid?: boolean;
   error?: string;
@@ -39,6 +43,9 @@ export const InputGroup = <T extends string | number>({
   readOnly,
   required,
   helperText,
+  min,
+  max,
+  step,
   invalid,
   error,
   startIcon,
@@ -59,6 +66,10 @@ export const InputGroup = <T extends string | number>({
         disabled={disabled}
         readOnly={readOnly}
         aria-invalid={invalid}
+
+        min={min}
+        max={max}
+        step={step}
       />
       {endIcon && <InputGroupAddon align="inline-end">{endIcon}</InputGroupAddon>}
     </InputGroupPrimitive>

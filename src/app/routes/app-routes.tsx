@@ -11,7 +11,7 @@ import {
   ContractPage, ContractRegisterPage, ContractDetailPage,
   PollutantPage,
 } from "@pages/client";
-import { AdminMemberPage } from "@pages/admin";
+import { AdminMemberPage, AdminDocumentPage } from "@pages/admin";
 import { PlatformTenantPage } from "@pages/platform";
 import { EquipmentPage } from "@pages/equipment";
 import { StaffPage } from "@pages/staff";
@@ -52,6 +52,14 @@ export const AppRoutes = () => (
           element={
             <AdminRoute>
               <AdminMemberPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/documents"
+          element={
+            <AdminRoute>
+              <AdminDocumentPage />
             </AdminRoute>
           }
         />

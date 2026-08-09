@@ -1,7 +1,7 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
   MeasurementMethod, PollutantPhase, MeasurementCycle,
-  EquipType, EquipStatus, PitotTubeType,
+  EquipType, EquipStatus, PitotTubeType, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
 } from "../model";
@@ -76,11 +76,22 @@ export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
 };
 
 export const EQUIP_TYPE_LABEL: Record<EquipType, string> = {
-  PARTICLE_SAMPLER: '입자샘플러',
-  GAS_SAMPLER: '가스샘플러',
-  PITOT_TUBE: '피토관',
+  PARTICLE_SAMPLER: '굴뚝시료채취장치(입자상)',
+  GAS_SAMPLER: '굴뚝시료채취장치(가스상)',
+  GAS_ANALYZER: '대기배출가스측정기',
+  PITOT_TUBE: '피토우관',
   NOZZLE: '노즐',
   OTHER: '기타',
+};
+
+// 장비 카드 제목 옆 보조 설명 — 피그마 "측정계획-측정장비" 시안의 캡션.
+export const EQUIP_TYPE_DESCRIPTION: Record<EquipType, string> = {
+  PARTICLE_SAMPLER: '굴뚝시료채취장치(입자상) 및 그 부속기기',
+  GAS_SAMPLER: '굴뚝시료채취장치(가스상) 및 그 부속기기',
+  GAS_ANALYZER: '배출가스 성분 분석장치',
+  PITOT_TUBE: '유체 속도 측정장치',
+  NOZZLE: '유체 흐름 제어장치',
+  OTHER: '그 밖의 측정 부속기기',
 };
 
 export const EQUIP_STATUS_LABEL: Record<EquipStatus, string> = {
@@ -94,6 +105,18 @@ export const PITOT_TUBE_TYPE_LABEL: Record<PitotTubeType, string> = {
   DUST: '먼지',
   FINE_DUST: '미세먼지',
   MERCURY: '수은',
+};
+
+// 측정장비 검사(inspection) — 세 종류는 배타적이지 않으며 장비는 항상 3종 전부를 보유한다.
+export const INSPECTION_TYPE_LABEL: Record<InspectionType, string> = {
+  PRECISION_INSPECTION: '정도검사',
+  CALIBRATION: '교정',
+  GENERAL_TEST: '일반시험',
+};
+
+export const INSPECTION_RESULT_LABEL: Record<InspectionResult, string> = {
+  PASS: '적합',
+  FAIL: '부적합',
 };
 
 export const MEASUREMENT_CATEGORY_LABEL: Record<MeasurementCategory, string> = {

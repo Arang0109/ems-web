@@ -1,17 +1,14 @@
-import { type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
 
-import { Button, buttonVariants } from "./Button";
-
-type Variants = VariantProps<typeof buttonVariants>;
+import { Button } from "./Button";
+import { type ButtonVariants } from "./button-variants";
 
 interface Props {
   icon: React.ReactNode;
   label?: string;
   onClick?: () => void;
-  variant?: Variants["variant"];
-  size?: Variants["size"];
+  variant?: ButtonVariants["variant"];
+  size?: ButtonVariants["size"];
   disabled?: boolean;
   className?: string;
   type?: "button" | "submit" | "reset";

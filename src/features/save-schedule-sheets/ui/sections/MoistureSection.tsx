@@ -1,10 +1,11 @@
 import type { SheetCalcPreview } from "@entities/schedule";
-import { SectionAccordion } from "@shared/ui/accordion";
-import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
+import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
+import { UnitField, CalcResultRow } from "@shared/ui/form";
 
 import type { MoistureForm } from "../../model/types";
+import { FIELD_GRID, type SectionShellProps } from "./shell-props";
 
-interface Props {
+interface Props extends SectionShellProps {
   moisture: MoistureForm;
   calc: SheetCalcPreview["moisture"] | null;
   editable: boolean;
@@ -13,63 +14,81 @@ interface Props {
 
 const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
-// 구버전과 동일한 8열 구조: [라벨|전|후|계산] × 2묶음. "전/후 입력 → 차이·환산 계산" 패턴.
-export const MoistureSection = ({ moisture, calc, editable, onChange }: Props) => (
-  <SectionAccordion title="수분량 계산" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-nav">
-      <table className="w-full border-collapse min-w-[880px] table-fixed">
-        <colgroup>
-          <col style={{ width: "17%" }} /><col style={{ width: "11%" }} />
-          <col style={{ width: "11%" }} /><col style={{ width: "11%" }} />
-          <col style={{ width: "17%" }} /><col style={{ width: "11%" }} />
-          <col style={{ width: "11%" }} /><col style={{ width: "11%" }} />
-        </colgroup>
-        <tbody>
-          <tr>
-            <TableLabelCell>흡습병 무게 (g)</TableLabelCell>
-            <TableInputCell type="number" value={moisture.weightBefore} placeholder="전" unit="g" step={0.01}
-              onChange={(v) => onChange({ weightBefore: v })} disabled={!editable} />
-            <TableInputCell type="number" value={moisture.weightAfter} placeholder="후" unit="g" step={0.01}
-              onChange={(v) => onChange({ weightAfter: v })} disabled={!editable} />
-            <TableResultCell value={display(calc?.ma)} unit="g" />
-            <TableLabelCell>게이지압 (mmH₂O)</TableLabelCell>
-            <TableInputCell type="number" value={moisture.gasMeterGaugePressure} unit="mmH₂O"
-              onChange={(v) => onChange({ gasMeterGaugePressure: v })} disabled={!editable} />
-            <TableResultCell value={display(calc?.pm_g)} unit="mmHg" />
-            <TableResultCell value={display(calc?.pmGInchH2O)} unit="inchH₂O" />
-          </tr>
-          <tr>
-            <TableLabelCell>온도 (°C)</TableLabelCell>
-            <TableInputCell type="number" value={moisture.gasMeterTempIn} placeholder="입구" unit="°C"
-              onChange={(v) => onChange({ gasMeterTempIn: v })} disabled={!editable} />
-            <TableInputCell type="number" value={moisture.gasMeterTempOut} placeholder="출구" unit="°C"
-              onChange={(v) => onChange({ gasMeterTempOut: v })} disabled={!editable} />
-            <TableResultCell value={display(calc?.tm_g)} unit="°C" />
-            <TableLabelCell>흡인유속 (m/s)</TableLabelCell>
-            <TableInputCell type="number" value={moisture.suctionVelocity} unit="m/s" step={0.1} colSpan={3}
-              onChange={(v) => onChange({ suctionVelocity: v })} disabled={!editable} />
-          </tr>
-          <tr>
-            <TableLabelCell>흡인량 (L)</TableLabelCell>
-            <TableInputCell type="number" value={moisture.dryGasVolumeBefore} placeholder="전" unit="L" step={0.001}
-              onChange={(v) => onChange({ dryGasVolumeBefore: v })} disabled={!editable} />
-            <TableInputCell type="number" value={moisture.dryGasVolumeAfter} placeholder="후" unit="L" step={0.001}
-              onChange={(v) => onChange({ dryGasVolumeAfter: v })} disabled={!editable} />
-            <TableResultCell value={display(calc?.vm_g)} unit="L" />
-            <TableLabelCell>수분량 (%)</TableLabelCell>
-            <TableResultCell value={display(calc?.xw)} unit="%" colSpan={3} />
-          </tr>
-          {/* 수분 채취 시각은 시트별 값이다. 입자상과 달리 지점별 채취시간 합산 개념이 없어 둘 다 직접 입력한다. */}
-          <tr>
-            <TableLabelCell>채취 시작시간</TableLabelCell>
-            <TableInputCell type="time" colSpan={3} value={moisture.samplingStartTime}
-              onChange={(v) => onChange({ samplingStartTime: v })} disabled={!editable} />
-            <TableLabelCell>채취 종료시간</TableLabelCell>
-            <TableInputCell type="time" colSpan={3} value={moisture.samplingEndTime}
-              onChange={(v) => onChange({ samplingEndTime: v })} disabled={!editable} />
-          </tr>
-        </tbody>
-      </table>
+// "전/후를 입력하면 차이·환산·수분량이 계산된다"는 흐름을 그대로 두 그룹으로 나눈다.
+// 온도는 도메인상 건식가스미터 입구/출구 온도라 기록지 용어를 유지한다.
+export const MoistureSection = ({ moisture, calc, editable, onChange, ...shell }: Props) => (
+  <SectionAccordion
+    {...shell}
+    title="수분량 계산"
+    description="직접 측정한 값만 입력하면 차이·환산값·수분량을 자동으로 계산합니다."
+  >
+    <SubAccordion title="흡습병·온도·흡인량" defaultOpen>
+      <div className={FIELD_GRID}>
+        <UnitField
+          label="흡습병 무게 - 전" required unit="g" type="number" step={0.01}
+          value={moisture.weightBefore} disabled={!editable}
+          onChange={(v) => onChange({ weightBefore: v })}
+        />
+        <UnitField
+          label="흡습병 무게 - 후" required unit="g" type="number" step={0.01}
+          value={moisture.weightAfter} disabled={!editable}
+          onChange={(v) => onChange({ weightAfter: v })}
+          helper={<CalcResultRow label="무게차이 자동계산" value={display(calc?.ma)} unit="g" />}
+        />
+        <UnitField
+          label="온도 - 입구" required unit="°C" type="number" step={0.1}
+          value={moisture.gasMeterTempIn} disabled={!editable}
+          onChange={(v) => onChange({ gasMeterTempIn: v })}
+        />
+        <UnitField
+          label="온도 - 출구" required unit="°C" type="number" step={0.1}
+          value={moisture.gasMeterTempOut} disabled={!editable}
+          onChange={(v) => onChange({ gasMeterTempOut: v })}
+          helper={<CalcResultRow label="평균온도 자동계산" value={display(calc?.tm_g)} unit="°C" />}
+        />
+        <UnitField
+          label="흡인량 - 전" required unit="L" type="number" step={0.001}
+          value={moisture.dryGasVolumeBefore} disabled={!editable}
+          onChange={(v) => onChange({ dryGasVolumeBefore: v })}
+        />
+        <UnitField
+          label="흡인량 - 후" required unit="L" type="number" step={0.001}
+          value={moisture.dryGasVolumeAfter} disabled={!editable}
+          onChange={(v) => onChange({ dryGasVolumeAfter: v })}
+          helper={<CalcResultRow label="흡인량차이 자동계산" value={display(calc?.vm_g)} unit="L" />}
+        />
+      </div>
+    </SubAccordion>
+
+    <SubAccordion title="게이지압·유속·수분량" defaultOpen>
+      <div className={FIELD_GRID}>
+        <UnitField
+          label="게이지압" required unit="mmH₂O" type="number"
+          value={moisture.gasMeterGaugePressure} disabled={!editable}
+          onChange={(v) => onChange({ gasMeterGaugePressure: v })}
+          helper={
+            <>
+              <CalcResultRow label="게이지압 환산" value={display(calc?.pm_g)} unit="mmHg" />
+              <CalcResultRow label="게이지압 환산" value={display(calc?.pmGInchH2O)} unit="inchH₂O" />
+            </>
+          }
+        />
+        <UnitField
+          label="흡인유속" required unit="m/s" type="number" step={0.1}
+          value={moisture.suctionVelocity} disabled={!editable}
+          onChange={(v) => onChange({ suctionVelocity: v })}
+          helper={<CalcResultRow label="수분량 자동계산" value={display(calc?.xw)} unit="%" />}
+        />
+      </div>
+    </SubAccordion>
+
+    {/* 수분 채취 시각은 시트별 값이다. 입자상과 달리 지점별 채취시간 합산 개념이 없어 둘 다 직접 입력한다. */}
+    <div className={FIELD_GRID}>
+      <UnitField
+        label="채취 시작시간" type="time" showComplete={false}
+        value={moisture.samplingStartTime} disabled={!editable}
+        onChange={(v) => onChange({ samplingStartTime: v })}
+      />
     </div>
   </SectionAccordion>
 );

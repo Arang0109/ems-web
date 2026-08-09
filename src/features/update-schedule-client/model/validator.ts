@@ -11,6 +11,15 @@ export const validateScheduleClientFields = (form: ScheduleClientUpdateForm) => 
 
   if (!form.name.trim()) errors.name = "의뢰기관명을 입력해주세요.";
   if (!form.workplaceName.trim()) errors.workplaceName = "사업장명을 입력해주세요.";
+
+  // 사업자번호는 선택 항목이므로 입력했을 때만 자릿수를 본다(빈 값 = 기존 값 유지).
+  if (form.bizNumber && !/^\d{10}$/.test(form.bizNumber)) {
+    errors.bizNumber = "10자리의 사업자번호를 입력해주세요.";
+  }
+  if (form.workplaceBizNumber && !/^\d{10}$/.test(form.workplaceBizNumber)) {
+    errors.workplaceBizNumber = "10자리의 사업자번호를 입력해주세요.";
+  }
+
   if (!form.stackName.trim()) errors.stackName = "측정시설명을 입력해주세요.";
   if (!form.stackSemsNumber.trim()) errors.stackSemsNumber = "SEMS 번호를 입력해주세요.";
   if (!form.height.trim()) errors.height = "측정공 높이를 입력해주세요.";

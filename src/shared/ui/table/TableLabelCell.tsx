@@ -12,8 +12,8 @@ export const TableLabelCell = ({
     scope="row"
     colSpan={colSpan}
     rowSpan={rowSpan}
-    className="bg-muted border border-border p-1 md:p-2
-      text-center text-label text-foreground whitespace-nowrap"
+    className="bg-canvas border border-rule p-1 md:p-2
+      text-center text-label text-ink whitespace-nowrap"
   >
     {children}
   </th>

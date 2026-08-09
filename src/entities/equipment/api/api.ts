@@ -5,6 +5,8 @@ import type {
   UpdateEquipmentRequest,
   ChangeEquipmentStatusRequest,
   EquipmentResponse,
+  RecordInspectionRequest,
+  InspectionRecordResponse,
 } from './dto';
 
 export const equipmentApi = {
@@ -35,6 +37,16 @@ export const equipmentApi = {
 
   changeEquipmentStatus: async (id: string, data: ChangeEquipmentStatusRequest): Promise<ApiResponseMessage<EquipmentResponse>> => {
     const res = await axiosPrivate.patch(`/equipments/${id}/status`, data);
+    return res.data;
+  },
+
+  getInspectionRecords: async (equipmentId: string): Promise<ApiResponseMessage<InspectionRecordResponse[]>> => {
+    const res = await axiosPrivate.get(`/equipments/${equipmentId}/inspections`);
+    return res.data;
+  },
+
+  recordInspection: async (equipmentId: string, data: RecordInspectionRequest): Promise<ApiResponseMessage<InspectionRecordResponse>> => {
+    const res = await axiosPrivate.post(`/equipments/${equipmentId}/inspections`, data);
     return res.data;
   },
 };

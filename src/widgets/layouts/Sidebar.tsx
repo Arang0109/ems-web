@@ -6,9 +6,7 @@ import {
   Building2,
   FileText,
   Gauge,
-  PieChart,
   Wrench,
-  Activity,
   Award,
 } from "lucide-react";
 
@@ -24,6 +22,7 @@ import {
 import { useSignOut } from "@features/sign-out";
 import { useAuth, isAdmin } from "@entities/auth";
 import type { UserRole } from "@entities/auth";
+import { APP_BRAND } from "./brand";
 
 // ─── 메뉴 구조 ────────────────────────────────────────────────────────────────
 
@@ -57,8 +56,6 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
     label: '측정',
     subItems: [
       { label: '측정 계획', path: '/schedule' },
-      { label: '측정 현황', path: '/measurement/status' },
-      { label: '측정 이력', path: '/measurement/history' },
     ],
   },
   {
@@ -69,7 +66,6 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
       { label: '측정장비 관리', path: '/equipment' },
     ],
   },
-  { icon: PieChart, label: "데이터 분석", path: "/analysis" },
 ];
 
 const ADMIN_MENU_ITEMS: MenuItem[] = [
@@ -79,6 +75,7 @@ const ADMIN_MENU_ITEMS: MenuItem[] = [
     roles: ["ADMIN"],
     subItems: [
       { label: "회원 관리", path: "/admin/members" },
+      { label: "문서 관리", path: "/admin/documents" },
     ],
   },
 ];
@@ -148,7 +145,11 @@ export const Sidebar = () => {
   return (
     <AppSidebar
       header={
-        <SidebarBrandHeader icon={Activity} title="EnvBridge" subtitle="환경 측정 관리 시스템" />
+        <SidebarBrandHeader
+          icon={APP_BRAND.icon}
+          title={APP_BRAND.title}
+          subtitle={APP_BRAND.subtitle}
+        />
       }
       footer={
         <SidebarUserFooter name={user?.name} subtitle={user?.tenant} onLogout={logout} />

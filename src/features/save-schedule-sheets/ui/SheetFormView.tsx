@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
 import { toNumberOrNull } from "@shared/lib";
+import { ChipNav } from "@shared/ui/nav";
 
 import type {
   SheetForm, WeatherForm, MoistureForm, ExhaustGasForm, GasColumnKey,
@@ -11,12 +12,14 @@ import {
   getDefaultSamplingPointForm, getDefaultSampleForm,
   isParticleCategory,
 } from "../model/types";
+import {
+  getSectionProgress, getVisibleSections, type SheetSectionId,
+} from "../model/section-progress";
 import { WeatherSection } from "./sections/WeatherSection";
 import { MoistureSection } from "./sections/MoistureSection";
 import { ExhaustGasSection } from "./sections/ExhaustGasSection";
 import { SamplingPointSection } from "./sections/SamplingPointSection";
-import { ThimbleSection } from "./sections/ThimbleSection";
-import { SampleSection } from "./sections/SampleSection";
+import { ThimbleSampleSection } from "./sections/ThimbleSampleSection";
 import { NozzleRecommendModal } from "./NozzleRecommendModal";
 
 interface Props {
@@ -26,6 +29,9 @@ interface Props {
   editable: boolean;
   onChange: (updater: (sheet: SheetForm) => SheetForm) => void;
 }
+
+/** 섹션 카드의 DOM id — 섹션 바로가기의 스크롤 이동 대상 */
+const sectionDomId = (id: SheetSectionId): string => `sheet-section-${id}`;
 
 // 채취 종료시간 = 시작시간 + Σ지점별 채취시간(분). 시작이 없으면 빈 값.
 const calcSamplingEndTime = (start: string, points: SamplingPointForm[]): string => {
@@ -49,6 +55,37 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 
 export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChange }: Props) => {
   const [nozzleModalOpen, setNozzleModalOpen] = useState(false);
+  const [activeSectionId, setActiveSectionId] = useState<SheetSectionId>("weather");
+
+  const particle = isParticleCategory(sheet.category);
+  const sections = useMemo(() => getVisibleSections(particle), [particle]);
+
+  // 첫 섹션만 펼친 상태로 시작한다 — 모바일에서 한 번에 한 섹션씩 채우는 흐름.
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => ({
+    weather: true,
+  }));
+
+  const setSectionOpen = useCallback((id: SheetSectionId, open: boolean) => {
+    setOpenSections((prev) => ({ ...prev, [id]: open }));
+    if (open) setActiveSectionId(id);
+  }, []);
+
+  // 대상 섹션을 펼치고 그 카드로 스크롤한다.
+  const goToSection = useCallback((id: SheetSectionId) => {
+    setOpenSections((prev) => ({ ...prev, [id]: true }));
+    setActiveSectionId(id);
+    // 펼침 애니메이션이 시작된 뒤 위치를 잡아야 목표 카드가 화면에 걸린다.
+    requestAnimationFrame(() => {
+      document.getElementById(sectionDomId(id))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }, []);
+
+  const shellProps = (id: SheetSectionId) => ({
+    id: sectionDomId(id),
+    open: openSections[id] ?? false,
+    onOpenChange: (open: boolean) => setSectionOpen(id, open),
+    progress: getSectionProgress(sheet, id),
+  });
 
   const patchWeather = (patch: Partial<WeatherForm>) =>
     onChange((s) => ({ ...s, weather: { ...s.weather, ...patch } }));
@@ -103,22 +140,32 @@ export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChang
       return "samplingStartTime" in patch ? withAutoEndTime(next) : next;
     });
 
-  const particle = isParticleCategory(sheet.category);
   const nozzleOptions = externals.nozzleDiameters.map((d) => ({ value: String(d), label: `${d} cm` }));
 
   return (
     <div className="space-y-4">
-      <WeatherSection weather={sheet.weather} calc={previewCalc?.weather ?? null}
+      <ChipNav
+        ariaLabel="입력 섹션 바로가기"
+        className="sticky top-14 z-10 bg-canvas py-2"
+        items={sections}
+        activeId={activeSectionId}
+        onSelect={(id) => goToSection(id as SheetSectionId)}
+      />
+
+      <WeatherSection {...shellProps("weather")}
+        weather={sheet.weather} calc={previewCalc?.weather ?? null}
         editable={editable} onChange={patchWeather} />
 
-      <MoistureSection moisture={sheet.moisture} calc={previewCalc?.moisture ?? null}
+      <MoistureSection {...shellProps("moisture")}
+        moisture={sheet.moisture} calc={previewCalc?.moisture ?? null}
         editable={editable} onChange={patchMoisture} />
 
-      <ExhaustGasSection exhaustGas={sheet.exhaustGas} calc={previewCalc?.exhaustGas ?? null}
+      <ExhaustGasSection {...shellProps("exhaust")}
+        exhaustGas={sheet.exhaustGas} calc={previewCalc?.exhaustGas ?? null}
         standardOxygen={externals.standardOxygen}
         editable={editable} onChange={patchExhaust} onReadingChange={patchReading} />
 
-      <SamplingPointSection
+      <SamplingPointSection {...shellProps("point")}
         isParticle={particle}
         points={sheet.samplingPoints}
         particle={sheet.particle}
@@ -133,11 +180,15 @@ export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChang
       />
 
       {particle && (
-        <>
-          <ThimbleSection particle={sheet.particle} editable={editable} onChange={patchParticle} />
-          <SampleSection samples={sheet.samples} editable={editable}
-            onSampleChange={patchSample} onAddSample={addSample} onRemoveSample={removeSample} />
-        </>
+        <ThimbleSampleSection {...shellProps("sample")}
+          particle={sheet.particle}
+          samples={sheet.samples}
+          editable={editable}
+          onParticleChange={patchParticle}
+          onSampleChange={patchSample}
+          onAddSample={addSample}
+          onRemoveSample={removeSample}
+        />
       )}
 
       <NozzleRecommendModal

@@ -8,7 +8,7 @@ import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
 
 // Icon
-import { User2Icon, Hash } from "lucide-react";
+import { User2Icon, Hash, Plus } from "lucide-react";
 import { MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL } from "@shared/config";
 import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
 
@@ -28,7 +28,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
 
   return(
     <FormDialog
-      triggerLabel='측정물질 등록'
+      triggerLabel={<><Plus /> 측정물질 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

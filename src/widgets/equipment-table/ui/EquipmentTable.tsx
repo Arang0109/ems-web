@@ -2,13 +2,14 @@ import { useEquipmentTable } from '../model/use-equipment-table';
 
 import { RegisterEquipmentForm } from '@features/register-equipment';
 import { UpdateEquipmentForm } from '@features/update-equipment';
+import { InspectionHistoryDialog } from '@features/record-inspection';
 
-import { BasicTable } from '@shared/ui/table';
+import { BasicTable, TableFooterBar } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
-import { Pagination } from '@shared/ui/pagination';
 import { EQUIP_TYPE_LABEL } from '@shared/config';
 import type { EquipType } from '@shared/model';
 import type { Equipment } from '@entities/equipment';
+import { Panel } from '@shared/ui/cards';
 
 interface Props {
   type: EquipType;
@@ -26,18 +27,22 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
 
+    inspectionModalOpen, setInspectionModalOpen,
+    inspectionType, handleOpenInspectionHistory,
+
     globalFilter, setGlobalFilter,
 
     loading, error, refetch,
   } = useEquipmentTable({ type, onRowClick, onSuccess });
 
   return (
-    <div>
-      <div className="pb-4 border-b border-border">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-h3 text-foreground">{EQUIP_TYPE_LABEL[type]} 목록</h2>
-          </div>
+    <Panel className="p-0 flex flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-3 bg-panel p-2">
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-h3 text-foreground">{EQUIP_TYPE_LABEL[type]} 목록</h2>
+        </div>
+        <div className="flex items-center justify-end gap-2">
+          <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 장비명 검색 ...'} />
           <RegisterEquipmentForm
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
@@ -45,40 +50,37 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
             onSuccess={refetch}
           />
         </div>
-      </div>
+      </header>
 
-      <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 장비명 검색 ...'} />
-      </div>
-
-      <div className="py-5 flex-1 flex flex-col">
+      <div className="bg-panel">
         <BasicTable table={table} error={error} onRowClick={handleRowClick} />
       </div>
 
       {!loading && !error && (
-        <div className="pt-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-caption text-muted-foreground leading-none">
-            총 <span className="font-semibold text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
-          </span>
-          <Pagination
-            pageIndex={table.getState().pagination.pageIndex}
-            pageCount={table.getPageCount()}
-            canPreviousPage={table.getCanPreviousPage()}
-            canNextPage={table.getCanNextPage()}
-            onPreviousPage={() => table.previousPage()}
-            onNextPage={() => table.nextPage()}
-            onPageChange={(idx) => table.setPageIndex(idx)}
-          />
-        </div>
+        <TableFooterBar table={table} className="bg-panel py-1" />
       )}
 
+      {/* key에 modifiedAt을 포함해 검사 이력 등록 등으로 장비가 갱신되면 폼이 새 값으로 리마운트되게 한다. */}
       <UpdateEquipmentForm
-        key={selectedEquipment?.id}
+        key={selectedEquipment ? `${selectedEquipment.id}-${selectedEquipment.modifiedAt}` : undefined}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         equipment={selectedEquipment}
         onSuccess={refetch}
+        onOpenInspectionHistory={handleOpenInspectionHistory}
       />
-    </div>
+
+      {inspectionType && (
+        <InspectionHistoryDialog
+          key={`${selectedEquipment?.id}-${inspectionType}`}
+          open={inspectionModalOpen}
+          onOpenChange={setInspectionModalOpen}
+          equipmentId={selectedEquipment?.id ?? null}
+          equipmentName={selectedEquipment?.equipmentName ?? ''}
+          type={inspectionType}
+          onSuccess={refetch}
+        />
+      )}
+    </Panel>
   );
 };

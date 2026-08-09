@@ -1,6 +1,7 @@
 import {
   MEASUREMENT_FIELD_LABEL, GRADE_LABEL, ORIENTATION_LABEL, SHAPE_LABEL,
   EQUIP_TYPE_LABEL, EQUIP_STATUS_LABEL, PITOT_TUBE_TYPE_LABEL, MEASUREMENT_CYCLE_LABEL,
+  INSPECTION_TYPE_LABEL, INSPECTION_RESULT_LABEL,
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
 } from "@shared/config";
@@ -19,11 +20,15 @@ export const SCHEDULE_STATUS = ['SCHEDULED', 'MEASURING', 'ANALYZING', 'COMPLETE
 export const MEASUREMENT_TYPE = ['SELF', 'REFERENCE'] as const;
 
 // 측정장비(equipment) — 종류/상태/피토관 종류
-export const EQUIP_TYPE = ['PARTICLE_SAMPLER', 'GAS_SAMPLER', 'PITOT_TUBE', 'NOZZLE', 'OTHER'] as const;
+export const EQUIP_TYPE = ['PARTICLE_SAMPLER', 'GAS_SAMPLER', 'GAS_ANALYZER', 'PITOT_TUBE', 'NOZZLE', 'OTHER'] as const;
 export const EQUIP_STATUS = ['ACTIVE', 'INACTIVE', 'MAINTENANCE', 'DELETED'] as const;
 // 사용자가 변경 가능한 상태 (DELETED는 삭제 액션으로만 도달)
 export const CHANGEABLE_EQUIP_STATUS = ['ACTIVE', 'INACTIVE', 'MAINTENANCE'] as const;
 export const PITOT_TUBE_TYPE = ['DUST', 'FINE_DUST', 'MERCURY'] as const;
+
+// 측정장비 검사(inspection) — 종류/판정. 장비는 종류 3종을 항상 전부 보유하고 대상 여부는 플래그로 표현한다.
+export const INSPECTION_TYPE = ['PRECISION_INSPECTION', 'CALIBRATION', 'GENERAL_TEST'] as const;
+export const INSPECTION_RESULT = ['PASS', 'FAIL'] as const;
 
 // 측정 기록지(sheet) — 카테고리 / 기상 / 풍향
 export const MEASUREMENT_CATEGORY = ['GAS', 'HEAVY_METAL', 'DUST', 'MERCURY'] as const;
@@ -43,6 +48,8 @@ export type MeasurementType = typeof MEASUREMENT_TYPE[number];
 export type EquipType = typeof EQUIP_TYPE[number];
 export type EquipStatus = typeof EQUIP_STATUS[number];
 export type PitotTubeType = typeof PITOT_TUBE_TYPE[number];
+export type InspectionType = typeof INSPECTION_TYPE[number];
+export type InspectionResult = typeof INSPECTION_RESULT[number];
 export type MeasurementCategory = typeof MEASUREMENT_CATEGORY[number];
 export type WeatherCondition = typeof WEATHER_CONDITION[number];
 export type WindDirection = typeof WIND_DIRECTION[number];
@@ -95,6 +102,16 @@ export const equipStatusOptions = CHANGEABLE_EQUIP_STATUS.map((status) => ({
 export const pitotTubeTypeOptions = PITOT_TUBE_TYPE.map((type) => ({
   value: type,
   label: PITOT_TUBE_TYPE_LABEL[type],
+}));
+
+export const inspectionTypeOptions = INSPECTION_TYPE.map((type) => ({
+  value: type,
+  label: INSPECTION_TYPE_LABEL[type],
+}));
+
+export const inspectionResultOptions = INSPECTION_RESULT.map((result) => ({
+  value: result,
+  label: INSPECTION_RESULT_LABEL[result],
 }));
 
 export const measurementCategoryOptions = MEASUREMENT_CATEGORY.map((category) => ({

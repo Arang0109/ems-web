@@ -35,7 +35,7 @@ export const RegisterStackForm = ({
 
   return(
     <FormDialog
-      triggerLabel={<><Plus /> 측정시설 등록</>}
+      triggerLabel={<><Plus /> 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

@@ -1,7 +1,7 @@
 import type {
   MeasurementField, ScheduleStatus, MeasurementType, Grade, Shape, Orientation,
   MeasurementMethod, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
-  MeasurementCategory, WeatherCondition, WindDirection,
+  MeasurementCategory, WeatherCondition, WindDirection, InspectionType,
 } from "@shared/model";
 
 export type ScheduleListResponse = {
@@ -14,6 +14,7 @@ export type ScheduleListResponse = {
   status: ScheduleStatus;
   referenceNumber: string | null;
   clientName: string | null;        // 스냅샷 미조립 시 null
+  workplaceName: string | null;
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
@@ -178,6 +179,17 @@ export type NozzleSpecDto = { diameters: NozzleDiameterDto[] };
 export type EquipmentSpecDto =
   | ParticleSamplerSpecDto | GasSamplerSpecDto | OtherSpecDto | PitotTubeSpecDto | NozzleSpecDto;
 
+// 측정 시점 스냅샷의 검사 항목. equipment 슬라이스와 동일 형태지만 entity 간 의존을 만들지 않기 위해
+// spec DTO들과 같은 방식으로 여기서 별도 정의한다. 스냅샷에는 서버 계산값(nextDueDate)이 포함되지 않는다.
+export type InspectionItemSnapshotDto = {
+  type: InspectionType;
+  enabled: boolean;
+  cycleMonths: number | null;
+  lastInspectedAt: string | null;       // "yyyy-MM-dd"
+  nextDueDateOverride: string | null;
+  notificationEnabled: boolean;
+};
+
 export type EquipmentSnapshotDto = {
   equipmentId: string;
   type: EquipType;
@@ -187,8 +199,7 @@ export type EquipmentSnapshotDto = {
   equipmentName: string;
   alias: string;
   manufacturer: string;
-  calibrationCycle: number | null;
-  lastCalibrationDate: string | null;   // "yyyy-MM-dd"
+  inspections: InspectionItemSnapshotDto[];
   spec: EquipmentSpecDto | null;
 };
 

@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
 
-import { Building2, ServerCog } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 import {
   AppSidebar,
@@ -11,6 +11,7 @@ import {
 } from "@shared/ui/sidebar";
 import { useSignOut } from "@features/sign-out";
 import { useAuth } from "@entities/auth";
+import { PLATFORM_BRAND } from "./brand";
 
 // ─── 메뉴 구조 (플랫폼 운영자 전용) ──────────────────────────────────────────
 const PLATFORM_MENU: SidebarNavGroup[] = [
@@ -31,7 +32,11 @@ export const PlatformSidebar = () => {
   return (
     <AppSidebar
       header={
-        <SidebarBrandHeader icon={ServerCog} title="EMS 운영" subtitle="플랫폼 운영자 콘솔" />
+        <SidebarBrandHeader
+          icon={PLATFORM_BRAND.icon}
+          title={PLATFORM_BRAND.title}
+          subtitle={PLATFORM_BRAND.subtitle}
+        />
       }
       footer={
         <SidebarUserFooter name={user?.name} subtitle="플랫폼 운영자" onLogout={logout} />

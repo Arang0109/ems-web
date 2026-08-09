@@ -2,7 +2,42 @@
 
 피그마에 정의된 디자인 시스템을 코드 토큰으로 옮기고, shadcn/ui(Base UI) 의존을 걷어내는 작업의 기록.
 
-> 최종 갱신: 2026-07-29
+> 최종 갱신: 2026-07-30
+
+---
+
+## 피그마 출처
+
+Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드 ID 로 접근한다** —
+섹션 03·04·05 의 레이어 이름이 전부 `Section - Space / Round` 로 중복돼 있다.
+
+- **fileKey** : `JUsYqubPZugaaM0ErbsGe5` (파일명 "민수님 외주", 단일 페이지 `0:1`)
+- **Design System 프레임** : `7:6901`
+
+| 노드 | 섹션 |
+|---|---|
+| `7:6921` | 01 컬러 |
+| `7:7828` | 02 타이포 |
+| `7:8468` | 03 간격과 코너 |
+| `7:9592` | 04 아이콘과 버튼 상태별 컴포넌트 |
+| `7:9788` | 05 데이터 입력 및 테이블 |
+
+그 외 참고 섹션 — `9:2723` 아이콘 목록, `11:4620` Input, `44:4288` Aside(사이드바).
+
+**화면 시안**
+
+| 노드 | 화면 | 비고 |
+|---|---|---|
+| `247:5214` | 측정계획 상세_MO | 모바일(390px) 기준. 데스크탑 시안 없음 → 파생 규칙은 아래 참조 |
+| `541:11826` | 측정계획-측정장비_MO | 장비별 접이식 카드 + 라벨/값 행. 다중값(피토관 계수·노즐 직경)은 Soft 칩 |
+| `541:12556` | 측정계획-측정정보_MO | 사전정보·의뢰기관·측정시설·측정항목 4개 카드. 측정항목은 주기별 상자 + 오염물질 칩(현재=Soft 면·브랜드 테두리) |
+
+> 측정계획 상세는 **현장 입력 화면이라 모바일이 1순위**다(피그마 메모 `43:2604`).
+> 데스크탑은 모바일 시안에서 파생한다 — 입력 48px→38px, 버튼 44px→36px,
+> 필드 1열→`md:` 2열→`xl:` 3열, 카드 패딩 16px→20px.
+
+> 컬러·타이포는 피그마 **Variables** 로 등록돼 있어 `get_variable_defs` 로 정확한 값을 받을 수 있다.
+> 간격·코너·컴포넌트 치수는 변수가 아니므로 섹션 본문 설명문과 노드 width/height 로 확인한다.
 
 ---
 
@@ -36,6 +71,11 @@
 ## 토큰 레퍼런스
 
 정의 위치: **`src/app/index.css`** (이 파일 하나가 디자인 시스템의 단일 출처)
+
+> ✅ **2026-07-30 피그마 대조 완료** — Figma Variables 및 03 섹션 노드 치수와 1:1 검증.
+> 컬러 15개 · 타이포 10단계(size·line-height·letter-spacing·weight) · 간격 space-1~10 · 코너 6토큰+full
+> **전부 일치**. 아래 표의 값은 추정이 아니라 검증된 값이다.
+> 단, `--chart-2~5` 는 피그마에 정의가 없는 **잠정값**으로 남아 있다(3순위 참조).
 
 ### 컬러
 
@@ -123,6 +163,14 @@
 `--radius: 11px`(panel)로 두면 shadcn 내부 계산식이 저절로 맞는다:
 `calc(var(--radius) - 5px)` → 6px(button), `min(var(--radius-md), 8px)` → 6px(button).
 
+### 그림자
+
+| 유틸리티 | 값 | 용도 |
+|---|---|---|
+| `shadow-panel` | `0 2px 8px 0 rgba(18,31,24,.06)` | 섹션 카드 · 패널의 기본 입체감 |
+
+Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자와 1:1).
+
 ---
 
 ## 컴포넌트
@@ -136,6 +184,14 @@
 | `Badge` | `shared/ui/badges/Badge.tsx` | pill. 5개 톤 |
 | `StatusDot` | `shared/ui/badges/StatusDot.tsx` | 운영 상태 — 점 + 텍스트 |
 | `Toaster` | `shared/ui/toasts/Toaster.tsx` | sonner 래퍼 |
+| `Tabs` | `shared/ui/tabs/Tabs.tsx` | 언더라인형. Base UI `tabs` 직접 사용 (shadcn 래퍼 미경유) |
+| `SectionAccordion` | `shared/ui/accordion/SectionAccordion.tsx` | 섹션 카드 — 제목 + 진행도 배지 + 접이식 본문. 제어/비제어 모두 지원 |
+| `SubAccordion` | `shared/ui/accordion/SubAccordion.tsx` | 섹션 안의 중첩 그룹 (`bg-canvas`) |
+| `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select 모드 지원 |
+| `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 행 (좌 라벨 / 우 값+단위) |
+| `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행 (좌 라벨 / 우 값 + 하단 구분선). MO 48px → 데스크탑 38px |
+| `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기 |
+| `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
 
 **Button variant** (이름은 기존 호출부 호환을 위해 유지)
 
@@ -188,6 +244,9 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 > `sheet` `tooltip` `skeleton` `button` `input` `separator` 는 **전부 `sidebar.tsx` 가 물고 있다.**
 > sidebar 하나를 처리하면 6개가 함께 풀린다.
+>
+> `tabs` 는 **사용처가 0이다** — `shared/ui/tabs/Tabs.tsx` 가 Base UI `tabs` 를 직접 쓰도록 바뀌었다.
+> 파일만 삭제하면 되며, 삭제 시 12개 · 1,555줄이 된다.
 
 ---
 
@@ -202,6 +261,31 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | 5 | **버튼** — 자체 Button 구현, shadcn Button 직접 import 7곳 전환 |
 | 6 | **배지·상태** — 톤 체계 도입, `Badge`·`StatusDot` 자체 구현, `BadgeWithIcon` 삭제 |
 | 7 | **shadcn 제거 1~3단계** — 4개 삭제 · 접점 격리 · 7개 이관. `components/` 2,927 → 1,635줄 |
+| 8 | **피그마 MCP 대조** — 토큰 전부 일치 확인, 컴포넌트 치수·상태 스펙 정합 (아래) |
+
+### 8단계 — 컴포넌트 치수·상태 스펙 정합 (2026-07-30)
+
+피그마 **Variables 로는 잡히지 않는** 값들이다. 04·05 섹션 본문 설명문과 노드 width/height 가 출처다.
+
+| 스펙 | 피그마 | 이전 | 반영 위치 |
+|---|---|---|---|
+| 입력 필드 높이 | 38px | `h-9`(36) | `components/ui/input.tsx` · `select.tsx` · `primitives/InputGroup.tsx` |
+| 폼 본문 글씨 | Body 3 (13px) | `text-base md:text-sm` | 위 3개 + `primitives/Textarea.tsx` |
+| 포커스 링 | 브랜드 초록 **12%** | `/50` · `/25` | 위 + `checkbox.tsx` · `radio-group.tsx` |
+| Read-only 면 | 회색 | 스타일 없음 | `input.tsx` · `Textarea.tsx` (`read-only:bg-canvas`) |
+| 테이블 헤더 행 | 42px | `h-10`(40) | `primitives/Table.tsx` |
+| 테이블 본문 행 | 52px | 패딩 의존(~34) | `primitives/Table.tsx` `py-2` + `BasicTable.tsx` `h-[52px]` |
+| 페이지네이션 | 28px 정사각 · 아이콘 12px | 36px · 16px | `primitives/Pagination.tsx` |
+| 현재 페이지 | PRIMARY(초록 면) | `outline`(흰 면) | `primitives/Pagination.tsx` |
+| 하단 바 | 높이 28px · 표와 간격 10px | `py-1` | `table/TableFooterBar.tsx` |
+
+- 헤더 텍스트의 `uppercase`·`tracking-wide` 제거 — 한글 헤더에 무의미하고 `text-label` 의 `-0.03em` 을 덮어썼다.
+  피그마 헤더 행 변수는 `Neutral_Ink Soft` + `Label_SBold`(12/600) + Canvas 면 + Rule Dark 선으로,
+  나머지는 이미 일치했다.
+- `Pagination` 은 `variant` prop 을 받도록 바꿨다. 이전·다음은 아이콘 전용 정사각이 되어
+  `이전`/`다음` 텍스트를 `sr-only` 로 옮겼다(접근성 이름은 그대로 한글).
+- 28px 은 `Button` size 램프(24·32·36·40)에 없어 `Pagination` 내부에서만 `size-7` 로 덮어썼다.
+  버튼 높이 36px(`h-9`)은 피그마와 이미 일치해 손대지 않았다.
 
 ### 고친 버그
 
@@ -210,6 +294,21 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 - `@layer base` 가 두 번 중복 선언되어 `html { @apply font-sans }` 가 이중 적용되던 문제.
 - `IconButton` 의 수동 variant 타입 목록에 실재하지 않는 `secondary` 가 남아 있던 문제
   (`VariantProps` 파생으로 교체).
+- **`primitives/Pagination.tsx` 의 `mx-auto` 때문에 하단 바 페이지네이션이 우측 끝에 붙지 않던 문제.**
+  auto margin 은 부모의 `justify-between`·`justify-end` 보다 우선해 남은 여백을 좌우로 나눠 먹으므로
+  호출부에서 override 가 불가능했다. shadcn 원본의 `mx-auto w-full justify-center` 를 제거하고
+  정렬은 호출부(부모 레이아웃)가 정하도록 바꿨다. 테이블 위젯 9개가 함께 고쳐졌다.
+
+### 해소한 중복
+
+테이블 위젯 9개(`contract` `schedule` `stack` `stack-list` `workplace` `equipment` `member` `team` `tenant`)가
+각자 인라인으로 갖고 있던 하단 바 JSX(`총 N건` + `Pagination` 7줄)를 `table/TableFooterBar` 로 통합했다.
+패딩·보더는 호출부가 `className` 으로 주입한다(예: `border-t border-border px-5 py-3`).
+
+- `TableFooterBar` 의 높이는 `h-7` → `min-h-7`. 고정 높이면 호출부가 얹은 패딩에 내용(28px 버튼)이 눌린다.
+  페이지가 1장이면 `Pagination` 이 렌더되지 않으므로 최소 높이 28px 는 유지한다.
+- 배경(`bg-canvas`)은 `TableFooterBar` 에서 빼고 셸(`TablePanel`)의 footer 슬롯으로 옮겼다.
+  아직 흰 `Panel` 안에 있는 미마이그레이션 위젯이 회색 띠를 얻지 않도록.
 
 ### 해소한 컨벤션 위반
 
@@ -219,6 +318,27 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 ---
 
 ## 앞으로의 작업
+
+### 피그마 대조에서 남긴 항목 (8단계 범위 밖)
+
+토큰·치수는 맞췄으나 아래는 호출부 변경 규모가 커서 의도적으로 남겼다.
+
+- **행 액션 형태** — 피그마 05 는 `··· 상세보기`(more-horizontal + 텍스트, DEFAULT 톤) 와
+  `작업시작`(check-square, PRIMARY) 두 버튼이다. 코드는 `shared/ui/table/RowActionCell.tsx` 의
+  아이콘 전용 `IconButton`. 테이블 위젯 5개 + `RowActionCell` 재설계가 뒤따른다.
+  3순위 "`IconButton` 기본 variant" 결정과 함께 처리하는 편이 낫다.
+- **아이콘 규격 통일** — 피그마 04 는 **기본 19px · stroke 1.46px**, 49개 목록에 lucide 이름이 명시돼 있다
+  (노드 `9:2723`). 코드는 14~19px 혼용(`SortIcon` 14, 피그마 헤더 정렬 아이콘은 16,
+  `SummaryCard` 19, `Button` 내부 `size-4`). 아이콘 크기 토큰을 세울지 결정이 필요하다.
+- **Code Connect 매핑** — 피그마 컴포넌트 ↔ `shared/ui` 연결. 등록하면 이후 design-to-code 시
+  피그마가 우리 컴포넌트를 직접 추천한다. `Button`·`Badge`·`StatusDot`·테이블부터 매핑할 수 있다.
+- **입력값 18px Regular 이 타이포 10단계에 없다** — 측정계획 상세_MO 의 입력창 값은 18px/400 인데
+  스케일의 18px 는 `text-h3`(600) 뿐이다. 현재는 `UnitField` 안에서
+  `text-body-2 max-md:text-[1.125rem]` 로 **한 곳에만 격리**해 두었다.
+  모바일 입력 전용 단계를 스케일에 추가할지 결정이 필요하다.
+- **배지 글씨색** — 피그마 진행도 배지는 Brand Soft 면에 **Primary**(#239861) 글씨지만,
+  "Primary 는 면 전용, 밝은 배경 위 글씨는 Dark" 원칙에 따라 `Badge tone="brand"`(Dark)를 썼다.
+  대비 3.44 → 5.86. 원칙을 유지할지 피그마에 맞출지 확인이 필요하다.
 
 ### 1순위 — 이미 결정됐으나 미실행
 
@@ -259,11 +379,12 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 - **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다
 - **`계약 상태` 배지 적용** — `CONTRACT_STATUS_LABEL`(정상/만료 임박/만료)이 라벨맵만 있고
   테이블에서 문자열 그대로 렌더된다. 피그마의 "만료 임박" 배지가 갈 자리
-- **폼 입력 글씨 16px 문제** — shadcn `input`/`textarea` 가 `text-base`.
-  스펙상 폼 본문은 Body 3(13px)이라 라벨(12px)과 입력값(16px) 사이가 어색하다. 4단계에서 해소
-- **기존 타입 오류 8건** — `features/update-schedule-client/model/mapper.ts` 의
-  `ScheduleClientUpdateForm` 속성 불일치. 디자인 작업과 무관하며 커밋 `2088422` 이전부터 존재.
-  이 상태로는 `npm run build` 가 실패한다
+- ~~**폼 입력 글씨 16px 문제**~~ — **완료(8단계).** `text-base md:text-sm` → `text-body-3`
+- ~~**기존 타입 오류 8건**~~ — **해소됨.** `features/update-schedule-client` 리팩터링 과정에서 정리되어
+  2026-07-30 기준 `npx tsc -b --force` 오류 0건
+- **`ring-ring/50` 잔존 3곳** — `primitives/Calendar.tsx` · `components/ui/tabs.tsx` ·
+  `components/variants/buttonVariants.ts`. 피그마의 12% 규정은 **입력 필드** 스펙이고 이 3개는
+  입력 필드가 아니어서 8단계 범위에서 제외했다. 통일할지는 판단 필요
 
 ---
 
@@ -282,5 +403,17 @@ Tailwind 는 소스에서 발견된 클래스만 생성하므로, 미사용 토�
 
 ### 피그마 값 수령
 
-정확도 순서: **Variables JSON export > 텍스트 > 스크린샷**.
+정확도 순서: **Variables(`get_variable_defs`) > 노드 치수(`get_metadata`) > 섹션 본문 텍스트 > 스크린샷**.
 스크린샷은 압축 때문에 색상 hex 를 정확히 읽을 수 없다. 레이아웃·상태 확인용으로는 유용하다.
+
+Figma MCP 사용 순서 (fileKey·노드 ID 는 위 "피그마 출처" 참조):
+
+1. `get_variable_defs` — 컬러·타이포는 변수로 등록돼 있어 여기서 정확한 값이 나온다.
+   특정 노드에 걸린 변수만 반환하므로 **노드를 좁혀 조회**하면 그 컴포넌트가 쓰는 토큰을 알 수 있다
+   (예: 테이블 헤더 행 `11:5844` → `Neutral_Ink Soft` + `Label_SBold`).
+2. `get_metadata` — 치수 확인용. **Design System 페이지 전체(`0:1`)는 응답이 43만 자로 잘리므로**
+   프레임 단위로 조회하거나, 저장된 결과 파일을 파싱해서 필요한 노드만 추린다.
+3. `get_screenshot` — 상태(hover·focus·selected)와 배치 확인용.
+
+> 간격·코너·컴포넌트 치수(버튼 36 · 입력 38 · 헤더 42 · 행 52 · 페이지네이션 28)는
+> **변수가 아니다.** 섹션 본문 설명문과 노드 width/height 로만 확인된다.

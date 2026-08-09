@@ -132,7 +132,7 @@ export const MeasurementChart = ({ stats }: Props) => {
         </div>
       </header>
 
-      <div className="px-5 py-4">
+      <div className="px-5 py-4 rounded-panel inset-ring-1 inset-ring-rule">
         <div className="flex items-center gap-4 pl-2">
           <LegendSwatch color="var(--chart-1)">완료 건수</LegendSwatch>
           <LegendSwatch color="var(--ink)">최다 측정</LegendSwatch>

@@ -5,7 +5,7 @@ import { useEquipmentDetail } from '@entities/equipment';
 export const useEquipmentSelection = () => {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
 
-  const { data: selectedEquipment } = useEquipmentDetail({
+  const { data: selectedEquipment, refetch: refetchSelectedEquipment } = useEquipmentDetail({
     id: selectedEquipmentId,
   });
 
@@ -17,5 +17,6 @@ export const useEquipmentSelection = () => {
     selectedEquipment,
 
     handleSelectEquipmentRow,
+    refetchSelectedEquipment,
   };
 };

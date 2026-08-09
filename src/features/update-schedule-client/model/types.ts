@@ -7,8 +7,16 @@ import type { MeasurementField, Grade, Shape, Orientation } from "@shared/model"
 export type ScheduleClientUpdateForm = {
   // 의뢰기관
   name: string;
+  bizNumber: string;
+  representative: string;
+  zipcode: string;
+  roadAddress: string;
+  detailAddress: string;
+  email: string;
+  tel: string;
   // 사업장
   workplaceName: string;
+  workplaceBizNumber: string;
   workplaceGrade: Grade;
   workplaceZipcode: string;
   workplaceRoadAddress: string;
@@ -30,7 +38,15 @@ export type ScheduleClientUpdateForm = {
 
 export const getDefaultForm = (): ScheduleClientUpdateForm => ({
   name: "",
+  bizNumber: "",
+  representative: "",
+  zipcode: "",
+  roadAddress: "",
+  detailAddress: "",
+  email: "",
+  tel: "",
   workplaceName: "",
+  workplaceBizNumber: "",
   workplaceGrade: "TYPE_1",
   workplaceZipcode: "",
   workplaceRoadAddress: "",

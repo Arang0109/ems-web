@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-interface SummaryCardProps {
+interface Props {
   count: number,
   label: string,
   unit: string,
@@ -12,7 +12,7 @@ export const SummaryCard = ({
   label,
   unit,
   icon: Icon,
-}: SummaryCardProps) => {
+}: Props) => {
 
   return(
     <div
@@ -26,7 +26,7 @@ export const SummaryCard = ({
         <Icon size={19} className="text-brand-primary" />
       </div>
       <div className="min-w-0">
-        <p className="text-label text-link-soft">{label}</p>
+        <p className="text-label text-ink-soft">{label}</p>
         <p className="text-h1 text-ink">
           {count}
           <span className="text-body-2 text-muted-ink ml-1">{unit}</span>

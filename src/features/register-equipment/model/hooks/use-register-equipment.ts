@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { EquipmentRegisterForm, EquipmentSpecForm } from "../types";
+import type { EquipmentRegisterForm, EquipmentSpecForm, InspectionItemForm } from "../types";
 import { getDefaultEquipmentRegisterForm, getDefaultSpecForm } from "../types";
 import { toEquipmentCreate } from "../mapper";
 import { validateEquipmentFields } from "../validator";
@@ -73,6 +73,18 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
     }));
   };
 
+  const handleInspectionChange = (
+    index: number,
+    field: keyof InspectionItemForm,
+    value: string | boolean,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      inspections: prev.inspections.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    }));
+    setFieldErrors((prev) => ({ ...prev, inspections: undefined }));
+  };
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -110,6 +122,8 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
     handleAddDiameter,
     handleRemoveDiameter,
     handleDiameterChange,
+
+    handleInspectionChange,
 
     handleSubmit,
   };

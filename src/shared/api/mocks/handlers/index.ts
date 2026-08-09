@@ -8,6 +8,7 @@ import { stackPollutantHandlers } from './stack-pollutant';
 import { contractHandlers } from './contract';
 import { pollutantHandlers } from './pollutants';
 import { memberHandlers, roleHandlers } from './member';
+import { documentHandlers } from './document';
 import { equipmentHandlers } from './equipment';
 import { teamHandlers } from './team';
 import { scheduleHandlers } from './schedule';
@@ -41,6 +42,9 @@ export const handlers = [
   // [ACTIVE]   회원 관리(관리자 페이지) + 팀 사수·부사수 조회
   ...memberHandlers,
   ...roleHandlers,
+
+  // [ACTIVE]   문서 관리(관리자 페이지) — 버전 관리·업로드/다운로드
+  ...documentHandlers,
 
   // [ACTIVE]   측정장비 관리
   ...equipmentHandlers,

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 
 import { useRegisterEquipment } from "../model/hooks/use-register-equipment";
 import { SpecFields } from "./SpecFields";
+import { InspectionFields } from "./InspectionFields";
 
 // UI
 import { FormDialog } from "@shared/ui/dialogs";
@@ -29,6 +30,7 @@ export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSucce
     handleAddDiameter,
     handleRemoveDiameter,
     handleDiameterChange,
+    handleInspectionChange,
     handleSubmit,
   } = useRegisterEquipment({
     defaultType,
@@ -84,7 +86,7 @@ export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSucce
         <Divider />
 
         <SectionTitle>구매 정보</SectionTitle>
-        <div className="grid md:grid-cols-5 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
           <InputGroup id="manufacturer" label="제조사" placeholder="제조사"
             value={form.manufacturer} onChange={(v) => handleChange('manufacturer', v)} />
           <InputGroup id="originCountry" label="원산지" placeholder="원산지"
@@ -97,12 +99,18 @@ export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSucce
             value={form.purchaseDate ? new Date(form.purchaseDate) : undefined}
             onChange={(date) => handleChange('purchaseDate', date ? format(date, 'yyyy-MM-dd') : '')}
           />
-          <InputGroup id="calibrationCycle" label="교정주기(개월)" placeholder="교정주기"
-           value={form.calibrationCycle} onChange={(v) => handleChange('calibrationCycle', v)} />
         </div>
-        
+
         <Textarea id="remark" label="비고" placeholder="비고"
           value={form.remark} onChange={(v) => handleChange('remark', v)} rows={2} />
+
+        <Divider />
+
+        <InspectionFields
+          inspections={form.inspections}
+          error={fieldErrors?.inspections}
+          onChange={handleInspectionChange}
+        />
 
         <Divider />
 

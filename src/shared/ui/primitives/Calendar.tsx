@@ -2,14 +2,23 @@ import * as React from "react"
 import {
   DayPicker,
   getDefaultClassNames,
+  useDayPicker,
   type DayButton,
   type Locale,
+  type NavProps,
 } from "react-day-picker"
+import { ko } from "react-day-picker/locale"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@shared/ui/buttons"
 import { buttonVariants } from "@shared/ui/buttons"
-import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronDownIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+} from "lucide-react"
 
 function Calendar({
   className,
@@ -17,7 +26,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
-  locale,
+  locale = ko,
   formatters,
   components,
   ...props
@@ -30,7 +39,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "group/calendar bg-background p-3 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(8)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "group/calendar bg-surface p-3 [--cell-radius:var(--radius-button)] [--cell-size:--spacing(9)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
         className
@@ -38,6 +47,12 @@ function Calendar({
       captionLayout={captionLayout}
       locale={locale}
       formatters={{
+        // 로케일 순서를 따르는 제목 — 한국어는 "2026년 7월"
+        formatCaption: (date) =>
+          date.toLocaleDateString(locale?.code, {
+            year: "numeric",
+            month: "long",
+          }),
         formatMonthDropdown: (date) =>
           date.toLocaleString(locale?.code, { month: "short" }),
         ...formatters,
@@ -55,20 +70,21 @@ function Calendar({
         ),
         button_previous: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
+          "size-7 p-0 select-none aria-disabled:opacity-50",
           defaultClassNames.button_previous
         ),
         button_next: cn(
           buttonVariants({ variant: buttonVariant }),
-          "size-(--cell-size) p-0 select-none aria-disabled:opacity-50",
+          "size-7 p-0 select-none aria-disabled:opacity-50",
           defaultClassNames.button_next
         ),
         month_caption: cn(
-          "flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)",
+          // 좌우 각 2개(연/월 이동) 버튼 자리를 비워 둔다
+          "flex h-(--cell-size) w-full items-center justify-center px-14",
           defaultClassNames.month_caption
         ),
         dropdowns: cn(
-          "flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-sm font-medium",
+          "flex h-(--cell-size) w-full items-center justify-center gap-1.5 text-body-4",
           defaultClassNames.dropdowns
         ),
         dropdown_root: cn(
@@ -76,19 +92,18 @@ function Calendar({
           defaultClassNames.dropdown_root
         ),
         dropdown: cn(
-          "absolute inset-0 bg-popover opacity-0",
+          "absolute inset-0 bg-surface opacity-0",
           defaultClassNames.dropdown
         ),
         caption_label: cn(
-          "font-medium select-none",
-          captionLayout === "label"
-            ? "text-sm"
-            : "flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
+          "select-none text-body-4 text-ink",
+          captionLayout !== "label" &&
+            "flex items-center gap-1 rounded-(--cell-radius) [&>svg]:size-3.5 [&>svg]:text-muted-ink",
           defaultClassNames.caption_label
         ),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
-          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
+          "flex-1 rounded-(--cell-radius) text-label text-muted-ink select-none",
           defaultClassNames.weekday
         ),
         week: cn("mt-2 flex w-full", defaultClassNames.week),
@@ -97,7 +112,7 @@ function Calendar({
           defaultClassNames.week_number_header
         ),
         week_number: cn(
-          "text-[0.8rem] text-muted-foreground select-none",
+          "text-caption text-muted-ink select-none",
           defaultClassNames.week_number
         ),
         day: cn(
@@ -108,26 +123,23 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-l-(--cell-radius) bg-brand-soft after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-brand-soft",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          "relative isolate z-0 rounded-r-(--cell-radius) bg-brand-soft after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-brand-soft",
           defaultClassNames.range_end
         ),
         today: cn(
-          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+          "rounded-(--cell-radius) bg-brand-soft text-brand-dark data-[selected=true]:rounded-none",
           defaultClassNames.today
         ),
         outside: cn(
-          "text-muted-foreground aria-selected:text-muted-foreground",
+          "text-muted-ink aria-selected:text-muted-ink",
           defaultClassNames.outside
         ),
-        disabled: cn(
-          "text-muted-foreground opacity-50",
-          defaultClassNames.disabled
-        ),
+        disabled: cn("text-muted-ink opacity-50", defaultClassNames.disabled),
         hidden: cn("invisible", defaultClassNames.hidden),
         ...classNames,
       }}
@@ -142,6 +154,7 @@ function Calendar({
             />
           )
         },
+        Nav: (props) => <CalendarNav buttonVariant={buttonVariant} {...props} />,
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
@@ -178,6 +191,94 @@ function Calendar({
   )
 }
 
+/** 표시 중인 달을 `offset` 년만큼 옮긴 달 (일자는 1일로 정규화) */
+function addYears(month: Date, offset: number) {
+  return new Date(month.getFullYear() + offset, month.getMonth(), 1)
+}
+
+/**
+ * 연·월 이동을 함께 제공하는 내비게이션 — `«  ‹  2026년 7월  ›  »`.
+ *
+ * 기본 Nav 는 월 이동만 있어 먼 과거·미래 날짜를 고르기 불편하다.
+ */
+function CalendarNav({
+  className,
+  onPreviousClick,
+  onNextClick,
+  previousMonth,
+  nextMonth,
+  buttonVariant = "ghost",
+  ...props
+}: NavProps & {
+  buttonVariant?: React.ComponentProps<typeof Button>["variant"]
+}) {
+  const { goToMonth, months, dayPickerProps } = useDayPicker()
+  const { startMonth, endMonth } = dayPickerProps
+
+  const displayedMonth = months[0]?.date
+
+  const goToYear = (offset: number) => {
+    if (!displayedMonth) return
+
+    let target = addYears(displayedMonth, offset)
+    if (startMonth && target < startMonth) target = startMonth
+    if (endMonth && target > endMonth) target = endMonth
+
+    goToMonth(target)
+  }
+
+  const navButtonClassName = cn(
+    buttonVariants({ variant: buttonVariant }),
+    "size-7 p-0 select-none disabled:bg-transparent disabled:opacity-50"
+  )
+
+  return (
+    <nav className={cn(className)} {...props}>
+      <div className="flex items-center gap-0.5">
+        <button
+          type="button"
+          aria-label="이전 연도"
+          disabled={!previousMonth}
+          onClick={() => goToYear(-1)}
+          className={navButtonClassName}
+        >
+          <ChevronsLeftIcon className="size-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="이전 달"
+          disabled={!previousMonth}
+          onClick={onPreviousClick}
+          className={navButtonClassName}
+        >
+          <ChevronLeftIcon className="size-4" />
+        </button>
+      </div>
+
+      <div className="flex items-center gap-0.5">
+        <button
+          type="button"
+          aria-label="다음 달"
+          disabled={!nextMonth}
+          onClick={onNextClick}
+          className={navButtonClassName}
+        >
+          <ChevronRightIcon className="size-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="다음 연도"
+          disabled={!nextMonth}
+          onClick={() => goToYear(1)}
+          className={navButtonClassName}
+        >
+          <ChevronsRightIcon className="size-4" />
+        </button>
+      </div>
+    </nav>
+  )
+}
+
 function CalendarDayButton({
   className,
   day,
@@ -207,7 +308,13 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 text-body-3 leading-none",
+        "group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-brand-primary group-data-[focused=true]/day:ring-3 group-data-[focused=true]/day:ring-brand-primary/25",
+        "data-[selected-single=true]:bg-brand-primary data-[selected-single=true]:text-surface",
+        "data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-brand-primary data-[range-start=true]:text-surface",
+        "data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-brand-primary data-[range-end=true]:text-surface",
+        "data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-brand-soft data-[range-middle=true]:text-ink",
+        "[&>span]:text-caption [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}

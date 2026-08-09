@@ -36,14 +36,19 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 |----------|------|
 | `badges/` | Badge(pill), StatusDot(운영 상태 점+텍스트), tones |
 | `primitives/` | shadcn/ui 에서 이관한 저수준 프리미티브 (Field, InputGroup, Table, Pagination, Calendar, Label, Textarea) — **비즈니스 코드에서 직접 쓰지 말 것**, 각 카테고리 래퍼 경유 |
+| `accordion/` | SectionAccordion(섹션 카드 + 진행도 배지), SubAccordion(중첩 그룹) |
 | `borders/` | Divider 등 |
 | `buttons/` | IconButton, DetailViewButton 등 버튼 컴포넌트 |
-| `cards/` | SummaryCard 등 |
+| `cards/` | Panel(카드 셸), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드) |
 | `dialogs/` | FormDialog 등 |
-| `form/` | Input, Select, DatePicker, Checkbox 등 폼 요소 |
+| `feedback/` | EmptyText — 패널 안 한 줄 빈 상태·안내 문구 |
+| `form/` | Input, Select, DatePicker, Checkbox 등 폼 요소. `UnitField`(라벨+단위+완료체크), `CalcResultRow`(자동계산 행) 포함 |
+| `layout/` | PageLayout(페이지 셸 — 제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
+| `nav/` | ChipNav — 가로 스크롤 pill 칩 (섹션 바로가기) |
 | `links/` | Link |
 | `pagination/` | Pagination |
 | `semantics/` | PageTitle 등 시맨틱 요소 |
+| `skeletons/` | Skeleton(자리표시 원자), SkeletonPanel(패널 단위 로딩) |
 | `table/` | TanStack Table 기반 공통 테이블 (BasicTable, TableEmptyState) |
 | `tabs/` | Tabs 등 탭 UI |
 | `toasts/` | `toast` (`toast.success`, `toast.error`) — feature 훅의 사용자 피드백 |

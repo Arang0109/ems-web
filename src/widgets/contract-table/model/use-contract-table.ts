@@ -23,7 +23,6 @@ export const useContractTable = () => {
 
   const { data, loading, error } = useContracts();
   const tableData = useMemo(() => data.map(toContractRows), [data]);
-  console.log("tableData : ", tableData);
 
   const table = useReactTable({
     columns: defaultColumns,

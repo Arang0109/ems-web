@@ -2,13 +2,18 @@ import { useNavigate } from 'react-router-dom';
 import type { CellContext } from '@tanstack/react-table';
 
 import type { StackTableRow } from '../model/types';
-import { DetailViewButton } from '@shared/ui/buttons';
+import { Button } from '@shared/ui/buttons';
+import { Ellipsis } from 'lucide-react';
 
 export const CustomCell = ({ getValue }: CellContext<StackTableRow, string>) => (
-  <span className="text-body-4 text-foreground">{getValue()}</span>
+  <span>{getValue()}</span>
 );
 
 export const PathCell = ({ row }: CellContext<StackTableRow, unknown>) => {
   const navigate = useNavigate();
-  return <DetailViewButton onClick={() => navigate(`/stacks/${row.original.id}`)} />;
+  return <Button
+    variant="outline"
+    onClick={() => navigate(`/stacks/${row.original.id}`)}
+    startIcon={Ellipsis}
+  >상세보기</Button>;
 };

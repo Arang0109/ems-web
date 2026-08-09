@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import type { SheetCalcExternals } from "@entities/schedule";
 import { calcNozzleRecommendations } from "@entities/schedule";
 import { toNumberOrNull } from "@shared/lib";
-import { Input } from "@shared/ui/form";
+import { InputGroup } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 
 import type { SheetForm } from "../model/types";
@@ -49,7 +49,7 @@ export const NozzleRecommendModal = ({ open, onOpenChange, sheet, externals, onS
       cancelLabel="닫기"
     >
       <div className="space-y-5">
-        <Input
+        <InputGroup
           label="채취하고자 하는 흡입량 (m³)"
           type="number"
           value={vr}

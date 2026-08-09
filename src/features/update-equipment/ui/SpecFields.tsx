@@ -59,6 +59,10 @@ export const SpecFields = ({
     <div className="space-y-4">
       <SectionTitle>사양</SectionTitle>
 
+      {type === 'GAS_ANALYZER' && (
+        <p className="text-body-2 text-muted-foreground">가스분석기는 별도 사양 항목이 없습니다.</p>
+      )}
+
       {type === 'PARTICLE_SAMPLER' && (
         <div className="grid md:grid-cols-3 gap-4">
           <InputGroup id="totalVolume" label="총유량" placeholder="총유량" value={spec.totalVolume}

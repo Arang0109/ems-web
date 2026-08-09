@@ -9,12 +9,12 @@ export const TableEmptyState = ({
 }: TableEmptyStateProps) => {
   return(
     <div className="flex flex-1 flex-col items-center justify-center gap-3 py-16 text-center">
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-canvas">
         {icon}
       </div>
       <div>
-        <p className="text-body-4 text-muted-foreground">{label}</p>
-        <p className="text-caption text-muted-foreground/70 mt-0.5">{subLabel}</p>
+        <p className="text-body-4 text-muted-ink">{label}</p>
+        <p className="text-caption text-muted-ink/70 mt-0.5">{subLabel}</p>
       </div>
     </div>
   );

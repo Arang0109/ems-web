@@ -6,6 +6,7 @@ import { SectionTitle, DatePicker, InputGroup, Select, Checkbox, FieldGroup } fr
 import { Button } from "@shared/ui/buttons";
 import { measurementFieldOptions, measurementTypeOptions } from "@shared/model";
 import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
+import { Send } from "lucide-react";
 
 export const RegisterScheduleForm = () => {
   const {
@@ -34,7 +35,7 @@ export const RegisterScheduleForm = () => {
       <FieldGroup>
         <div className="flex justify-between">
           <SectionTitle>측정 대상</SectionTitle>
-          <Button type="submit" disabled={isLoading}>측정계획 등록</Button>
+          <Button type="submit" disabled={isLoading} startIcon={Send}>측정계획 등록</Button>
         </div>
 
         <div className="grid md:grid-cols-3 gap-4">

@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useEquipments } from '@entities/equipment';
-import type { EquipType } from '@shared/model';
+import type { EquipType, InspectionType } from '@shared/model';
 
 import { defaultColumns } from './columns';
 import { toEquipmentRows } from './mapper';
@@ -26,6 +26,9 @@ interface Props {
 export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  // 검사 이력은 상세 모달의 검사 행에서 열리며, 어느 검사 종류인지가 함께 필요하다.
+  const [inspectionModalOpen, setInspectionModalOpen] = useState(false);
+  const [inspectionType, setInspectionType] = useState<InspectionType | null>(null);
 
   const {
     sorting, setSorting,
@@ -40,6 +43,11 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
 
   const handleViewDetail = () => {
     setUpdateModalOpen(true);
+  };
+
+  const handleOpenInspectionHistory = (type: InspectionType) => {
+    setInspectionType(type);
+    setInspectionModalOpen(true);
   };
 
   const refetch = () => {
@@ -62,7 +70,7 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
 
-    meta: { onViewEquipmentDetail: handleViewDetail },
+    meta: { onViewDetail: handleViewDetail },
   });
 
   const handleRowClick = (row: EquipmentTableRow) => {
@@ -76,6 +84,9 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+
+    inspectionModalOpen, setInspectionModalOpen,
+    inspectionType, handleOpenInspectionHistory,
 
     globalFilter, setGlobalFilter,
 

@@ -19,3 +19,10 @@ export type SidebarNavGroup = {
   label: string;
   items: SidebarNavItem[];
 };
+
+/** 사이드바·모바일 상단 바가 공유하는 브랜드(로고 + 이름) */
+export type SidebarBrand = {
+  icon: ElementType;
+  title: string;
+  subtitle?: string;
+};

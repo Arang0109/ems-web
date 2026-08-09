@@ -16,16 +16,16 @@ export const TableSelectCell = ({
   placeholder?: string;
   disabled?: boolean;
 }) => (
-  <td colSpan={colSpan} className="border border-border">
+  <td colSpan={colSpan} className="border border-rule">
     <div className="relative">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        className="w-full pl-2 sm:pl-3 pr-8 py-2 sm:py-2.5 text-body-3
+        className="w-full pl-2 sm:pl-3 pr-8 py-2 sm:py-2.5 text-body-3 text-ink
           bg-transparent appearance-none cursor-pointer
-          focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ring
-          disabled:cursor-not-allowed disabled:opacity-50"
+          focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-primary
+          disabled:cursor-not-allowed disabled:text-muted-ink"
       >
         <option value="" disabled>
           {placeholder ?? "선택"}
@@ -36,7 +36,7 @@ export const TableSelectCell = ({
           </option>
         ))}
       </select>
-      <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-muted-foreground">
+      <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-muted-ink">
         <ChevronDown size={14} />
       </span>
     </div>

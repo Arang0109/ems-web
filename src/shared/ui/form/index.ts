@@ -1,4 +1,3 @@
-export { Input } from "./Input";
 export { InlineInput } from "./InlineInput";
 export { InputGroup } from "./InputGroup";
 export { Search } from "./Search";
@@ -6,6 +5,9 @@ export { Checkbox } from "./Checkbox";
 export { Textarea } from "./TextArea";
 export { HorizontalRadioGroup } from "./HorizontalRadioGroup";
 export { Select } from "./Select";
+export { UnitField } from "./UnitField";
+export { CalcResultRow } from "./CalcResultRow";
+export { DetailRow } from "./DetailRow";
 export { DatePicker } from "./DatePicker";
 export { DateRangePicker } from "./DateRangePicker";
 export { AddressInput } from "./AddressInput";
