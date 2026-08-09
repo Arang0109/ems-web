@@ -1,6 +1,7 @@
 import { useRegisterContract } from "../model/hooks/use-register-contract";
 
-import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
+import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
+import { CONTRACT_AMOUNT_UNIT_LABEL, VAT_INCLUDED_LABEL } from "@shared/config";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";

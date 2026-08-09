@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 
 import { useDocuments } from '@entities/document';
-import type { DocumentCategory } from '@entities/document';
+import type { DocumentCategory } from '@shared/model';
 import { useDownloadDocument } from '@features/download-document';
 
 import { useDataTable } from '@shared/model';
@@ -30,15 +30,13 @@ export const useDocumentTable = ({ category, onRowClick, onSuccess }: Props) => 
     onSuccess?.();
   };
 
-  // useDataTable 은 `meta: { onViewDetail }, ...overrides` 순서라 overrides.meta 가 통째로 덮어쓴다.
-  // 두 콜백을 함께 넣어야 상세보기가 죽지 않는다.
   const { table, globalFilter, setGlobalFilter } = useDataTable<DocumentTableRow>({
     data: tableData,
     columns: defaultColumns,
     pageSize: 5,
+    onViewDetail: () => setDetailModalOpen(true),
     overrides: {
       meta: {
-        onViewDetail: () => setDetailModalOpen(true),
         onDownloadDocument: (row: DocumentTableRow) =>
           handleDownload({ documentId: row.id, fallbackFilename: row.name }),
       },

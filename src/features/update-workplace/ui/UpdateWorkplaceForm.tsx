@@ -10,7 +10,7 @@ import { gradeOptions } from "@shared/model";
 import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, User2 } from "lucide-react";
-import type { Client } from '@/entities/client';
+import type { Client } from '@entities/client';
 
 interface Props {
   open: boolean;

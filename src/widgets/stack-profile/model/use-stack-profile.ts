@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useStackDetail } from '@entities/stack';
-import { useStackPollutants } from '@/entities/stack-pollutant';
+import { useStackPollutants } from '@entities/stack-pollutant';
 
 import { toStackProfile, toMeasurementProfiles } from './mapper';
 

@@ -1,5 +1,5 @@
 import type { FormRow } from "./types";
-import type { StackPollutantCreate } from "@/entities/stack-pollutant";
+import type { StackPollutantCreate } from "@entities/stack-pollutant";
 
 import { toNumberOrNull } from "@shared/lib";
 

@@ -1,9 +1,11 @@
-import type { ContractUpdateForm } from "../model/types";
 import { useUpdateContract } from "../model/hooks/use-update-contract";
+import { toContractUpdateForm } from "../model/mapper";
 
 // Entitity
-import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL  } from "@entities/contract";
-import type { ContractAmountUnit } from "@entities/contract";
+import type { ContractDetail } from "@entities/contract";
+
+import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
+import { CONTRACT_AMOUNT_UNIT_LABEL, VAT_INCLUDED_LABEL } from "@shared/config";
 
 // UI
 import { Button } from "@shared/ui/buttons";
@@ -13,13 +15,17 @@ import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, Fi
 import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
 
 interface Props {
-  contractId: number;
-  initial: ContractUpdateForm;
+  /** 서버 상세 응답. Form 변환은 feature 내부 책임이다 (mapper 를 외부에 노출하지 않는다). */
+  contract: ContractDetail;
   onSuccess?: () => void;
 }
 
-export const ContractDetailForm = ({ contractId, initial, onSuccess }: Props) => {
-  const { form, handleChange, handleSubmit, isLoading, error } = useUpdateContract({ contractId, initial, onSuccess });
+export const ContractDetailForm = ({ contract, onSuccess }: Props) => {
+  const { form, handleChange, handleSubmit, isLoading, error } = useUpdateContract({
+    contractId: contract.id,
+    initial: toContractUpdateForm(contract),
+    onSuccess,
+  });
 
   return (
     <form onSubmit={handleSubmit}>

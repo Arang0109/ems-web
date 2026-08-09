@@ -1,5 +1,7 @@
 import type { TenantProvisionForm } from "./types";
-import type { TenantProvision, SubscriptionPlan } from "@entities/tenant";
+import type { SubscriptionPlan } from "@shared/model";
+
+import type { TenantProvision } from "@entities/tenant";
 
 import { unformatNumber, trimValue } from "@shared/lib";
 

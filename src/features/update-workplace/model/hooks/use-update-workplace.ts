@@ -7,7 +7,7 @@ import { useUpdateWorkplaceAction } from "@entities/workplace";
 import type { Workplace } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
-import type { AddressValue } from "@/shared/model";
+import type { AddressValue } from "@shared/model";
 
 interface Props {
   workplace: Workplace | null;

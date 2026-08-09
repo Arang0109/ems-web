@@ -1,4 +1,4 @@
-import { documentCategoryOptions } from "@entities/document";
+import { documentCategoryOptions } from "@shared/model";
 
 import { FieldGroup, InputGroup, SectionTitle, Select, Textarea } from "@shared/ui/form";
 

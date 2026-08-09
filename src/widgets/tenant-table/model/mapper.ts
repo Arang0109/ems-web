@@ -1,5 +1,5 @@
 import type { Tenant } from '@entities/tenant';
-import { TENANT_STATUS_LABEL, SUBSCRIPTION_PLAN_LABEL } from '@entities/tenant';
+import { TENANT_STATUS_LABEL, SUBSCRIPTION_PLAN_LABEL } from '@shared/config';
 import { formatBusinessNumber, formatDateTime } from '@shared/lib';
 
 import type { TenantTableRow } from './types';

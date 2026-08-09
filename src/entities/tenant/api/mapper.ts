@@ -1,5 +1,7 @@
 import type { TenantProvisionRequest, TenantResponse } from "./dto";
-import type { Tenant, TenantProvision, TenantStatus, SubscriptionPlan } from "../model/types";
+import type { TenantStatus, SubscriptionPlan } from "@shared/model";
+
+import type { Tenant, TenantProvision } from "../model/types";
 
 // 응답 DTO → 도메인 (status·plan 코드를 도메인 유니온으로 좁힘)
 export const toTenant = (res: TenantResponse): Tenant => ({

@@ -4,7 +4,7 @@ import type { FormRow } from "../types";
 import { getDefaultRow } from "../types";
 import { toStackPollutantCreates } from "../mapper";
 
-import { useRegisterStackPollutantAction } from "@/entities/stack-pollutant";
+import { useRegisterStackPollutantAction } from "@entities/stack-pollutant";
 
 import { toast } from "@shared/ui/toasts";
 

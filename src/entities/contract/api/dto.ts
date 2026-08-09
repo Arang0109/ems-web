@@ -1,4 +1,4 @@
-import type { ContractAmountUnit } from "../model/types";
+import type { ContractAmountUnit } from "@shared/model";
 
 export type ContractTableResponse = {
   id: number;

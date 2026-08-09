@@ -1,4 +1,4 @@
-import type { Grade } from '@/shared/model';
+import type { Grade } from '@shared/model';
 import { http, HttpResponse } from 'msw';
 
 const BASE_URL = 'http://localhost:8080/api';

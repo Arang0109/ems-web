@@ -1,4 +1,6 @@
-import type { DocumentCategory, DocumentUpdate } from "@entities/document";
+import type { DocumentCategory } from "@shared/model";
+
+import type { DocumentUpdate } from "@entities/document";
 
 import type { DocumentUpdateForm } from "./types";
 

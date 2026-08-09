@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 
 import { documentApi } from "../api/api";
-import type { Document, DocumentCategory } from "./types";
+import type { DocumentCategory } from "@shared/model";
+
+import type { Document } from "./types";
 
 interface Options {
   /** false면 조회하지 않는다. 모달이 닫혀 있는 동안 불필요한 요청을 막는 용도. 기본 true. */

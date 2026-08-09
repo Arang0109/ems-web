@@ -9,6 +9,9 @@ export {
   INSPECTION_TYPE, INSPECTION_RESULT,
   SCHEDULE_STATUS, MEASUREMENT_TYPE,
   MEASUREMENT_CATEGORY, WEATHER_CONDITION, WIND_DIRECTION,
+  DOCUMENT_CATEGORY, CONTRACT_AMOUNT_UNIT,
+  TENANT_STATUS, SUBSCRIPTION_PLAN, SUBSCRIPTION_PLAN_OPTIONS, USER_ROLES,
+  documentCategoryOptions, contractAmountUnitOptions,
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
   equipTypeOptions, equipStatusOptions, pitotTubeTypeOptions, measurementCycleOptions,
   inspectionTypeOptions, inspectionResultOptions,
@@ -20,6 +23,7 @@ export type {
   EquipType, EquipStatus, PitotTubeType, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
+  DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
   AddressValue
 } from './types/common-types';
 

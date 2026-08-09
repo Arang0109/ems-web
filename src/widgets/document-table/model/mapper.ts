@@ -1,5 +1,5 @@
 import type { Document, DocumentVersion } from "@entities/document";
-import { DOCUMENT_CATEGORY_LABEL } from "@entities/document";
+import { DOCUMENT_CATEGORY_LABEL } from "@shared/config";
 import { formatDateTime, formatFileSize } from "@shared/lib";
 
 import type { DocumentTableRow, DocumentVersionTableRow } from "./types";

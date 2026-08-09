@@ -1,5 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { axiosPublic } from '@/shared/api/axios-public';
+import { axiosPublic } from '@shared/api/axios-public';
 import type { ApiResponseMessage } from '@shared/model';
 
 export const axiosPrivate = axios.create({

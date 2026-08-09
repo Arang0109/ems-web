@@ -7,13 +7,9 @@ export type {
   DocumentVersionCreate,
   DocumentUpdate,
   DocumentDownload,
-  DocumentCategory,
 } from './model/types';
 
 export {
-  DOCUMENT_CATEGORY,
-  DOCUMENT_CATEGORY_LABEL,
-  documentCategoryOptions,
   MAX_DOCUMENT_FILE_SIZE,
   DOCUMENT_TEXT_MAX_LENGTH,
 } from './model/types';

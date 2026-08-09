@@ -1,4 +1,4 @@
-import type { DocumentCategory } from '../model/types';
+import type { DocumentCategory } from '@shared/model';
 
 export type DocumentResponse = {
   id: number;

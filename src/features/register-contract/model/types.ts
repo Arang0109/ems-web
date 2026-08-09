@@ -1,4 +1,4 @@
-import type { ContractAmountUnit } from "@entities/contract";
+import type { ContractAmountUnit } from "@shared/model";
 
 export type ContractRegisterForm = {
   workplaceId: string;           // 측정대상 사업장

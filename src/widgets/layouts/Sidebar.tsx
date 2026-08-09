@@ -21,7 +21,7 @@ import {
 } from "@shared/ui/sidebar";
 import { useSignOut } from "@features/sign-out";
 import { useAuth, isAdmin } from "@entities/auth";
-import type { UserRole } from "@entities/auth";
+import type { UserRole } from "@shared/model";
 import { APP_BRAND } from "./brand";
 
 // ─── 메뉴 구조 ────────────────────────────────────────────────────────────────

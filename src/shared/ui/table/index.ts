@@ -14,4 +14,3 @@ export { RowActionCell } from './RowActionCell';
 export { TableLabelCell } from './TableLabelCell';
 export { TableInputCell } from './TableInputCell';
 export { TableResultCell } from './TableResultCell';
-export { TableSelectCell } from './TableSelectCell';

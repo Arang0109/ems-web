@@ -1,4 +1,5 @@
-import { DOCUMENT_CATEGORY, DOCUMENT_CATEGORY_LABEL } from "@entities/document";
+import { DOCUMENT_CATEGORY } from "@shared/model";
+import { DOCUMENT_CATEGORY_LABEL } from "@shared/config";
 
 import { PageLayout } from "@shared/ui/layout";
 import { Tabs } from "@shared/ui/tabs";

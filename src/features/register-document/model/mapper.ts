@@ -1,4 +1,6 @@
-import type { DocumentCategory, DocumentCreate } from "@entities/document";
+import type { DocumentCategory } from "@shared/model";
+
+import type { DocumentCreate } from "@entities/document";
 
 import type { DocumentRegisterForm } from "./types";
 

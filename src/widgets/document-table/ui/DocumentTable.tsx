@@ -1,5 +1,7 @@
-import type { Document, DocumentCategory } from '@entities/document';
-import { DOCUMENT_CATEGORY_LABEL } from '@entities/document';
+import type { DocumentCategory } from '@shared/model';
+import { DOCUMENT_CATEGORY_LABEL } from '@shared/config';
+
+import type { Document } from '@entities/document';
 import { RegisterDocumentForm } from '@features/register-document';
 
 import { BasicTable, TableFooterBar } from '@shared/ui/table';

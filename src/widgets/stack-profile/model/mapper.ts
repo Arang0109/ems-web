@@ -1,5 +1,5 @@
 import type { Stack } from "@entities/stack";
-import type { StackPollutantListItem } from "@/entities/stack-pollutant";
+import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import type { MeasurementProfile, StackProfile } from "./types";
 import {
   MEASUREMENT_FIELD_LABEL,

@@ -51,9 +51,10 @@ export const useDataTable = <TData extends RowData>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
 
-    meta: { onViewDetail },
-
     ...overrides,
+
+    // overrides 뒤에 둬서 overrides.meta 가 onViewDetail 을 통째로 덮지 않도록 병합한다
+    meta: { onViewDetail, ...overrides?.meta },
   });
 
   return { table, ...tableState };

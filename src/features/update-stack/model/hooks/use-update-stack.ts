@@ -6,7 +6,7 @@ import type { StackUpdateForm } from "../types";
 import { toStackUpdate } from "../mapper";
 
 import { toast } from "@shared/ui/toasts";
-import type { Stack } from "@/entities/stack";
+import type { Stack } from "@entities/stack";
 
 interface Props {
   stack: Stack | null;

@@ -1,30 +1,6 @@
+import type { DocumentCategory } from '@shared/model';
+
 import type { DocumentResponse, DocumentVersionResponse } from '../api/dto';
-
-// ─── 문서 분류 ────────────────────────────────────────────────────────────────
-// 서버 global.common.enums.DocumentCategory 와 동일한 규격.
-
-export const DOCUMENT_CATEGORY = [
-  'REPORT_TEMPLATE',
-  'SAMPLING_RECORD_TEMPLATE',
-  'CONTRACT',
-  'CERTIFICATE',
-  'ETC',
-] as const;
-
-export type DocumentCategory = (typeof DOCUMENT_CATEGORY)[number];
-
-export const DOCUMENT_CATEGORY_LABEL: Record<DocumentCategory, string> = {
-  REPORT_TEMPLATE: '성적서 양식',
-  SAMPLING_RECORD_TEMPLATE: '채취기록부 양식',
-  CONTRACT: '계약서',
-  CERTIFICATE: '인증서',
-  ETC: '기타',
-};
-
-export const documentCategoryOptions = DOCUMENT_CATEGORY.map((value) => ({
-  value,
-  label: DOCUMENT_CATEGORY_LABEL[value],
-}));
 
 // ─── 서버 제약 ────────────────────────────────────────────────────────────────
 

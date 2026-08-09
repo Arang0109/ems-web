@@ -1,4 +1,4 @@
-import { documentCategoryOptions } from "@entities/document";
+import { documentCategoryOptions } from "@shared/model";
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";

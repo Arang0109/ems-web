@@ -4,6 +4,7 @@ import type {
   EquipType, EquipStatus, PitotTubeType, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
+  DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
 } from "../model";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
@@ -139,4 +140,44 @@ export const WIND_DIRECTION_LABEL: Record<WindDirection, string> = {
   E: '동', ESE: '동남동', SE: '남동', SSE: '남남동',
   S: '남', SSW: '남남서', SW: '남서', WSW: '서남서',
   W: '서', WNW: '서북서', NW: '북서', NNW: '북북서',
+};
+export const DOCUMENT_CATEGORY_LABEL: Record<DocumentCategory, string> = {
+  REPORT_TEMPLATE: '성적서 양식',
+  SAMPLING_RECORD_TEMPLATE: '채취기록부 양식',
+  CONTRACT: '계약서',
+  CERTIFICATE: '인증서',
+  ETC: '기타',
+};
+
+export const CONTRACT_AMOUNT_UNIT_LABEL: Record<ContractAmountUnit, string> = {
+  MONTH: '월',
+  QUARTER: '분기',
+  SEMI_ANNUAL: '반기',
+  ANNUAL: '연',
+  TOTAL: '총액',
+};
+
+export const VAT_INCLUDED_LABEL = {
+  true: '포함',
+  false: '미포함',
+} as const;
+
+export const TENANT_STATUS_LABEL: Record<TenantStatus, string> = {
+  ACTIVE: '운영중',
+  SUSPENDED: '정지',
+  INACTIVE: '비활성',
+  PENDING: '대기',
+};
+
+export const SUBSCRIPTION_PLAN_LABEL: Record<SubscriptionPlan, string> = {
+  BASIC: '베이직',
+  PRO: '프로',
+  ENTERPRISE: '엔터프라이즈',
+  INTERNAL: '내부용',
+};
+
+export const USER_ROLE_LABEL: Record<UserRole, string> = {
+  ADMIN: '관리자',
+  LAB: '실험실',
+  FIELD: '측정팀',
 };

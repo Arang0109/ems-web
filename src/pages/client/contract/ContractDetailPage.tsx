@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 
 import { useContractDetail } from "@entities/contract";
-import { ContractDetailForm, toContractUpdateForm } from "@features/update-contract";
+import { ContractDetailForm } from "@features/update-contract";
 
 import { PageLayout } from "@shared/ui/layout";
 import { Panel } from "@shared/ui/cards";
@@ -21,11 +21,7 @@ export const ContractDetailPage = () => {
       {error && <p className="text-body-2 text-destructive">{error}</p>}
       {data && (
         <Panel>
-          <ContractDetailForm
-            key={data.id}
-            contractId={data.id}
-            initial={toContractUpdateForm(data)}
-          />
+          <ContractDetailForm key={data.id} contract={data} />
         </Panel>
       )}
     </PageLayout>

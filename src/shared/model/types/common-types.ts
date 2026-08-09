@@ -4,6 +4,7 @@ import {
   INSPECTION_TYPE_LABEL, INSPECTION_RESULT_LABEL,
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
+  DOCUMENT_CATEGORY_LABEL, CONTRACT_AMOUNT_UNIT_LABEL,
 } from "@shared/config";
 
 export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
@@ -33,6 +34,21 @@ export const INSPECTION_RESULT = ['PASS', 'FAIL'] as const;
 // 측정 기록지(sheet) — 카테고리 / 기상 / 풍향
 export const MEASUREMENT_CATEGORY = ['GAS', 'HEAVY_METAL', 'DUST', 'MERCURY'] as const;
 export const WEATHER_CONDITION = ['CLEAR', 'CLOUDY', 'RAIN', 'SNOW'] as const;
+// 문서(document) 분류 — 서버 global.common.enums.DocumentCategory 와 동일한 규격
+export const DOCUMENT_CATEGORY = ['REPORT_TEMPLATE', 'SAMPLING_RECORD_TEMPLATE', 'CONTRACT', 'CERTIFICATE', 'ETC'] as const;
+
+// 계약(contract) — 계약금액 단위
+export const CONTRACT_AMOUNT_UNIT = ['MONTH', 'QUARTER', 'SEMI_ANNUAL', 'ANNUAL', 'TOTAL'] as const;
+
+// 고객사(tenant) — 상태 / 구독 요금제. 서버 global/common/enums 와 합의.
+export const TENANT_STATUS = ['ACTIVE', 'SUSPENDED', 'INACTIVE', 'PENDING'] as const;
+// INTERNAL은 개발·테스트 전용이라 발급 폼에는 노출하지 않지만(SUBSCRIPTION_PLAN_OPTIONS),
+// 조회 시 서버가 반환할 수 있으므로 union·라벨맵에는 포함한다.
+export const SUBSCRIPTION_PLAN = ['BASIC', 'PRO', 'ENTERPRISE', 'INTERNAL'] as const;
+
+// tenant 범위 사용자 역할. 플랫폼 운영자(PLATFORM_ADMIN)는 entities/auth 가 별도로 관리한다.
+export const USER_ROLES = ['ADMIN', 'LAB', 'FIELD'] as const;
+
 export const WIND_DIRECTION = ['CALM', 'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'] as const;
 
 export type ContractStatus = typeof CONTRACT_STATUS[number];
@@ -53,6 +69,14 @@ export type InspectionResult = typeof INSPECTION_RESULT[number];
 export type MeasurementCategory = typeof MEASUREMENT_CATEGORY[number];
 export type WeatherCondition = typeof WEATHER_CONDITION[number];
 export type WindDirection = typeof WIND_DIRECTION[number];
+export type DocumentCategory = typeof DOCUMENT_CATEGORY[number];
+export type ContractAmountUnit = typeof CONTRACT_AMOUNT_UNIT[number];
+export type TenantStatus = typeof TENANT_STATUS[number];
+export type SubscriptionPlan = typeof SUBSCRIPTION_PLAN[number];
+export type UserRole = typeof USER_ROLES[number];
+
+/** 고객사 발급 폼에서 선택 가능한 요금제 (INTERNAL 제외) */
+export const SUBSCRIPTION_PLAN_OPTIONS = ['BASIC', 'PRO', 'ENTERPRISE'] as const satisfies readonly SubscriptionPlan[];
 
 export const measurementFieldOptions = MEASUREMENT_FIELD.map((field) => ({
   value: field,
@@ -127,6 +151,16 @@ export const weatherConditionOptions = WEATHER_CONDITION.map((condition) => ({
 export const windDirectionOptions = WIND_DIRECTION.map((direction) => ({
   value: direction,
   label: WIND_DIRECTION_LABEL[direction],
+}));
+
+export const documentCategoryOptions = DOCUMENT_CATEGORY.map((category) => ({
+  value: category,
+  label: DOCUMENT_CATEGORY_LABEL[category],
+}));
+
+export const contractAmountUnitOptions = CONTRACT_AMOUNT_UNIT.map((unit) => ({
+  value: unit,
+  label: CONTRACT_AMOUNT_UNIT_LABEL[unit],
 }));
 
 export type AddressValue = {
