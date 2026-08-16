@@ -17,6 +17,7 @@ export const toClientSnapshotUpdate = (form: ScheduleClientUpdateForm): ClientSn
   workplace: {
     name: trimValue(form.workplaceName),
     bizNumber: unformatNumber(form.workplaceBizNumber),
+    businessCategory: trimValue(form.workplaceBusinessCategory),
     zipcode: form.workplaceZipcode,
     roadAddress: form.workplaceRoadAddress,
     detailAddress: trimValue(form.workplaceDetailAddress),
@@ -26,7 +27,6 @@ export const toClientSnapshotUpdate = (form: ScheduleClientUpdateForm): ClientSn
       name: trimValue(form.stackName),
       semsNumber: trimValue(form.stackSemsNumber),
       grade: form.stackGrade,
-      businessCategory: trimValue(form.businessCategory),
       mainProduct: trimValue(form.mainProduct),
       // 서버가 nullable(Integer/Double)이므로 toNumber(빈값→0)가 아니라 toNumberOrNull을 쓴다.
       // 0으로 보내면 서버가 실제 0을 덮어써 산소보정계수 계산이 어긋난다.

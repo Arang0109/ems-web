@@ -1,7 +1,7 @@
 import type { DocumentCategory } from '@shared/model';
+import { useRemountKey } from '@shared/model';
 import { DOCUMENT_CATEGORY_LABEL } from '@shared/config';
 
-import type { Document } from '@entities/document';
 import { RegisterDocumentForm } from '@features/register-document';
 
 import { BasicTable, TableFooterBar } from '@shared/ui/table';
@@ -12,13 +12,11 @@ import { DocumentDetailDialog } from './DocumentDetailDialog';
 
 interface Props {
   category: DocumentCategory;
-  selectedDocument: Document | null;
-  onRowClick: (documentId: number) => void;
   onSuccess?: () => void;
 }
 
 // Tabs가 이미 카드 컨테이너를 그리므로 TablePanel(자체 카드)을 쓰지 않는다.
-export const DocumentTable = ({ category, selectedDocument, onRowClick, onSuccess }: Props) => {
+export const DocumentTable = ({ category, onSuccess }: Props) => {
   const {
     table,
 
@@ -26,11 +24,16 @@ export const DocumentTable = ({ category, selectedDocument, onRowClick, onSucces
 
     registerModalOpen, setRegisterModalOpen,
     detailModalOpen, setDetailModalOpen,
+    detailDocument, detailDocumentId,
 
     globalFilter, setGlobalFilter,
 
     loading, error, refetch,
-  } = useDocumentTable({ category, onRowClick, onSuccess });
+  } = useDocumentTable({ category, onSuccess });
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerModalOpen);
+  const detailFormKey = useRemountKey(detailModalOpen);
 
   return (
     <div>
@@ -40,6 +43,7 @@ export const DocumentTable = ({ category, selectedDocument, onRowClick, onSucces
             <h2 className="text-h3 text-foreground">{DOCUMENT_CATEGORY_LABEL[category]} 목록</h2>
           </div>
           <RegisterDocumentForm
+            key={registerFormKey}
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
             defaultCategory={category}
@@ -58,7 +62,7 @@ export const DocumentTable = ({ category, selectedDocument, onRowClick, onSucces
           loading={loading}
           error={error}
           onRowClick={handleRowClick}
-          isRowSelected={(row) => row.id === selectedDocument?.id}
+          isRowSelected={(row) => row.id === detailDocumentId}
         />
       </div>
 
@@ -67,10 +71,10 @@ export const DocumentTable = ({ category, selectedDocument, onRowClick, onSucces
       )}
 
       <DocumentDetailDialog
-        key={selectedDocument?.id}
+        key={detailFormKey}
         open={detailModalOpen}
         onOpenChange={setDetailModalOpen}
-        document={selectedDocument}
+        document={detailDocument}
         onSuccess={refetch}
       />
     </div>

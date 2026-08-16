@@ -5,8 +5,8 @@ export type StackUpdateForm = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
+  standardOxygen: string;
   height: string;
   horizontalLength: string;
   verticalLength: string;
@@ -19,8 +19,8 @@ export const getDefaultForm = (): StackUpdateForm => ({
   name: "",
   semsNumber: "",
   grade: "TYPE_1",
-  businessCategory: "",
   mainProduct: "",
+  standardOxygen: "",
   height: "",
   horizontalLength: "",
   verticalLength: "",

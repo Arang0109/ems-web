@@ -10,13 +10,17 @@ import { toast } from "@shared/ui/toasts";
 
 interface Props {
   stackId: number | null;
+  /** 측정시설의 기준산소농도(%) — null 이면 항목별 산소보정 적용 여부를 묻지 않는다 */
+  standardOxygen: number | null;
   onSuccess: () => void;
 }
 
-export const useRegisterStackPollutant = ({ stackId, onSuccess }: Props) => {
+export const useRegisterStackPollutant = ({ stackId, standardOxygen, onSuccess }: Props) => {
   const { registerStackPollutants, isLoading } = useRegisterStackPollutantAction();
 
   const [rows, setRows] = useState<FormRow[]>([getDefaultRow()]);
+
+  const hasStandardOxygen = standardOxygen !== null;
 
   const handleAddRow = () => {
     setRows((prev) => [...prev, getDefaultRow()]);
@@ -40,7 +44,7 @@ export const useRegisterStackPollutant = ({ stackId, onSuccess }: Props) => {
     e.preventDefault();
     if (!stackId) return;
     try {
-      await registerStackPollutants(toStackPollutantCreates(stackId, rows));
+      await registerStackPollutants(toStackPollutantCreates(stackId, rows, hasStandardOxygen));
       toast.success(`측정항목 ${rows.length}개가 등록되었습니다.`);
       setRows([getDefaultRow()]);
       onSuccess();
@@ -52,6 +56,7 @@ export const useRegisterStackPollutant = ({ stackId, onSuccess }: Props) => {
 
   return {
     rows,
+    hasStandardOxygen,
     isLoading,
     handleAddRow,
     handleRemoveRow,

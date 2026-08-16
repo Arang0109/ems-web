@@ -1,27 +1,23 @@
-import { useState } from 'react';
+import { useState } from "react";
+import { Plus, SquarePen } from "lucide-react";
 
+import type { Prevention } from "@entities/stack";
+import { RegisterPreventionForm } from "@features/register-prevention";
+import { UpdatePreventionForm } from "@features/update-prevention";
 import { toFormValue } from "@shared/lib";
+import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
+import { IconButton } from "@shared/ui/buttons";
+import { EmptyText } from "@shared/ui/feedback";
+import { DetailGrid, DetailRow } from "@shared/ui/form";
+import { useRemountKey } from "@shared/model";
 
-import type { Prevention } from '@entities/stack';
-import { RegisterPreventionForm } from '@features/register-prevention';
-import { UpdatePreventionForm } from '@features/update-prevention';
-
-import { Divider } from '@shared/ui/borders';
-import { IconButton } from '@shared/ui/buttons';
-import { Plus, Pencil } from 'lucide-react';
+import { value } from "../../model/mapper";
 
 interface Props {
   stackId: number;
   preventions: Prevention[];
   onRefetch: () => void;
 }
-
-const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-icon-tile px-4 py-3">
-    <p className="text-caption text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-body-4 text-foreground">{value || '-'}</p>
-  </div>
-);
 
 export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
   const [registerOpen, setRegisterOpen] = useState(false);
@@ -33,50 +29,60 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
     setUpdateOpen(true);
   };
 
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-h3 text-foreground">방지시설</h3>
-        <IconButton
-          icon={<Plus size={14} />}
-          label="방지시설 추가"
-          onClick={() => setRegisterOpen(true)}
-        />
-      </div>
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerOpen);
+  const updateFormKey = useRemountKey(updateOpen);
 
-      {preventions.length === 0 ? (
-        <p className="text-body-2 text-muted-foreground text-center py-8">
-          등록된 방지시설이 없습니다.
-        </p>
-      ) : (
-        preventions.map((prevention, index) => (
-          <div key={prevention.id} className="space-y-5">
-            {index > 0 && <Divider />}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="text-label text-muted-foreground">시설 정보</p>
+  return (
+    // 추가 트리거가 헤더(접어도 보임)에 있으므로 폼은 아코디언 본문 밖에 둔다
+    <>
+      <SectionAccordion
+        title="방지시설"
+        subtitle={<span className="text-body-4 text-brand-dark">{preventions.length}개</span>}
+        defaultOpen
+        action={
+          <IconButton
+            icon={<Plus size={19} />}
+            label="방지시설 추가"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setRegisterOpen(true)}
+          />
+        }
+      >
+        {/* 시설이 없어도 추가 버튼은 헤더에 있으므로 조기 반환하지 않는다 */}
+        {preventions.length === 0 ? (
+          <EmptyText>등록된 방지시설이 없습니다.</EmptyText>
+        ) : (
+          preventions.map((prevention) => (
+            <SubAccordion
+              key={prevention.id}
+              title={prevention.name.trim() || "(이름 없음)"}
+              defaultOpen
+              action={
                 <IconButton
-                  icon={<Pencil size={12} />}
-                  label="수정"
-                  size="xs"
+                  icon={<SquarePen size={16} />}
+                  label={`${prevention.name} 수정`}
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => handleEditClick(prevention)}
                 />
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                <InfoItem label="방지시설명" value={prevention.name} />
-                <InfoItem
-                  label="용량"
-                  value={toFormValue(prevention.capacity)}
-                />
-                <InfoItem label="대상물질명" value={prevention.targetName} />
-                <InfoItem label="제거 효율" value={prevention.removalEfficiency} />
-              </div>
-            </div>
-          </div>
-        ))
-      )}
+              }
+            >
+              {/* 방지시설명은 SubAccordion 제목이 이미 보여주므로 행으로 반복하지 않는다 */}
+              <DetailGrid>
+                {/* capacity 는 number | null — toFormValue 로 되돌려야 null 이 "null" 이 되지 않는다 */}
+                <DetailRow label="대상물질" value={value(prevention.targetName)} />
+                <DetailRow label="용량" value={`${value(toFormValue(prevention.capacity))} ${value(prevention.unit)}`} />
+                <DetailRow label="제거 효율" value={value(prevention.removalEfficiency)} />
+              </DetailGrid>
+            </SubAccordion>
+          ))
+        )}
+      </SectionAccordion>
 
       <RegisterPreventionForm
+        key={registerFormKey}
         stackId={stackId}
         open={registerOpen}
         onOpenChange={setRegisterOpen}
@@ -84,12 +90,12 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
       />
 
       <UpdatePreventionForm
-        key={selectedPrevention?.id}
+        key={updateFormKey}
         prevention={selectedPrevention}
         open={updateOpen}
         onOpenChange={setUpdateOpen}
         onSuccess={onRefetch}
       />
-    </div>
+    </>
   );
 };

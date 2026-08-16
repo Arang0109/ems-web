@@ -4,6 +4,7 @@ import { UpdateDocumentFields, useDeleteDocument, useUpdateDocument } from "@fea
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
+import { useRemountKey } from "@shared/model";
 
 import { useDocumentDetailDialog } from "../model/use-document-detail-dialog";
 import { DocumentVersionSection } from "./DocumentVersionSection";
@@ -40,6 +41,9 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
     handleVersionUploaded,
   } = useDocumentDetailDialog({ document, open, onSuccess });
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const uploadFormKey = useRemountKey(uploadOpen);
+
   if (!document) return null;
 
   return (
@@ -71,6 +75,7 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
 
       {/* 상세 모달의 form 밖에 두어 소유 관계를 명확히 한다(DialogContent는 포털되어 DOM 중첩은 아니다). */}
       <AddDocumentVersionForm
+        key={uploadFormKey}
         documentId={document.id}
         open={uploadOpen}
         onOpenChange={setUploadOpen}

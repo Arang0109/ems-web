@@ -159,7 +159,7 @@ return { registerClient, isLoading, error };
 | `workplace` | `useWorkplaces`(수동), `useWorkplaceDetail`(자동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
 | `stack` | `useStacks`(수동), `useStackDetail`(수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction` |
 | `stack-pollutant` | `useStackPollutants`(수동) | `useRegisterStackPollutantAction` |
-| `pollutant` | `usePollutants`(자동) | `useRegisterPollutantAction` |
+| `pollutant` | `usePollutants`(자동) | `useRegisterPollutantAction`, `useUpdatePollutantAction`, `useDeletePollutantAction` |
 | `document` | `useDocuments`, `useDocumentDetail`, `useDocumentVersions` | `useRegisterDocumentAction`, `useAddDocumentVersionAction`, `useUpdateDocumentAction`, `useDeleteDocumentAction`, `useDownloadDocumentAction` |
 | `equipment` | `useEquipments`, `useEquipmentDetail`, `useInspectionRecords` | `useRegisterEquipmentAction`, `useUpdateEquipmentAction`, `useDeleteEquipmentAction`, `useChangeEquipmentStatusAction`, `useRecordInspectionAction` |
 | `member` | `useMembers`, `useMemberDetail`, `useRoles` | `useRegisterMemberAction`, `useUpdateMemberAction`, `useDeleteMemberAction` |
@@ -203,7 +203,7 @@ return { registerClient, isLoading, error };
 | `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
 | `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |
-| `pollutant` | `Pollutant`, `PollutantCreate` |
+| `pollutant` | `Pollutant`, `PollutantCreate`, `PollutantUpdate` |
 | `document` | `Document`, `DocumentVersion`, `DocumentCreate`, `DocumentVersionCreate`, `DocumentUpdate`, `DocumentDownload` |
 | `equipment` | `Equipment`, `EquipmentCreate`, `EquipmentUpdate`, `EquipmentStatusChange`, `InspectionItem`, `InspectionItemInput`, `InspectionRecord`, `InspectionRecordCreate`, `EquipmentSpec` 및 종류별 Spec 타입 |
 | `member` | `Member`, `MemberCreate`, `MemberUpdate`, `Role` |

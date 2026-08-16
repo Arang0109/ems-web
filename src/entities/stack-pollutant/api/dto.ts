@@ -5,6 +5,8 @@ export type StackPollutantRegisterRequest = {
   pollutantId: number;
   cycle: MeasurementCycle;
   allowance: number | null;
+  /** 측정시설의 기준산소농도를 이 항목에 적용할지 여부 — 서버 계약이 primitive boolean(nullable 아님) */
+  oxygenApplicable: boolean;
 }
 
 export type StackPollutantResponse = {
@@ -13,6 +15,7 @@ export type StackPollutantResponse = {
   pollutantId: number;
   cycle: MeasurementCycle;
   allowance: string;
+  oxygenApplicable: boolean;
 }
 
 export type StackPollutantTableResponse = {
@@ -23,6 +26,7 @@ export type StackPollutantTableResponse = {
   nameEn: string;
   cycle: MeasurementCycle;
   allowance: string;
+  oxygenApplicable: boolean;
 }
 
 export type StackPollutantBatchRegisterRequest = StackPollutantRegisterRequest[];

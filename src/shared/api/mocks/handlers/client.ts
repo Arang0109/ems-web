@@ -9,64 +9,65 @@ const workplacesByClient: Record<number, {
   clientName: string;
   workplaceName: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;
   roadAddress: string;
   address: string;
   grade: Grade;
 }[]> = {
   1: [
-    { id: 101, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 서울본사',  bizNumber: '238-32482-34', zipcode: '06236', roadAddress: '서울특별시 강남구 테헤란로 123',            address: '본사 12층', grade: 'TYPE_2' },
-    { id: 102, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 울산공장',  bizNumber: '238-32482-35', zipcode: '44298', roadAddress: '울산광역시 북구 산업로 300',                address: '공장동 A동', grade: 'TYPE_1' },
-    { id: 103, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 부산지사',  bizNumber: '238-32482-36', zipcode: '48093', roadAddress: '부산광역시 해운대구 센텀중앙로 55',          address: '지사 3층', grade: 'TYPE_1' },
+    { id: 101, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 서울본사',  bizNumber: '238-32482-34', businessCategory: '환경 관련 서비스업', zipcode: '06236', roadAddress: '서울특별시 강남구 테헤란로 123',            address: '본사 12층', grade: 'TYPE_2' },
+    { id: 102, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 울산공장',  bizNumber: '238-32482-35', businessCategory: '환경 관련 서비스업', zipcode: '44298', roadAddress: '울산광역시 북구 산업로 300',                address: '공장동 A동', grade: 'TYPE_1' },
+    { id: 103, clientId: 1,  clientName: '(주)한국환경기술', workplaceName: '(주)한국환경기술 부산지사',  bizNumber: '238-32482-36', businessCategory: '환경 관련 서비스업', zipcode: '48093', roadAddress: '부산광역시 해운대구 센텀중앙로 55',          address: '지사 3층', grade: 'TYPE_1' },
   ],
   2: [
-    { id: 104, clientId: 2,  clientName: '대성산업(주)',      workplaceName: '대성산업(주) 수원본사',       bizNumber: '401-29384-55', zipcode: '16680', roadAddress: '경기도 수원시 영통구 월드컵로 206',          address: '본사 2층', grade: 'TYPE_1' },
-    { id: 105, clientId: 2,  clientName: '대성산업(주)',      workplaceName: '대성산업(주) 화성공장',       bizNumber: '401-29384-56', zipcode: '18527', roadAddress: '경기도 화성시 팔탄면 서탄로 200',            address: '공장동 1층', grade: 'TYPE_1' },
+    { id: 104, clientId: 2,  clientName: '대성산업(주)',      workplaceName: '대성산업(주) 수원본사',       bizNumber: '401-29384-55', businessCategory: '기타 기계 및 장비 제조업', zipcode: '16680', roadAddress: '경기도 수원시 영통구 월드컵로 206',          address: '본사 2층', grade: 'TYPE_1' },
+    { id: 105, clientId: 2,  clientName: '대성산업(주)',      workplaceName: '대성산업(주) 화성공장',       bizNumber: '401-29384-56', businessCategory: '기타 기계 및 장비 제조업', zipcode: '18527', roadAddress: '경기도 화성시 팔탄면 서탄로 200',            address: '공장동 1층', grade: 'TYPE_1' },
   ],
   3: [
-    { id: 106, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 부산본사',       bizNumber: '611-47832-43', zipcode: '49455', roadAddress: '부산광역시 사하구 하신중앙로 99',            address: '본사 3층', grade: 'TYPE_1'},
-    { id: 107, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 창원공장',       bizNumber: '611-47832-44', zipcode: '51175', roadAddress: '경상남도 창원시 의창구 팔용로 145',          address: '공장동 B동', grade: 'TYPE_1' },
-    { id: 108, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 거제사업장',     bizNumber: '611-47832-45', zipcode: '53249', roadAddress: '경상남도 거제시 장평로 101',                address: '사업장 1층', grade: 'TYPE_1' },
+    { id: 106, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 부산본사',       bizNumber: '611-47832-43', businessCategory: '기초 화학물질 제조업', zipcode: '49455', roadAddress: '부산광역시 사하구 하신중앙로 99',            address: '본사 3층', grade: 'TYPE_1'},
+    { id: 107, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 창원공장',       bizNumber: '611-47832-44', businessCategory: '기초 화학물질 제조업', zipcode: '51175', roadAddress: '경상남도 창원시 의창구 팔용로 145',          address: '공장동 B동', grade: 'TYPE_1' },
+    { id: 108, clientId: 3,  clientName: '동아화학공업',      workplaceName: '동아화학공업 거제사업장',     bizNumber: '611-47832-45', businessCategory: '기초 화학물질 제조업', zipcode: '53249', roadAddress: '경상남도 거제시 장평로 101',                address: '사업장 1층', grade: 'TYPE_1' },
   ],
   4: [
-    { id: 109, clientId: 4,  clientName: '(주)그린에너지',    workplaceName: '(주)그린에너지 대전본사',     bizNumber: '803-72918-54', zipcode: '34134', roadAddress: '대전광역시 유성구 대덕대로 512',             address: '본사 1층', grade: 'TYPE_1' },
-    { id: 110, clientId: 4,  clientName: '(주)그린에너지',    workplaceName: '(주)그린에너지 세종사업장',   bizNumber: '803-72918-55', zipcode: '30081', roadAddress: '세종특별자치시 연기면 연기로 25',             address: '사업장 2층', grade: 'TYPE_1' },
+    { id: 109, clientId: 4,  clientName: '(주)그린에너지',    workplaceName: '(주)그린에너지 대전본사',     bizNumber: '803-72918-54', businessCategory: '전기업', zipcode: '34134', roadAddress: '대전광역시 유성구 대덕대로 512',             address: '본사 1층', grade: 'TYPE_1' },
+    { id: 110, clientId: 4,  clientName: '(주)그린에너지',    workplaceName: '(주)그린에너지 세종사업장',   bizNumber: '803-72918-55', businessCategory: '전기업', zipcode: '30081', roadAddress: '세종특별자치시 연기면 연기로 25',             address: '사업장 2층', grade: 'TYPE_1' },
   ],
   5: [
-    { id: 111, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 대구본사',       bizNumber: '104-93847-62', zipcode: '42714', roadAddress: '대구광역시 달서구 성서산업로 100',           address: '본사 A동', grade: 'TYPE_1' },
-    { id: 112, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 구미공장',       bizNumber: '104-93847-63', zipcode: '39372', roadAddress: '경상북도 구미시 산동면 첨단기업1로 33',      address: '공장동 1층', grade: 'TYPE_1' },
-    { id: 113, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 포항사업장',     bizNumber: '104-93847-64', zipcode: '37766', roadAddress: '경상북도 포항시 남구 오천읍 연일로 100',     address: '사업장 2층', grade: 'TYPE_1' },
+    { id: 111, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 대구본사',       bizNumber: '104-93847-62', businessCategory: '금속 가공제품 제조업', zipcode: '42714', roadAddress: '대구광역시 달서구 성서산업로 100',           address: '본사 A동', grade: 'TYPE_1' },
+    { id: 112, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 구미공장',       bizNumber: '104-93847-63', businessCategory: '금속 가공제품 제조업', zipcode: '39372', roadAddress: '경상북도 구미시 산동면 첨단기업1로 33',      address: '공장동 1층', grade: 'TYPE_1' },
+    { id: 113, clientId: 5,  clientName: '삼진제조(주)',       workplaceName: '삼진제조(주) 포항사업장',     bizNumber: '104-93847-64', businessCategory: '금속 가공제품 제조업', zipcode: '37766', roadAddress: '경상북도 포항시 남구 오천읍 연일로 100',     address: '사업장 2층', grade: 'TYPE_1' },
   ],
   6: [
-    { id: 114, clientId: 6,  clientName: '한빛소재산업',       workplaceName: '한빛소재산업 광주본사',       bizNumber: '126-61573-28', zipcode: '62255', roadAddress: '광주광역시 광산구 하남산단 6번로 107',       address: '본사 1층', grade: 'TYPE_1' },
-    { id: 115, clientId: 6,  clientName: '한빛소재산업',       workplaceName: '한빛소재산업 나주공장',       bizNumber: '126-61573-29', zipcode: '58217', roadAddress: '전라남도 나주시 산포면 삼영로 100',          address: '공장동 A동', grade: 'TYPE_1' },
+    { id: 114, clientId: 6,  clientName: '한빛소재산업',       workplaceName: '한빛소재산업 광주본사',       bizNumber: '126-61573-28', businessCategory: '1차 금속 제조업', zipcode: '62255', roadAddress: '광주광역시 광산구 하남산단 6번로 107',       address: '본사 1층', grade: 'TYPE_1' },
+    { id: 115, clientId: 6,  clientName: '한빛소재산업',       workplaceName: '한빛소재산업 나주공장',       bizNumber: '126-61573-29', businessCategory: '1차 금속 제조업', zipcode: '58217', roadAddress: '전라남도 나주시 산포면 삼영로 100',          address: '공장동 A동', grade: 'TYPE_1' },
   ],
   7: [
-    { id: 116, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 인천본사',       bizNumber: '137-43829-16', zipcode: '21634', roadAddress: '인천광역시 남동구 남동공단로 215',           address: '본사 2층', grade: 'TYPE_1' },
-    { id: 117, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 시흥사업장',     bizNumber: '137-43829-17', zipcode: '14988', roadAddress: '경기도 시흥시 산기대학로 237',               address: '사업장 1층', grade: 'TYPE_1' },
-    { id: 118, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 안산공장',       bizNumber: '137-43829-18', zipcode: '15547', roadAddress: '경기도 안산시 단원구 산단로 24',             address: '공장동 B동', grade: 'TYPE_1' },
+    { id: 116, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 인천본사',       bizNumber: '137-43829-16', businessCategory: '환경 정화 및 복원업', zipcode: '21634', roadAddress: '인천광역시 남동구 남동공단로 215',           address: '본사 2층', grade: 'TYPE_1' },
+    { id: 117, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 시흥사업장',     bizNumber: '137-43829-17', businessCategory: '환경 정화 및 복원업', zipcode: '14988', roadAddress: '경기도 시흥시 산기대학로 237',               address: '사업장 1층', grade: 'TYPE_1' },
+    { id: 118, clientId: 7,  clientName: '(주)미래환경',       workplaceName: '(주)미래환경 안산공장',       bizNumber: '137-43829-18', businessCategory: '환경 정화 및 복원업', zipcode: '15547', roadAddress: '경기도 안산시 단원구 산단로 24',             address: '공장동 B동', grade: 'TYPE_1' },
   ],
   8: [
-    { id: 119, clientId: 8,  clientName: '세진중공업(주)',      workplaceName: '세진중공업(주) 창원본사',     bizNumber: '159-38274-61', zipcode: '51395', roadAddress: '경상남도 창원시 성산구 공단로 730',          address: '본사 1층', grade: 'TYPE_1' },
-    { id: 120, clientId: 8,  clientName: '세진중공업(주)',      workplaceName: '세진중공업(주) 거제조선소',   bizNumber: '159-38274-62', zipcode: '53201', roadAddress: '경상남도 거제시 옥포1로 87',                address: '조선소 A동', grade: 'TYPE_1' },
+    { id: 119, clientId: 8,  clientName: '세진중공업(주)',      workplaceName: '세진중공업(주) 창원본사',     bizNumber: '159-38274-61', businessCategory: '선박 및 보트 건조업', zipcode: '51395', roadAddress: '경상남도 창원시 성산구 공단로 730',          address: '본사 1층', grade: 'TYPE_1' },
+    { id: 120, clientId: 8,  clientName: '세진중공업(주)',      workplaceName: '세진중공업(주) 거제조선소',   bizNumber: '159-38274-62', businessCategory: '선박 및 보트 건조업', zipcode: '53201', roadAddress: '경상남도 거제시 옥포1로 87',                address: '조선소 A동', grade: 'TYPE_1' },
   ],
   9: [
-    { id: 121, clientId: 9,  clientName: '(주)태양기술',        workplaceName: '(주)태양기술 서울본사',       bizNumber: '173-58291-34', zipcode: '04063', roadAddress: '서울특별시 마포구 월드컵북로 396',           address: '본사 5층', grade: 'TYPE_1' },
-    { id: 122, clientId: 9,  clientName: '(주)태양기술',        workplaceName: '(주)태양기술 용인R&D센터',    bizNumber: '173-58291-35', zipcode: '17074', roadAddress: '경기도 용인시 기흥구 이현로 30',             address: 'R&D센터 3층', grade: 'TYPE_1' },
+    { id: 121, clientId: 9,  clientName: '(주)태양기술',        workplaceName: '(주)태양기술 서울본사',       bizNumber: '173-58291-34', businessCategory: '전자부품 제조업', zipcode: '04063', roadAddress: '서울특별시 마포구 월드컵북로 396',           address: '본사 5층', grade: 'TYPE_1' },
+    { id: 122, clientId: 9,  clientName: '(주)태양기술',        workplaceName: '(주)태양기술 용인R&D센터',    bizNumber: '173-58291-35', businessCategory: '전자부품 제조업', zipcode: '17074', roadAddress: '경기도 용인시 기흥구 이현로 30',             address: 'R&D센터 3층', grade: 'TYPE_1' },
   ],
   10: [
-    { id: 123, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 부산본사',       bizNumber: '184-73618-52', zipcode: '46757', roadAddress: '부산광역시 강서구 신항대로 345',             address: '본사 2층', grade: 'TYPE_1' },
-    { id: 124, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 김해공장',       bizNumber: '184-73618-53', zipcode: '51004', roadAddress: '경상남도 김해시 주촌면 골든루트로 100',      address: '공장동 1층', grade: 'TYPE_1' },
-    { id: 125, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 밀양사업장',     bizNumber: '184-73618-54', zipcode: '50466', roadAddress: '경상남도 밀양시 부북면 제대로 65',           address: '사업장 1층', grade: 'TYPE_1' },
+    { id: 123, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 부산본사',       bizNumber: '184-73618-52', businessCategory: '고무 및 플라스틱제품 제조업', zipcode: '46757', roadAddress: '부산광역시 강서구 신항대로 345',             address: '본사 2층', grade: 'TYPE_1' },
+    { id: 124, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 김해공장',       bizNumber: '184-73618-53', businessCategory: '고무 및 플라스틱제품 제조업', zipcode: '51004', roadAddress: '경상남도 김해시 주촌면 골든루트로 100',      address: '공장동 1층', grade: 'TYPE_1' },
+    { id: 125, clientId: 10, clientName: '경남산업(주)',         workplaceName: '경남산업(주) 밀양사업장',     bizNumber: '184-73618-54', businessCategory: '고무 및 플라스틱제품 제조업', zipcode: '50466', roadAddress: '경상남도 밀양시 부북면 제대로 65',           address: '사업장 1층', grade: 'TYPE_1' },
   ],
   11: [
-    { id: 126, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 울산본사',     bizNumber: '195-46827-93', zipcode: '44710', roadAddress: '울산광역시 남구 삼산로 100',                address: '본사 3층', grade: 'TYPE_1' },
-    { id: 127, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 울산공장',     bizNumber: '195-46827-94', zipcode: '44298', roadAddress: '울산광역시 북구 진장유통로 55',              address: '공장동 C동', grade: 'TYPE_1' },
-    { id: 128, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 여수사업장',   bizNumber: '195-46827-95', zipcode: '59666', roadAddress: '전라남도 여수시 여수산단로 100',             address: '사업장 1층', grade: 'TYPE_1' },
+    { id: 126, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 울산본사',     bizNumber: '195-46827-93', businessCategory: '석유정제품 제조업', zipcode: '44710', roadAddress: '울산광역시 남구 삼산로 100',                address: '본사 3층', grade: 'TYPE_1' },
+    { id: 127, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 울산공장',     bizNumber: '195-46827-94', businessCategory: '석유정제품 제조업', zipcode: '44298', roadAddress: '울산광역시 북구 진장유통로 55',              address: '공장동 C동', grade: 'TYPE_1' },
+    { id: 128, clientId: 11, clientName: '현대에너지(주)',       workplaceName: '현대에너지(주) 여수사업장',   bizNumber: '195-46827-95', businessCategory: '석유정제품 제조업', zipcode: '59666', roadAddress: '전라남도 여수시 여수산단로 100',             address: '사업장 1층', grade: 'TYPE_1' },
   ],
   12: [
-    { id: 129, clientId: 12, clientName: '(주)청정환경',         workplaceName: '(주)청정환경 판교본사',       bizNumber: '207-85136-74', zipcode: '13486', roadAddress: '경기도 성남시 분당구 판교로 256',            address: '본사 4층', grade: 'TYPE_1' },
-    { id: 130, clientId: 12, clientName: '(주)청정환경',         workplaceName: '(주)청정환경 수원연구소',     bizNumber: '207-85136-75', zipcode: '16514', roadAddress: '경기도 수원시 권선구 수인로 89',             address: '연구소 2층', grade: 'TYPE_1' },
+    { id: 129, clientId: 12, clientName: '(주)청정환경',         workplaceName: '(주)청정환경 판교본사',       bizNumber: '207-85136-74', businessCategory: '폐기물 처리업', zipcode: '13486', roadAddress: '경기도 성남시 분당구 판교로 256',            address: '본사 4층', grade: 'TYPE_1' },
+    { id: 130, clientId: 12, clientName: '(주)청정환경',         workplaceName: '(주)청정환경 수원연구소',     bizNumber: '207-85136-75', businessCategory: '폐기물 처리업', zipcode: '16514', roadAddress: '경기도 수원시 권선구 수인로 89',             address: '연구소 2층', grade: 'TYPE_1' },
   ],
 };
 

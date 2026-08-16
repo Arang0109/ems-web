@@ -9,11 +9,12 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, Select, DatePicker, Textarea } from "@shared/ui/form";
 import { equipTypeOptions } from "@shared/model";
+import type { EquipType } from "@shared/model";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultType?: string;
+  defaultType?: EquipType | '';
   onSuccess?: () => void;
 }
 

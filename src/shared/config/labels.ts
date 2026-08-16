@@ -6,6 +6,8 @@ import type {
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
 } from "../model";
+import type { DateRangePreset } from "../lib";
+import type { StatusTone } from "../ui/badges/tones";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
   active: '정상',
@@ -69,6 +71,18 @@ export const SCHEDULE_STATUS_LABEL: Record<ScheduleStatus, string> = {
   ANALYZING: '분석중',
   COMPLETED: '완료',
   CANCELED: '취소',
+};
+
+/**
+ * 측정계획 상태의 표시 톤. 목록 배지·모바일 칩·상세 헤더가 공유한다.
+ * 측정중·분석중은 같은 progress 톤이며 텍스트로 구분한다(색상만으로 구분하지 않는다).
+ */
+export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
+  SCHEDULED: 'pending',
+  MEASURING: 'progress',
+  ANALYZING: 'progress',
+  COMPLETED: 'done',
+  CANCELED: 'danger',
 };
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
@@ -180,4 +194,11 @@ export const USER_ROLE_LABEL: Record<UserRole, string> = {
   ADMIN: '관리자',
   LAB: '실험실',
   FIELD: '측정팀',
+};
+
+export const DATE_RANGE_PRESET_LABEL: Record<DateRangePreset, string> = {
+  today: '오늘',
+  week: '이번 주',
+  month: '이번 달',
+  last30: '최근 30일',
 };

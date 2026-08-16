@@ -7,10 +7,11 @@ import { validateEquipmentFields } from "../validator";
 
 import { useRegisterEquipmentAction } from "@entities/equipment";
 
+import type { EquipType } from "@shared/model";
 import { toast } from "@shared/ui/toasts";
 
 interface Props {
-  defaultType?: string;
+  defaultType?: EquipType | '';
   onSuccess: () => void;
 }
 
@@ -29,7 +30,7 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
   };
 
   // 종류 변경 시 spec을 초기화한다.
-  const handleTypeChange = (type: string) => {
+  const handleTypeChange = (type: EquipType | '') => {
     setForm((prev) => ({ ...prev, type, spec: getDefaultSpecForm() }));
     setFieldErrors((prev) => ({ ...prev, type: undefined, spec: undefined }));
   };

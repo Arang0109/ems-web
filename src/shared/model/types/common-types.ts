@@ -64,6 +64,8 @@ export type ScheduleStatus = typeof SCHEDULE_STATUS[number];
 export type MeasurementType = typeof MEASUREMENT_TYPE[number];
 export type EquipType = typeof EQUIP_TYPE[number];
 export type EquipStatus = typeof EQUIP_STATUS[number];
+/** 사용자가 Select 로 고를 수 있는 상태. `DELETED` 는 삭제 액션으로만 도달하므로 제외된다. */
+export type ChangeableEquipStatus = typeof CHANGEABLE_EQUIP_STATUS[number];
 export type PitotTubeType = typeof PITOT_TUBE_TYPE[number];
 export type InspectionType = typeof INSPECTION_TYPE[number];
 export type InspectionResult = typeof INSPECTION_RESULT[number];
@@ -103,6 +105,25 @@ export const scheduleStatusOptions = SCHEDULE_STATUS.map((status) => ({
   value: status,
   label: SCHEDULE_STATUS_LABEL[status],
 }));
+
+/**
+ * 측정계획 상태에서 넘어갈 수 있는 다음 상태. 서버 `ScheduleStatus.canTransitionTo()` 와 같은 규칙으로,
+ * 단계 건너뛰기와 되돌리기를 허용하지 않는다. 완료·취소는 종단 상태다.
+ *
+ * 전진(측정중·분석중)은 시트 저장·시료접수일 입력 시 서버가 자동으로 처리하므로,
+ * 화면이 실제로 노출하는 것은 사용자가 확정하는 종료 전이(완료·취소)뿐이다.
+ * 최종 판정은 서버가 하며, 여기서는 액션 노출 여부만 판단한다.
+ */
+export const SCHEDULE_STATUS_TRANSITIONS: Record<ScheduleStatus, readonly ScheduleStatus[]> = {
+  SCHEDULED: ['MEASURING', 'CANCELED'],
+  MEASURING: ['ANALYZING', 'CANCELED'],
+  ANALYZING: ['COMPLETED', 'CANCELED'],
+  COMPLETED: [],
+  CANCELED: [],
+};
+
+export const canTransitionScheduleStatus = (from: ScheduleStatus, to: ScheduleStatus): boolean =>
+  SCHEDULE_STATUS_TRANSITIONS[from].includes(to);
 
 export const orientationOptions = ORIENTATION.map((orientation) => ({
   value: orientation,

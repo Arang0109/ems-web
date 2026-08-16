@@ -5,6 +5,7 @@ export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest
   clientId: vo.clientId,
   name: vo.name,
   bizNumber: vo.bizNumber,
+  businessCategory: vo.businessCategory,
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   detailAddress: vo.address,
@@ -16,6 +17,7 @@ export const toRegisterRequest = (vo: WorkplaceCreate): WorkplaceRegisterRequest
 export const toUpdateRequest = (vo: WorkplaceUpdate): WorkplaceUpdateRequest => ({
   name: vo.name,
   bizNumber: vo.bizNumber,
+  businessCategory: vo.businessCategory,
   zipcode: vo.zipcode,
   roadAddress: vo.roadAddress,
   detailAddress: vo.address,
@@ -35,6 +37,7 @@ export const toWorkplaceListItem = (
   roadAddress: dto.roadAddress,
   detailAddress: dto.detailAddress,
   bizNumber: dto.bizNumber,
+  businessCategory: dto.businessCategory,
   facilityManager: dto.facilityManager,
   samplingWitness: dto.samplingWitness,
   grade: dto.grade,

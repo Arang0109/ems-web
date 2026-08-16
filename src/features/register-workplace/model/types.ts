@@ -8,6 +8,7 @@ export type WorkplaceRegisterForm = {
   representative: string;
   workplaceName: string;
   workplaceBizNumber: string;
+  workplaceBusinessCategory: string;
   workplaceZipcode: string;
   workplaceRoadAddress: string;
   workplaceDetailAddress: string;
@@ -23,6 +24,7 @@ export const getDefaultWorkplaceRegisterForm = (client?: Client | null): Workpla
   representative: client?.representative ?? "",
   workplaceName: "",
   workplaceBizNumber: "",
+  workplaceBusinessCategory: "",
   workplaceZipcode: "",
   workplaceRoadAddress: "",
   workplaceDetailAddress: "",

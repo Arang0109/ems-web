@@ -5,6 +5,7 @@ import type { ApiResponseMessage } from '@shared/model';
 import type {
   CreateScheduleRequest, ScheduleListResponse, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, UpdateBasicInfoRequest,
+  ChangeScheduleStatusRequest,
 } from './dto';
 
 export const scheduleApi = {
@@ -46,6 +47,13 @@ export const scheduleApi = {
     id: number, body: UpdateBasicInfoRequest,
   ): Promise<ApiResponseMessage<ScheduleResponse>> => {
     const res = await axiosPrivate.patch(`/schedules/${id}/basic-info`, body);
+    return res.data;
+  },
+
+  changeStatus: async (
+    id: number, body: ChangeScheduleStatusRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.patch(`/schedules/${id}/status`, body);
     return res.data;
   },
 

@@ -9,7 +9,6 @@ import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
 
 // Icon
 import { User2Icon, Hash, Plus } from "lucide-react";
-import { MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL } from "@shared/config";
 import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
 
 interface Props {
@@ -28,7 +27,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
 
   return(
     <FormDialog
-      triggerLabel={<><Plus /> 측정물질 등록</>}
+      triggerLabel={<><Plus />등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
@@ -42,7 +41,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
           label="측정분야"
           placeholder="측정분야 선택"
           options={measurementFieldOptions}
-          value={MEASUREMENT_FIELD_LABEL[form.field]}
+          value={form.field}
           onValueChange={(value) => value && handleChange("field", value as MeasurementField)}
         />
         <Select
@@ -50,7 +49,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
           label="측정방법"
           placeholder="측정방법 선택"
           options={measurementMethodOptions}
-          value={MEASUREMENT_METHOD_LABEL[form.method]}
+          value={form.method}
           onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
         />
         <Select
@@ -58,7 +57,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
           label="상"
           placeholder="상 선택"
           options={pollutantPhaseOptions}
-          value={POLLUTANT_PHASE_LABEL[form.phase]}
+          value={form.phase}
           onValueChange={(value) => value && handleChange("phase", value as PollutantPhase)}
         />
         <div className="grid md:grid-cols-2 gap-4">

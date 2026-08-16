@@ -4,6 +4,7 @@ import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { UnitField } from "@shared/ui/form";
 
+import { THIMBLE_HINT } from "../../model/field-hints";
 import type { ParticleForm, SampleForm } from "../../model/types";
 import { FIELD_GRID, type SectionShellProps } from "./shell-props";
 
@@ -32,11 +33,13 @@ export const ThimbleSampleSection = ({
     <div className={FIELD_GRID}>
       <UnitField
         label="측정여지번호" required
+        hint={THIMBLE_HINT.thimbleFilter}
         value={particle.thimbleFilter} disabled={!editable}
         onChange={(v) => onParticleChange({ thimbleFilter: v })}
       />
       <UnitField
         label="바탕여지번호" required
+        hint={THIMBLE_HINT.bgThimbleFilter}
         value={particle.bgThimbleFilter} disabled={!editable}
         onChange={(v) => onParticleChange({ bgThimbleFilter: v })}
       />

@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
 import { addMinutes, toNumberOrNull } from "@shared/lib";
 import { ChipNav } from "@shared/ui/nav";
+import { useRemountKey } from "@shared/model";
 
 import type {
   SheetForm, WeatherForm, MoistureForm, ExhaustGasForm, GasColumnKey,
@@ -49,6 +50,9 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 
 export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChange }: Props) => {
   const [nozzleModalOpen, setNozzleModalOpen] = useState(false);
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const nozzleFormKey = useRemountKey(nozzleModalOpen);
   const [activeSectionId, setActiveSectionId] = useState<SheetSectionId>("weather");
 
   const particle = isParticleCategory(sheet.category);
@@ -118,6 +122,19 @@ export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChang
       samplingPoints: s.samplingPoints.filter((_, i) => i !== index),
     }));
 
+  // 앞 지점 값을 통째로 복사한다 — 지점 간 조건이 비슷한 경우가 많아 다시 입력하는 수고를 던다.
+  // 채취시간도 함께 복사되므로 종료시간을 다시 계산한다.
+  const copyPreviousPoint = (index: number) =>
+    onChange((s) => {
+      const previous = s.samplingPoints[index - 1];
+      if (!previous) return s;
+
+      return withAutoEndTime({
+        ...s,
+        samplingPoints: s.samplingPoints.map((p, i) => (i === index ? { ...previous } : p)),
+      });
+    });
+
   const patchSample = (index: number, patch: Partial<SampleForm>) =>
     onChange((s) => ({
       ...s,
@@ -169,6 +186,7 @@ export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChang
         onPointChange={patchPoint}
         onAddPoint={addPoint}
         onRemovePoint={removePoint}
+        onCopyPreviousPoint={copyPreviousPoint}
         onParticleChange={patchParticle}
         onOpenNozzleRecommend={() => setNozzleModalOpen(true)}
       />
@@ -186,6 +204,7 @@ export const SheetFormView = ({ sheet, previewCalc, externals, editable, onChang
       )}
 
       <NozzleRecommendModal
+        key={nozzleFormKey}
         open={nozzleModalOpen}
         onOpenChange={setNozzleModalOpen}
         sheet={sheet}

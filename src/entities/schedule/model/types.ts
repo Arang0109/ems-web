@@ -103,6 +103,7 @@ export type ClientSnapshotUpdate = {
 export type WorkplaceSnapshotUpdate = {
   name?: string;
   bizNumber?: string;
+  businessCategory?: string;
   roadAddress?: string;
   detailAddress?: string;
   zipcode?: string;
@@ -116,7 +117,6 @@ export type StackSnapshotUpdate = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   standardOxygen: number | null;    // 서버가 nullable — 미지정과 0을 구분한다
   height: number | null;

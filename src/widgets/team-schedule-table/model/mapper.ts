@@ -5,9 +5,9 @@ import type { TeamScheduleTableRow } from './types';
 
 export const toTeamScheduleRows = (row: ScheduleListItem): TeamScheduleTableRow => ({
   scheduleId: row.id,
-  teamName: row.teamName ?? '',
-  workplaceName: row.clientName ?? '',
-  stackName: row.stackName ?? '',
+  teamName: row.teamName ?? '-',
+  workplaceName: row.workplaceName ?? '-',
+  stackName: row.stackName ?? '-',
   field: MEASUREMENT_FIELD_LABEL[row.measurementField],
   status: row.status,
 });

@@ -7,7 +7,6 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, Select, SectionTitle, HorizontalRadioGroup } from "@shared/ui/form";
 import type { Grade, MeasurementField } from "@shared/model";
-import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, Factory, Plus } from "lucide-react";
 
@@ -25,7 +24,7 @@ export const RegisterStackForm = ({
   onSuccess,
 }: Props) => {
 
-  const { form, handleChange, handleSubmit } = useRegisterStack({
+  const { form, fieldErrors, handleChange, handleSubmit } = useRegisterStack({
     workplace,
     onSuccess: () => {
       onOpenChange(false);
@@ -70,6 +69,8 @@ export const RegisterStackForm = ({
             value={form.stackName}
             onChange={(value) => handleChange("stackName", value)}
             startIcon={<Factory />}
+            invalid={!!fieldErrors?.stackName}
+            error={fieldErrors?.stackName}
           />
           <InputGroup
             id="semsNumber"
@@ -86,15 +87,8 @@ export const RegisterStackForm = ({
             label="시설 종별"
             placeholder="종별 선택"
             options={gradeOptions}
-            value={GRADE_LABEL[form.grade]}
+            value={form.grade}
             onValueChange={(value) => value && handleChange("grade", value as Grade)}
-          />
-          <InputGroup
-            id="businessCategory"
-            label="업종"
-            placeholder="업종"
-            value={form.businessCategory}
-            onChange={(value) => handleChange("businessCategory", value)}
           />
           <InputGroup
             id="mainProduct"
@@ -102,6 +96,16 @@ export const RegisterStackForm = ({
             placeholder="주요 생산품"
             value={form.mainProduct}
             onChange={(value) => handleChange("mainProduct", value)}
+          />
+          <InputGroup
+            id="standardOxygen"
+            label="기준산소농도 (%)"
+            placeholder="예: 4"
+            value={form.standardOxygen}
+            onChange={(value) => handleChange("standardOxygen", value)}
+            invalid={!!fieldErrors?.standardOxygen}
+            error={fieldErrors?.standardOxygen}
+            helperText="해당 없으면 비워두세요"
           />
         </div>
       </FieldGroup>

@@ -2,9 +2,23 @@ import { useMemo } from 'react';
 import { flexRender, type Cell, type Row, type Table } from '@tanstack/react-table';
 
 import { cn } from '@/lib/utils';
-import type { CardContent, MobileCardConfig } from '@shared/model';
+import type { CardContent, MobileCardColumns, MobileCardConfig } from '@shared/model';
 
 import { deriveCardConfig } from './derive-card-config';
+
+/* Tailwind v4 는 소스의 리터럴 클래스 문자열만 스캔한다. `grid-cols-${n}` 처럼
+   조합한 이름은 CSS 가 생성되지 않으므로 정적 맵으로 고정한다. */
+const GRID_COLS: Record<MobileCardColumns, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+};
+
+const COL_SPAN: Record<MobileCardColumns, string> = {
+  1: 'col-span-1',
+  2: 'col-span-2',
+  3: 'col-span-3',
+};
 
 interface Props<TData> {
   table: Table<TData>;
@@ -56,6 +70,7 @@ export const MobileCardList = <TData,>({
 
   const { title, subtitle, status, fields } = layout;
   const actions = useMemo(() => toArray(layout.actions), [layout.actions]);
+  const gridColumns = layout.columns ?? 1;
 
   /** 컬럼 id 참조 필드의 라벨 폴백 — 문자열 header, 없으면 id */
   const labelOf = (field: { label?: string; content: CardContent<TData> }) => {
@@ -172,7 +187,8 @@ export const MobileCardList = <TData,>({
             {fields && fields.length > 0 && (
               <div
                 className={cn(
-                  'grid grid-cols-2 gap-x-4 gap-y-2 px-4 pt-3 pb-4',
+                  'grid gap-x-4 gap-y-2 px-4 pt-3 pb-4',
+                  GRID_COLS[gridColumns],
                   hasHeader && 'border-t border-rule'
                 )}
               >
@@ -180,8 +196,11 @@ export const MobileCardList = <TData,>({
                   <div
                     key={typeof field.content === 'string' ? field.content : index}
                     className={cn(
-                      'min-w-0 border-b border-rule p-3',
-                      field.fullWidth && 'col-span-2'
+                      'min-w-0 p-3',
+                      /* 칸 구분선은 1열(= 세로 목록)에서만 의미가 있다.
+                         다열에서는 칸마다 밑줄이 격자처럼 보여 넣지 않는다 */
+                      gridColumns === 1 && 'border-b border-rule',
+                      field.span === 'full' ? 'col-span-full' : COL_SPAN[field.span ?? 1]
                     )}
                   >
                     <p className="text-label text-muted-ink">{labelOf(field)}</p>

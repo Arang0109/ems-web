@@ -5,7 +5,7 @@ import type {
   PitotTubeSpec,
   NozzleSpec,
 } from "@entities/equipment";
-import type { InspectionType } from "@shared/model";
+import type { InspectionType, ChangeableEquipStatus, PitotTubeType } from "@shared/model";
 import { INSPECTION_TYPE } from "@shared/model";
 
 import { toFormValue } from "@shared/lib";
@@ -26,7 +26,7 @@ export type EquipmentSpecForm = {
   totalVolume: string;
   orificeDp: string;
   yd: string;
-  pitotTubeType: string;
+  pitotTubeType: PitotTubeType | '';   // 미선택은 ''
   coefficients: { coefficient: string; velocity: string }[];
   diameters: { diameter: string }[];
 };
@@ -43,7 +43,8 @@ export type EquipmentUpdateForm = {
   purchaseDate: string;
   remark: string;
   inspections: InspectionItemForm[];
-  status: string;   // EquipStatus Select 값
+  // 삭제(DELETED) 상태는 Select 로 되돌릴 수 없으므로 폼에서는 미선택('')으로 둔다.
+  status: ChangeableEquipStatus | '';
   spec: EquipmentSpecForm;
 };
 
@@ -139,7 +140,8 @@ export const getDefaultForm = (equipment: Equipment | null): EquipmentUpdateForm
     purchaseDate: equipment.purchaseDate ?? '',
     remark: equipment.remark ?? '',
     inspections: toInspectionForms(equipment),
-    status: equipment.status,
+    // 삭제된 장비는 Select 에 대응 항목이 없으므로 미선택으로 두어 placeholder 가 뜨게 한다.
+    status: equipment.status === 'DELETED' ? '' : equipment.status,
     spec: toSpecForm(equipment),
   };
 };

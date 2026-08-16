@@ -148,6 +148,13 @@ export const UpdateScheduleClientForm = ({
             value={form.workplaceGrade}
             onValueChange={(value) => value && handleChange("workplaceGrade", value as Grade)}
           />
+          <InputGroup
+            id="workplaceBusinessCategory"
+            label="업종"
+            placeholder="업종"
+            value={form.workplaceBusinessCategory}
+            onChange={(value) => handleChange("workplaceBusinessCategory", value)}
+          />
         </div>
 
         <AddressInput
@@ -193,7 +200,7 @@ export const UpdateScheduleClientForm = ({
           />
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="stackGrade"
             label="시설 종별"
@@ -201,14 +208,6 @@ export const UpdateScheduleClientForm = ({
             options={gradeOptions}
             value={form.stackGrade}
             onValueChange={(value) => value && handleChange("stackGrade", value as Grade)}
-          />
-          <InputGroup
-            id="businessCategory"
-            label="업종"
-            placeholder="업종"
-            value={form.businessCategory}
-            onChange={(value) => handleChange("businessCategory", value)}
-            helperText="비워두면 기존 값이 유지됩니다"
           />
           <InputGroup
             id="mainProduct"

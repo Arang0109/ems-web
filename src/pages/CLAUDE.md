@@ -23,6 +23,18 @@
 </PageLayout>
 ```
 
+### 목록에서 진입하는 페이지는 `showBack` 을 넘긴다
+
+상세·등록 페이지는 `showBack backTo="/목록경로"` 를 넘긴다. 뒤로가기 버튼은 **모바일(md 미만)
+에서만** 노출된다 — 데스크탑은 사이드바가 상시 진입점이지만 모바일은 오프캔버스라 돌아갈 UI 가 없다.
+
+```tsx
+<PageLayout title="측정계획 상세" description="..." showBack backTo="/schedule">
+```
+
+`backTo` 없이 `showBack` 만 주면 히스토리 뒤로(-1)가 되는데, URL 로 직접 열린 경우 앱 밖으로
+나가므로 **목록 경로를 명시**한다. 저장 확인 등 커스텀 동작이 필요하면 `onBackClick` 을 쓴다.
+
 ### 좌우·상하 여백은 페이지가 주지 않는다
 
 여백의 소유자는 레이아웃(`MainLayout`·`PlatformLayout`)이며 `px-4 py-6 md:px-7.5 md:py-10`로 통일되어 있다.

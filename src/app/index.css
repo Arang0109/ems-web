@@ -268,44 +268,49 @@
   --sidebar-border: var(--rule);
   --sidebar-ring: var(--brand-primary);
 
-  /* 잠정 — 차트 시리즈 색상은 별도 논의 후 확정 */
+  /* 잠정 — 차트 시리즈 색상은 별도 논의 후 확정.
+     .dark 는 이 참조를 그대로 상속하므로 다크에서도 브랜드 계열이 유지된다. */
   --chart-1: var(--brand-primary);
   --chart-2: var(--brand-dark);
   --chart-3: var(--ink-soft);
   --chart-4: var(--muted-ink);
   --chart-5: var(--warning);
+
+  /* 네이티브 UI(스크롤바 · date 피커 · autofill)를 테마에 맞춘다.
+     이게 없으면 다크에서 브라우저 기본 요소만 밝게 남는다. */
+  color-scheme: light;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.811 0.111 293.571);
-  --chart-2: oklch(0.606 0.25 292.717);
-  --chart-3: oklch(0.541 0.281 293.009);
-  --chart-4: oklch(0.491 0.27 292.581);
-  --chart-5: oklch(0.432 0.232 292.759);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* ─── 다크 원시 팔레트 (그린 틴티드) ─────────────────────────────
+     :root 와 똑같은 15개 토큰만 재정의한다.
+     shadcn shim · sidebar · chart 는 전부 이 팔레트를 참조하므로
+     여기서 다시 선언하지 않는다 (라이트와 동일한 2단 구조).
+
+     ⚠ Dark 토큰이 Primary 보다 "밝은" 쪽이다 — 이름은 강조 계층을
+     뜻하며 명도 방향이 아니다. 밝은 배경 위 글씨 → 어두운 배경 위
+     글씨로 역할이 뒤집히기 때문이다. */
+
+  /* Brand */
+  --brand-primary: #2fa96e; /* Primary action · Selected */
+  --brand-dark: #56c892; /* Hover · Emphasis */
+  --brand-soft: #16342a; /* Selected background */
+
+  /* Neutral */
+  --canvas: #0e1311; /* App background */
+  --surface: #171d1a; /* Panel · Field */
+  --ink: #e8ecea; /* Primary text */
+  --ink-soft: #a8b3ae; /* Secondary text */
+  --muted-ink: #7b8781; /* Caption · Hint */
+  --rule: #252d29; /* Divider · Border */
+  --rule-dark: #38423d; /* border · Strong divider */
+
+  /* Status */
+  --danger: #ff6369; /* Delay · Error */
+  --danger-soft: #2a1517; /* Error background · Error field */
+  --warning: #ffb224; /* Attention */
+  --warning-ink: #ffcb47; /* Warning text · Icon */
+  --warning-soft: #2b1d06; /* Warning background · Helper */
+
+  color-scheme: dark;
 }

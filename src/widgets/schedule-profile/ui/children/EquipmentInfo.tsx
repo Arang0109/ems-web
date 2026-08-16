@@ -7,7 +7,8 @@ import { EQUIP_TYPE_LABEL, EQUIP_TYPE_DESCRIPTION } from "@shared/config";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Badge } from "@shared/ui/badges";
 import { IconButton } from "@shared/ui/buttons";
-import { DetailRow } from "@shared/ui/form";
+import { DetailGrid, DetailRow } from "@shared/ui/form";
+import { useRemountKey } from "@shared/model";
 
 import { value, describeEquipmentSpec, sortEquipmentsByType } from "../../model/mapper";
 import type { EquipmentSpecItem } from "../../model/types";
@@ -25,7 +26,8 @@ const cardDomId = (equipmentId: string): string => `equipment-card-${equipmentId
 
 const SpecValue = ({ item }: { item: EquipmentSpecItem }) =>
   "chips" in item ? (
-    <span className="flex flex-wrap justify-end gap-1">
+    // 정렬은 DetailRow 의 뷰포트 분기(모바일 우측 / 데스크탑 좌측)를 그대로 따라간다.
+    <span className="flex flex-wrap justify-end gap-1 md:justify-start">
       {item.chips.length === 0 ? (
         "-"
       ) : (
@@ -42,6 +44,9 @@ const SpecValue = ({ item }: { item: EquipmentSpecItem }) =>
 
 export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetch }: Props) => {
   const [editOpen, setEditOpen] = useState(false);
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const editFormKey = useRemountKey(editOpen);
   const canEdit = editable && scheduleId !== null;
 
   const sorted = useMemo(() => sortEquipmentsByType(equipments), [equipments]);
@@ -78,19 +83,20 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
             setClosedIds((prev) => ({ ...prev, [equip.equipmentId]: !open }));
           }}
         >
-          <div className="grid gap-x-5 gap-y-2 md:grid-cols-2 xl:grid-cols-5">
+          {/* 데스크탑 DetailRow 는 라벨(7rem)+값을 가로로 놓으므로 기존 5열은 값이 들어갈 폭이 없다 */}
+          <DetailGrid>
             <DetailRow label="별칭" value={value(equip.alias)} />
             {describeEquipmentSpec(equip).map((item) => (
               <DetailRow key={item.label} label={item.label} value={<SpecValue item={item} />} />
             ))}
-          </div>
+          </DetailGrid>
         </SectionAccordion>
       ))}
 
       {canEdit && (
-        // 배정이 바뀌면 key가 바뀌어 폼이 새 값으로 리마운트된다.
+        // 열 때마다, 그리고 배정이 바뀌면 key가 바뀌어 폼이 새 값으로 리마운트된다.
         <UpdateScheduleEquipmentsForm
-          key={`${team.particleSamplerId}-${team.gasSamplerId}-${team.pitotTubeId}-${team.nozzleId}`}
+          key={`${editFormKey}-${team.particleSamplerId}-${team.gasSamplerId}-${team.pitotTubeId}-${team.nozzleId}`}
           scheduleId={scheduleId}
           team={team}
           open={editOpen}

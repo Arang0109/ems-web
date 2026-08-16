@@ -92,7 +92,7 @@ export const DesktopTable = <TData,>({
           ) : rows.length === 0 ? (
             emptyState ? (
               <TableRow>
-                <TableCell colSpan={colCount}>{emptyState}</TableCell>
+                <TableCell className="bg-surface" colSpan={colCount}>{emptyState}</TableCell>
               </TableRow>
             ) : (
               messageRow('검색 결과가 없습니다.', 'text-ink-soft')

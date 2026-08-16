@@ -73,7 +73,7 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
                   <button
                     type="button"
                     onClick={() => onOpenHistory?.(item.type)}
-                    className="text-body-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 whitespace-nowrap"
+                    className="text-body-2 text-brand-dark hover:underline whitespace-nowrap"
                   >
                     이력 보기
                   </button>

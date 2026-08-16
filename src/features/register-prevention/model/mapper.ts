@@ -7,6 +7,7 @@ export const toPreventionCreate = (stackId: number, form: PreventionRegisterForm
   stackId: stackId,
   name: trimValue(form.name),
   capacity: toNumberOrNull(form.capacity),
+  unit: trimValue(form.unit),
   targetName: trimValue(form.targetName),
   removalEfficiency: trimValue(form.removalEfficiency),
 });

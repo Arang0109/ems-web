@@ -25,6 +25,13 @@ interface Props {
   required?: boolean;
   helperText?: string;
   className?: string;
+  /**
+   * 트리거 버튼 없이 달력을 그대로 펼친다.
+   * 이미 팝오버 안에 놓이는 경우(필터 팝오버 등) 팝오버 중첩을 피한다.
+   */
+  inline?: boolean;
+  /** 한 번에 보여줄 개월 수. 기본은 트리거형 2개월, `inline` 은 1개월 */
+  numberOfMonths?: number;
 }
 
 /** `DatePicker` 의 기간(from~to) 버전. 트리거 라벨은 `2026.01.01 → 2026.12.31` 형식. */
@@ -38,10 +45,25 @@ export const DateRangePicker = ({
   required,
   helperText,
   className,
+  inline = false,
+  numberOfMonths,
 }: Props) => {
   const [open, setOpen] = React.useState(false);
 
-  const picker = (
+  const calendar = (
+    <Calendar
+      mode="range"
+      numberOfMonths={numberOfMonths ?? (inline ? 1 : 2)}
+      selected={value}
+      onSelect={onChange}
+      defaultMonth={value?.from}
+      disabled={disabled}
+    />
+  );
+
+  const picker = inline ? (
+    <div className={cn("rounded-panel border border-rule", className)}>{calendar}</div>
+  ) : (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
@@ -69,13 +91,7 @@ export const DateRangePicker = ({
         }
       />
       <PopoverContent className="w-auto p-0" align="end">
-        <Calendar
-          mode="range"
-          numberOfMonths={2}
-          selected={value}
-          onSelect={onChange}
-          defaultMonth={value?.from}
-        />
+        {calendar}
       </PopoverContent>
     </Popover>
   );

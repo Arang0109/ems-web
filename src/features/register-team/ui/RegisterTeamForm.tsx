@@ -4,7 +4,7 @@ import { useRegisterTeam } from "../model/hooks/use-register-team";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, Select } from "@shared/ui/form";
-import { Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -32,7 +32,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
 
   return (
     <FormDialog
-      triggerLabel="팀 등록"
+      triggerLabel={<><Plus />등록</>}
       size="lg"
       open={open}
       onOpenChange={onOpenChange}

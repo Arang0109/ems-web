@@ -1,6 +1,8 @@
+import type { DocumentCategory } from "@shared/model";
+
 export type DocumentUpdateForm = {
   name: string;
-  category: string;   // DocumentCategory Select 값
+  category: DocumentCategory | '';   // 미선택은 ''
   description: string;
 };
 

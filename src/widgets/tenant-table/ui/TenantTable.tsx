@@ -5,6 +5,7 @@ import { ProvisionTenantForm } from '@features/provision-tenant';
 import { BasicTable, TableFooterBar } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { Panel } from '@shared/ui/cards';
+import { useRemountKey } from '@shared/model';
 
 interface Props {
   onSuccess?: () => void;
@@ -21,6 +22,9 @@ export const TenantTable = ({ onSuccess }: Props) => {
     loading, error, refetch
   } = useTenantTable({ onSuccess });
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const provisionFormKey = useRemountKey(provisionModalOpen);
+
   return (
     <Panel>
       <div className="px-5 pt-5 pb-4 border-b border-border">
@@ -29,6 +33,7 @@ export const TenantTable = ({ onSuccess }: Props) => {
             <h2 className="text-h3 text-foreground">고객사 목록</h2>
           </div>
           <ProvisionTenantForm
+            key={provisionFormKey}
             open={provisionModalOpen}
             onOpenChange={setProvisionModalOpen}
             onSuccess={refetch}

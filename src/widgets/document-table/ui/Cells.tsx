@@ -19,7 +19,7 @@ export const DownloadCell = ({ row, table }: CellContext<DocumentTableRow, unkno
     type="button"
     variant="outline"
     disabled={row.original.latestVersionNo < 1}
-    onClick={() => table.options.meta?.onDownloadDocument?.(row.original)}
+    onClick={() => table.options.meta?.onDownload?.(row.original)}
     startIcon={Download}
   >
     다운로드
@@ -30,7 +30,7 @@ export const VersionDownloadCell = ({ row, table }: CellContext<DocumentVersionT
   <Button
     type="button"
     variant="outline"
-    onClick={() => table.options.meta?.onDownloadDocumentVersion?.(row.original)}
+    onClick={() => table.options.meta?.onDownload?.(row.original)}
     startIcon={Download}
   >
     다운로드

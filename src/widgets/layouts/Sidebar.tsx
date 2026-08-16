@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router";
 
 import {
@@ -36,11 +36,10 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
   { icon: LayoutDashboard, label: "대시보드", path: "/dashboard" },
   {
     icon: Building2,
-    label: "기준정보",
+    label: "고객사",
     subItems: [
-      { label: "거래처 관리", path: "/clients" },
-      { label: "측정시설 조회", path: "/stacks" },
-      { label: "측정물질 관리", path: "/pollutants" },
+      { label: "고객사 관리", path: "/clients" },
+      { label: "측정지점(굴뚝) 조회", path: "/stacks" },
     ],
   },
   {
@@ -60,10 +59,11 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
   },
   {
     icon: Wrench,
-    label: '자원 관리',
+    label: '회사 자원',
     subItems: [
       { label: '팀 관리', path: '/staff' },
       { label: '측정장비 관리', path: '/equipment' },
+      { label: "측정물질 관리", path: "/pollutants" },
     ],
   },
 ];
@@ -118,8 +118,12 @@ export const Sidebar = () => {
     ...getInitialOpenMenus(location.pathname, ADMIN_MENU_ITEMS),
   }));
 
-  // 경로가 바뀔 때 활성 하위 메뉴의 상위 메뉴를 자동으로 열어 줌
-  useEffect(() => {
+  // 경로가 바뀔 때 활성 하위 메뉴의 상위 메뉴를 자동으로 열어 준다.
+  // effect 안에서 동기적으로 setState 하면 cascading render 가 되므로 렌더 중에 조정한다.
+  // (사용자가 접어 둔 메뉴는 건드리지 않는다 — 펼치기만 한다)
+  const [activePath, setActivePath] = useState(location.pathname);
+  if (activePath !== location.pathname) {
+    setActivePath(location.pathname);
     setOpenMenus((prev) => {
       const next = { ...prev };
       let changed = false;
@@ -131,7 +135,7 @@ export const Sidebar = () => {
       });
       return changed ? next : prev;
     });
-  }, [location.pathname]);
+  }
 
   const toggleMenu = (label: string) =>
     setOpenMenus((prev) => ({ ...prev, [label]: !prev[label] }));

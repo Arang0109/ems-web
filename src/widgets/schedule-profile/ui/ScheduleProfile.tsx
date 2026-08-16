@@ -1,8 +1,10 @@
 import { useParams } from "react-router";
 
-import { SCHEDULE_STATUS_LABEL } from "@shared/config";
+import { ChangeScheduleStatusActions } from "@features/change-schedule-status";
+
+import { SCHEDULE_STATUS_LABEL, SCHEDULE_STATUS_TONE } from "@shared/config";
 import { Tabs } from "@shared/ui/tabs";
-import { Badge } from "@shared/ui/badges";
+import { StatusDot } from "@shared/ui/badges";
 
 import { useScheduleProfile } from "../model/use-schedule-profile";
 import { value } from "../model/mapper";
@@ -67,13 +69,21 @@ export const ScheduleProfile = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-body-3 text-muted-ink">관리번호</span>
-        <span className="text-body-4 text-ink">{value(snapshot.referenceNumber)}</span>
-        {status && <Badge tone="brand">{SCHEDULE_STATUS_LABEL[status]}</Badge>}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-body-3 text-muted-ink">관리번호</span>
+          <span className="text-body-4 text-ink">{value(snapshot.referenceNumber)}</span>
+          {status && (
+            <StatusDot pill tone={SCHEDULE_STATUS_TONE[status]} label={SCHEDULE_STATUS_LABEL[status]} />
+          )}
+        </div>
+
+        {/* 완료·취소 확정. 전진(측정중·분석중)은 시트 저장·시료접수일 입력 시 서버가 자동 처리한다. */}
+        <ChangeScheduleStatusActions scheduleId={id} status={status} onSuccess={refetch} />
       </div>
 
-      <Tabs options={tabOptions} />
+      {/* 측정 데이터 탭에서 작성하던 기록지가 탭을 옮겨도 남아 있어야 한다 (탭 본문 언마운트 방지). */}
+      <Tabs options={tabOptions} keepMounted />
     </div>
   );
 };

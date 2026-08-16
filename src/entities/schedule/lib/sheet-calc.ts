@@ -321,7 +321,7 @@ export const runSheetCalc = (sheet: SheetSave, ext: SheetCalcExternals): SheetCa
       roundHalfUp(ctx.co / SM, 5) * 0.28 +
       roundHalfUp(ctx.n2 / SM, 5) * 0.28;
     const moistureDensity = roundHalfUp(roundHalfUp((18 * ctx.xw) / SM, 5) / 100, 5);
-    const standardGasDensityRaw = roundHalfUp(roundHalfUp((dryGasDensity * (100 - ctx.xw)) / 100, 5) + moistureDensity, 2);
+    const standardGasDensityRaw = roundHalfUp((dryGasDensity * (100 - ctx.xw)) / 100, 5) + moistureDensity;
     ctx.standardGasDensity = roundHalfUp(standardGasDensityRaw, 2);
 
     if (ctx.avgTg != null && ctx.avgTg !== 0 && ctx.pg != null) {

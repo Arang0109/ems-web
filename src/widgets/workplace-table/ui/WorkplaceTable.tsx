@@ -7,6 +7,7 @@ import { RegisterWorkplaceForm } from '@features/register-workplace';
 import { UpdateWorkplaceForm } from '@features/update-workplace';
 
 import { BasicTable, TableEmptyState, TableFooterBar, TablePanel } from '@shared/ui/table';
+import { useRemountKey } from '@shared/model';
 
 import { Building2 } from 'lucide-react';
 
@@ -42,6 +43,10 @@ export const WorkplaceTable = ({
     detailOpen, setDetailOpen,
   } = useWorkplaceTable({ workplaces, onRowClick });
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerModalOpen);
+  const detailFormKey = useRemountKey(detailOpen);
+
   return (
     <>
       <TablePanel
@@ -49,7 +54,7 @@ export const WorkplaceTable = ({
         actions={
           <>
             <RegisterWorkplaceForm
-              key={selectedClient?.id}
+              key={registerFormKey}
               client={selectedClient}
               open={registerModalOpen}
               onOpenChange={setRegisterModalOpen}
@@ -73,7 +78,7 @@ export const WorkplaceTable = ({
       </TablePanel>
 
       <UpdateWorkplaceForm
-        key={selectedWorkplace?.id}
+        key={detailFormKey}
         open={detailOpen}
         onOpenChange={setDetailOpen}
         client={selectedClient}

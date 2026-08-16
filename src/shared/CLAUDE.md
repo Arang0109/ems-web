@@ -38,12 +38,12 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `primitives/` | shadcn/ui 에서 이관한 저수준 프리미티브 (Field, InputGroup, Table, Pagination, Calendar, Label, Textarea) — **비즈니스 코드에서 직접 쓰지 말 것**, 각 카테고리 래퍼 경유 |
 | `accordion/` | SectionAccordion(섹션 카드 + 진행도 배지), SubAccordion(중첩 그룹) |
 | `borders/` | Divider 등 |
-| `buttons/` | IconButton, DetailViewButton 등 버튼 컴포넌트 |
+| `buttons/` | IconButton, BackButton(뒤로가기 — `PageLayout` 이 사용), DetailViewButton 등 버튼 컴포넌트 |
 | `cards/` | Panel(카드 셸), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드) |
-| `dialogs/` | FormDialog 등 |
+| `dialogs/` | `FormDialog`(폼 제출 모달), `ConfirmProvider` + `useConfirm`(확인 다이얼로그) |
 | `feedback/` | EmptyText — 패널 안 한 줄 빈 상태·안내 문구 |
-| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`, `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`, `SectionTitle`, `UnitField`(라벨+단위+완료체크), `CalcResultRow`(자동계산 행). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
-| `layout/` | PageLayout(페이지 셸 — 제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
+| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`, `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(라벨+단위+완료체크), `CalcResultRow`(자동계산 행). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
+| `layout/` | PageLayout(페이지 셸 — 뒤로가기+제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
 | `nav/` | ChipNav — 가로 스크롤 pill 칩 (섹션 바로가기) |
 | `links/` | Link |
 | `pagination/` | Pagination |
@@ -51,9 +51,66 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `skeletons/` | Skeleton(자리표시 원자), SkeletonPanel(패널 단위 로딩) |
 | `table/` | TanStack Table 기반 공통 테이블. 아래 표 참조 |
 | `sidebar/` | AppSidebar, SidebarNav, SidebarBrandHeader, SidebarUserFooter, SidebarMobileBar |
-| `theme/` | ThemeToggle (다크모드 전환 — 제거 예정, DESIGN-SYSTEM.md 참조) |
-| `tabs/` | Tabs 등 탭 UI |
+| `theme/` | ThemeToggle (다크모드 전환. 색 토큰은 `app/index.css` 의 `.dark` — DESIGN-SYSTEM.md 참조) |
+| `tooltip/` | `Tooltip`(말풍선 — 임의 트리거에 병합), `HelpTip`(라벨 옆 도움말 아이콘). 아래 참조 |
+| `tabs/` | `Tabs` — 언더라인형 탭. 비활성 탭 본문은 기본적으로 **언마운트**되므로, 탭을 오가며 유지해야 할 입력 폼이 있으면 `keepMounted` 를 켠다 |
 | `toasts/` | `toast` (`toast.success`, `toast.error`) — feature 훅의 사용자 피드백 |
+
+### 파괴적 액션은 `useConfirm` 을 거친다
+
+삭제처럼 되돌릴 수 없는 액션은 실행 전 반드시 확인 단계를 둔다. `toast` 와 같은 구조로
+`ConfirmProvider` 를 `app-provider` 에서 한 번 렌더하고, 호출부는 훅만 쓴다.
+
+```ts
+const confirm = useConfirm();
+
+const handleDelete = async () => {
+  if (!client) return;
+
+  const isConfirmed = await confirm({
+    title: '의뢰기관 삭제',
+    description: `${client.name}을(를) 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다.`,
+    confirmLabel: '삭제',
+    tone: 'danger',
+  });
+  if (!isConfirmed) return;
+
+  try { ... }
+};
+```
+
+- 위치는 **feature 훅** — entity 레이어는 모달·토스트를 모른다
+- `tone: 'danger'` 는 삭제 등 복구 불가 액션에만. 취소 버튼이 기본 포커스를 받는다
+- 등록·수정 제출에는 확인창을 두지 않는다 (되돌리기 쉬움). 대신 `FormDialog` 가
+  아래 3가지로 실수를 막는다
+
+### `FormDialog` 의 실수 방지 장치
+
+| 장치 | 동작 |
+|------|------|
+| 배경 클릭 차단 | `disablePointerDismissal`. Base UI 기본값은 "배경 클릭 시 닫힘"이라 명시적으로 끈다 |
+| 미저장 이탈 확인 | 폼 안에서 `input` 이벤트가 났으면 ESC·닫기 전에 `useConfirm`. `Select` 처럼 `input` 을 내지 않는 컨트롤 때문에 판정이 부족하면 `isDirty` prop 으로 덮어쓴다 |
+| 엔터 암묵적 제출 차단 | 입력란에서 엔터를 눌러도 제출되지 않는다. 제출은 버튼을 눌렀을 때만 — 클릭, 또는 버튼에 포커스를 둔 엔터·스페이스(둘 다 네이티브 click 을 낸다). `textarea` 의 줄바꿈은 유지된다 |
+
+> 엔터 제출 차단은 `FormDialog` 안에서만이다. `SignInForm` 처럼 `<form>` 을 직접 쓰는
+> 페이지형 폼은 브라우저 기본 동작(엔터 제출)을 그대로 둔다.
+
+### `Tooltip` 은 터치에서도 열린다
+
+Base UI 툴팁의 hover 는 `mouseOnly` 라 **모바일에서는 눌러도 열리지 않는다.** 현장 입력 화면이
+모바일 1순위인 이 프로젝트에서는 그대로 쓸 수 없으므로, `shared/ui/tooltip/Tooltip` 이
+open 상태를 직접 소유하고 트리거 클릭으로 토글한다(hover·키보드 포커스는 Base UI 가 그대로 처리).
+
+| 컴포넌트 | 용도 |
+|----------|------|
+| `Tooltip` | 말풍선 셸. `children` 으로 받은 요소에 트리거 동작을 **병합**한다(래퍼 DOM 없음) |
+| `HelpTip` | 라벨 옆 도움말 아이콘(`CircleHelp`). 전문 용어·계산식 설명용 |
+
+- 도움말 문구는 shared 가 아니라 **해당 feature 의 `model/*-hints.ts`** 에 둔다
+  (예: `features/save-schedule-sheets/model/field-hints.ts`)
+- 아이콘만 보이므로 `label` 로 **어떤 항목의 설명인지** 밝힌다. `UnitField` 는 라벨이 문자열이면
+  자동으로 만들고, JSX 라벨(`O₂` 등)이면 `hintLabel` 로 받는다
+- 같은 문구를 필드마다 반복하지 말 것 — 그룹 단위 안내는 `SubAccordion` 의 `action` 슬롯에 하나만 단다
 
 **비즈니스 로직 코드에서 반드시 `@shared/ui/*`를 통해 사용할 것**
 (`@/components/ui/*` 직접 import 금지 — shadcn/ui 원본 컴포넌트 파일 내에서만 허용)
@@ -182,6 +239,10 @@ export const contractStatusOptions =
 | `unformatNumber(s)` | `format/number` | `'010-1234-5678'` → `'01012345678'` (자릿수 코드 정규화, 결과 `string`) |
 | `toNumber(s)`, `toNumberOrNull(s)` | `format/number` | Form 문자열 → `number`/`number \| null` 변환 |
 | `toFormValue(n)` | `format/form-value` | 위 둘의 **역방향** — Domain(`number \| null`) → Form `string` |
+| `toDateKey(d)` | `date/date-range` | `Date` → `'yyyy-MM-dd'` (구간 비교의 기준 표현) |
+| `toPresetRange(preset, today)` | `date/date-range` | `today`·`week`·`month`·`last30` → `{ from, to }` |
+| `isWithinDateRange(v, range)` | `date/date-range` | 날짜/ISO 문자열이 구간에 드는지 (경계 포함) |
+| `isSameDateRange(a, b)`, `matchDateRangePreset(r, today)` | `date/date-range` | 구간 비교 · 프리셋 역판정(필터 칩 선택 표시) |
 | `trimValue(s)` | `string/trim-value` | 앞뒤 공백 제거 |
 | `downloadBlob(blob, name)` | `file/download-blob` | 브라우저 다운로드 트리거 |
 | `parseAttachmentFilename(h)` | `file/content-disposition` | `Content-Disposition` 에서 파일명 추출 |

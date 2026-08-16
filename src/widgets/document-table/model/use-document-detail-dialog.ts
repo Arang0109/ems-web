@@ -38,7 +38,7 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
     pageSize: TABLE_PAGE_SIZE.COMPACT,
     overrides: {
       meta: {
-        onDownloadDocumentVersion: (row: DocumentVersionTableRow) =>
+        onDownload: (row: DocumentVersionTableRow) =>
           handleDownload({
             documentId: row.documentId,
             versionNo: row.versionNo,

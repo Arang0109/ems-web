@@ -2,12 +2,18 @@ import React from "react";
 import { CircleCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { HelpTip } from "@shared/ui/tooltip";
 import { Select, type SelectOption } from "./Select";
 
 interface Props {
   label: React.ReactNode;
   value: string;
   onChange?: (value: string) => void;
+
+  /** 라벨 옆 도움말 — 용어 설명·계산식처럼 상시 노출하기엔 긴 안내 */
+  hint?: React.ReactNode;
+  /** 도움말 아이콘의 접근성 이름. 라벨이 문자열이 아닐 때(예: `O₂`) 지정한다 */
+  hintLabel?: string;
 
   /** 있으면 Select 모드로 렌더링한다(입력창과 동일한 프레임 유지). */
   options?: SelectOption[];
@@ -48,6 +54,8 @@ export const UnitField = ({
   label,
   value,
   onChange,
+  hint,
+  hintLabel,
   options,
   type = "text",
   unit,
@@ -72,10 +80,19 @@ export const UnitField = ({
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label htmlFor={fieldId} className="flex items-start gap-0.5 text-body-4 text-ink-soft">
-        {label}
-        {required && <span className="text-danger">*</span>}
-      </label>
+      {/* 도움말 버튼은 label 밖에 둔다 — label 안의 버튼은 클릭이 입력창 포커스와 겹친다 */}
+      <div className="flex items-center gap-1">
+        <label htmlFor={fieldId} className="flex min-w-0 items-start gap-0.5 text-body-4 text-ink-soft">
+          {label}
+          {required && <span className="text-danger">*</span>}
+        </label>
+        {hint && (
+          <HelpTip
+            content={hint}
+            label={hintLabel ?? (typeof label === "string" ? `${label} 설명` : "항목 설명")}
+          />
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
         <div

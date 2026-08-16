@@ -1,7 +1,6 @@
 import { useRegisterContract } from "../model/hooks/use-register-contract";
 
 import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
-import { CONTRACT_AMOUNT_UNIT_LABEL, VAT_INCLUDED_LABEL } from "@shared/config";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
@@ -90,7 +89,7 @@ export const RegisterContractForm = () => {
               id="contractAmountUnit"
               label="계약금액 단위"
               placeholder="단위 선택"
-              value={CONTRACT_AMOUNT_UNIT_LABEL[form.contractAmountUnit]}
+              value={form.contractAmountUnit}
               options={contractAmountUnitOptions}
               onValueChange={(value) => value && handleChange("contractAmountUnit", value as ContractAmountUnit)}
             />
@@ -98,7 +97,7 @@ export const RegisterContractForm = () => {
               id="vatIncluded"
               label="부가세 여부"
               placeholder="선택"
-              value={VAT_INCLUDED_LABEL[String(form.vatIncluded) as 'true' | 'false']}
+              value={String(form.vatIncluded) as 'true' | 'false'}
               options={[
                 { value: 'true', label: '포함' },
                 { value: 'false', label: '미포함' },

@@ -3,7 +3,9 @@ import type { ReactNode } from "react";
 import type { SheetCalcPreview } from "@entities/schedule";
 import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
+import { HelpTip } from "@shared/ui/tooltip";
 
+import { EXHAUST_GAS_HINT } from "../../model/field-hints";
 import type { ExhaustGasForm, GasColumnKey } from "../../model/types";
 import { GAS_READING_COUNT } from "../../model/types";
 import { FIELD_GRID, type SectionShellProps } from "./shell-props";
@@ -54,8 +56,14 @@ export const ExhaustGasSection = ({
       />
     </div>
 
+    {/* 회차별 도움말은 그룹 헤더에 하나만 둔다 — 성분마다 달면 같은 문구가 15개 붙는다 */}
     {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
-      <SubAccordion key={i} title={`${i + 1}회 입력`} defaultOpen={i === 0}>
+      <SubAccordion
+        key={i}
+        title={`${i + 1}회 입력`}
+        defaultOpen={i === 0}
+        action={<HelpTip content={EXHAUST_GAS_HINT.reading} label={`${i + 1}회 입력 설명`} />}
+      >
         <div className={FIELD_GRID}>
           {GAS_ROWS.map((row) => (
             <UnitField
@@ -78,11 +86,21 @@ export const ExhaustGasSection = ({
             value={display(calc?.[row.avgKey] as number | null)}
           />
         ))}
-        <UnitField label={<>N<sub>2</sub> 평균</>} unit="%" readOnly value={display(calc?.n2)} />
-        <UnitField label="기준산소농도" unit="%" readOnly value={display(standardOxygen)} />
-        <UnitField label="산소보정계수" readOnly value={display(calc?.o2CorrectionFactor)} />
+        <UnitField
+          label={<>N<sub>2</sub> 평균</>} unit="%" readOnly value={display(calc?.n2)}
+          hint={EXHAUST_GAS_HINT.n2} hintLabel="N2 평균 설명"
+        />
+        <UnitField
+          label="기준산소농도" unit="%" readOnly value={display(standardOxygen)}
+          hint={EXHAUST_GAS_HINT.standardOxygen}
+        />
+        <UnitField
+          label="산소보정계수" readOnly value={display(calc?.o2CorrectionFactor)}
+          hint={EXHAUST_GAS_HINT.o2CorrectionFactor}
+        />
         <UnitField
           label={<>표준상태 배출가스밀도 (ρ)</>} unit="kg/Sm³" readOnly
+          hint={EXHAUST_GAS_HINT.standardGasDensity} hintLabel="표준상태 배출가스밀도 설명"
           value={display(calc?.standardGasDensity)}
         />
       </div>

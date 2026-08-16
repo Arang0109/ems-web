@@ -141,16 +141,16 @@ type StackDetailRow = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   height: string;
   horizontalLength: string;
   verticalLength: string;
   shape: Shape;
   orientation: Orientation;
+  standardOxygen: number | null;
   createdAt: string;
   modifiedAt: string;
-  preventions: { id: number; stackId: number; name: string; capacity: number | null; targetName: string; removalEfficiency: string }[];
+  preventions: { id: number; stackId: number; name: string; capacity: number | null; unit: string; targetName: string; removalEfficiency: string }[];
   facilities: { id: number; stackId: number; name: string; fuelUsage: string; productOutput: string; incinerationAmount: string; fuelInput: string; fuelType: string; unit: string }[];
 };
 
@@ -158,13 +158,13 @@ const stackDetails: Record<number, StackDetailRow> = {
   1001: {
     id: 1001, workplaceId: 101, field: 'AIR', name: '1호 굴뚝',
     semsNumber: 'SEMS-2025-001', grade: 'TYPE_1',
-    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    mainProduct: '산업용 화학품',
     height: '45.5', horizontalLength: '1.2', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: 4,
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2025-11-15T14:30:00',
     preventions: [
-      { id: 1, stackId: 1001, name: '전기집진시설', capacity: 500, targetName: '입자상', removalEfficiency: '95.1' },
-      { id: 2, stackId: 1001, name: '세정집진시설', capacity: null, targetName: '가스상', removalEfficiency: '90' },
+      { id: 1, stackId: 1001, name: '전기집진시설', capacity: 500, unit: 'm³/min', targetName: '입자상', removalEfficiency: '95.1' },
+      { id: 2, stackId: 1001, name: '세정집진시설', capacity: null, unit: '', targetName: '가스상', removalEfficiency: '90' },
     ],
     facilities: [
       { id: 1, stackId: 1001, name: '보일러 1호기', fuelUsage: '500', productOutput: '1200', incinerationAmount: '0', fuelInput: 'LNG', fuelType: '기체연료', unit: 'kg/h' },
@@ -174,12 +174,12 @@ const stackDetails: Record<number, StackDetailRow> = {
   1002: {
     id: 1002, workplaceId: 101, field: 'AIR', name: '2호 굴뚝',
     semsNumber: 'SEMS-2025-002', grade: 'TYPE_2',
-    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    mainProduct: '산업용 화학품',
     height: '30.0', horizontalLength: '0.8', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: 6,
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2026-01-20T11:00:00',
     preventions: [
-      { id: 3, stackId: 1002, name: '여과집진시설', capacity: 300, targetName: '입자상', removalEfficiency: '95.1' },
+      { id: 3, stackId: 1002, name: '여과집진시설', capacity: 300, unit: 'm³/min', targetName: '입자상', removalEfficiency: '95.1' },
     ],
     facilities: [
       { id: 3, stackId: 1002, name: '건조시설 1호기', fuelUsage: '300', productOutput: '800', incinerationAmount: '0', fuelInput: '등유', fuelType: '액체연료', unit: 'L/h' },
@@ -188,12 +188,12 @@ const stackDetails: Record<number, StackDetailRow> = {
   1008: {
     id: 1008, workplaceId: 106, field: 'WATER', name: '1호 배출구',
     semsNumber: 'SEMS-2024-008', grade: 'TYPE_3',
-    businessCategory: '기초화학물질 제조업', mainProduct: '합성수지',
+    mainProduct: '합성수지',
     height: '0.0', horizontalLength: '0.5', verticalLength: '0.3',
-    shape: 'RECTANGULAR', orientation: 'HORIZONTAL',
+    shape: 'RECTANGULAR', orientation: 'HORIZONTAL', standardOxygen: null,
     createdAt: '2024-05-12T08:00:00', modifiedAt: '2025-08-22T16:00:00',
     preventions: [
-      { id: 4, stackId: 1008, name: '폐수처리시설', capacity: 120, targetName: '용존성', removalEfficiency: '88' },
+      { id: 4, stackId: 1008, name: '폐수처리시설', capacity: 120, unit: 'm³/일', targetName: '용존성', removalEfficiency: '88' },
     ],
     facilities: [
       { id: 4, stackId: 1008, name: '반응조 1호기', fuelUsage: '0', productOutput: '450', incinerationAmount: '0', fuelInput: '-', fuelType: '-', unit: 'm³/일' },
@@ -203,9 +203,9 @@ const stackDetails: Record<number, StackDetailRow> = {
   1019: {
     id: 1019, workplaceId: 111, field: 'NOISE_VIBRATION', name: '측정지점 1',
     semsNumber: 'SEMS-2024-019', grade: 'TYPE_4',
-    businessCategory: '금속 가공제품 제조업', mainProduct: '금속부품',
+    mainProduct: '금속부품',
     height: '0.0', horizontalLength: '0.0', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: null,
     createdAt: '2024-02-14T10:00:00', modifiedAt: '2025-09-16T09:00:00',
     preventions: [],
     facilities: [

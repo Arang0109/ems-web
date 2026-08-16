@@ -24,7 +24,7 @@ const AddRowButton = ({ label, onClick }: { label: string; onClick: () => void }
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 text-body-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+    className="inline-flex items-center gap-1 text-body-2 text-brand-dark hover:underline"
   >
     <Plus className="size-4" /> {label}
   </button>

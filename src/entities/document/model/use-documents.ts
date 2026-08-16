@@ -18,6 +18,16 @@ export const useDocuments = (category?: DocumentCategory, options?: Options) => 
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState(0);
 
+  // 조회 조건(분류·활성 여부)이 바뀌면 즉시 로딩 상태로 되돌린다.
+  // effect 안에서 동기적으로 setState 하면 cascading render 가 되므로 렌더 중에 조정한다.
+  // 비활성으로 바뀌면 로딩도 아니다 — 여기서 내려주지 않으면 호출부가 영영 로딩으로 본다.
+  const requestKey = `${category ?? ''}|${enabled}`;
+  const [activeKey, setActiveKey] = useState(requestKey);
+  if (activeKey !== requestKey) {
+    setActiveKey(requestKey);
+    setLoading(enabled);
+  }
+
   const refetch = useCallback(() => {
     setLoading(true);
     setRevision((r) => r + 1);
@@ -26,7 +36,6 @@ export const useDocuments = (category?: DocumentCategory, options?: Options) => 
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
-    setLoading(true);
     documentApi.getDocuments(category)
       .then((res) => {
         if (cancelled) return;

@@ -122,6 +122,7 @@ export type WorkplaceSnapshotDto = {
   workplaceId: number;
   name: string;
   bizNumber: string;
+  businessCategory: string;
   roadAddress: string;
   detailAddress: string;
   zipcode: string;
@@ -135,7 +136,6 @@ export type StackSnapshotDto = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   standardOxygen: number | null;    // 기준산소농도 (계산 외부 입력) — 서버 Integer
   height: number | null;            // 치수/높이 — 서버 Double
@@ -164,6 +164,7 @@ export type PreventionSnapshotDto = {
   preventionId: number;
   name: string;
   capacity: number | null;          // 서버 Double
+  unit: string;                     // 용량의 단위(유량 단위)
   targetName: string;
   removalEfficiency: string;
 };
@@ -215,6 +216,8 @@ export type MeasurementItemSnapshotDto = {
   testMethod: string;
   cycle: MeasurementCycle;
   allowance: number | null;
+  /** 측정 시점의 산소보정 적용 여부 — 측정시설 원장(stack-pollutant)에서 스냅샷된 값 */
+  oxygenApplicable: boolean;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -377,7 +380,6 @@ export type ChangeStackSnapshotRequestBody = {
   name: string | null;
   semsNumber: string | null;
   grade: Grade | null;
-  businessCategory: string | null;
   mainProduct: string | null;
   standardOxygen: number | null;
   height: number | null;
@@ -390,6 +392,7 @@ export type ChangeStackSnapshotRequestBody = {
 export type ChangeWorkplaceSnapshotRequestBody = {
   name?: string | null;
   bizNumber?: string | null;
+  businessCategory?: string | null;
   roadAddress?: string | null;
   detailAddress?: string | null;
   zipcode?: string | null;
@@ -427,4 +430,11 @@ export type UpdateBasicInfoRequest = {
   samplingEndedAt: string | null;
   mentorName: string | null;            // 팀 원장은 변경하지 않고 문서 표기만 바꾼다
   menteeName: string | null;
+};
+
+// 진행 상태 변경 — PATCH /schedules/{id}/status
+// 전진(측정중·분석중)은 시트 저장·시료접수일 입력 시 서버가 자동 처리하므로,
+// 이 요청은 사용자가 확정하는 종료 전이(완료·취소)에 쓴다.
+export type ChangeScheduleStatusRequest = {
+  status: ScheduleStatus;
 };

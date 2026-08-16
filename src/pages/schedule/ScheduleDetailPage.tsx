@@ -7,6 +7,8 @@ export const ScheduleDetailPage = () => (
   <PageLayout
     title="측정계획 상세"
     description="측정정보·측정장비를 확인하고 현장 측정 데이터를 입력합니다."
+    showBack
+    backTo="/schedule"
   >
     <ScheduleProfile />
   </PageLayout>

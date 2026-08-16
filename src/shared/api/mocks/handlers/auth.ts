@@ -16,6 +16,9 @@ export const authHandlers = [
           tenant: '플랫폼',
           username: body.username,
           name: '운영자',
+          // 플랫폼 운영자는 tenant 소속이 아니라 팀이 없다 — 팀 미배정 경로 확인용
+          teamId: null,
+          teamName: null,
           role: 'PLATFORM_ADMIN',
         },
       });
@@ -30,6 +33,9 @@ export const authHandlers = [
           tenant: '엔솔루션',
           username: body.username,
           name: '김관리',
+          // team.ts 목 데이터의 1번 팀. 측정계획 목록·대시보드의 "내 팀" 기본 필터 확인용
+          teamId: 1,
+          teamName: '대기측정 1팀',
           role: 'ADMIN', // 관리자 페이지 접근 테스트용. 일반 사용자 흐름 확인 시 'USER'로 변경
         },
       });

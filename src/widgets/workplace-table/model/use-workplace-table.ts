@@ -19,7 +19,17 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
 
   const tableData = useMemo(() => workplaces.map(toWorkplaceRows), [workplaces]);
 
-  const handleViewDetail = () => {
+  const handleRowClick = onRowClick
+    ? (row: WorkplaceTableRow) => {
+        const item = workplaces.find(w => w.id === row.id);
+        if (item) onRowClick(item);
+      }
+    : undefined;
+
+  // 상세 폼은 목록(WorkplaceListItem)이 아닌 상세(Workplace)를 요구하므로,
+  // 그 행을 선택해 부모가 상세를 조회하게 한 뒤 모달을 연다.
+  const handleViewDetail = (row: WorkplaceTableRow) => {
+    handleRowClick?.(row);
     setDetailOpen(true);
   };
 
@@ -29,13 +39,6 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
     pageSize: 4,
     onViewDetail: handleViewDetail,
   });
-
-  const handleRowClick = onRowClick
-    ? (row: WorkplaceTableRow) => {
-        const item = workplaces.find(w => w.id === row.id);
-        if (item) onRowClick(item);
-      }
-    : undefined;
 
   return {
     table,

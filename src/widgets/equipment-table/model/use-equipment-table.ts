@@ -1,13 +1,5 @@
 import { useState, useMemo } from 'react';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
 import { useEquipments } from '@entities/equipment';
 import type { EquipType, InspectionType } from '@shared/model';
 
@@ -15,27 +7,24 @@ import { defaultColumns } from './columns';
 import { toEquipmentRows } from './mapper';
 import type { EquipmentTableRow } from './types';
 
-import { useTableState } from '@shared/model';
+import { useDataTable } from '@shared/model';
 
 import { TABLE_PAGE_SIZE } from "@shared/config";
 
 interface Props {
   type: EquipType;
-  onRowClick: (equipmentId: string) => void;
   onSuccess?: () => void;
 }
 
-export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
+export const useEquipmentTable = ({ type, onSuccess }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   // 검사 이력은 상세 모달의 검사 행에서 열리며, 어느 검사 종류인지가 함께 필요하다.
   const [inspectionModalOpen, setInspectionModalOpen] = useState(false);
   const [inspectionType, setInspectionType] = useState<InspectionType | null>(null);
+  /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
+  const [detailEquipmentId, setDetailEquipmentId] = useState<string | null>(null);
 
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.COMPACT });
   const { data, loading, error, refetch: equipmentRefetch } = useEquipments(type);
 
   const tableData = useMemo(
@@ -43,7 +32,15 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
     [data]
   );
 
-  const handleViewDetail = () => {
+  // Row 는 표시용 포맷 값이라 폼 초기값으로 쓸 수 없다. 목록 원본에서 같은 id 를 찾는다.
+  // id 만 보관하고 파생시켜야 검사 이력 등록 등으로 refetch 된 뒤에도 최신 값을 따른다.
+  const detailEquipment = useMemo(
+    () => data.find((equipment) => equipment.id === detailEquipmentId) ?? null,
+    [data, detailEquipmentId],
+  );
+
+  const handleViewDetail = (row: EquipmentTableRow) => {
+    setDetailEquipmentId(row.id);
     setUpdateModalOpen(true);
   };
 
@@ -57,35 +54,21 @@ export const useEquipmentTable = ({ type, onRowClick, onSuccess }: Props) => {
     onSuccess?.();
   };
 
-  const table = useReactTable({
-    columns: defaultColumns,
+  const { table, globalFilter, setGlobalFilter } = useDataTable<EquipmentTableRow>({
     data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    meta: { onViewDetail: handleViewDetail },
+    columns: defaultColumns,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,
+    onViewDetail: handleViewDetail,
   });
-
-  const handleRowClick = (row: EquipmentTableRow) => {
-    onRowClick(row.id);
-  };
 
   return {
     table,
 
-    handleRowClick,
+    handleRowClick: handleViewDetail,
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+    detailEquipment,
 
     inspectionModalOpen, setInspectionModalOpen,
     inspectionType, handleOpenInspectionHistory,

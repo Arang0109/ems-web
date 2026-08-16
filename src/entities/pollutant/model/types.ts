@@ -20,3 +20,13 @@ export type PollutantCreate = {
   equipment: string,
   testMethod: string
 }
+
+export type PollutantUpdate = {
+  field: MeasurementField,
+  nameKr: string,
+  nameEn: string,
+  method: MeasurementMethod,
+  phase: PollutantPhase,
+  equipment: string,
+  testMethod: string
+}

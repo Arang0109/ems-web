@@ -1,4 +1,5 @@
 import { documentCategoryOptions } from "@shared/model";
+import type { DocumentCategory } from "@shared/model";
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
@@ -10,7 +11,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** 활성 탭의 분류를 기본 선택한다. */
-  defaultCategory?: string;
+  defaultCategory?: DocumentCategory | '';
   onSuccess?: () => void;
 }
 

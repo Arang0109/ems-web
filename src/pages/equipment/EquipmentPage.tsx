@@ -5,22 +5,11 @@ import { EQUIP_TYPE_LABEL } from "@shared/config";
 
 import { EquipmentTable } from "@widgets/equipment-table";
 
-import { useEquipmentSelection } from "./model/use-equipment-selection";
-
 export const EquipmentPage = () => {
-  const { selectedEquipment, handleSelectEquipmentRow, refetchSelectedEquipment } = useEquipmentSelection();
-
   const tabOptions = EQUIP_TYPE.map((type) => ({
     value: type,
     label: EQUIP_TYPE_LABEL[type],
-    content: (
-      <EquipmentTable
-        type={type}
-        selectedEquipment={selectedEquipment}
-        onRowClick={handleSelectEquipmentRow}
-        onSuccess={refetchSelectedEquipment}
-      />
-    ),
+    content: <EquipmentTable type={type} />,
   }));
 
   return (

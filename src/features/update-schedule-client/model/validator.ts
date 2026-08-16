@@ -34,7 +34,7 @@ export const validateScheduleClientFields = (form: ScheduleClientUpdateForm) => 
     errors.verticalLength = "세로 길이를 입력해주세요.";
   }
 
-  // standardOxygen·businessCategory·mainProduct는 선택 항목이라 빈 값을 허용한다.
+  // standardOxygen·workplaceBusinessCategory·mainProduct는 선택 항목이라 빈 값을 허용한다.
   for (const key of NUMERIC_FIELDS) {
     const raw = form[key].trim();
     if (raw && Number.isNaN(Number(raw.replace(/[,\s]/g, "")))) {

@@ -18,7 +18,7 @@ const CARDS = [
 export const OverallStatsWidget = ({ summary }: Props) => (
   <SummaryCardGroup
     title="전체 통계"
-    gridClassName="grid grid-cols-1 gap-3 sm:grid-cols-3"
+    gridClassName="grid grid-cols-1 gap-3 md:grid-cols-2"
     items={CARDS.map((card) => ({ ...card, count: summary[card.id] }))}
   />
 );

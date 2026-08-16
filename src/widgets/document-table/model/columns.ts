@@ -1,19 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import type { RowData } from "@tanstack/react-table";
 
 import { RowActionCell } from "@shared/ui/table";
 
 import { CustomCell, DownloadCell } from "../ui/Cells";
-import type { DocumentTableRow, DocumentVersionTableRow } from "./types";
-
-// 다운로드 콜백은 이 파일에서만 선언한다(version-columns.ts는 선언 없이 사용).
-declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    onDownloadDocument?: (row: DocumentTableRow) => void;
-    onDownloadDocumentVersion?: (row: DocumentVersionTableRow) => void;
-  }
-}
+import type { DocumentTableRow } from "./types";
 
 const columnHelper = createColumnHelper<DocumentTableRow>();
 

@@ -27,10 +27,9 @@ export const ClientManagementPage = () => {
   return (
     <PageLayout
       title="거래처 관리"
-      description="측정대행 의뢰기관, 측정대상 사업장, 측정시설 목록이 표시됩니다."
+      description="측정대행 의뢰기관, 측정대상 사업장, 측정지점(굴뚝) 목록이 표시됩니다."
     >
       <ClientTable
-        selectedClient={selectedClient}
         onRowClick={onSelectClient}
         onSuccess={refetchWorkplaces}
       />

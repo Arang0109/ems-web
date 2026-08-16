@@ -117,6 +117,56 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 통과: Ink 17.30 / Warning+Ink 8.05 / Ink Soft 7.56 / **Dark 5.86** / Warning Ink 5.59 / Dark on Soft 5.39
 </details>
 
+### 컬러 — 다크 (`.dark`)
+
+`.dark` 는 **위 원시 팔레트 15개만 재정의한다.** shadcn shim(`--background` 등) · `--sidebar-*` ·
+`--chart-*` 는 `:root` 에서 이미 `var(--팔레트)` 참조이므로 다크에서 다시 선언하지 않는다.
+덕분에 `bg-canvas`·`text-ink`·`border-rule` 같은 팔레트 유틸을 쓰는 코드 전체가 자동으로 따라온다.
+
+뉴트럴에 브랜드 초록 색조를 아주 낮은 채도로 섞은 **그린 틴티드 다크**다.
+
+| 그룹 | 토큰 | 라이트 | 다크 | 용도 |
+|---|---|---|---|---|
+| Brand | `--brand-primary` | `#239861` | `#2fa96e` | Primary action · Selected — **면 전용** |
+| | `--brand-dark` | `#197347` | `#56c892` | 배경 위 글씨·아이콘 · Hover |
+| | `--brand-soft` | `#edf8f2` | `#16342a` | Selected background |
+| Neutral | `--canvas` | `#f7f8f8` | `#0e1311` | App background |
+| | `--surface` | `#ffffff` | `#171d1a` | Panel · Field |
+| | `--ink` | `#161b22` | `#e8ecea` | Primary text |
+| | `--ink-soft` | `#4b5563` | `#a8b3ae` | Secondary text |
+| | `--muted-ink` | `#8b95a1` | `#7b8781` | Caption · Hint |
+| | `--rule` | `#e5e9e7` | `#252d29` | Divider · Border |
+| | `--rule-dark` | `#d7ddda` | `#38423d` | 입력 테두리 · Strong divider |
+| Status | `--danger` | `#e5484d` | `#ff6369` | Delay · Error |
+| | `--danger-soft` | `#fff0f1` | `#2a1517` | Error background |
+| | `--warning` | `#f59e0b` | `#ffb224` | Attention |
+| | `--warning-ink` | `#a45108` | `#ffcb47` | Warning text · Icon |
+| | `--warning-soft` | `#fff7e6` | `#2b1d06` | Warning background |
+
+> ⚠️ **다크에서는 `--brand-dark` 가 `--brand-primary` 보다 밝다.** 토큰 이름은 강조 계층을
+> 뜻하지 명도 방향이 아니다 — "밝은 배경 위 글씨"가 "어두운 배경 위 글씨"로 역할이 뒤집히기 때문이다.
+> `bg-brand-primary hover:bg-brand-dark`(Primary 버튼)는 두 모드 모두 "hover 시 강조" 방향을 유지한다.
+
+**대비 검증 (WCAG 2.1)** — 다크는 라이트 미달 항목이 전부 해소된다.
+
+| 조합 | 대비 | 판정 | 라이트 대비 |
+|---|---|---|---|
+| Ink on Canvas | 17.6:1 | AAA | 17.30 |
+| Ink Soft on Surface | 7.9:1 | AAA | 7.56 |
+| Muted on Canvas | 4.98:1 | AA | — |
+| Muted on Surface | 4.58:1 | AA | 3.04 ❌ → 해소 |
+| Primary 면 + Surface 글씨 (Primary 버튼) | 5.71:1 | AA | 3.66 ❌ → 해소 |
+| Dark on Surface | 8.2:1 | AAA | 5.86 |
+| Dark on Soft (Selected · Badge) | 6.46:1 | AA | 5.39 |
+| Danger on Danger Soft | 5.97:1 | AA | — |
+| Warning Ink on Warning Soft | 10.8:1 | AAA | 8.05 |
+
+다크 Primary 버튼은 **밝은 초록 면 + 어두운 글씨**다(`text-surface` 가 `#171d1a` 로 뒤집힘).
+라이트(초록 면 + 흰 글씨)와 인상이 다르지만, 대비를 확보하기 위한 의도된 차이다.
+
+`:root`/`.dark` 에 `color-scheme: light`/`dark` 를 선언해 네이티브 스크롤바 ·
+`<input type="date">` 피커 · autofill 도 테마를 따른다.
+
 ### 타이포그래피
 
 유틸리티 하나가 **size·line-height·letter-spacing·weight 4개 속성**을 모두 적용한다.
@@ -184,12 +234,15 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `Badge` | `shared/ui/badges/Badge.tsx` | pill. 5개 톤 |
 | `StatusDot` | `shared/ui/badges/StatusDot.tsx` | 운영 상태 — 점 + 텍스트 |
 | `Toaster` | `shared/ui/toasts/Toaster.tsx` | sonner 래퍼 |
+| `ConfirmDialog` | `shared/ui/dialogs/ConfirmDialog.tsx` | 확인 다이얼로그. Base UI `alert-dialog` 직접 사용 (shadcn 래퍼 미경유). 호출은 `useConfirm` |
 | `Tabs` | `shared/ui/tabs/Tabs.tsx` | 언더라인형. Base UI `tabs` 직접 사용 (shadcn 래퍼 미경유) |
+| `Tooltip`, `HelpTip` | `shared/ui/tooltip/` | 말풍선(Ink 면 + Surface 글씨) + 라벨 옆 도움말 아이콘. Base UI `tooltip` 직접 사용. hover 가 `mouseOnly` 라 **터치에서 열리도록 클릭 토글을 얹었다** |
 | `SectionAccordion` | `shared/ui/accordion/SectionAccordion.tsx` | 섹션 카드 — 제목 + 진행도 배지 + 접이식 본문. 제어/비제어 모두 지원 |
 | `SubAccordion` | `shared/ui/accordion/SubAccordion.tsx` | 섹션 안의 중첩 그룹 (`bg-canvas`) |
 | `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select 모드 지원 |
 | `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 행 (좌 라벨 / 우 값+단위) |
-| `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행 (좌 라벨 / 우 값 + 하단 구분선). MO 48px → 데스크탑 38px |
+| `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행. MO 좌 라벨 / 우 값(48px, 하단 구분선) → 데스크탑 고정폭 라벨 열(7rem) + 값 가로 정렬(구분선 없음, ~32px). `span` 으로 긴 값에 열 확장 |
+| `DetailGrid` | `shared/ui/form/DetailGrid.tsx` | `DetailRow` 전용 그리드 셸. `cols` 1·2·3(기본 3 = md 2열 / xl 3열). 열 간격은 넓게·행 간격은 데스크탑에서 좁게 |
 | `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기 |
 | `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
 | `PageLayout` | `shared/ui/layout/PageLayout.tsx` | 페이지 셸 — 제목 + 액션 + 본문 |
@@ -368,31 +421,33 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 
 ### 1순위 — 이미 결정됐으나 미실행
 
-**다크모드 제거** (라이트 전용으로 가기로 결정)
-- `index.css` 의 `.dark` 블록 · `@custom-variant dark` 삭제
-- `app-provider.tsx` 의 `ThemeProvider` 제거
-- `shared/ui/theme/ThemeToggle.tsx` 삭제 (사용처: `SidebarUserFooter` 1곳)
-- `shared/ui/toasts/Toaster.tsx` 의 `useTheme()` → `theme="light"` 고정
-- `dark:` variant 제거 — **13개 파일** (`components/ui/`{checkbox,input,radio-group,select},
-  `components/variants/buttonVariants.ts`, `features/`{register-equipment/SpecFields,
-  register-stack-pollutant/Form, update-equipment/InspectionFields, update-equipment/SpecFields},
-  `shared/ui/primitives/`{Field,InputGroup,Textarea}, `widgets/stack-table/ui/StackTable`)
-- `package.json` 의 `next-themes` 제거
-- ⚠️ 현재 다크 토글을 누르면 구 shadcn neutral 팔레트가 나온다. `defaultTheme="light"` 라 기본 사용엔 영향 없음
+~~**다크모드 제거**~~ — **결정 번복. 다크모드를 정식 지원한다.**
 
-**하드코딩 팔레트 직색 치환 — 5곳** (Success/Info 는 브랜드 초록으로 통합하기로 결정)
+기존 `.dark` 블록은 shadcn 스캐폴딩 값(회색 `--primary`, 파랑 `--sidebar-primary`, 보라 `--chart-*`)이라
+브랜드와 무관했고, 더 결정적으로 **원시 팔레트 15개를 재정의하지 않아** 다크 전환 시
+`bg-canvas`·`text-ink` 를 쓰는 코드 335회/62파일이 라이트 값으로 남았다.
 
-실측 재집계 결과 초기 추정(62곳)보다 훨씬 적다. 남은 것은 전부 "링크형 텍스트 버튼"의 파랑이다.
+→ `.dark` 를 **원시 팔레트 15개 재정의**로 교체하여 해소했다("컬러 — 다크" 절 참조).
+`ThemeProvider`(`enableSystem={false}`, `defaultTheme="light"`) · `ThemeToggle` · `next-themes` 는 유지한다.
 
-- `features/register-equipment/ui/SpecFields.tsx:27` — `text-blue-600 hover:text-blue-700`
+~~**하드코딩 팔레트 직색 치환 — 5곳**~~ — **완료.** (Success/Info 는 브랜드 초록으로 통합)
+
+전부 "링크형 텍스트 버튼"의 파랑이었고, `dark:` 를 덧붙이는 대신 토큰으로 바꿔 `dark:` 자체를 없앴다.
+`button-variants.ts` 의 `link` variant 와 같은 표현(`text-brand-dark` + `hover:underline`)으로 통일했다.
+
+- `features/register-equipment/ui/SpecFields.tsx:27` — 파랑 직색 → `text-brand-dark hover:underline`
 - `features/update-equipment/ui/SpecFields.tsx:27` — 위와 동일
 - `features/update-equipment/ui/InspectionFields.tsx:76` — 위와 동일
 - `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx:56` — 위와 동일
-- `widgets/stack-table/ui/StackTable.tsx:37` — 라이트는 이미 `text-brand-primary`,
-  `dark:text-blue-400` 만 잔존 (다크모드 제거 항목과 중복)
+- `widgets/stack-table/ui/StackTable.tsx:41` — 파랑 `dark:` 변형만 제거
+  (라이트의 `text-brand-primary` 유지. 다크에서 `#2fa96e` on Surface = 5.71:1)
 
-여기에 `components/variants/buttonVariants.ts` 의 variant 색상이 남아 있으나
-이 파일은 shadcn 제거 4단계에서 통째로 없어진다.
+> ℹ️ Tailwind v4 는 `.md` 도 스캔한다. 문서에 팔레트 직색 클래스명을 그대로 적으면
+> 쓰이지 않는 유틸이 산출 CSS 에 생성되므로, 위처럼 풀어 쓴다.
+
+여기에 `components/variants/buttonVariants.ts` 의 emerald/amber/sky variant 가 남아 있으나
+**호출부가 0건**이고(`components/ui/button.tsx` 만 import, 해당 variant 지정 없음)
+이 파일은 shadcn 제거 4단계에서 통째로 없어지므로 손대지 않았다.
 
 > 완료분: `widgets/metrics/MeasurementChart.tsx`(차트 색 토큰화),
 > `shared/ui/cards/SummaryCard.tsx`(색 스킴 prop 자체가 제거되어 토큰만 사용),
@@ -412,7 +467,7 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | **`TablePanel` 헤더 여백** | 현행 인라인 헤더(`px-5 pt-5 pb-4 border-b`) vs `TablePanel`(`bg-canvas p-2`). 11개 화면 시각 변화를 동반한다 |
 | **사이드바 메뉴 글꼴** | `text-body-1`(14/700, 스펙) / `font-semibold`(14/600, 요청) / 활성 항목만 강조 |
 | **`IconButton` 기본 variant** | `ghost`(현재, 테두리 없음) / `outline`(피그마 ICON ONLY) — 테이블 행 12곳에 영향 |
-| **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가 |
+| **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가. `.dark` 는 `:root` 의 팔레트 참조를 그대로 상속하므로 여기서 확정하면 두 모드에 동시 반영된다 |
 | **`Danger Ink` 신설** | Warning 에는 텍스트용 `#a45108` 이 있으나 Danger 에는 없음 |
 
 ### 4순위 — 정리

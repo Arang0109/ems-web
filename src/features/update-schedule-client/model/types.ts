@@ -17,6 +17,7 @@ export type ScheduleClientUpdateForm = {
   // 사업장
   workplaceName: string;
   workplaceBizNumber: string;
+  workplaceBusinessCategory: string;
   workplaceGrade: Grade;
   workplaceZipcode: string;
   workplaceRoadAddress: string;
@@ -26,7 +27,6 @@ export type ScheduleClientUpdateForm = {
   stackName: string;
   stackSemsNumber: string;
   stackGrade: Grade;
-  businessCategory: string;
   mainProduct: string;
   standardOxygen: string;
   height: string;
@@ -47,6 +47,7 @@ export const getDefaultForm = (): ScheduleClientUpdateForm => ({
   tel: "",
   workplaceName: "",
   workplaceBizNumber: "",
+  workplaceBusinessCategory: "",
   workplaceGrade: "TYPE_1",
   workplaceZipcode: "",
   workplaceRoadAddress: "",
@@ -55,7 +56,6 @@ export const getDefaultForm = (): ScheduleClientUpdateForm => ({
   stackName: "",
   stackSemsNumber: "",
   stackGrade: "TYPE_1",
-  businessCategory: "",
   mainProduct: "",
   standardOxygen: "",
   height: "",

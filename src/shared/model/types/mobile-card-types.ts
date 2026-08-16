@@ -11,13 +11,16 @@ export type CardContent<TData> =
   | string
   | ((row: TData, table: Table<TData>) => ReactNode);
 
-/** 카드 본문 2열 그리드의 한 칸 */
+/** 카드 본문 그리드의 열 수 */
+export type MobileCardColumns = 1 | 2 | 3;
+
+/** 카드 본문 그리드의 한 칸 */
 export interface MobileCardField<TData> {
   /** 미지정이고 `content` 가 컬럼 id 면 해당 컬럼의 문자열 header 로 폴백 */
   label?: string;
   content: CardContent<TData>;
-  /** 두 칸 모두 차지 */
-  fullWidth?: boolean;
+  /** 차지할 열 수. `'full'` 은 열 수와 무관하게 행 전체. 기본 1 */
+  span?: MobileCardColumns | 'full';
 }
 
 /**
@@ -36,5 +39,10 @@ export interface MobileCardConfig<TData> {
    * 카드 클릭 전파 차단은 `MobileCardList` 가 책임진다.
    */
   actions?: CardContent<TData> | CardContent<TData>[];
+  /**
+   * 본문 그리드 열 수. 기본 1.
+   * 행은 선언 순서대로 채워지므로 배치는 `columns` + 필드별 `span` 으로만 표현한다.
+   */
+  columns?: MobileCardColumns;
   fields?: MobileCardField<TData>[];
 }

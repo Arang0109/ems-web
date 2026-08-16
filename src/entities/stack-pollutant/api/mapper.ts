@@ -12,6 +12,7 @@ export const toStackPollutantListItem = (
     nameEn: dto.nameEn,
     cycle: dto.cycle,
     allowance: dto.allowance,
+    oxygenApplicable: dto.oxygenApplicable,
   }
 });
 
@@ -26,6 +27,7 @@ export const toRegisterStackPollutantRequest = (
   pollutantId: vo.pollutantId,
   cycle: vo.cycle,
   allowance: vo.allowance,
+  oxygenApplicable: vo.oxygenApplicable,
 })
 
 export const toRegisterStackPollutantRequests = (

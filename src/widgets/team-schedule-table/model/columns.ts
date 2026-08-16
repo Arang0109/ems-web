@@ -2,7 +2,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 
 import type { TeamScheduleTableRow } from './types';
 
-import { CustomCell, PathCell } from '../ui/Cells';
+import { CustomCell, StatusBadgeCell } from '../ui/Cells';
+import { RowActionCell } from '@shared/ui/table';
 
 const columnHelper = createColumnHelper<TeamScheduleTableRow>();
 
@@ -29,10 +30,10 @@ export const defaultColumns = [
   }),
   columnHelper.accessor('status', {
     header: '상태',
-    cell: CustomCell,
+    cell: StatusBadgeCell,
   }),
   columnHelper.display({
-    id: 'path',
-    cell: PathCell,
+    id: 'actions',
+    cell: RowActionCell,
   })
 ];

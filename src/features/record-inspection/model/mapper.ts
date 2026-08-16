@@ -1,7 +1,5 @@
 import type { InspectionRecordForm } from "./types";
 import type { InspectionRecordCreate } from "@entities/equipment";
-import type { InspectionResult } from "@shared/model";
-
 import { trimValue } from "@shared/lib";
 
 export const toInspectionRecordCreate = (form: InspectionRecordForm): InspectionRecordCreate => ({
@@ -11,6 +9,6 @@ export const toInspectionRecordCreate = (form: InspectionRecordForm): Inspection
   validUntil: form.validUntil || null,
   agency: trimValue(form.agency),
   certificateNumber: trimValue(form.certificateNumber),
-  result: form.result ? (form.result as InspectionResult) : null,
+  result: form.result || null,
   remark: trimValue(form.remark),
 });

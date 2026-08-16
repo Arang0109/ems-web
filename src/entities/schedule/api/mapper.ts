@@ -57,7 +57,6 @@ const toChangeStackBody = (vo: StackSnapshotUpdate): ChangeStackSnapshotRequestB
   name: vo.name,
   semsNumber: vo.semsNumber,
   grade: vo.grade,
-  businessCategory: vo.businessCategory,
   mainProduct: vo.mainProduct,
   standardOxygen: vo.standardOxygen,
   height: vo.height,
@@ -80,6 +79,7 @@ export const toChangeClientRequest = (vo: ClientSnapshotUpdate): ChangeClientSna
   workplace: vo.workplace && {
     name: vo.workplace.name,
     bizNumber: vo.workplace.bizNumber,
+    businessCategory: vo.workplace.businessCategory,
     roadAddress: vo.workplace.roadAddress,
     detailAddress: vo.workplace.detailAddress,
     zipcode: vo.workplace.zipcode,

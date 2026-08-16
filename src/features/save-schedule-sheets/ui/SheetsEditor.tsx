@@ -7,6 +7,7 @@ import type { MeasurementCategory } from "@shared/model";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { Select } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
+import { useConfirm } from "@shared/ui/dialogs";
 import { StickyActionBar } from "@shared/ui/layout";
 
 import { useSaveSheets } from "../model/hooks/use-save-sheets";
@@ -37,6 +38,19 @@ export const SheetsEditor = ({ scheduleId, snapshot, editable, externals, onSave
   const [newCategory, setNewCategory] = useState<MeasurementCategory>("GAS");
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  const confirm = useConfirm();
+
+  // 탭 하나가 기록지 한 장이라 입력한 측정값이 통째로 사라진다. 저장 시 서버 시트도 함께 지워진다.
+  const handleRemoveSheet = async (index: number, category: MeasurementCategory) => {
+    const isConfirmed = await confirm({
+      title: "기록지 삭제",
+      description: `${MEASUREMENT_CATEGORY_LABEL[category]} 기록지를 삭제합니다.\n입력한 측정값이 사라집니다.`,
+      confirmLabel: "삭제",
+      tone: "danger",
+    });
+    if (isConfirmed) removeSheet(index);
+  };
+
   return (
     <div className="space-y-4">
         {/* 측정계획 단위 공통 값이므로 시트 탭 바깥에 둔다(시트 전환·시트 0개와 무관하게 유지). */}
@@ -65,7 +79,7 @@ export const SheetsEditor = ({ scheduleId, snapshot, editable, externals, onSave
               {editable && (
                 <button
                   type="button"
-                  onClick={() => removeSheet(index)}
+                  onClick={() => handleRemoveSheet(index, sheet.category)}
                   aria-label={`${MEASUREMENT_CATEGORY_LABEL[sheet.category]} 기록지 삭제`}
                   className="text-muted-ink hover:text-danger"
                 >
@@ -110,9 +124,9 @@ export const SheetsEditor = ({ scheduleId, snapshot, editable, externals, onSave
 
           {/* 시트가 0개면 이 바가 없어 공통 채취시간만 단독 저장할 수는 없다.
               시트 0개로 PUT /sheets를 보내면 전체 시트 삭제가 되므로 현 구조를 유지한다. */}
-          <StickyActionBar className="rounded-t-panel">
+          <StickyActionBar className="rounded-t-panel flex items-center justify-center">
             <Button type="button" variant="soft" onClick={() => setPreviewOpen(true)}>
-              <FileCheck size={19} />기록지 미리보기
+              <FileCheck size={19} />미리보기
             </Button>
 
             {editable && (
@@ -125,12 +139,11 @@ export const SheetsEditor = ({ scheduleId, snapshot, editable, externals, onSave
                   onClick={() => setExportDialogOpen(true)}
                   disabled={isLoading || scheduleId == null}
                 >
-                  <Download size={19} />
-                  <span className="max-md:sr-only">저장 후 채취기록지 다운로드</span>
+                  <Download size={19} />다운로드
                 </Button>
                 <Button type="button" onClick={handleSave} disabled={isLoading || scheduleId == null}>
                   <Save size={19} />
-                  {isLoading ? "저장 중..." : "측정 데이터 저장"}
+                  {isLoading ? "저장 중..." : "저장"}
                 </Button>
               </>
             )}

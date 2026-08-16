@@ -16,11 +16,16 @@ export const ContractDetailPage = () => {
   }, [contractId, fetchContract]);
 
   return (
-    <PageLayout title="계약서 상세" description="계약서 상세정보 관리 페이지입니다.">
+    <PageLayout
+      title="계약서 상세"
+      description="계약서 상세정보 관리 페이지입니다."
+      showBack
+      backTo="/contracts"
+    >
       {loading && <p className="text-body-2 text-muted-foreground">불러오는 중...</p>}
       {error && <p className="text-body-2 text-destructive">{error}</p>}
       {data && (
-        <Panel>
+        <Panel className="px-5 pt-5 pb-4 border-b border-border">
           <ContractDetailForm key={data.id} contract={data} />
         </Panel>
       )}

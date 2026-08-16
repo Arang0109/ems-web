@@ -1,4 +1,4 @@
-import type { InspectionType } from "@shared/model";
+import type { InspectionType, EquipType, PitotTubeType } from "@shared/model";
 import { INSPECTION_TYPE } from "@shared/model";
 
 // 검사(inspection) 폼 — 장비는 검사 종류 3종을 항상 전부 보유하고, 대상 여부는 `enabled`로 표현한다.
@@ -25,13 +25,13 @@ export type EquipmentSpecForm = {
   totalVolume: string;   // 입자샘플러/가스샘플러/기타
   orificeDp: string;     // 입자샘플러
   yd: string;            // 입자샘플러
-  pitotTubeType: string; // 피토관
+  pitotTubeType: PitotTubeType | ''; // 피토관 (미선택은 '')
   coefficients: { coefficient: string; velocity: string }[]; // 피토관
   diameters: { diameter: string }[];                          // 노즐
 };
 
 export type EquipmentRegisterForm = {
-  type: string;   // EquipType Select 값
+  type: EquipType | '';   // 미선택은 ''
   managementNumber: string;
   serialNumber: string;
   modelName: string;
@@ -55,7 +55,9 @@ export const getDefaultSpecForm = (): EquipmentSpecForm => ({
   diameters: [],
 });
 
-export const getDefaultEquipmentRegisterForm = (type: string = ''): EquipmentRegisterForm => ({
+export const getDefaultEquipmentRegisterForm = (
+  type: EquipType | '' = '',
+): EquipmentRegisterForm => ({
   type,
   managementNumber: '',
   serialNumber: '',

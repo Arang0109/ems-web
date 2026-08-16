@@ -8,17 +8,15 @@ import { BasicTable, TableFooterBar } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { EQUIP_TYPE_LABEL } from '@shared/config';
 import type { EquipType } from '@shared/model';
-import type { Equipment } from '@entities/equipment';
+import { useRemountKey } from '@shared/model';
 import { Panel } from '@shared/ui/cards';
 
 interface Props {
   type: EquipType;
-  selectedEquipment: Equipment | null;
-  onRowClick: (equipmentId: string) => void;
   onSuccess?: () => void;
 }
 
-export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess }: Props) => {
+export const EquipmentTable = ({ type, onSuccess }: Props) => {
   const {
     table,
 
@@ -26,6 +24,7 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+    detailEquipment,
 
     inspectionModalOpen, setInspectionModalOpen,
     inspectionType, handleOpenInspectionHistory,
@@ -33,7 +32,12 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
     globalFilter, setGlobalFilter,
 
     loading, error, refetch,
-  } = useEquipmentTable({ type, onRowClick, onSuccess });
+  } = useEquipmentTable({ type, onSuccess });
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerModalOpen);
+  const updateFormKey = useRemountKey(updateModalOpen);
+  const inspectionFormKey = useRemountKey(inspectionModalOpen);
 
   return (
     <Panel className="p-0 flex flex-col">
@@ -44,6 +48,7 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
         <div className="flex items-center justify-end gap-2">
           <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 장비명 검색 ...'} />
           <RegisterEquipmentForm
+            key={registerFormKey}
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
             defaultType={type}
@@ -60,23 +65,23 @@ export const EquipmentTable = ({ type, selectedEquipment, onRowClick, onSuccess 
         <TableFooterBar table={table} className="bg-panel py-1" />
       )}
 
-      {/* key에 modifiedAt을 포함해 검사 이력 등록 등으로 장비가 갱신되면 폼이 새 값으로 리마운트되게 한다. */}
+      {/* key에 modifiedAt을 포함해 검사 이력 등록 등으로 장비가 갱신되면(열린 채로) 폼이 새 값으로 리마운트되게 한다. */}
       <UpdateEquipmentForm
-        key={selectedEquipment ? `${selectedEquipment.id}-${selectedEquipment.modifiedAt}` : undefined}
+        key={`${updateFormKey}-${detailEquipment?.id}-${detailEquipment?.modifiedAt}`}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
-        equipment={selectedEquipment}
+        equipment={detailEquipment}
         onSuccess={refetch}
         onOpenInspectionHistory={handleOpenInspectionHistory}
       />
 
       {inspectionType && (
         <InspectionHistoryDialog
-          key={`${selectedEquipment?.id}-${inspectionType}`}
+          key={`${inspectionFormKey}-${detailEquipment?.id}-${inspectionType}`}
           open={inspectionModalOpen}
           onOpenChange={setInspectionModalOpen}
-          equipmentId={selectedEquipment?.id ?? null}
-          equipmentName={selectedEquipment?.equipmentName ?? ''}
+          equipmentId={detailEquipment?.id ?? null}
+          equipmentName={detailEquipment?.equipmentName ?? ''}
           type={inspectionType}
           onSuccess={refetch}
         />

@@ -1,15 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import type { RowData } from "@tanstack/react-table";
 
-import { CustomCell, ActionCell } from "../ui/Cells";
+import { CustomCell } from "../ui/Cells";
 import type { TeamTableRow } from "./types";
-
-declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    onViewTeamDetail?: (row: TeamTableRow) => void;
-  }
-}
+import { RowActionCell } from "@shared/ui/table"
 
 const columnHelper = createColumnHelper<TeamTableRow>();
 
@@ -28,6 +21,6 @@ export const defaultColumns = [
   }),
   columnHelper.display({
     id: 'actions',
-    cell: ActionCell,
+    cell: RowActionCell,
   }),
 ];

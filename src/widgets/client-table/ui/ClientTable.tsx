@@ -6,15 +6,14 @@ import { UpdateClientForm } from '@features/update-client';
 
 import { BasicTable, TableFooterBar, TablePanel } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
-import type { Client } from '@entities/client';
+import { useRemountKey } from '@shared/model';
 
 interface Props {
-  selectedClient: Client | null;
   onRowClick: (clientId: number) => void;
   onSuccess?: () => void;
 }
 
-export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) => {
+export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
   const {
     table,
 
@@ -22,11 +21,16 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+    detailClient,
 
     globalFilter, setGlobalFilter,
 
     loading, error, refetch
   } = useClientTable({ onRowClick, onSuccess });
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerModalOpen);
+  const updateFormKey = useRemountKey(updateModalOpen);
 
   return (
     <>
@@ -36,6 +40,7 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
           <>
             <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
             <RegisterClientForm
+              key={registerFormKey}
               open={registerModalOpen}
               onOpenChange={setRegisterModalOpen}
               onSuccess={refetch}
@@ -49,10 +54,10 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
       </TablePanel>
 
       <UpdateClientForm
-        key={selectedClient?.id}
+        key={updateFormKey}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
-        client={selectedClient}
+        client={detailClient}
         onSuccess={refetch}
       />
     </>

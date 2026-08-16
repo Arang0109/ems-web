@@ -21,6 +21,7 @@ export const defaultColumns = [
   }),
   columnHelper.display({
     id: 'actions',
+    size: 10,
     header: '비고',
     cell: RowActionCell,
   }),

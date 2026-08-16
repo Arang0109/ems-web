@@ -13,7 +13,6 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, Select, DatePicker, Textarea } from "@shared/ui/form";
 import { equipStatusOptions } from "@shared/model";
-import { EQUIP_TYPE_LABEL } from "@shared/config";
 
 interface Props {
   open: boolean;
@@ -76,7 +75,7 @@ export const UpdateEquipmentForm = ({
           <InputGroup
             id="type"
             label="장비 종류"
-            value={EQUIP_TYPE_LABEL[equipment.type]}
+            value={equipment.type}
             onChange={() => {}}
             readOnly
             disabled

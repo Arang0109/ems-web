@@ -6,22 +6,11 @@ import { Tabs } from "@shared/ui/tabs";
 
 import { DocumentTable } from "@widgets/document-table";
 
-import { useDocumentSelection } from "./model/use-document-selection";
-
 export const AdminDocumentPage = () => {
-  const { selectedDocument, handleSelectDocumentRow, refetchSelectedDocument } = useDocumentSelection();
-
   const tabOptions = DOCUMENT_CATEGORY.map((category) => ({
     value: category,
     label: DOCUMENT_CATEGORY_LABEL[category],
-    content: (
-      <DocumentTable
-        category={category}
-        selectedDocument={selectedDocument}
-        onRowClick={handleSelectDocumentRow}
-        onSuccess={refetchSelectedDocument}
-      />
-    ),
+    content: <DocumentTable category={category} />,
   }));
 
   return (

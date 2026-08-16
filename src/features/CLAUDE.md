@@ -51,6 +51,7 @@ feature-name/
 │   ├── mapper.ts
 │   ├── validator.ts
 │   ├── section-progress.ts   # 섹션별 입력 진행도 계산
+│   ├── field-hints.ts        # 항목 도움말 문구 (shared/ui 의 HelpTip 이 소비)
 │   └── hooks/
 └── ui/
     ├── XxxEditor.tsx         # 섹션 조합 셸

@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { useRegisterDocumentAction } from "@entities/document";
 
+import type { DocumentCategory } from "@shared/model";
 import { toast } from "@shared/ui/toasts";
 
 import type { DocumentRegisterForm } from "../types";
@@ -10,7 +11,7 @@ import { toDocumentCreate } from "../mapper";
 import { validateDocumentFields } from "../validator";
 
 interface Props {
-  defaultCategory?: string;
+  defaultCategory?: DocumentCategory | '';
   onSuccess: () => void;
 }
 

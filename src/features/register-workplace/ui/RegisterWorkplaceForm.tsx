@@ -1,12 +1,11 @@
 import { Divider } from "@shared/ui/borders";
 import type { Client } from "@entities/client";
 
-import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select, Checkbox } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
 import { formatBusinessNumber, unformatNumber } from '@shared/lib';
 import type { Grade } from "@shared/model";
 import { gradeOptions } from "@shared/model";
-import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, User2, Factory, Plus } from "lucide-react";
 
@@ -25,7 +24,7 @@ export const RegisterWorkplaceForm = ({
   onOpenChange,
   onSuccess,
 }: RegisterWorkplaceFormProps) => {
-  const { form, handleChange, handleAddressChange, handleSubmit } = useRegisterWorkplace({
+  const { form, handleChange, handleAddressChange, handleSubmit, copyClientInfo, checked } = useRegisterWorkplace({
     client,
     onSuccess: () => {
       onOpenChange(false);
@@ -78,6 +77,11 @@ export const RegisterWorkplaceForm = ({
         <Divider />
 
         <SectionTitle>사업장 정보</SectionTitle>
+        <Checkbox
+          label="의뢰기관 정보와 동일"
+          onChange={() => copyClientInfo()}
+          checked={checked}
+        />
         <InputGroup
           id="workplaceName"
           label="측정대상 사업장"
@@ -94,14 +98,23 @@ export const RegisterWorkplaceForm = ({
           onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
           startIcon={<Hash />}
         />
-        <Select
-          id="grade"
-          label="시설 종별"
-          placeholder="종별 선택"
-          options={gradeOptions}
-          value={GRADE_LABEL[form.grade]}
-          onValueChange={(value) => value && handleChange("grade", value as Grade)}
-        />
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="grade"
+            label="시설 종별"
+            placeholder="종별 선택"
+            options={gradeOptions}
+            value={form.grade}
+            onValueChange={(value) => value && handleChange("grade", value as Grade)}
+          />
+          <InputGroup
+            id="workplaceBusinessCategory"
+            label="업종"
+            placeholder="업종"
+            value={form.workplaceBusinessCategory}
+            onChange={(value) => handleChange("workplaceBusinessCategory", value)}
+          />
+        </div>
         <AddressInput
           id="workplaceAddress"
           placeholder="사업장 상세주소"

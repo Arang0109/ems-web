@@ -20,6 +20,7 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
   const [form, setForm] = useState<WorkplaceUpdateForm>({
     name: workplace?.name ?? '',
     bizNumber: workplace?.bizNumber ?? "",
+    businessCategory: workplace?.businessCategory ?? "",
     zipcode: workplace?.zipcode ?? '',
     roadAddress: workplace?.roadAddress ?? '',
     address: workplace?.detailAddress ?? "",

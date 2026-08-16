@@ -20,6 +20,7 @@ export { useSaveSheetsAction } from './model/use-save-sheets-action';
 export { useChangeClientAction } from './model/use-change-client-action';
 export { useChangeEquipmentsAction } from './model/use-change-equipments-action';
 export { useUpdateBasicInfoAction } from './model/use-update-basic-info-action';
+export { useChangeScheduleStatusAction } from './model/use-change-schedule-status-action';
 export { useExportSamplingRecordsAction } from './model/use-export-sampling-records-action';
 
 export { calcSheetPreview, getSheetCalcExternals, calcRequiredPointCount } from './lib/sheet-calc';

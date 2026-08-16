@@ -6,8 +6,9 @@ export type StackRegisterRequest = {
   name: string,
   semsNumber: string,
   grade: Grade,
-  businessCategory: string,
   mainProduct: string,
+  /** 기준산소농도(%) — 서버 계약이 Integer(nullable). 치수와 달리 응답도 number 다. */
+  standardOxygen: number | null,
 }
 
 export type StackUpdateRequest = {
@@ -15,8 +16,8 @@ export type StackUpdateRequest = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
+  standardOxygen: number | null;
   /** 서버 `UpdateStackRequest` 는 Double(nullable). 응답(`StackResponse`)은 String 이라 읽기/쓰기가 비대칭이다. */
   height: number | null;
   horizontalLength: number | null;
@@ -32,13 +33,13 @@ export type StackResponse = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   height: string;
   horizontalLength: string;
   verticalLength: string;
   shape: Shape;
   orientation: Orientation;
+  standardOxygen: number | null;
   createdAt: Date;
   modifiedAt: Date;
 }
@@ -60,13 +61,13 @@ export type StackDetailResponse = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   height: string;
   horizontalLength: string;
   verticalLength: string;
   shape: Shape;
   orientation: Orientation;
+  standardOxygen: number | null;
   createdAt: Date;
   modifiedAt: Date;
 
@@ -79,6 +80,8 @@ export type PreventionResponse = {
   stackId: number;
   name: string;
   capacity: number | null;
+  /** 용량의 단위(유량 단위). 숫자 값이 아니라 표기이므로 전 레이어 string 이다. */
+  unit: string | null;
   targetName: string | null;
   removalEfficiency: string | null;
 }
@@ -120,6 +123,7 @@ export type PreventionRegisterRequest = {
   stackId: number;
   name: string;
   capacity: number | null;
+  unit: string;
   targetName: string;
   removalEfficiency: string;
 }
@@ -127,6 +131,7 @@ export type PreventionRegisterRequest = {
 export type PreventionUpdateRequest = {
   name: string;
   capacity: number | null;
+  unit: string;
   targetName: string;
   removalEfficiency: string;
 }

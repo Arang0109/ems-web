@@ -8,7 +8,8 @@ import { formatBusinessNumber } from "@shared/lib";
 import { MEASUREMENT_TYPE_LABEL } from "@shared/config";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
-import { DetailRow } from "@shared/ui/form";
+import { DetailGrid, DetailRow } from "@shared/ui/form";
+import { useRemountKey } from "@shared/model";
 
 import {
   value, fieldLabel, gradeLabel, shapeLabel, orientationLabel, describeDimension,
@@ -24,14 +25,14 @@ interface Props {
   onRefetch: () => void;
 }
 
-/** 카드별 행 배치 — 모바일 1열, 데스크탑에서 넓혀 쓴다 */
-const rowGrid = "grid gap-x-5 gap-y-2 md:grid-cols-2 xl:grid-cols-3";
-
 export const MeasurementInfo = ({
   scheduleId, snapshot, stackPollutants, editable, onRefetch,
 }: Props) => {
   // 의뢰기관·사업장·측정시설은 한 스냅샷 트리라 하나의 폼에서 함께 수정한다.
   const [clientEditOpen, setClientEditOpen] = useState(false);
+
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const clientEditFormKey = useRemountKey(clientEditOpen);
 
   const groups = useMemo(
     () => groupPollutantsByCycle(snapshot?.items ?? [], stackPollutants),
@@ -66,7 +67,7 @@ export const MeasurementInfo = ({
   return (
     <div className="space-y-4">
       <SectionAccordion title="사전 정보">
-        <div className={rowGrid}>
+        <DetailGrid>
           <DetailRow label="관리번호" value={value(basicInfo.referenceNumber)} />
           {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
           <DetailRow label="측정일자" value={value(basicInfo.sampledAt)} />
@@ -78,7 +79,7 @@ export const MeasurementInfo = ({
               : "-"}
           />
           <DetailRow label="측정팀" value={value(team.teamName)} />
-        </div>
+        </DetailGrid>
       </SectionAccordion>
 
       <SectionAccordion
@@ -90,11 +91,10 @@ export const MeasurementInfo = ({
       </SectionAccordion>
 
       <SectionAccordion title="측정시설 정보" action={editAction}>
-        <div className={rowGrid}>
+        <DetailGrid>
           <DetailRow label="측정시설" value={value(stack.name)} />
           <DetailRow label="SEMS 번호" value={value(stack.semsNumber)} />
           <DetailRow label="측정시설 종별" value={gradeLabel(stack.grade)} />
-          <DetailRow label="업종" value={value(stack.businessCategory)} />
           <DetailRow label="주요 생산품" value={value(stack.mainProduct)} />
           <DetailRow label="방향" value={orientationLabel(stack.orientation)} />
           <DetailRow label="형태" value={shapeLabel(stack.shape)} />
@@ -104,15 +104,17 @@ export const MeasurementInfo = ({
           />
           <DetailRow label="측정공 높이 (m)" value={value(stack.height)} />
           <DetailRow label="기준산소농도 (%)" value={value(stack.standardOxygen)} />
-        </div>
+        </DetailGrid>
       </SectionAccordion>
 
       <SectionAccordion title="의뢰기관 정보">
-        <div className={rowGrid}>
+        <DetailGrid>
           <DetailRow label="의뢰기관" value={value(client.name)} />
           <DetailRow label="사업장" value={value(workplace.name)} />
+          {/* 주소는 한 열에 담기지 않아 줄바꿈으로 격자를 깨뜨리므로 데스크탑에서 전 열을 쓴다 */}
           <DetailRow
             label="사업장주소"
+            span="full"
             value={value(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
           />
           <DetailRow
@@ -124,13 +126,14 @@ export const MeasurementInfo = ({
           <DetailRow label="배출시설 관리자" value={value(basicInfo.facilityManager)} />
           <DetailRow label="시료채취 입회자" value={value(basicInfo.samplingWitness)} />
           <DetailRow label="사업장 종별" value={gradeLabel(workplace.grade)} />
-        </div>
+          <DetailRow label="업종" value={value(workplace.businessCategory)} />
+        </DetailGrid>
       </SectionAccordion>
 
       {canEdit && (
-        // 스냅샷이 갱신되면 key가 바뀌어 폼이 새 값으로 리마운트된다.
+        // 열 때마다, 그리고 스냅샷이 갱신되면 key가 바뀌어 폼이 새 값으로 리마운트된다.
         <UpdateScheduleClientForm
-          key={`${client.clientId}-${client.name}-${workplace.name}-${stack.stackId}-${stack.name}-${stack.height}-${stack.horizontalLength}`}
+          key={`${clientEditFormKey}-${client.clientId}-${client.name}-${workplace.name}-${stack.stackId}-${stack.name}-${stack.height}-${stack.horizontalLength}`}
           scheduleId={scheduleId}
           client={client}
           open={clientEditOpen}

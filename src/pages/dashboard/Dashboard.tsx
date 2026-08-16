@@ -34,9 +34,7 @@ export const Dashboard = () => {
               {error}
             </div>
           )}
-          <TeamScheduleTable
-            schedules={[]} loading={isLoading} error={error} selectedWorkplace={null}
-          />
+          <TeamScheduleTable />
 
           {!isMobileDevice && (
             isLoading || !stats ? (

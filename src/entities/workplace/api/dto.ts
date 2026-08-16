@@ -6,6 +6,7 @@ export type WorkplaceListResponse = {
   clientName: string;
   workplaceName: string;
   bizNumber: string;
+  businessCategory: string;   // 업종
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;
@@ -19,6 +20,7 @@ export type WorkplaceResponse = {
   clientId: number;
   name: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;
   roadAddress: string;
   detailAddress: string;
@@ -38,6 +40,7 @@ export type WorkplaceRegisterRequest = {
   clientId: number;
   name: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;
@@ -49,6 +52,7 @@ export type WorkplaceRegisterRequest = {
 export type WorkplaceUpdateRequest = {
   name: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;           // 우편번호
   roadAddress: string;        // 도로명 주소
   detailAddress: string;

@@ -12,12 +12,12 @@ import type { ScheduleTableRow } from './types';
  */
 export const scheduleCardConfig: MobileCardConfig<ScheduleTableRow> = {
   title: (row) => row.stackName,
-  subtitle: (row) => row.measureDate,
+  subtitle: (row) => `${row.measureDate} | ${row.teamName}`,
   status: (row) => <StatusPill status={row.status} />,
-  fields: [
-    { label: '사업장', content: (row) => row.workplaceName },
-    { label: '관리번호', content: (row) => row.referenceNumber },
-    { label: '측정팀', content: (row) => row.teamName },
-    { label: '측정분야', content: (row) => row.measurementField },
-  ],
+  // columns: 1,
+  // fields: [
+  //   { label: '사업장', content: (row) => row.workplaceName },
+  //   { label: '관리번호', content: (row) => row.referenceNumber },
+  //   { label: '측정분야 | 측정팀', content: (row) => `${row.measurementField} | ${row.teamName}` }
+  // ],
 };
