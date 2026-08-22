@@ -1,3 +1,5 @@
+import { Layers } from 'lucide-react';
+
 import { usePollutantTable } from '../model/use-pollutant-table';
 import { pollutantCardConfig } from '../model/mobile-card';
 
@@ -5,7 +7,7 @@ import { RegisterPollutantForm } from '@features/register-pollutant';
 import { UpdatePollutantForm } from '@features/update-pollutant';
 
 import { BasicTable, TableFooterBar, TablePanel } from '@shared/ui/table';
-import { Search } from '@shared/ui/form';
+import { FilterSelect, Search } from '@shared/ui/form';
 import { useRemountKey } from '@shared/model';
 
 interface Props {
@@ -20,9 +22,10 @@ export const PollutantTable = ({ onSuccess }: Props) => {
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
-    detailPollutant,
+    detailId, detailPollutant,
 
     globalFilter, setGlobalFilter,
+    field, setField, fieldOptions,
 
     loading, error, refetch,
   } = usePollutantTable({ onSuccess });
@@ -38,6 +41,14 @@ export const PollutantTable = ({ onSuccess }: Props) => {
         actions={
           <>
             <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정물질명, 측정장비 검색 ...'} />
+            <FilterSelect
+              icon={Layers}
+              options={fieldOptions}
+              value={field}
+              onValueChange={(value) => value && setField(value)}
+              placeholder="전체 분야"
+              ariaLabel="측정분야 필터"
+            />
             <RegisterPollutantForm
               key={registerFormKey}
               open={registerModalOpen}
@@ -58,7 +69,7 @@ export const PollutantTable = ({ onSuccess }: Props) => {
       </TablePanel>
 
       <UpdatePollutantForm
-        key={`${updateFormKey}-${detailPollutant?.id}`}
+        key={`${updateFormKey}-${detailId}`}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         pollutant={detailPollutant}

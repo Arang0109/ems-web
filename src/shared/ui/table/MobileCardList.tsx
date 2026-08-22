@@ -158,11 +158,18 @@ export const MobileCardList = <TData,>({
             )}
           >
             {hasHeader && (
-              <div className="flex items-center justify-between gap-3 p-4">
-                <div className="flex min-w-0 items-baseline gap-2">
-                  {title && <span className="truncate text-h3 text-ink">{render(title, row)}</span>}
+              /* title 이 2줄로 늘어나도 상태 칩·액션은 첫 줄에 맞춰 고정한다 */
+              <div className="flex items-start justify-between gap-3 p-4">
+                {/* 제목 위 · 부제 아래. 한 줄에 나란히 두면 부제가 폭을 먼저 가져가
+                    긴 제목이 곧바로 잘린다 */}
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  {title && (
+                    <span className="line-clamp-2 text-h3 text-ink wrap-break-words">
+                      {render(title, row)}
+                    </span>
+                  )}
                   {subtitle && (
-                    <span className="shrink-0 text-caption text-ink-soft">
+                    <span className="truncate text-caption text-ink-soft">
                       {render(subtitle, row)}
                     </span>
                   )}

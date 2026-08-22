@@ -1,11 +1,12 @@
 import { useEffect, useMemo } from "react";
 
 import { useScheduleDetail } from "@entities/schedule";
+import { isTerminalScheduleStatus } from "@shared/model";
 import { getSheetCalcExternals } from "@entities/schedule";
 import type { SheetCalcExternals } from "@entities/schedule";
 import { useStackPollutants } from "@entities/stack-pollutant";
 
-// 측정계획 상세를 로드하고, 편집 가능 여부(완료/취소 제외)를 계산한다.
+// 측정계획 상세를 로드하고, 편집 가능 여부(종단 상태 제외)를 계산한다.
 export const useScheduleProfile = (scheduleId: string | undefined) => {
   const { data, loading, error, fetchSchedule } = useScheduleDetail();
 
@@ -15,7 +16,8 @@ export const useScheduleProfile = (scheduleId: string | undefined) => {
   }, [scheduleId, fetchSchedule]);
 
   const status = data?.status ?? null;
-  const editable = status !== null && status !== "COMPLETED" && status !== "CANCELED";
+  // 종단 판정은 shared 헬퍼가 단일 소스다 — 화면이 상태를 직접 비교하면 상태 개편 때 여기만 어긋난다.
+  const editable = status !== null && !isTerminalScheduleStatus(status);
   const snapshot = data?.snapshot ?? null;
 
   // 측정항목 카드는 "이번 계획에 포함된 항목"과 "측정시설에 등록된 나머지"를 함께 보여준다.

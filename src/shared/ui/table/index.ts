@@ -14,3 +14,7 @@ export { RowActionCell } from './RowActionCell';
 export { TableLabelCell } from './TableLabelCell';
 export { TableInputCell } from './TableInputCell';
 export { TableResultCell } from './TableResultCell';
+
+// 행=레코드·열=항목인 입력 표 (셀 안에서 바로 편집 + 키보드 이동)
+export { InputTable } from './InputTable';
+export type { InputTableColumn } from './InputTable';

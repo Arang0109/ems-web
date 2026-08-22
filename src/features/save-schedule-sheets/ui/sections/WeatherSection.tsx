@@ -20,7 +20,7 @@ export const WeatherSection = ({ weather, calc, editable, onChange, ...shell }: 
   <SectionAccordion
     {...shell}
     title="기상정보"
-    description="단위가 표시된 숫자 항목은 숫자 키패드로 바로 입력할 수 있습니다."
+    subtitle="측정 현장의 기상 상태를 입력합니다."
   >
     <div className={FIELD_GRID}>
       <UnitField

@@ -81,6 +81,7 @@ export const describeEquipmentSpec = (equip: EquipmentSnapshot): EquipmentSpecIt
 export const groupPollutantsByCycle = (
   items: MeasurementItemSnapshot[],
   stackPollutants: StackPollutantListItem[],
+  standardOxygen: number | null,
 ): PollutantCycleGroup[] => {
   const itemByPollutantId = new Map(items.map((item) => [item.pollutantId, item]));
   const groups = new Map<MeasurementCycle, PollutantCycleGroup>();
@@ -106,9 +107,13 @@ export const groupPollutantsByCycle = (
     const item = itemByPollutantId.get(pollutant.id);
     const chip: PollutantChipItem = {
       key: `stack-pollutant-${row.id}`,
+      pollutantId: pollutant.id,
+      stackPollutantId: row.id,
       name: value(pollutant.nameKr),
-      // 허용기준은 측정 당시 값이 정확하므로 포함 항목은 스냅샷 값을 쓴다.
+      // 허용기준·산소보정은 측정 당시 값이 정확하므로 포함 항목은 스냅샷 값을 쓴다.
       allowance: value(item ? item.allowance : pollutant.allowance),
+      standardOxygen: value(standardOxygen),
+      oxygenApplicable: item ? item.oxygenApplicable : pollutant.oxygenApplicable,
     };
 
     if (item) {
@@ -124,8 +129,12 @@ export const groupPollutantsByCycle = (
     .forEach((item) => {
       groupOf(item.cycle).current.push({
         key: `item-${item.stackPollutantId}`,
+        pollutantId: item.pollutantId,
+        stackPollutantId: item.stackPollutantId,
         name: value(item.nameKr),
         allowance: value(item.allowance),
+        standardOxygen: value(standardOxygen),
+        oxygenApplicable: item.oxygenApplicable,
       });
     });
 

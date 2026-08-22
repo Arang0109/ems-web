@@ -10,11 +10,22 @@ export type EquipmentSpecItem =
   | { label: string; value: string }
   | { label: string; chips: string[] };
 
-/** 측정항목 칩 하나 — 오염물질명 + 허용기준 */
+/** 측정항목 칩 하나 — 오염물질명 + 허용기준 + 산소보정 적용 여부 */
 export type PollutantChipItem = {
   key: string;
+  /** 정정 대상을 가리키는 축 — 측정계획 문서 안에서 측정물질은 유일하다 */
+  pollutantId: number;
+  /**
+   * 측정시설 원장에 남아 있는 같은 항목의 id. 원장에서 삭제된 항목은 null 이며,
+   * 그 경우 정정을 원장에 반영할 수 없다.
+   */
+  stackPollutantId: number | null;
   name: string;
   allowance: string;
+  /** 산소보정의 기준이 되는 측정시설의 기준산소농도 표기(예: `O₂ 4%`). 없으면 빈 문자열 */
+  standardOxygen: string;
+  /** 기준산소농도 보정을 적용하는 항목인지. 적용하는 항목만 화면에 표시한다 */
+  oxygenApplicable: boolean;
 };
 
 /**

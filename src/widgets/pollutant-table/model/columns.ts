@@ -10,6 +10,9 @@ export const defaultColumns = [
   columnHelper.accessor('field', {
     header: '측정 분야',
   }),
+  columnHelper.accessor('code', {
+    header: '항목 코드',
+  }),
   columnHelper.accessor('nameKr', {
     header: '측정물질(한글)',
   }),

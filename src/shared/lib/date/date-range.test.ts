@@ -33,11 +33,11 @@ describe("toPresetRange", () => {
     expect(toDateKey(range.to)).toBe("2026-08-31");
   });
 
-  it("last30 은 오늘을 포함한 30일이므로 29일 전부터다", () => {
-    const range = toPresetRange("last30", TODAY);
+  it("around30 은 기준일 전후 30일 구간이다", () => {
+    const range = toPresetRange("around30", TODAY);
 
-    expect(toDateKey(range.from)).toBe("2026-07-13");
-    expect(toDateKey(range.to)).toBe("2026-08-11");
+    expect(toDateKey(range.from)).toBe("2026-07-12");
+    expect(toDateKey(range.to)).toBe("2026-09-10");
   });
 });
 

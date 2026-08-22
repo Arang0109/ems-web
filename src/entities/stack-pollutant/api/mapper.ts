@@ -1,5 +1,5 @@
-import type { StackPollutantCreate, StackPollutantListItem } from "../model/types";
-import type { StackPollutantRegisterRequest, StackPollutantTableResponse, StackPollutantBatchRegisterRequest } from "./dto";
+import type { StackPollutantCreate, StackPollutantListItem, StackPollutantUpdate } from "../model/types";
+import type { StackPollutantRegisterRequest, StackPollutantTableResponse, StackPollutantBatchRegisterRequest, StackPollutantUpdateRequest } from "./dto";
 
 export const toStackPollutantListItem = (
   dto: StackPollutantTableResponse
@@ -8,6 +8,7 @@ export const toStackPollutantListItem = (
   stackId: dto.stackId,
   pollutant: {
     id: dto.pollutantId,
+    code: dto.code,
     nameKr: dto.nameKr,
     nameEn: dto.nameEn,
     cycle: dto.cycle,
@@ -25,6 +26,14 @@ export const toRegisterStackPollutantRequest = (
 ): StackPollutantRegisterRequest => ({
   stackId: vo.stackId,
   pollutantId: vo.pollutantId,
+  cycle: vo.cycle,
+  allowance: vo.allowance,
+  oxygenApplicable: vo.oxygenApplicable,
+})
+
+export const toUpdateStackPollutantRequest = (
+  vo: StackPollutantUpdate
+): StackPollutantUpdateRequest => ({
   cycle: vo.cycle,
   allowance: vo.allowance,
   oxygenApplicable: vo.oxygenApplicable,

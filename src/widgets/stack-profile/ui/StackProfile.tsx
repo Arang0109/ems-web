@@ -6,6 +6,7 @@ import { StackBasicInfo } from "./children/StackBasicInfo";
 import { PreventionInfo } from "./children/PreventionInfo";
 import { FacilityInfo } from "./children/FacilityInfo";
 import { MeasurementInfo } from "./children/MeasurementInfo";
+import { MeasurementHistory } from "./children/history";
 
 import { useStackProfile } from "../model/use-stack-profile";
 
@@ -19,6 +20,7 @@ export const StackProfile = () => {
     facilities,
     preventions,
     measurements,
+    stackPollutants,
     refetch,
   } = useStackProfile(stackId);
 
@@ -58,6 +60,7 @@ export const StackProfile = () => {
           stackId={stackIdNum}
           standardOxygen={stack?.standardOxygen ?? null}
           measurements={measurements}
+          stackPollutants={stackPollutants}
           onRefetch={refetch}
         />
       ),
@@ -65,7 +68,7 @@ export const StackProfile = () => {
     {
       value: "history",
       label: "측정이력",
-      content: null,
+      content: <MeasurementHistory stackId={stackIdNum} />,
     },
     {
       value: "documents",

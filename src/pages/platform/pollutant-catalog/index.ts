@@ -1,0 +1,1 @@
+export { PlatformPollutantCatalogPage } from "./PlatformPollutantCatalogPage";

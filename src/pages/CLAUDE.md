@@ -175,10 +175,13 @@ sub-domain/
 | `staff` | `/staff` | StaffPage | ProtectedRoute |
 | `schedule` | `/schedule` | SchedulePage | ProtectedRoute |
 | `schedule` | `/schedule/register` | ScheduleRegisterPage | ProtectedRoute |
+| `schedule` | `/schedule/canceled` | CanceledSchedulePage | ProtectedRoute |
+| `schedule` | `/schedule/deleted` | DeletedSchedulePage | **AdminRoute** |
 | `schedule` | `/schedule/:scheduleId` | ScheduleDetailPage | ProtectedRoute |
 | `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
 | `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
 | `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
+| `platform/pollutant-catalog` | `/platform/pollutant-catalog` | PlatformPollutantCatalogPage | **PlatformRoute** |
 
 > 단일 페이지 도메인(`equipment`, `staff`, `schedule`)은 sub-domain 폴더 없이
 > 그룹 폴더 직하에 페이지를 두는 평면 배치를 허용한다. 페이지가 늘어나면 분리한다.

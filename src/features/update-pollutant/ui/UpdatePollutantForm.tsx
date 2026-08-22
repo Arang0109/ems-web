@@ -8,11 +8,10 @@ import type { Pollutant } from "@entities/pollutant";
 // UI
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
 import {
-  measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions,
-} from "@shared/model";
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
+  MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
+} from "@shared/config";
 
 interface Props {
   open: boolean;
@@ -21,6 +20,15 @@ interface Props {
   onSuccess?: () => void;
 }
 
+/** 가이드가 비워 둘 수 있는 항목의 표시 자리. */
+const EMPTY = "—";
+
+/**
+ * 측정물질 상세 편집.
+ *
+ * 측정분야·측정방법·형태는 지원 물질 가이드가 단일 진실 소스라 여기서 바꿀 수 없다
+ * (법령이 개정되면 가이드를 통해 자동으로 반영된다). 편집 대상은 표기명과 분석 정보뿐이다.
+ */
 export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }: Props) => {
   const close = () => {
     onOpenChange(false);
@@ -48,7 +56,30 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
       isLoading={isUpdating || isDeleting}
     >
       <FieldGroup>
-        <SectionTitle>측정물질 정보</SectionTitle>
+        <div className="flex items-center gap-2">
+          <SectionTitle>측정물질 정보</SectionTitle>
+          <span className="text-body-4 text-muted-foreground">{pollutant.code}</span>
+        </div>
+
+        {/* 가이드 소유값 — 읽기 전용이다. */}
+        <dl className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
+          <div>
+            <dt className="text-muted-foreground">측정분야</dt>
+            <dd>{MEASUREMENT_FIELD_LABEL[pollutant.field]}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">측정방법</dt>
+            <dd>{pollutant.method ? MEASUREMENT_METHOD_LABEL[pollutant.method] : EMPTY}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">상</dt>
+            <dd>{pollutant.phase ? POLLUTANT_PHASE_LABEL[pollutant.phase] : EMPTY}</dd>
+          </div>
+        </dl>
+        <p className="text-body-4 text-muted-foreground">
+          측정분야·측정방법·상은 법령 가이드가 정하므로 수정할 수 없습니다.
+        </p>
+
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="nameKr"
@@ -68,33 +99,6 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
             value={form.nameEn}
             onChange={(value) => handleChange("nameEn", value)}
             startIcon={<Hash />}
-          />
-        </div>
-        <Select
-          id="field"
-          label="측정분야"
-          placeholder="측정분야 선택"
-          options={measurementFieldOptions}
-          value={form.field}
-          onValueChange={(value) => value && handleChange("field", value as MeasurementField)}
-          required
-        />
-        <div className="grid md:grid-cols-2 gap-4">
-          <Select
-            id="method"
-            label="측정방법"
-            placeholder="측정방법 선택"
-            options={measurementMethodOptions}
-            value={form.method}
-            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
-          />
-          <Select
-            id="phase"
-            label="상"
-            placeholder="상 선택"
-            options={pollutantPhaseOptions}
-            value={form.phase}
-            onValueChange={(value) => value && handleChange("phase", value as PollutantPhase)}
           />
         </div>
 

@@ -1,3 +1,5 @@
+import type { BadgeTone } from "@shared/ui/badges";
+
 import type { SectionProgress } from "../../model/section-progress";
 
 /**
@@ -10,6 +12,9 @@ export interface SectionShellProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   progress: SectionProgress;
+  progressTone: BadgeTone;
+  /** 다른 사용자의 저장으로 방금 갱신된 섹션이면 안내 배지 문구가 담긴다 */
+  highlightLabel?: string;
 }
 
 /** 섹션 안의 입력 필드 그리드 — 모바일 1열 → md 2열 → xl 3열 */

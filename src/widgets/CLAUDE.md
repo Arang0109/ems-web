@@ -23,11 +23,11 @@ widget-name/
 └── ComponentName.tsx   # ui/ 없이 루트에 위치 허용
 ```
 
-### 패턴 B — 테이블 위젯 (13개)
+### 패턴 B — 테이블 위젯 (14개)
 
 `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `contract-table`,
 `pollutant-table`, `document-table`, `equipment-table`, `member-table`, `team-table`,
-`team-schedule-table`, `schedule-table`, `tenant-table`
+`team-schedule-table`, `schedule-table`, `tenant-table`, `pollutant-catalog-table`
 
 ```
 widget-name/
@@ -130,7 +130,7 @@ export const useClientTable = ({ onRowClick }: Props) => {
 };
 ```
 
-> **현황:** 13개 테이블 위젯 중 12개가 `useDataTable` 을 쓴다. 남은 1개
+> **현황:** 14개 테이블 위젯 중 13개가 `useDataTable` 을 쓴다. 남은 1개
 > (`tenant-table`)만 아직 `useTableState` + `useReactTable` 직접 호출이다.
 > 신규 위젯은 반드시 `useDataTable` 을 쓰고, 기존 위젯도 손댈 때 전환한다.
 

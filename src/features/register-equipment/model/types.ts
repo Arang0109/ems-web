@@ -55,6 +55,20 @@ export const getDefaultSpecForm = (): EquipmentSpecForm => ({
   diameters: [],
 });
 
+/**
+ * 초기값에서 한 글자라도 달라졌는지 — 모달의 미저장 이탈 확인에 쓴다.
+ *
+ * `FormDialogShell` 의 기본 판정은 `input` 이벤트라 `Select`·`DatePicker`·`Checkbox` 를
+ * 놓친다. 이 폼은 그 셋의 비중이 커서 훅이 직접 계산한 값을 넘긴다.
+ * 폼이 순수 데이터(문자열·불리언·배열)이고 같은 팩토리에서 나와 키 순서까지 같으므로
+ * 직렬화 비교로 충분하다.
+ */
+export const isEquipmentFormDirty = (
+  form: EquipmentRegisterForm,
+  defaultType: EquipType | '' = '',
+): boolean =>
+  JSON.stringify(form) !== JSON.stringify(getDefaultEquipmentRegisterForm(defaultType));
+
 export const getDefaultEquipmentRegisterForm = (
   type: EquipType | '' = '',
 ): EquipmentRegisterForm => ({

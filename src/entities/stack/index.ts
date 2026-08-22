@@ -13,6 +13,8 @@ export { useUpdateStackAction } from "./model/use-update-stack-action";
 export { useRegisterFacilityAction } from "./model/use-register-facility-action";
 export { useUpdateFacilityAction } from "./model/use-update-facility-action";
 export { useDeleteFacilityAction } from "./model/use-delete-facility-action";
+export { useReorderFacilitiesAction } from "./model/use-reorder-facilities-action";
 export { useRegisterPreventionAction } from "./model/use-register-prevention-action";
 export { useUpdatePreventionAction } from "./model/use-update-prevention-action";
 export { useDeletePreventionAction } from "./model/use-delete-prevention-action";
+export { useReorderPreventionsAction } from "./model/use-reorder-preventions-action";

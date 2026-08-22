@@ -39,6 +39,14 @@ export const buttonVariants = cva(
         selected: "border-brand-primary bg-brand-soft text-brand-dark",
         /** 피그마 DESTRUCTIVE — 흰 면 + 빨간 테두리 + 빨간 글씨 */
         destructive: "border-danger bg-surface text-danger hover:bg-danger-soft",
+        /**
+         * 미저장 변경 알림 — Attention(앰버) 면.
+         * 피그마 상태별 버튼에는 없는 확장이다. "저장하지 않은 변경이 있다"를
+         * 색으로 알리는 용도이며, 평상시에는 `default`(브랜드 초록)로 돌아간다.
+         * 앰버 면 위 글씨는 항상 어두워야 하므로 다크에서는 canvas 를 쓴다
+         * (`--ink` 는 다크에서 밝은 색이라 대비가 무너진다).
+         */
+        warning: "border-transparent bg-warning text-ink hover:bg-warning/85 dark:text-canvas",
         ghost:
           "border-transparent text-ink hover:bg-brand-soft disabled:bg-transparent",
         soft: "border-transparent bg-brand-soft text-brand-dark hover:bg-brand-soft/70",

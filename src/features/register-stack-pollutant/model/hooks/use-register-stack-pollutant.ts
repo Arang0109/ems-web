@@ -43,9 +43,17 @@ export const useRegisterStackPollutant = ({ stackId, standardOxygen, onSuccess }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!stackId) return;
+
+    // 물질을 고르지 않은 행은 mapper 가 빼므로, 보낼 것이 없으면 요청 자체를 막는다.
+    const items = toStackPollutantCreates(stackId, rows, hasStandardOxygen);
+    if (items.length === 0) {
+      toast.error('측정물질을 선택해주세요.');
+      return;
+    }
+
     try {
-      await registerStackPollutants(toStackPollutantCreates(stackId, rows, hasStandardOxygen));
-      toast.success(`측정항목 ${rows.length}개가 등록되었습니다.`);
+      await registerStackPollutants(items);
+      toast.success(`측정항목 ${items.length}개가 등록되었습니다.`);
       setRows([getDefaultRow()]);
       onSuccess();
     } catch (err) {

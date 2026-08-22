@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
 
-import { Building2 } from "lucide-react";
+import { Building2, FlaskConical } from "lucide-react";
 
 import {
   AppSidebar,
@@ -19,6 +19,7 @@ const PLATFORM_MENU: SidebarNavGroup[] = [
     label: "platform",
     items: [
       { icon: Building2, label: "고객사 관리", path: "/platform/tenants" },
+      { icon: FlaskConical, label: "측정물질 카탈로그", path: "/platform/pollutant-catalog" },
     ],
   },
 ];

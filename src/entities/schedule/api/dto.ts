@@ -18,6 +18,10 @@ export type ScheduleListResponse = {
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
+  deletedAt: string | null;         // 삭제된 계획 목록에서만 채워진다
+  deletedBy: number | null;
+  canceledAt: string | null;        // 취소된 계획 목록에서만 채워진다 (마지막 취소 시각)
+  cancelReason: string | null;
 };
 
 export type CreateScheduleRequest = {
@@ -62,7 +66,7 @@ export type ScheduleSnapshotDto = {
   tenant: TenantSnapshotDto;
   equipments: EquipmentSnapshotDto[];
   items: MeasurementItemSnapshotDto[];
-  sheets: MeasurementSheetDto[];
+  sheets: MeasurementSheetResponse[];
 };
 
 // 담당자 4인은 측정계획마다 달라지는 값이라 원장(의뢰기관)이 아니라 이 스냅샷이 보유한다.
@@ -207,6 +211,12 @@ export type EquipmentSnapshotDto = {
 export type MeasurementItemSnapshotDto = {
   stackPollutantId: number;
   pollutantId: number;
+  /**
+   * 전역 측정물질 카탈로그 키(예: `NOX`). 모든 고객사에서 동일하므로 물질 판별에 쓴다.
+   * 카탈로그 도입 이전에 만들어진 스냅샷과 고객사 자체 물질은 null 이라, 소비처는
+   * null 을 허용하고 이름으로 폴백해야 한다.
+   */
+  code: string | null;
   nameKr: string;
   nameEn: string;
   field: MeasurementField;
@@ -224,10 +234,16 @@ export type MeasurementItemSnapshotDto = {
 // 측정 시트(MeasurementSheet) — GET 응답에 포함 / PUT 요청 바디
 // 서버 도메인(schedule/domain/sheet)과 1:1. 계산결과 키(pa/pm_g/tm_g/vm_g/xw 등)는
 // 소문자(스네이크 포함), 물리량(Ts/Pv/Ps/Vs/Vm/Vlc/kFactor/Cp)은 @JsonProperty 대문자.
+//
+// 읽기(응답)와 쓰기(저장 요청)의 계약이 다르므로 타입을 나눈다 — 아래 MeasurementSheetResponse 참조.
 // ─────────────────────────────────────────────────────────────
 
+// 저장 요청에 실어 보내는 시트. 폼이 항상 전 블록을 채워 만들므로 블록은 non-null 이다.
 export type MeasurementSheetDto = {
   category: MeasurementCategory;
+  // 낙관적 락 토큰(서버 소유). 저장 요청에 읽어간 값을 그대로 실어 보내면
+  // 서버가 그 사이 다른 사용자가 같은 시트를 저장했는지 판정한다. 신규 시트는 null.
+  version: number | null;
   weather: WeatherDataDto;
   moisture: MoistureDataDto;
   exhaustGas: ExhaustGasDataDto;
@@ -239,6 +255,18 @@ export type MeasurementSheetDto = {
   samplingPointCnt: number | null;      // 규정상 요구 측정점 수 (굴뚝 치수로 서버 산출)
   avgTm: number | null;                 // 가스미터 절대온도 (K)
 };
+
+// 서버가 내려주는 시트. 서버 도메인(MeasurementSheet)의 블록은 전부 nullable 참조라
+// 값이 아니라 블록 자체가 비어서 올 수 있다 — 이전 회차 불러오기(SheetReuse)는 그 회차에만
+// 유효한 기상 조건을 weather: null 로 비워서 준다. 읽기 경로는 반드시 블록 null 을 방어해야 한다.
+export type MeasurementSheetResponse =
+  Omit<MeasurementSheetDto, "weather" | "moisture" | "exhaustGas" | "samplingPoints" | "samples"> & {
+    weather: WeatherDataDto | null;
+    moisture: MoistureDataDto | null;
+    exhaustGas: ExhaustGasDataDto | null;
+    samplingPoints: SamplingPointDto[] | null;
+    samples: SampleDto[] | null;
+  };
 
 export type WeatherDataDto = {
   pressure: number | null;              // 대기압 (hPa)
@@ -351,9 +379,49 @@ export type SampleDto = {
   samplingVolume: number | null;
 };
 
+// 시트 참조. 본문 없이 대상만 가리킬 때 쓴다(삭제).
+// 삭제도 편집이므로 version 을 함께 보내 다른 사용자가 그 사이 입력한 시트를 지우지 않게 한다.
+export type SheetRefDto = {
+  category: MeasurementCategory;
+  version: number | null;
+};
+
 // 저장 요청 — PUT /schedules/{id}/sheets
+// 서버는 요청에 담긴 카테고리의 시트만 교체하고 나머지는 보관본을 유지한다.
+// 그래서 시트 삭제는 deletedSheets 로 명시해야 한다 — 요청에서 빠졌다는 것만으로는
+// "내가 지웠다"와 "다른 사용자가 방금 추가했다"를 구분할 수 없기 때문이다.
 export type SaveSheetsRequest = {
   sheets: MeasurementSheetDto[];
+  deletedSheets: SheetRefDto[];
+};
+
+// 이전 회차 기록지 — GET /schedules/{id}/sheets/{category}/previous
+// 같은 측정시설이라도 회차마다 쓰는 기록지가 다르므로, 서버는 직전 회차만 보지 않고
+// 그 기록지를 실제로 쓴 최근 완료 회차를 찾아 준다.
+//
+// 회차 고유값(시료번호·채취 시각·기상·version)은 서버가 비워서 내려준다 —
+// 특히 version 이 null 인 것은 옛 버전을 되돌려 보내면 저장이 409 로 거부되기 때문이다.
+// 이미 서버에 있는 시트를 덮어쓸 때는 호출부가 현재 시트의 version 을 다시 넣어야 한다.
+// 기상은 필드 단위가 아니라 weather 블록 자체가 null 로 온다.
+//
+// 불러올 기록이 없으면 응답의 data 자체가 null 이다(첫 회차이거나 그 기록지를 처음 쓰는 경우).
+export type PreviousSheetResponse = {
+  sourceScheduleId: number;
+  sampledAt: string;                // LocalDate "yyyy-MM-dd" (출처 회차의 채취일자)
+  referenceNumber: string | null;
+  sheet: MeasurementSheetResponse;
+};
+
+// 이전 회차 기록지 후보 — GET /schedules/{id}/sheets/{category}/previous/candidates
+// 그 기록지를 실제로 쓴 이전 완료 회차를 채취일 내림차순으로 준다(최근 완료 10회 안에서 찾는다).
+// 가장 최근 회차가 늘 좋은 출발점은 아니라서(이상 조업이었던 회차 등) 사용자가 골라 불러온다.
+//
+// 시트 본문은 없다 — 고른 회차는 sourceScheduleId 를 붙여 previous 로 따로 받는다.
+// 불러올 기록이 없으면 빈 배열이다(PreviousSheetResponse 와 달리 data 가 null 이 아니다).
+export type PreviousSheetCandidateResponse = {
+  sourceScheduleId: number;
+  sampledAt: string;                // LocalDate "yyyy-MM-dd"
+  referenceNumber: string | null;
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -413,6 +481,23 @@ export type ChangeClientSnapshotRequest = {
   workplace?: ChangeWorkplaceSnapshotRequestBody;
 };
 
+// 측정항목 교체 — PATCH /schedules/{id}/items
+// 이번 계획에서 측정할 물질을 전달 목록으로 전체 교체한다(부분 수정이 아니다).
+// 서버는 측정시설에 등록된 항목만 허용하며, 이미 포함돼 있던 항목은 측정 시점 값을 유지한다.
+export type ChangeScheduleItemsRequest = {
+  pollutantIds: number[];
+};
+
+// 측정항목 정정 — PATCH /schedules/{id}/items/{pollutantId}
+// 이 회차 문서에 담긴 측정항목 하나의 측정 조건만 바로잡는다(어느 물질인지는 경로가 정한다).
+// 측정시설 원장(stack-pollutant)은 바뀌지 않으므로, 원장까지 고치려면 그쪽 API를 따로 호출한다.
+export type UpdateScheduleItemRequest = {
+  cycle: MeasurementCycle;
+  /** null 이면 "미지정"으로 비운다(0 과 구분된다) */
+  allowance: number | null;
+  oxygenApplicable: boolean;
+};
+
 // 기본정보 스냅샷 수정 — PATCH /schedules/{id}/basic-info
 // 담당자·접수/분석/발행일자·채취 시각·측정자 표기명을 부분 수정한다.
 // 계산 입력이 아니므로 서버는 측정 시트를 재계산하지 않는다.
@@ -432,9 +517,71 @@ export type UpdateBasicInfoRequest = {
   menteeName: string | null;
 };
 
-// 진행 상태 변경 — PATCH /schedules/{id}/status
-// 전진(측정중·분석중)은 시트 저장·시료접수일 입력 시 서버가 자동 처리하므로,
-// 이 요청은 사용자가 확정하는 종료 전이(완료·취소)에 쓴다.
-export type ChangeScheduleStatusRequest = {
-  status: ScheduleStatus;
+// 측정계획 메타 수정 — PUT /schedules/{id}
+// 관리번호·채취일자·측정용도·측정분야가 이 경로다(기본정보 PATCH 계약 밖이다).
+// 서버는 메타를 고친 뒤 문서 스냅샷의 basicInfo 까지 같은 값으로 동기화한다.
+// null 은 "기존 값 유지"다 — 단 tenant 만 예외로 그대로 덮어써지므로,
+// 값을 바꿀 뜻이 없어도 호출부가 현재 스냅샷의 tenant 를 되돌려 실어야 한다.
+export type UpdateScheduleRequest = {
+  measurementField: MeasurementField | null;
+  sampledAt: string | null;             // "yyyy-MM-dd"
+  schedulePurpose: MeasurementType | null;
+  referenceNumber: string | null;
+  tenant: TenantSnapshotDto | null;
+};
+
+// ─────────────────────────────────────────────────────────────
+// 생애주기 — 완료 / 취소 / 재개방 / 상태 이력
+//
+// 전진(측정중·분석중)은 채취 시작시각·실측값·시료접수일 입력 시 서버가 자동 처리하므로 요청 계약이 없다.
+// 완료(POST /completion)와 복구(POST /restore)는 본문이 없고, 취소·재개방만 사유를 받는다.
+// ─────────────────────────────────────────────────────────────
+
+/** 측정계획 취소 — POST /schedules/{id}/cancellation. 서버에서 사유가 필수(@NotBlank)다. */
+export type CancelScheduleRequest = {
+  reason: string;
+};
+
+/** 완료 재개방 — POST /schedules/{id}/reopen (ADMIN). 서버에서 사유가 필수(@NotBlank)다. */
+export type ReopenScheduleRequest = {
+  reason: string;
+};
+
+// ─────────────────────────────────────────────────────────────
+// 실험분석정보 — /schedules/{scheduleId}/analyses (MongoDB, 측정항목 1건 = 문서 1건)
+//
+// 시트(현장 실측)와 다른 애그리거트다. 허용기준치·산소보정 적용 여부는 등록 시 서버가
+// 측정 시점 스냅샷(items)에서 복사하므로 요청에 담지 않으며, 수정 대상도 아니다.
+// ─────────────────────────────────────────────────────────────
+
+export type AnalysisRecordResponse = {
+  id: string;                       // Mongo 문서 id
+  scheduleId: number;
+  stackPollutantId: number;
+  pollutantId: number;
+  pollutantName: string;
+  allowance: number | null;         // 허용기준치 (측정 시점 원장 사본)
+  oxygenApplicable: boolean;        // 기준산소농도 보정 적용 여부 (측정 시점 원장 사본)
+  analysisValue: number | null;     // 측정분석값
+  unit: string | null;              // 측정단위
+  analysisMethod: string | null;    // 측정분석방법
+  analysisEquipment: string | null; // 분석장비
+  createdAt: string;
+  modifiedAt: string;
+};
+
+export type CreateAnalysisRecordRequest = {
+  pollutantId: number;
+  analysisValue: number;
+  unit: string | null;
+  analysisMethod: string | null;
+  analysisEquipment: string | null;
+};
+
+/** 전달하지 않은(null) 필드는 서버가 기존 값을 유지한다. 측정항목은 바꿀 수 없다. */
+export type UpdateAnalysisRecordRequest = {
+  analysisValue: number | null;
+  unit: string | null;
+  analysisMethod: string | null;
+  analysisEquipment: string | null;
 };

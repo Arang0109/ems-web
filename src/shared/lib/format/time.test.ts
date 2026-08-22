@@ -1,6 +1,41 @@
 import { describe, expect, it } from 'vitest';
 
-import { addMinutes, formatTime, unformatTime } from './time';
+import {
+  addMinutes,
+  formatTime,
+  fromMinutes,
+  maskTimeInput,
+  normalizeTime,
+  toMinutes,
+  unformatTime,
+} from './time';
+
+describe('toMinutes', () => {
+  it('"HH:mm" 을 자정 기준 분으로 바꾼다', () => {
+    expect(toMinutes('00:00')).toBe(0);
+    expect(toMinutes('09:30')).toBe(570);
+    expect(toMinutes('23:59')).toBe(1439);
+  });
+
+  it('빈 입력·파싱 불가는 null — 0 과 구분해야 한다', () => {
+    expect(toMinutes('')).toBeNull();
+    expect(toMinutes('--:--')).toBeNull();
+    expect(toMinutes('abc')).toBeNull();
+  });
+});
+
+describe('fromMinutes', () => {
+  it('분을 "HH:mm" 으로 되돌린다', () => {
+    expect(fromMinutes(0)).toBe('00:00');
+    expect(fromMinutes(570)).toBe('09:30');
+  });
+
+  it('하루를 벗어나면 24시간으로 순환한다', () => {
+    expect(fromMinutes(1450)).toBe('00:10');
+    expect(fromMinutes(-10)).toBe('23:50');
+    expect(fromMinutes(1440)).toBe('00:00');
+  });
+});
 
 describe('addMinutes', () => {
   it('분을 더해 "HH:mm" 으로 반환한다', () => {
@@ -31,6 +66,66 @@ describe('addMinutes', () => {
     expect(addMinutes('', 30)).toBeNull();
     expect(addMinutes('--:--', 30)).toBeNull();
     expect(addMinutes('abc', 30)).toBeNull();
+  });
+});
+
+describe('maskTimeInput', () => {
+  it('숫자만 치면 콜론을 끼워 넣는다', () => {
+    expect(maskTimeInput('1')).toBe('1');
+    expect(maskTimeInput('14')).toBe('14:');
+    expect(maskTimeInput('143')).toBe('14:3');
+    expect(maskTimeInput('1430')).toBe('14:30');
+  });
+
+  it('첫 자리가 3 이상이면 시가 확정되므로 앞당겨 분으로 넘긴다', () => {
+    expect(maskTimeInput('3')).toBe('03:');
+    expect(maskTimeInput('9')).toBe('09:');
+  });
+
+  it('앞 두 자리가 시로 성립하지 않으면 첫 자리만 시로 본다 (붙여넣기 보정)', () => {
+    expect(maskTimeInput('930')).toBe('09:30');
+    expect(maskTimeInput('2599')).toBe('02:59');
+  });
+
+  it('이미 콜론이 있는 값도 같은 결과로 수렴한다 (재입력 안정성)', () => {
+    expect(maskTimeInput('14:30')).toBe('14:30');
+    expect(maskTimeInput('14:')).toBe('14:');
+  });
+
+  it('숫자 아닌 문자는 버리고 4자리를 넘기면 자른다', () => {
+    expect(maskTimeInput('가나14:30')).toBe('14:30');
+    expect(maskTimeInput('143055')).toBe('14:30');
+    expect(maskTimeInput('')).toBe('');
+    expect(maskTimeInput('--:--')).toBe('');
+  });
+});
+
+describe('normalizeTime', () => {
+  it('자릿수만큼 채워 확정한다', () => {
+    expect(normalizeTime('9')).toBe('09:00');
+    expect(normalizeTime('14')).toBe('14:00');
+    expect(normalizeTime('930')).toBe('09:30');
+    expect(normalizeTime('1430')).toBe('14:30');
+  });
+
+  it('마스킹된 미완성 값도 그대로 받는다', () => {
+    expect(normalizeTime('03:')).toBe('03:00');
+    expect(normalizeTime('14:3')).toBe('14:03');
+  });
+
+  it('범위를 벗어난 분은 상한(59)으로 붙인다', () => {
+    expect(normalizeTime('0299')).toBe('02:59');
+    expect(normalizeTime('23:99')).toBe('23:59');
+  });
+
+  it('빈 입력은 "" — 0 시 0 분으로 바꾸지 않는다', () => {
+    expect(normalizeTime('')).toBe('');
+    expect(normalizeTime('--:--')).toBe('');
+  });
+
+  it('이미 확정된 값은 바뀌지 않는다', () => {
+    expect(normalizeTime('00:00')).toBe('00:00');
+    expect(normalizeTime('23:59')).toBe('23:59');
   });
 });
 

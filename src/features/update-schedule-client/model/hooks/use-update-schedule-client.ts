@@ -1,7 +1,5 @@
 import { useState } from "react";
 
-import { toFormValue } from "@shared/lib";
-
 import { useChangeClientAction } from "@entities/schedule";
 import type { ClientSnapshot } from "@entities/schedule";
 
@@ -22,7 +20,6 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
   const { changeClient, isLoading } = useChangeClientAction();
 
   const workplace = client.workplace;
-  const stack = workplace.stack;
 
   // 부모가 key로 리마운트하므로 prop은 초기값으로만 쓴다(useEffect 동기화 금지).
   const [form, setForm] = useState<ScheduleClientUpdateForm>({
@@ -41,17 +38,6 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     workplaceZipcode: workplace.zipcode ?? "",
     workplaceRoadAddress: workplace.roadAddress ?? "",
     workplaceDetailAddress: workplace.detailAddress ?? "",
-    stackField: stack.field,
-    stackName: stack.name ?? "",
-    stackSemsNumber: stack.semsNumber ?? "",
-    stackGrade: stack.grade,
-    mainProduct: stack.mainProduct ?? "",
-    standardOxygen: toFormValue(stack.standardOxygen),
-    height: toFormValue(stack.height),
-    horizontalLength: toFormValue(stack.horizontalLength),
-    verticalLength: toFormValue(stack.verticalLength),
-    shape: stack.shape,
-    orientation: stack.orientation,
   });
 
   const [fieldErrors, setFieldErrors] =
@@ -90,7 +76,7 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     }
 
     try {
-      // 의뢰기관·사업장·측정시설이 한 트리라 PATCH 한 번으로 함께 저장한다.
+      // 측정시설(stack)을 싣지 않으므로 서버 병합이 측정시설 카드의 값을 그대로 둔다.
       await changeClient(scheduleId, toClientSnapshotUpdate(form));
       toast.success("의뢰기관 정보가 수정되었습니다.");
       onSuccess();

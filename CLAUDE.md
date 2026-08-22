@@ -23,6 +23,7 @@
 | 테이블 | `@tanstack/react-table` 8 |
 | 차트 | `recharts` 3 (+ `@recharts/devtools`) |
 | UI 동작 레이어 | `@base-ui/react` (shadcn/ui 컴포넌트의 기반) |
+| 드래그앤드롭 | `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` (`shared/ui/sortable` 에서만 직접 쓴다) |
 | 토스트 | `sonner` |
 | 테마 | `next-themes` |
 | 날짜 | `date-fns`, `react-day-picker` |
@@ -341,7 +342,7 @@ const [form, setForm] = useState({
 | **Domain 입력** | `entities/*/model/types.ts` | `number` (선택필드는 `number \| null`) | `number` | `string` |
 | **Domain→DTO** | `entities/*/api/mapper.ts` | passthrough | passthrough | passthrough |
 | **Request DTO** | `entities/*/api/dto.ts` | `number` (`number \| null`) | `number` | `string` |
-| **표시(Row)** | `widgets/*/model/mapper.ts` | `number` → `formatMoney()` 등 → `string` | — | — |
+| **표시(Row)** | `widgets/*/model/mapper.ts` | `number` → `formatNumber()` 등 → `string` | — | — |
 
 ### 규칙 상세
 

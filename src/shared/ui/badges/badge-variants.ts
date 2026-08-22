@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 /**
  * 피그마 "운영 상태 · 배지" 의 pill 배지.
@@ -35,3 +35,6 @@ export const badgeVariants = cva(
     },
   }
 );
+
+/** Badge 의 톤 값 — 호출부가 톤을 계산해서 넘길 때 쓴다 */
+export type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>['tone']>;

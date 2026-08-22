@@ -12,6 +12,12 @@ declare module '@tanstack/react-table' {
     onViewDetail?: (row: TData) => void;
     /** 행 다운로드 액션 콜백. `useDataTable({ overrides: { meta } })` 로 주입한다. */
     onDownload?: (row: TData) => void;
+    /** 행 복구 액션 콜백. `useDataTable({ overrides: { meta } })` 로 주입한다. */
+    onRestore?: (row: TData) => void;
+    /** 행 삭제 액션 콜백. `useDataTable({ overrides: { meta } })` 로 주입한다. */
+    onDelete?: (row: TData) => void;
+    /** 행 액션이 진행 중인지. 중복 실행을 막으려고 액션 셀이 읽는다. */
+    isRowActionPending?: boolean;
   }
 }
 

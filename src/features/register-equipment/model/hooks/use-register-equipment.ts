@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 import type { EquipmentRegisterForm, EquipmentSpecForm, InspectionItemForm } from "../types";
-import { getDefaultEquipmentRegisterForm, getDefaultSpecForm } from "../types";
+import { getDefaultEquipmentRegisterForm, getDefaultSpecForm, isEquipmentFormDirty } from "../types";
 import { toEquipmentCreate } from "../mapper";
-import { validateEquipmentFields } from "../validator";
+import { STEP_VALIDATORS, validateEquipmentFields } from "../validator";
+import type { EquipmentStepId } from "../step-progress";
 
 import { useRegisterEquipmentAction } from "@entities/equipment";
 
@@ -86,6 +87,18 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
     setFieldErrors((prev) => ({ ...prev, inspections: undefined }));
   };
 
+  /**
+   * 위저드의 '다음' 이 쓰는 스텝 단위 검증.
+   * 실패한 스텝의 에러만 채우고 이동을 막는다 (제출 시 전체 검증은 그대로 남는다).
+   */
+  const validateStep = (id: EquipmentStepId): boolean => {
+    const errors = STEP_VALIDATORS[id](form);
+    if (Object.keys(errors).length === 0) return true;
+
+    setFieldErrors((prev) => ({ ...prev, ...errors }));
+    return false;
+  };
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -109,6 +122,8 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
   return {
     form,
     isLoading,
+    // Select·DatePicker·Checkbox 위주라 모달의 input 기반 판정으로는 부족하다.
+    isDirty: isEquipmentFormDirty(form, defaultType),
 
     fieldErrors,
 
@@ -126,6 +141,7 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
 
     handleInspectionChange,
 
+    validateStep,
     handleSubmit,
   };
 };

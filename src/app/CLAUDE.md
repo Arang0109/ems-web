@@ -31,12 +31,25 @@ app/
 │   └── auth-provider.tsx # 인증 Context Provider
 └── routes/
     ├── index.ts
-    ├── app-routes.tsx    # 라우트 정의
+    ├── app-routes.tsx    # 라우트 정의 (데이터 라우터)
     ├── public-route.tsx     # 미인증 전용 (로그인 페이지)
     ├── protected-route.tsx  # 인증 필요
     ├── admin-route.tsx      # 인증 + ADMIN 역할
     └── platform-route.tsx   # 인증 + 플랫폼 운영자 역할
 ```
+
+---
+
+## 라우터는 데이터 라우터(`createBrowserRouter`)다
+
+`<BrowserRouter><Routes>` 조합이 아니라 `createBrowserRouter(createRoutesFromElements(...))`
++ `RouterProvider` 로 구성한다. **`useBlocker` 가 데이터 라우터에서만 동작하기 때문**이다
+(미저장 이탈 방지 — `@shared/ui/dialogs` 의 `useUnsavedChangesGuard`).
+
+- 라우트 정의 JSX(`<Route>` 중첩)와 `useNavigate`·`useParams`·`<Outlet>` 사용법은 그대로다.
+- `router` 는 **모듈 스코프에서 한 번만** 만든다. 컴포넌트 안에서 만들면 렌더마다
+  라우터가 새로 생겨 히스토리가 초기화된다.
+- loader/action 은 쓰지 않는다 — 데이터 조회는 지금처럼 entity 훅이 담당한다.
 
 ---
 

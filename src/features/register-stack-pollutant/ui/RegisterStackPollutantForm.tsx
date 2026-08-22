@@ -62,15 +62,17 @@ export const RegisterStackPollutantForm = ({
 
   const gridCols = hasStandardOxygen ? GRID_COLS_WITH_OXYGEN : GRID_COLS;
 
+  // 이 고객사가 채택한 물질만 온다 — 목록에 없는 물질은 측정물질 관리에서 먼저 등록해야 한다.
   const { data: pollutants } = usePollutants();
-  const pollutantOptions = pollutants.map((p) => ({
-    value: String(p.id),
-    label: p.nameKr,
+  const pollutantOptions = pollutants.map((pollutant) => ({
+    value: String(pollutant.id),
+    label: pollutant.nameKr,
   }));
+  const hasPollutants = pollutantOptions.length > 0;
 
   return (
     <FormDialog
-      triggerLabel="측정항목 등록"
+      title="측정항목 등록"
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
@@ -89,6 +91,12 @@ export const RegisterStackPollutantForm = ({
             <Plus className="size-4" /> 항목 추가
           </button>
         </div>
+
+        {!hasPollutants && (
+          <p className="text-body-4 text-muted-foreground">
+            등록된 측정물질이 없습니다. <b>측정물질 조회/관리</b>에서 먼저 물질을 등록해 주세요.
+          </p>
+        )}
 
         {hasStandardOxygen && (
           <p className="text-body-4 text-muted-foreground">
@@ -112,10 +120,11 @@ export const RegisterStackPollutantForm = ({
               <span className="text-label text-muted-foreground md:hidden">오염물질</span>
               <Select
                 id={`pollutant-${index}`}
-                placeholder="오염물질 선택"
+                placeholder={hasPollutants ? "오염물질 선택" : "등록된 측정물질이 없습니다"}
                 options={pollutantOptions}
                 value={row.pollutantId || undefined}
                 onValueChange={(value) => value && handleChange(index, "pollutantId", value)}
+                disabled={!hasPollutants}
               />
             </div>
             <div className={CELL_CLASS}>

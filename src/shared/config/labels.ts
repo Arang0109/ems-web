@@ -65,24 +65,34 @@ export const MEASUREMENT_CYCLE_LABEL: Record<MeasurementCycle, string> = {
   ANNUAL: '연 1회',
 };
 
+/**
+ * 측정계획 상태의 화면 표기.
+ * 시료를 인계받는 시점이 곧 분석값 입력의 시작이고, 분석이 끝나는 시점이 곧 성적서 작성의 완료라
+ * 인계완료·분석완료는 별도 단계가 아니라 각각 아래 두 단계에 흡수돼 있다.
+ */
 export const SCHEDULE_STATUS_LABEL: Record<ScheduleStatus, string> = {
   SCHEDULED: '측정예정',
   MEASURING: '측정중',
-  ANALYZING: '분석중',
-  COMPLETED: '완료',
+  ANALYZING: '분석값입력중',
+  REPORT_COMPLETED: '성적서작성완료',
   CANCELED: '취소',
 };
 
 /**
  * 측정계획 상태의 표시 톤. 목록 배지·모바일 칩·상세 헤더가 공유한다.
- * 측정중·분석중은 같은 progress 톤이며 텍스트로 구분한다(색상만으로 구분하지 않는다).
+ *
+ * 네 진행 단계에 각각 다른 색을 준다 — 회색(대기) → 앰버(현장) → 파랑(실험실) → 초록(확정).
+ * 진행 단계가 여럿이라 "진행 중"을 한 색으로 묶으면 목록에서 어느 단계인지 색으로 읽히지 않고,
+ * 라벨을 끝까지 읽어야만 구분된다.
+ *
+ * 색상만으로 구분하지 않는다는 원칙은 그대로다 — `StatusDot` 이 점과 라벨을 항상 함께 그린다.
  */
 export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
-  SCHEDULED: 'pending',
-  MEASURING: 'progress',
-  ANALYZING: 'progress',
-  COMPLETED: 'done',
-  CANCELED: 'danger',
+  SCHEDULED: 'pending',           // 회색 — 아직 시작 전
+  MEASURING: 'active',            // 앰버 — 현장 측정 진행
+  ANALYZING: 'info',              // 파랑 — 실험실 분석값 입력 진행
+  REPORT_COMPLETED: 'success',    // 초록 — 성적서까지 끝남
+  CANCELED: 'danger',             // 빨강 — 중단
 };
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
@@ -149,7 +159,7 @@ export const WEATHER_CONDITION_LABEL: Record<WeatherCondition, string> = {
 };
 
 export const WIND_DIRECTION_LABEL: Record<WindDirection, string> = {
-  CALM: '무풍',
+  CALM: '정온',
   N: '북', NNE: '북북동', NE: '북동', ENE: '동북동',
   E: '동', ESE: '동남동', SE: '남동', SSE: '남남동',
   S: '남', SSW: '남남서', SW: '남서', WSW: '서남서',
@@ -200,5 +210,5 @@ export const DATE_RANGE_PRESET_LABEL: Record<DateRangePreset, string> = {
   today: '오늘',
   week: '이번 주',
   month: '이번 달',
-  last30: '최근 30일',
+  around30: '전후 30일'
 };

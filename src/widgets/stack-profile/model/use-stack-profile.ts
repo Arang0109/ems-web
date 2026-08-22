@@ -24,6 +24,8 @@ export const useStackProfile = (stackId: string | undefined) => {
     facilities: facilities ?? [],
     preventions: preventions ?? [],
     measurements: toMeasurementProfiles(measurements),
+    // 표시용 문자열과 별개로, 수정 폼의 초기값은 원본 값(주기 enum·허용기준·산소보정)이어야 한다.
+    stackPollutants: measurements,
     loading: loading || measurementsLoading,
     error,
     refetch: () => {

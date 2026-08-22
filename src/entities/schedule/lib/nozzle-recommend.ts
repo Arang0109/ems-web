@@ -1,6 +1,6 @@
 import type { SheetSave } from "../model/types";
 import type { SheetCalcExternals } from "./sheet-calc";
-import { runSheetCalc } from "./sheet-calc";
+import { DEFAULT_DELTA_H, K_FACTOR_CONST, runSheetCalc } from "./sheet-calc";
 
 // ─────────────────────────────────────────────────────────────
 // 적정 노즐사이즈 산정 — 프론트 전용 측정 전 계획 보조 기능(서버 미계산).
@@ -17,9 +17,8 @@ export type NozzleRecommendation = {
   samplingTime: number | null;      // 예상 채취시간 (min)
 };
 
-const K_FACTOR_CONST = 0.0000803989;  // 8.03989 × 10⁻⁵ (공정시험법 개정 시 변경)
-const DEFAULT_DELTA_H = 46;
-
+// 이 파일의 round는 sheet-calc의 roundHalfUp과 달리 음수에서 JS Math.round 동작을 따른다
+// (여기 값은 모두 양수라 실사용 차이는 없다).
 const round = (value: number, scale: number): number => {
   const factor = 10 ** scale;
   return Math.round(value * factor + 1e-9 * Math.sign(value)) / factor;

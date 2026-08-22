@@ -13,9 +13,7 @@ const PERSON_FIELDS: { name: keyof ScheduleBasicInfoForm; label: string }[] = [
   { name: "mentorName", label: "채취자(사수)" },
   { name: "menteeName", label: "채취자(부사수)" },
   { name: "facilityManager", label: "배출시설관리자" },
-  { name: "samplingWitness", label: "환경기술인(시료채취입회자)" },
-  { name: "analyst", label: "시료분석검사자" },
-  { name: "technicalManager", label: "기술책임자" },
+  { name: "samplingWitness", label: "환경기술인(시료채취입회자)" }
 ];
 
 // 측정계획 단위(공통) 시료채취 시각·담당자 — 시트 전환과 무관하게 유지된다.
@@ -23,7 +21,7 @@ const PERSON_FIELDS: { name: keyof ScheduleBasicInfoForm; label: string }[] = [
 export const BasicInfoSection = ({ basicInfoForm, editable, onChange }: Props) => (
   <SectionAccordion
     title="공통 정보"
-    description="직접 측정한 값만 입력하면 차이·환산값·수분량을 자동으로 계산합니다."
+    subtitle="총 채취시간 및 현장 담당자 정보를 입력합니다."
   >
     <SubAccordion title="총 채취시간" defaultOpen>
       <div className="flex flex-wrap items-center gap-3">

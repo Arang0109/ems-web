@@ -96,6 +96,9 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 | | `--warning` | `#f59e0b` | Attention |
 | | `--warning-ink` | `#a45108` | Warning text · Icon |
 | | `--warning-soft` | `#fff7e6` | Warning background |
+| | `--info` | `#3b74e8` | 진행 단계 구분(분석) |
+| | `--info-ink` | `#2451b8` | Info text · Icon |
+| | `--info-soft` | `#eef3fd` | Info background |
 
 > **Primary 는 면, Dark 는 글씨.** 피그마 라벨(Dark="Hover")과 다르게 쓴다.
 > Primary 글씨는 흰 배경에서 3.44:1 이라 읽기 어렵고, Dark 는 5.86:1 로 편하다.
@@ -142,6 +145,9 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 | | `--warning` | `#f59e0b` | `#ffb224` | Attention |
 | | `--warning-ink` | `#a45108` | `#ffcb47` | Warning text · Icon |
 | | `--warning-soft` | `#fff7e6` | `#2b1d06` | Warning background |
+| | `--info` | `#3b74e8` | `#6ea8fe` | 진행 단계 구분(분석) |
+| | `--info-ink` | `#2451b8` | `#8fbcff` | Info text · Icon |
+| | `--info-soft` | `#eef3fd` | `#121d33` | Info background |
 
 > ⚠️ **다크에서는 `--brand-dark` 가 `--brand-primary` 보다 밝다.** 토큰 이름은 강조 계층을
 > 뜻하지 명도 방향이 아니다 — "밝은 배경 위 글씨"가 "어두운 배경 위 글씨"로 역할이 뒤집히기 때문이다.
@@ -235,15 +241,22 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `StatusDot` | `shared/ui/badges/StatusDot.tsx` | 운영 상태 — 점 + 텍스트 |
 | `Toaster` | `shared/ui/toasts/Toaster.tsx` | sonner 래퍼 |
 | `ConfirmDialog` | `shared/ui/dialogs/ConfirmDialog.tsx` | 확인 다이얼로그. Base UI `alert-dialog` 직접 사용 (shadcn 래퍼 미경유). 호출은 `useConfirm` |
+| `FormDialogShell` | `shared/ui/dialogs/FormDialogShell.tsx` | 폼 모달의 공통 셸 — 아래 "모달 셸" 참조. 배럴에 노출하지 않는다 |
+| `StepFormDialog` | `shared/ui/dialogs/StepFormDialog.tsx` | 스텝 위저드 모달 — `StepNav` + 좌우 슬라이드 뷰포트. md 미만 전체화면 |
+| `DocumentViewerDialog` | `shared/ui/dialogs/DocumentViewerDialog.tsx` | 고정폭 문서(기록지·양식) 뷰어. md 미만 전체화면 / 데스크탑 96vw. 얇은 헤더(제목 + `toolbar` 슬롯 + ✕) + 푸터 없음 + 떠 있는 배율 컨트롤(폭 맞춤·±·핀치). 폼 셸을 쓰지 않는다 |
+| `Drawer` | `shared/ui/drawer/Drawer.tsx` | 화면 가장자리 오버레이 — 모바일 하단 바텀시트 / 데스크탑 사이드. Base UI `dialog` 직접 사용 (shadcn 래퍼 미경유). 폼 셸을 쓰지 않는다 — 닫아서 잃을 값이 없는 표면 전용. side 별 위치·슬라이드는 `drawer-size.ts` |
 | `Tabs` | `shared/ui/tabs/Tabs.tsx` | 언더라인형. Base UI `tabs` 직접 사용 (shadcn 래퍼 미경유) |
 | `Tooltip`, `HelpTip` | `shared/ui/tooltip/` | 말풍선(Ink 면 + Surface 글씨) + 라벨 옆 도움말 아이콘. Base UI `tooltip` 직접 사용. hover 가 `mouseOnly` 라 **터치에서 열리도록 클릭 토글을 얹었다** |
 | `SectionAccordion` | `shared/ui/accordion/SectionAccordion.tsx` | 섹션 카드 — 제목 + 진행도 배지 + 접이식 본문. 제어/비제어 모두 지원 |
 | `SubAccordion` | `shared/ui/accordion/SubAccordion.tsx` | 섹션 안의 중첩 그룹 (`bg-canvas`) |
-| `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select 모드 지원 |
-| `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 행 (좌 라벨 / 우 값+단위) |
+| `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select·시각 모드 지원 |
+| `TimeField` | `shared/ui/form/TimeField.tsx` | 시각 입력 — 숫자 타이핑 마스킹(`1430` → `14:30`) + 시·분 팝오버. 네이티브 `type="time"` 위젯이 브라우저마다 폭·모양이 달라 대체했다. `UnitField`·`InlineInput`·`TableInputCell` 이 `type="time"` 일 때 자동으로 이 컴포넌트를 쓴다 |
+| `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 **행** (좌 라벨 / 우 값+단위). 입력 필드의 `helper` 슬롯에 딸리는 파생값 1개 |
+| `CalcResultGrid` | `shared/ui/form/CalcResultGrid.tsx` | 자동계산 결과 **묶음** (라벨 위 / 값 아래, 프레임 없음). 입력과 독립된 결과 N개. 값 18px·라벨 12px muted, 전부 비면 `emptyText` 한 줄로 축약 |
 | `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행. MO 좌 라벨 / 우 값(48px, 하단 구분선) → 데스크탑 고정폭 라벨 열(7rem) + 값 가로 정렬(구분선 없음, ~32px). `span` 으로 긴 값에 열 확장 |
 | `DetailGrid` | `shared/ui/form/DetailGrid.tsx` | `DetailRow` 전용 그리드 셸. `cols` 1·2·3(기본 3 = md 2열 / xl 3열). 열 간격은 넓게·행 간격은 데스크탑에서 좁게 |
-| `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기 |
+| `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기. **순서·진행 표현은 `StepNav`** |
+| `StepNav` | `shared/ui/nav/StepNav.tsx` | 스텝 위저드 인디케이터 — 번호 원 + 연결선 + 완료/현재/미방문. md 미만은 라벨을 감추고 `2 / 4 구매 정보` 한 줄로 축약 |
 | `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
 | `PageLayout` | `shared/ui/layout/PageLayout.tsx` | 페이지 셸 — 제목 + 액션 + 본문 |
 | `Panel`, `SummaryCard`, `SummaryCardGroup` | `shared/ui/cards/` | 카드 셸 / 지표 타일 / 제목+타일 그리드 |
@@ -251,6 +264,7 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `Skeleton`, `SkeletonPanel` | `shared/ui/skeletons/` | 자리표시 원자 / 패널 단위 로딩 |
 | `DateRangePicker` | `shared/ui/form/DateRangePicker.tsx` | 기간 선택 |
 | `SidebarMobileBar` | `shared/ui/sidebar/SidebarMobileBar.tsx` | 모바일 상단 바 |
+| `InputTable` | `shared/ui/table/InputTable.tsx` | 행=레코드·열=항목인 **입력 표** — 열 선언 배열(`label`·`readonly`·`input`·`result`·`action`)로 조립한다. 폭 합이 표의 `minWidth` 가 되고, 셀 간 키보드 이동(`useGridNavigation` — `Alt+방향키` 4방향, `Enter` 아래 행)이 기본으로 붙는다. 모바일 표현은 호출부 몫 |
 | `BasicTable` 외 테이블 부품 | `shared/ui/table/` | 아래 "반응형 테이블" 참조 |
 
 ### 반응형 테이블
@@ -270,6 +284,53 @@ BasicTable
 > **모바일 1순위 원칙의 구현체가 이 구조다.** 새 테이블 위젯은 데스크탑 표만 만들지 말고
 > `model/mobile-card.tsx` 로 카드 표현을 함께 선언한다.
 
+### 모달 셸
+
+폼 모달도 렌더러가 아니라 **조합기** 구조다.
+
+```
+FormDialogShell            ← @/components/ui/dialog 의 유일한 소비자
+├── FormDialog             단일 폼  (푸터: 삭제 / 닫기 / 제출)
+└── StepFormDialog         스텝 위저드 (헤더: StepNav, 푸터: 이전·닫기 / 다음·제출)
+    └── StepViewport       패널을 1×1 그리드에 겹쳐 쌓고 translateX 로 슬라이드
+```
+
+셸이 실수 방지 장치 3가지(배경 클릭 차단 · 미저장 이탈 확인 · 엔터 암묵적 제출 차단)와
+크기·모바일 전체화면을 소유한다. **새 모달 표면을 만들 때 이 3가지를 다시 구현하지 말고
+셸을 조합한다.** 크기 상수는 `shared/ui/dialogs/dialog-size.ts`
+(`default` 600 / `lg` 768 / `xl` 1024px, + 모바일 전체화면 클래스).
+
+`fullScreenOnMobile` 은 `StepFormDialog` 에서만 기본값 `true` 다. 기존 `FormDialog` 호출부
+29곳은 중앙 모달 그대로다 — 전역 적용은 3순위 참조.
+
+> shadcn 제거 관점에서 **`dialog.tsx` 의 접점이 파일 하나로 줄었다.** 아래 "잔존 shadcn"의
+> `dialog` 155줄은 `FormDialogShell` 만 고치면 Base UI 순정으로 교체할 수 있다.
+
+### 읽기 전용 값에 입력창을 씌우지 않는다
+
+자동계산 결과처럼 사용자가 고칠 수 없는 값에 `readOnly` 입력 프레임을 쓰지 않는다.
+
+| 문제 | 내용 |
+|---|---|
+| 어포던스 오류 | `disabled` 가 아니라 `readOnly` 라 포커스가 잡힌다. 테두리 때문에 고칠 수 있는 값으로 읽히고, 탭 순회에도 걸린다 |
+| 값이 묻힌다 | 라벨 12px·값 14px 로 무게가 비슷한데 프레임이 시선을 가져간다. 결과가 주인공인 자리인데도 |
+| 세로 낭비 | 항목당 라벨 20px + 프레임 48px(모바일) ≈ 74px. 5개면 222px 이 텍스트 90px 로 줄어든다 |
+
+| 상황 | 쓸 것 |
+|---|---|
+| 입력 필드에 딸린 파생값 1개 | `CalcResultRow` (`UnitField` 의 `helper` 슬롯) |
+| 입력과 독립된 결과 묶음 N개 | `CalcResultGrid` |
+| 행=항목·열=측정점인 전치 표 | `TableResultCell` |
+
+> 계산 전에는 값이 전부 비어 자리만 차지한다. `CalcResultGrid` 의 `emptyText` 로
+> "측정값을 입력하면 …가 계산됩니다" 한 줄로 축약한다.
+
+### 전환 애니메이션
+
+전환에는 **`motion-reduce:transition-none` 을 함께 붙인다.** `prefers-reduced-motion` 을
+켠 사용자에게 움직임을 강요하지 않기 위한 것이고, Tailwind 내장 변형이라 JS 가 필요 없다.
+(`StepViewport` 의 슬라이드가 이 규약을 따른다.)
+
 **Button variant** (이름은 기존 호출부 호환을 위해 유지)
 
 | 피그마 | variant | 스타일 |
@@ -278,22 +339,49 @@ BasicTable
 | DEFAULT | `outline` | `bg-surface border-rule text-ink` → hover `bg-brand-soft` |
 | SELECTED | `selected` | `bg-brand-soft border-brand-primary text-brand-dark` |
 | DESTRUCTIVE | `destructive` | `bg-surface border-danger text-danger` → hover `bg-danger-soft` |
+| (피그마 외) | `warning` | `bg-warning text-ink`(다크 `text-canvas`) → hover `bg-warning/85` |
 | ICON ONLY | `outline` + `size="icon"` | — |
 | FOCUS / DISABLED | base 상태 | 초록 링 / 회색 면 |
 
+> `warning` 은 피그마 스펙에 없는 확장이다. **"저장하지 않은 변경이 있다"** 를 색으로
+> 알리는 용도로만 쓰고(측정계획 상세 · 측정 데이터 탭의 저장 버튼), 저장된 상태에서는
+> `default` 로 되돌린다. 앰버 면 위 글씨는 항상 어두워야 하므로 다크에서 `canvas` 를 쓴다.
+
 **상태 톤** (`shared/ui/badges/tones.ts`) — 도메인 variant 가 아니라 의미 톤으로 표현한다.
 
-| 톤 | 피그마 | 색 |
-|---|---|---|
-| `pending` | 예정 | Ink |
-| `progress` | 진행 중 | brand |
-| `done` | 완료 | muted |
-| `danger` | 지연 | danger |
-| `warning` | 확인 필요 | warning |
+| 톤 | 의미 | 색 | 피그마 |
+|---|---|---|---|
+| `pending` | 대기 | ink-soft (회색) | 예정 |
+| `active` | 진행 중 — 현장 | warning (앰버) | (확장) |
+| `info` | 진행 중 — 분석 | **info (파랑)** | (확장) |
+| `progress` | 진행 중 | brand (초록) | 진행 중 |
+| `success` | 확정 완료 | brand (초록) | (확장) |
+| `done` | 종료 · 비활성 | muted (회색) | 완료 |
+| `danger` | 지연 · 중단 | danger (빨강) | 지연 |
+| `warning` | 확인 필요 | warning (앰버) | 확인 필요 |
 
 > **"상태는 텍스트와 점을 함께 표시하고, 색상만으로 구분하지 않습니다."**
 > `StatusDot` 은 `label` 을 필수 prop 으로 두어 이 원칙을 타입으로 강제한다.
-> 같은 톤을 여러 상태가 공유해도 무방하다 (측정중·분석중은 둘 다 `progress`).
+> 색은 라벨을 **읽기 전에 훑어보게** 해 줄 뿐, 색 없이도 정보가 온전해야 한다.
+
+`active`·`info`·`success` 는 피그마 스펙의 확장이다. **진행 단계가 여럿인 도메인**에서
+"진행 중"을 한 색으로 묶으면 목록에서 어느 단계인지 색으로 읽히지 않기 때문에 단계별로 색을 갈랐다.
+측정계획이 그 경우다 (`SCHEDULE_STATUS_TONE`):
+
+| 상태 | 톤 | 색 |
+|---|---|---|
+| 측정예정 | `pending` | 회색 |
+| 측정중 | `active` | 앰버 |
+| 분석값입력중 | `info` | 파랑 |
+| 성적서작성완료 | `success` | 초록 |
+| 취소 | `danger` | 빨강 |
+
+> `active`/`warning` 과 `success`/`progress` 는 **색값이 같다.** 한쪽으로 합치지 않은 것은
+> 이름이 곧 쓰임을 제한하기 때문이다 — 정상 진행 단계에 `warning` 을, 확정된 종료 상태에
+> `progress` 를 붙이면 다음 사람이 그 색을 경고·진행으로 잘못 읽는다. 색이 겹치는 것은 두 톤이
+> 한 화면에 같이 놓이지 않는 한 문제가 되지 않지만, 이름이 거짓말하면 매번 문제가 된다.
+>
+> 단계가 하나뿐인 도메인(측정장비·측정물질 카탈로그)은 그대로 `progress`/`done` 을 쓴다.
 
 ### shadcn 이관분 — `shared/ui/primitives/`
 
@@ -435,7 +523,8 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 전부 "링크형 텍스트 버튼"의 파랑이었고, `dark:` 를 덧붙이는 대신 토큰으로 바꿔 `dark:` 자체를 없앴다.
 `button-variants.ts` 의 `link` variant 와 같은 표현(`text-brand-dark` + `hover:underline`)으로 통일했다.
 
-- `features/register-equipment/ui/SpecFields.tsx:27` — 파랑 직색 → `text-brand-dark hover:underline`
+- `features/register-equipment/ui/steps/SpecStep.tsx:27` — 파랑 직색 → `text-brand-dark hover:underline`
+  (스텝 위저드 전환 때 `ui/SpecFields.tsx` 에서 옮겨온 파일)
 - `features/update-equipment/ui/SpecFields.tsx:27` — 위와 동일
 - `features/update-equipment/ui/InspectionFields.tsx:76` — 위와 동일
 - `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx:56` — 위와 동일
@@ -469,11 +558,17 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | **`IconButton` 기본 variant** | `ghost`(현재, 테두리 없음) / `outline`(피그마 ICON ONLY) — 테이블 행 12곳에 영향 |
 | **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가. `.dark` 는 `:root` 의 팔레트 참조를 그대로 상속하므로 여기서 확정하면 두 모드에 동시 반영된다 |
 | **`Danger Ink` 신설** | Warning 에는 텍스트용 `#a45108` 이 있으나 Danger 에는 없음 |
+| **모달 폭·백드롭·z-index 토큰화** | 폭 프리셋은 `shared/ui/dialogs/dialog-size.ts` 로 모였으나 여전히 로컬 상수다. 백드롭(`bg-black/10 dark:bg-black/50` + `backdrop-blur-xs`)은 `dialog`·`sheet`·`ConfirmDialog`·`Drawer` 4곳에 중복이고 z-index 는 네 곳 모두 `z-50` 리터럴 (`Drawer` 쪽은 `DRAWER_BACKDROP_CLASS` 로 이름은 붙여 뒀다) |
+| **`fullScreenOnMobile` 전역 적용** | 현재 `StepFormDialog` 만 `true`. 나머지 `FormDialog` 28곳도 md 미만에서 전체화면으로 띄울지 — 모바일 1순위 원칙과는 맞으나 28개 화면의 시각 변화를 동반한다 |
 
 ### 4순위 — 정리
 
 - ~~**`src/app/App.css` 삭제**~~ — **완료.** import 0건이던 Vite 스캐폴딩 잔재 제거
 - **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다
+- **`index.html` 에 `viewport-fit=cover`** — 없어서 `env(safe-area-inset-*)` 가 iOS 에서 0 으로
+  계산된다. 모달 전체화면 푸터가 `pb-[max(0.75rem,env(safe-area-inset-bottom))]` 로 미리 대비해
+  뒀으므로 켜는 순간 홈 인디케이터를 피한다. 다만 사이드바·`MainLayout` 이 노치 영역까지
+  확장되는 부수효과가 있어 전역 레이아웃 검토가 선행되어야 한다
 - **`계약 상태` 배지 적용** — `CONTRACT_STATUS_LABEL`(정상/만료 임박/만료)이 라벨맵만 있고
   테이블에서 문자열 그대로 렌더된다. 피그마의 "만료 임박" 배지가 갈 자리
 - ~~**폼 입력 글씨 16px 문제**~~ — **완료(8단계).** `text-base md:text-sm` → `text-body-3`

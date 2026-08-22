@@ -119,6 +119,16 @@ export type FacilityUpdateRequest = {
   unit: string;
 }
 
+/**
+ * 배출시설 순서 변경 요청.
+ * `orderedIds` 는 이 측정지점의 배출시설 **전체**여야 하며, 배열 순서가 곧 표시 순위다.
+ * 집합이 서버와 다르면 서버가 아무것도 저장하지 않고 거절한다.
+ */
+export type FacilityReorderRequest = {
+  stackId: number;
+  orderedIds: number[];
+}
+
 export type PreventionRegisterRequest = {
   stackId: number;
   name: string;
@@ -134,4 +144,14 @@ export type PreventionUpdateRequest = {
   unit: string;
   targetName: string;
   removalEfficiency: string;
+}
+
+/**
+ * 방지시설 순서 변경 요청.
+ * `orderedIds` 는 이 측정지점의 방지시설 **전체**여야 하며, 배열 순서가 곧 표시 순위다.
+ * 집합이 서버와 다르면 서버가 아무것도 저장하지 않고 거절한다.
+ */
+export type PreventionReorderRequest = {
+  stackId: number;
+  orderedIds: number[];
 }

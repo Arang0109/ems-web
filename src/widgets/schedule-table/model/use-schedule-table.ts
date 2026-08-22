@@ -11,7 +11,11 @@ import { defaultColumns } from './columns';
 import { toScheduleRows } from './mapper';
 import { ALL_STATUSES, ALL_TEAMS, useScheduleFilter } from './use-schedule-filter';
 
-const statusOptions = [{ value: ALL_STATUSES, label: '전체 상태' }, ...scheduleStatusOptions];
+// 취소된 계획은 이 목록에 오지 않으므로(전용 화면에서 관리) 필터 선택지에서도 뺀다.
+const statusOptions = [
+  { value: ALL_STATUSES, label: '전체 상태' },
+  ...scheduleStatusOptions.filter((option) => option.value !== 'CANCELED'),
+];
 
 export const useScheduleTable = () => {
   const filter = useScheduleFilter();

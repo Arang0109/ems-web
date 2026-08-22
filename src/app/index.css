@@ -150,6 +150,9 @@
   --color-warning: var(--warning);
   --color-warning-ink: var(--warning-ink);
   --color-warning-soft: var(--warning-soft);
+  --color-info: var(--info);
+  --color-info-ink: var(--info-ink);
+  --color-info-soft: var(--info-soft);
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -232,6 +235,9 @@
   --warning: #f59e0b; /* Attention */
   --warning-ink: #a45108; /* Warning text · Icon */
   --warning-soft: #fff7e6; /* Warning background · Helper */
+  --info: #3b74e8; /* 진행 단계 구분(분석) */
+  --info-ink: #2451b8; /* Info text · Icon */
+  --info-soft: #eef3fd; /* Info background */
 
   /* ─── shadcn 호환 shim ────────────────────────────────────────
      Base UI 기반 shadcn 을 걷어낼 때 이 블록만 삭제하면 된다.
@@ -311,6 +317,9 @@
   --warning: #ffb224; /* Attention */
   --warning-ink: #ffcb47; /* Warning text · Icon */
   --warning-soft: #2b1d06; /* Warning background · Helper */
+  --info: #6ea8fe; /* 진행 단계 구분(분석) */
+  --info-ink: #8fbcff; /* Info text · Icon */
+  --info-soft: #121d33; /* Info background */
 
   color-scheme: dark;
 }

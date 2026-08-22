@@ -27,7 +27,6 @@ export const StackBasicInfo = ({ stack, stackProfile, onSuccess }: Props) => {
     <>
       <SectionAccordion
         title="측정지점 정보"
-        defaultOpen
         action={
           <IconButton
             icon={<SquarePen size={19} />}
@@ -52,7 +51,7 @@ export const StackBasicInfo = ({ stack, stackProfile, onSuccess }: Props) => {
           <DetailRow label="측정공 직경(m)" value={stackProfile.diameter} />
           {/* 단위는 라벨에 둔다 — 값에 붙이면 빈 값("-")에도 단위가 따라붙는다 */}
           <DetailRow label="측정공 높이(m)" value={stackProfile.height} />
-          <DetailRow label="기준산소농도(%)" value={stackProfile.standardOxygen} />
+          <DetailRow label="표준산소농도(%)" value={stackProfile.standardOxygen} />
         </DetailGrid>
       </SectionAccordion>
 

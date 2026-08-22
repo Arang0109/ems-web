@@ -1,6 +1,9 @@
-import { BrowserRouter, Routes, Route } from "react-router";
+import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from "react-router";
 
-import { PublicRoute, ProtectedRoute, AdminRoute, PlatformRoute } from '.';
+import { PublicRoute } from "./public-route";
+import { ProtectedRoute } from "./protected-route";
+import { AdminRoute } from "./admin-route";
+import { PlatformRoute } from "./platform-route";
 
 import { MainLayout, PlatformLayout } from "@widgets/layouts";
 
@@ -12,14 +15,23 @@ import {
   PollutantPage,
 } from "@pages/client";
 import { AdminMemberPage, AdminDocumentPage } from "@pages/admin";
-import { PlatformTenantPage } from "@pages/platform";
+import { PlatformTenantPage, PlatformPollutantCatalogPage } from "@pages/platform";
 import { EquipmentPage } from "@pages/equipment";
 import { StaffPage } from "@pages/staff";
-import { SchedulePage, ScheduleRegisterPage, ScheduleDetailPage } from "@pages/schedule";
+import {
+  SchedulePage, ScheduleRegisterPage, ScheduleDetailPage,
+  CanceledSchedulePage, DeletedSchedulePage,
+} from "@pages/schedule";
 
-export const AppRoutes = () => (
-  <BrowserRouter>
-    <Routes>
+/**
+ * 데이터 라우터로 구성한다 (`<BrowserRouter><Routes>` 조합이 아니다).
+ * `useBlocker` 가 데이터 라우터에서만 동작하기 때문이다 — 측정 데이터 입력 중
+ * 뒤로가기/이탈을 붙잡는 `useUnsavedChangesGuard` 가 이를 쓴다.
+ * 라우트 정의(JSX)와 훅 사용법은 이전과 동일하다.
+ */
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
       <Route path="/" element={
         <PublicRoute>
           <SignInPage />
@@ -45,6 +57,16 @@ export const AppRoutes = () => (
         <Route path="/staff" element={<StaffPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/schedule/register" element={<ScheduleRegisterPage />} />
+        {/* :scheduleId 보다 먼저 둬야 "canceled"·"deleted"가 id로 잡히지 않는다 */}
+        <Route path="/schedule/canceled" element={<CanceledSchedulePage />} />
+        <Route
+          path="/schedule/deleted"
+          element={
+            <AdminRoute>
+              <DeletedSchedulePage />
+            </AdminRoute>
+          }
+        />
         <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} />
 
         <Route
@@ -76,7 +98,10 @@ export const AppRoutes = () => (
         }
       >
         <Route path="/platform/tenants" element={<PlatformTenantPage />} />
+        <Route path="/platform/pollutant-catalog" element={<PlatformPollutantCatalogPage />} />
       </Route>
-    </Routes>
-  </BrowserRouter>
+    </>,
+  ),
 );
+
+export const AppRoutes = () => <RouterProvider router={router} />;

@@ -1,14 +1,13 @@
-import { format } from "date-fns";
-
 import { useRegisterEquipment } from "../model/hooks/use-register-equipment";
-import { SpecFields } from "./SpecFields";
-import { InspectionFields } from "./InspectionFields";
+import { getEquipmentStepProgress, getVisibleEquipmentSteps } from "../model/step-progress";
+import type { EquipmentStepId } from "../model/step-progress";
+import { BasicInfoStep } from "./steps/BasicInfoStep";
+import { PurchaseStep } from "./steps/PurchaseStep";
+import { InspectionStep } from "./steps/InspectionStep";
+import { SpecStep } from "./steps/SpecStep";
 
 // UI
-import { FormDialog } from "@shared/ui/dialogs";
-import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle, FieldGroup, Select, DatePicker, Textarea } from "@shared/ui/form";
-import { equipTypeOptions } from "@shared/model";
+import { StepFormDialog } from "@shared/ui/dialogs";
 import type { EquipType } from "@shared/model";
 
 interface Props {
@@ -21,6 +20,8 @@ interface Props {
 export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSuccess }: Props) => {
   const {
     form,
+    isDirty,
+    isLoading,
     fieldErrors,
     handleChange,
     handleTypeChange,
@@ -32,6 +33,7 @@ export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSucce
     handleRemoveDiameter,
     handleDiameterChange,
     handleInspectionChange,
+    validateStep,
     handleSubmit,
   } = useRegisterEquipment({
     defaultType,
@@ -41,93 +43,59 @@ export const RegisterEquipmentForm = ({ open, onOpenChange, defaultType, onSucce
     },
   });
 
+  // 스텝 본문. 가스분석기처럼 사양이 없는 종류는 아래 getVisibleEquipmentSteps 가 걸러낸다.
+  const content: Record<EquipmentStepId, React.ReactNode> = {
+    basic: (
+      <BasicInfoStep
+        form={form}
+        fieldErrors={fieldErrors}
+        onChange={handleChange}
+        onTypeChange={handleTypeChange}
+      />
+    ),
+    purchase: <PurchaseStep form={form} onChange={handleChange} />,
+    inspection: (
+      <InspectionStep
+        inspections={form.inspections}
+        error={fieldErrors?.inspections}
+        onChange={handleInspectionChange}
+      />
+    ),
+    spec: (
+      <SpecStep
+        type={form.type}
+        spec={form.spec}
+        error={fieldErrors?.spec}
+        onSpecChange={handleSpecChange}
+        onAddCoefficient={handleAddCoefficient}
+        onRemoveCoefficient={handleRemoveCoefficient}
+        onCoefficientChange={handleCoefficientChange}
+        onAddDiameter={handleAddDiameter}
+        onRemoveDiameter={handleRemoveDiameter}
+        onDiameterChange={handleDiameterChange}
+      />
+    ),
+  };
+
   return (
-    <FormDialog
+    <StepFormDialog
       triggerLabel="측정장비 등록"
+      title="측정장비 등록"
       size="xl"
       open={open}
       onOpenChange={onOpenChange}
+      isDirty={isDirty}
+      isLoading={isLoading}
       onSubmit={handleSubmit}
       submitLabel="등록"
-    >
-      <FieldGroup>
-        <SectionTitle>기본 정보</SectionTitle>
-        <div className="grid md:grid-cols-3 gap-4">
-          <Select
-            id="type"
-            label="장비 종류"
-            placeholder="장비 종류 선택"
-            options={equipTypeOptions}
-            value={form.type}
-            onValueChange={(v) => handleTypeChange(v ?? '')}
-            required
-          />
-          <InputGroup
-            id="equipmentName"
-            label="장비명"
-            placeholder="장비명"
-            value={form.equipmentName}
-            onChange={(v) => handleChange('equipmentName', v)}
-            invalid={!!fieldErrors?.equipmentName}
-            error={fieldErrors?.equipmentName}
-            required
-          />
-          <InputGroup id="managementNumber" label="관리번호" placeholder="관리번호"
-            value={form.managementNumber} onChange={(v) => handleChange('managementNumber', v)} />
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          <InputGroup id="serialNumber" label="시리얼번호" placeholder="시리얼번호"
-            value={form.serialNumber} onChange={(v) => handleChange('serialNumber', v)} />
-          <InputGroup id="modelName" label="모델명" placeholder="모델명"
-            value={form.modelName} onChange={(v) => handleChange('modelName', v)} />
-          <InputGroup id="alias" label="별칭" placeholder="별칭"
-            value={form.alias} onChange={(v) => handleChange('alias', v)} />
-        </div>
-
-        <Divider />
-
-        <SectionTitle>구매 정보</SectionTitle>
-        <div className="grid md:grid-cols-4 gap-4">
-          <InputGroup id="manufacturer" label="제조사" placeholder="제조사"
-            value={form.manufacturer} onChange={(v) => handleChange('manufacturer', v)} />
-          <InputGroup id="originCountry" label="원산지" placeholder="원산지"
-            value={form.originCountry} onChange={(v) => handleChange('originCountry', v)} />
-          <InputGroup id="price" label="가격" placeholder="가격"
-            value={form.price} onChange={(v) => handleChange('price', v)} />
-          <DatePicker
-            id="purchaseDate"
-            label="구매일"
-            value={form.purchaseDate ? new Date(form.purchaseDate) : undefined}
-            onChange={(date) => handleChange('purchaseDate', date ? format(date, 'yyyy-MM-dd') : '')}
-          />
-        </div>
-
-        <Textarea id="remark" label="비고" placeholder="비고"
-          value={form.remark} onChange={(v) => handleChange('remark', v)} rows={2} />
-
-        <Divider />
-
-        <InspectionFields
-          inspections={form.inspections}
-          error={fieldErrors?.inspections}
-          onChange={handleInspectionChange}
-        />
-
-        <Divider />
-
-        <SpecFields
-          type={form.type}
-          spec={form.spec}
-          error={fieldErrors?.spec}
-          onSpecChange={handleSpecChange}
-          onAddCoefficient={handleAddCoefficient}
-          onRemoveCoefficient={handleRemoveCoefficient}
-          onCoefficientChange={handleCoefficientChange}
-          onAddDiameter={handleAddDiameter}
-          onRemoveDiameter={handleRemoveDiameter}
-          onDiameterChange={handleDiameterChange}
-        />
-      </FieldGroup>
-    </FormDialog>
+      loadingLabel="등록 중..."
+      steps={getVisibleEquipmentSteps(form.type).map((step) => ({
+        id: step.id,
+        label: step.label,
+        content: content[step.id],
+        progress: getEquipmentStepProgress(form, step.id),
+        validate: () => validateStep(step.id),
+      }))}
+    />
   );
 };

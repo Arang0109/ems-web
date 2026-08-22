@@ -12,7 +12,7 @@ import {
 import type { DateRange } from "@shared/ui/form";
 
 /** 기본 조회 범위 — 오늘 하루 */
-const DEFAULT_PRESET: DateRangePreset = "month";
+const DEFAULT_PRESET: DateRangePreset = "around30";
 
 /** 팀 필터의 "전체" 선택값 */
 export const ALL_TEAMS = "all";

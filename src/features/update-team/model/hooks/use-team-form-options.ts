@@ -5,7 +5,7 @@ import type { SelectOption } from "@shared/ui/form";
 const toEquipmentOptions = (list: Equipment[]): SelectOption[] =>
   list.map((e) => ({
     value: e.id,
-    label: e.equipmentName ? `${e.managementNumber} · ${e.equipmentName}` : e.managementNumber,
+    label: e.equipmentName ? `${e.managementNumber} · ${e.alias}` : e.managementNumber,
   }));
 
 // 팀 폼에서 선택하는 사수/부사수(member)와 장비 4종(equipment) 옵션을 조립한다.

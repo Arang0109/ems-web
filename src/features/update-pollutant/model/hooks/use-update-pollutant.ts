@@ -15,6 +15,12 @@ interface Props {
   onSuccess: () => void;
 }
 
+/**
+ * 측정물질 상세 편집.
+ *
+ * 목록에는 이 고객사가 채택한 물질만 오므로 저장은 항상 수정(PUT)이다.
+ * 다른 가이드 항목으로 바꾸는 것은 지원하지 않는다 — 삭제 후 다시 채택한다.
+ */
 export const useUpdatePollutant = ({ pollutant, onSuccess }: Props) => {
   const { updatePollutant, isLoading } = useUpdatePollutantAction();
 
@@ -40,9 +46,11 @@ export const useUpdatePollutant = ({ pollutant, onSuccess }: Props) => {
       return;
     }
 
+    const name = form.nameKr.trim() || pollutant.nameKr;
+
     try {
       await updatePollutant(pollutant.id, toPollutantUpdate(form));
-      toast.success(`${form.nameKr.trim()} 측정물질이 수정되었습니다.`);
+      toast.success(`${name} 측정물질이 수정되었습니다.`);
       onSuccess();
     } catch (err) {
       const message = err instanceof Error ? err.message : '수정에 실패했습니다.';

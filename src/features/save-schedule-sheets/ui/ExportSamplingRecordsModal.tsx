@@ -62,7 +62,7 @@ export const ExportSamplingRecordsModal = ({
           disabled={isLoading || isVersionsLoading || documentId == null || versionOptions.length === 0}
           helperText={
             selectedVersion
-              ? `${selectedVersion.originalFilename} · ${formatFileSize(selectedVersion.size)}`
+              ? `설명 : ${selectedVersion.changeNote} · ${formatFileSize(selectedVersion.size)}`
               : undefined
           }
         />

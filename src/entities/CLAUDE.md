@@ -61,7 +61,11 @@ API·React 에 의존하지 않는 **순수 도메인 계산**만 담는다.
 이 경계가 없으면 `lib/` 는 곧 잡동사니 폴더가 된다. 계산이 아니면 `model/` 이나
 `shared/lib`(도메인 무관 유틸) 중 맞는 쪽으로 보낸다.
 
-현재 사용 슬라이스: `entities/schedule/lib/` (`sheet-calc.ts`, `nozzle-recommend.ts`)
+현재 사용 슬라이스: `entities/schedule/lib/` (`sheet-calc/`, `nozzle-recommend.ts`)
+
+계산 로직이 여러 스텝으로 커지면 파일 하나가 아니라 **디렉토리 + `index.ts`** 로 쪼갠다.
+`sheet-calc/` 가 그 표준이다 — 유틸(`math`·`convert`·`formula`)·상수·타입·스텝(`steps/*-step.ts`)·
+파이프라인(`run.ts`)을 분리하고, 외부에는 `index.ts` 만 노출한다.
 
 ---
 
@@ -103,7 +107,10 @@ Domain 입력 모델 → 요청 DTO, 응답 DTO → Domain 변환 순수 함수�
 마운트 시 자동으로 API를 호출하고, `refetch()`로 재조회를 트리거한다.
 `revision` state를 증가시켜 `useEffect`를 재실행하는 패턴을 사용한다.
 
-적용 entity: `client` (`useClients`, `useClientDetail`), `contract` (`useContracts`), `workplace` (`useWorkplaceDetail`), `pollutant` (`usePollutants`)
+적용 entity: `client` (`useClients`, `useClientDetail`), `contract` (`useContracts`), `workplace` (`useWorkplaceDetail`), `pollutant` (`usePollutants`), `pollutant-catalog` (`usePollutantCatalogs`)
+
+> 조회 조건을 받는 훅(`usePollutants`·`usePollutantCatalogs`)은 **조건을 원시값으로 풀어**
+> `useEffect` 의존성에 넣는다. 객체를 그대로 두면 매 렌더 새 참조라 무한 재조회가 된다.
 
 ```ts
 return { data, isLoading, error, refetch };
@@ -125,8 +132,12 @@ return { data, isLoading, error, fetchWorkplaces };
 ```
 
 > 반환 함수명이 `fetchXxx` 인 것은 의도된 것이다. 루트 `CLAUDE.md` 의 "조회는 `get`" 규칙은
-> `api/api.ts` 의 API 함수 대상이고, 이쪽은 `Promise<void>` 를 반환하며 상태를 갱신하는
-> 명령형 트리거다.
+> `api/api.ts` 의 API 함수 대상이고, 이쪽은 상태를 갱신하는 명령형 트리거다.
+>
+> 기본 반환은 `Promise<void>` 다. 다만 **조회 결과를 렌더가 아니라 그 자리에서 써야 하는**
+> 호출부가 있으면 값을 함께 반환한다 (`useScheduleDetail` → `Promise<ScheduleDetail | null>`).
+> 저장이 409로 거부됐을 때 서버 최신본을 받아 곧바로 대조해야 하는 경우가 그렇다 —
+> 다음 렌더의 `data` 를 기다리면 비동기 흐름이 꼬인다. 상태 갱신은 그대로 수행한다.
 
 ### 액션 훅 — CRUD 작업
 
@@ -157,14 +168,15 @@ return { registerClient, isLoading, error };
 | `client` | `useClients`(자동), `useClientDetail`(자동) | `useRegisterClientAction`, `useUpdateClientAction`, `useDeleteClientAction` |
 | `contract` | `useContracts`(자동), `useContractDetail`(수동) | `useRegisterContractAction`, `useUpdateContractAction` |
 | `workplace` | `useWorkplaces`(수동), `useWorkplaceDetail`(자동) | `useRegisterWorkplaceAction`, `useUpdateWorkplaceAction`, `useDeleteWorkplaceAction` |
-| `stack` | `useStacks`(수동), `useStackDetail`(수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction` |
+| `stack` | `useStacks`(수동), `useStackDetail`(수동) | `useRegisterStackAction`, `useUpdateStackAction`, `useRegisterFacilityAction`, `useUpdateFacilityAction`, `useDeleteFacilityAction`, `useReorderFacilitiesAction`, `useRegisterPreventionAction`, `useUpdatePreventionAction`, `useDeletePreventionAction`, `useReorderPreventionsAction` |
 | `stack-pollutant` | `useStackPollutants`(수동) | `useRegisterStackPollutantAction` |
-| `pollutant` | `usePollutants`(자동) | `useRegisterPollutantAction`, `useUpdatePollutantAction`, `useDeletePollutantAction` |
+| `pollutant` | `usePollutants`(자동, 채택분), `usePollutantCandidates`(자동, 미채택 가이드 항목) | `useRegisterPollutantAction`, `useUpdatePollutantAction`, `useDeletePollutantAction` |
+| `pollutant-catalog` | `usePollutantCatalogs`(자동) | `useRegisterPollutantCatalogAction`, `useUpdatePollutantCatalogAction`, `useTogglePollutantCatalogAction` |
 | `document` | `useDocuments`, `useDocumentDetail`, `useDocumentVersions` | `useRegisterDocumentAction`, `useAddDocumentVersionAction`, `useUpdateDocumentAction`, `useDeleteDocumentAction`, `useDownloadDocumentAction` |
 | `equipment` | `useEquipments`, `useEquipmentDetail`, `useInspectionRecords` | `useRegisterEquipmentAction`, `useUpdateEquipmentAction`, `useDeleteEquipmentAction`, `useChangeEquipmentStatusAction`, `useRecordInspectionAction` |
 | `member` | `useMembers`, `useMemberDetail`, `useRoles` | `useRegisterMemberAction`, `useUpdateMemberAction`, `useDeleteMemberAction` |
 | `team` | `useTeams`, `useTeamDetail` | `useRegisterTeamAction`, `useUpdateTeamAction`, `useDeleteTeamAction` |
-| `schedule` | `useSchedules`, `useScheduleDetail`(수동) | `useRegisterScheduleAction`, `useUpdateBasicInfoAction`, `useChangeClientAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
+| `schedule` | `useSchedules`, `useScheduleDetail`(수동) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateBasicInfoAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
 | `tenant` | `useTenants` | `useProvisionTenantAction` |
 | `auth` | — | `useAuth`(Context 훅). API: `signInApi`, `signOutApi` |
 | `dashboard` | — (model 훅 없음) | — (API: `dashboardApi` 만 존재) |
@@ -203,12 +215,13 @@ return { registerClient, isLoading, error };
 | `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
 | `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |
-| `pollutant` | `Pollutant`, `PollutantCreate`, `PollutantUpdate` |
+| `pollutant` | `Pollutant`, `PollutantCandidate`, `PollutantCreate`, `PollutantUpdate` |
+| `pollutant-catalog` | `PollutantCatalog`, `PollutantCatalogCreate`, `PollutantCatalogUpdate` |
 | `document` | `Document`, `DocumentVersion`, `DocumentCreate`, `DocumentVersionCreate`, `DocumentUpdate`, `DocumentDownload` |
 | `equipment` | `Equipment`, `EquipmentCreate`, `EquipmentUpdate`, `EquipmentStatusChange`, `InspectionItem`, `InspectionItemInput`, `InspectionRecord`, `InspectionRecordCreate`, `EquipmentSpec` 및 종류별 Spec 타입 |
 | `member` | `Member`, `MemberCreate`, `MemberUpdate`, `Role` |
 | `team` | `Team`, `TeamCreate`, `TeamUpdate` |
-| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot` 등), `MeasurementSheet` 및 시트 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
+| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `MeasurementSheet` 및 시트 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
 | `tenant` | `Tenant`, `TenantProvision`, `TenantAdminCreate` |
 
 > **공용 enum·레이블은 entity 에 두지 않는다.** `MeasurementField`, `Grade`, `DocumentCategory`,

@@ -1,4 +1,4 @@
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subDays } from "date-fns";
+import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subDays, addDays } from "date-fns";
 
 /**
  * 시작·종료가 모두 확정된 날짜 구간.
@@ -9,15 +9,15 @@ export type DateRangeValue = {
   to: Date;
 };
 
-export const DATE_RANGE_PRESET = ["today", "week", "month", "last30"] as const;
+export const DATE_RANGE_PRESET = ["today", "week", "month", "around30"] as const;
 
 export type DateRangePreset = (typeof DATE_RANGE_PRESET)[number];
 
 /** 주 시작 요일 — 국내 업무 달력 기준 월요일 */
 const WEEK_STARTS_ON = 1;
 
-/** 최근 N일 프리셋의 일수 (오늘 포함) */
-const RECENT_DAYS = 30;
+/** 전후 N일 프리셋의 기준일 앞뒤 일수 */
+const AROUND_DAYS = 30;
 
 /** `Date` → `yyyy-MM-dd`. 서버 날짜 문자열과 같은 표현으로 맞춰 시간·타임존 영향을 없앤다. */
 export const toDateKey = (date: Date): string => format(date, "yyyy-MM-dd");
@@ -34,8 +34,8 @@ export const toPresetRange = (preset: DateRangePreset, today: Date): DateRangeVa
       };
     case "month":
       return { from: startOfMonth(today), to: endOfMonth(today) };
-    case "last30":
-      return { from: subDays(today, RECENT_DAYS - 1), to: today };
+    case "around30":
+      return { from: subDays(today, AROUND_DAYS), to: addDays(today, AROUND_DAYS) };
   }
 };
 

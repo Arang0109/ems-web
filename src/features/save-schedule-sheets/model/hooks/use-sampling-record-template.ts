@@ -6,7 +6,6 @@ import {
   useDocumentVersions,
   useDownloadDocumentAction,
 } from "@entities/document";
-import { formatDateTime } from "@shared/lib";
 import type { SelectOption } from "@shared/ui/form";
 
 const TEMPLATE_EXTENSION = ".xlsx";
@@ -50,7 +49,7 @@ export const useSamplingRecordTemplate = ({ enabled }: Params) => {
 
   const versionOptions: SelectOption[] = versions.map((version, index) => ({
     value: String(version.versionNo),
-    label: `v${version.versionNo}${index === 0 ? " (최신)" : ""} · ${formatDateTime(version.createdAt)}`,
+    label: `v${version.versionNo}${index === 0 ? " (최신)" : ""} · ${version.originalFilename}`,
   }));
 
   // 파일 업로드 방식에서 하던 확장자·용량 검증을 버전 메타데이터 검증으로 옮긴 것.

@@ -1,16 +1,28 @@
 import type { AxiosResponse } from 'axios';
 
-import { axiosPrivate } from '@shared/api';
+import { axiosPrivate, unwrap } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 import type {
   CreateScheduleRequest, ScheduleListResponse, ScheduleResponse, SaveSheetsRequest,
-  ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, UpdateBasicInfoRequest,
-  ChangeScheduleStatusRequest,
+  ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeScheduleItemsRequest,
+  UpdateScheduleItemRequest,
+  UpdateBasicInfoRequest, UpdateScheduleRequest,
+  CancelScheduleRequest, ReopenScheduleRequest,
+  PreviousSheetResponse, PreviousSheetCandidateResponse,
+  AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
 } from './dto';
+import type { MeasurementCategory } from '@shared/model';
 
 export const scheduleApi = {
+  // 취소·삭제된 계획은 담기지 않는다 — 각각 getCanceledSchedules·getDeletedSchedules 로 조회한다.
   getSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
     const res = await axiosPrivate.get('/schedules');
+    return res.data;
+  },
+
+  // 취소 시각·사유(canceledAt·cancelReason)가 이 응답에서만 채워진다.
+  getCanceledSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
+    const res = await axiosPrivate.get('/schedules/canceled');
     return res.data;
   },
 
@@ -24,8 +36,27 @@ export const scheduleApi = {
     return res.data;
   },
 
-  saveSheets: async (id: number, body: SaveSheetsRequest): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.put(`/schedules/${id}/sheets`, body);
+  // 동시 편집 충돌(409)을 다른 실패와 구분해야 하므로 unwrap 을 거쳐 ApiError 로 던진다.
+  saveSheets: async (id: number, body: SaveSheetsRequest): Promise<ScheduleResponse> => {
+    const res = await axiosPrivate.put<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/sheets`, body);
+    return unwrap(res);
+  },
+
+  // 불러올 기록이 없으면 data 가 null 로 온다 — 오류가 아니므로 그대로 흘려보낸다.
+  // sourceScheduleId 를 생략하면 가장 최근 회차를 준다.
+  getPreviousSheet: async (
+    id: number, category: MeasurementCategory, sourceScheduleId?: number,
+  ): Promise<ApiResponseMessage<PreviousSheetResponse | null>> => {
+    const res = await axiosPrivate.get(`/schedules/${id}/sheets/${category}/previous`, {
+      params: sourceScheduleId == null ? undefined : { sourceScheduleId },
+    });
+    return res.data;
+  },
+
+  getPreviousSheetCandidates: async (
+    id: number, category: MeasurementCategory,
+  ): Promise<ApiResponseMessage<PreviousSheetCandidateResponse[]>> => {
+    const res = await axiosPrivate.get(`/schedules/${id}/sheets/${category}/previous/candidates`);
     return res.data;
   },
 
@@ -43,22 +74,74 @@ export const scheduleApi = {
     return res.data;
   },
 
-  updateBasicInfo: async (
-    id: number, body: UpdateBasicInfoRequest,
+  changeItems: async (
+    id: number, body: ChangeScheduleItemsRequest,
   ): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.patch(`/schedules/${id}/basic-info`, body);
+    const res = await axiosPrivate.patch(`/schedules/${id}/items`, body);
     return res.data;
   },
 
-  changeStatus: async (
-    id: number, body: ChangeScheduleStatusRequest,
+  // 이 회차 문서의 측정항목 하나만 정정한다. 측정시설 원장은 바뀌지 않으므로,
+  // 원장까지 고쳐야 하면 stackPollutantApi.updateStackPollutant 를 따로 호출한다.
+  updateItem: async (
+    id: number, pollutantId: number, body: UpdateScheduleItemRequest,
   ): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.patch(`/schedules/${id}/status`, body);
+    const res = await axiosPrivate.patch(`/schedules/${id}/items/${pollutantId}`, body);
     return res.data;
   },
 
+  // 시트 저장과 한 흐름으로 묶여 있어(공통정보 → 시트) 같은 에러 계약을 쓴다.
+  updateBasicInfo: async (id: number, body: UpdateBasicInfoRequest): Promise<ScheduleResponse> => {
+    const res = await axiosPrivate.patch<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/basic-info`, body);
+    return unwrap(res);
+  },
+
+  // 메타(관리번호·채취일자·측정용도·측정분야)를 고치면 서버가 문서 스냅샷의 기본정보까지 함께 갱신한다.
+  // updateBasicInfo 와 달리 동시 편집 충돌을 구분할 필요가 없어 일반 에러 계약을 쓴다.
+  updateSchedule: async (
+    id: number, body: UpdateScheduleRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.put(`/schedules/${id}`, body);
+    return res.data;
+  },
+
+  // ── 생애주기 ──────────────────────────────────────────────
+  // 완료와 취소는 의미도, 필수 입력도, 되돌리기 가능성도 달라 엔드포인트가 분리돼 있다.
+
+  completeSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/completion`);
+    return res.data;
+  },
+
+  cancelSchedule: async (
+    id: number, body: CancelScheduleRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/cancellation`, body);
+    return res.data;
+  },
+
+  // 잘못 등록된 계획을 감춘다(soft delete). 서버가 '측정예정'만 허용한다.
   deleteSchedule: async (id: number): Promise<ApiResponseMessage<void>> => {
     const res = await axiosPrivate.delete(`/schedules/${id}`);
+    return res.data;
+  },
+
+  // ── 관리자 전용 ───────────────────────────────────────────
+
+  reopenSchedule: async (
+    id: number, body: ReopenScheduleRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/reopen`, body);
+    return res.data;
+  },
+
+  getDeletedSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
+    const res = await axiosPrivate.get('/schedules/deleted');
+    return res.data;
+  },
+
+  restoreSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/restore`);
     return res.data;
   },
 
@@ -74,5 +157,34 @@ export const scheduleApi = {
     return axiosPrivate.post(`/schedules/${id}/sampling-records/export`, formData, {
       responseType: 'blob',
     });
+  },
+
+  // ── 실험분석정보 ──────────────────────────────────────────
+  // 측정계획의 하위 리소스다. 항목당 문서 하나이며 measurement sheet 와 저장 경로가 분리돼 있다.
+
+  getAnalyses: async (scheduleId: number): Promise<ApiResponseMessage<AnalysisRecordResponse[]>> => {
+    const res = await axiosPrivate.get(`/schedules/${scheduleId}/analyses`);
+    return res.data;
+  },
+
+  createAnalysis: async (
+    scheduleId: number, body: CreateAnalysisRecordRequest,
+  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${scheduleId}/analyses`, body);
+    return res.data;
+  },
+
+  updateAnalysis: async (
+    scheduleId: number, analysisId: string, body: UpdateAnalysisRecordRequest,
+  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
+    const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/${analysisId}`, body);
+    return res.data;
+  },
+
+  deleteAnalysis: async (
+    scheduleId: number, analysisId: string,
+  ): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.delete(`/schedules/${scheduleId}/analyses/${analysisId}`);
+    return res.data;
   },
 };

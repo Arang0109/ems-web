@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Badge } from "@shared/ui/badges";
+import { Badge, type BadgeTone } from "@shared/ui/badges";
 
 interface Props {
   title: React.ReactNode;
@@ -10,7 +10,7 @@ interface Props {
 
   /** 섹션 바로가기·스크롤 이동의 앵커 */
   id?: string;
-  /** 제목 옆 보조 설명 — 헤더 한 줄에 함께 놓인다 */
+  /** 제목 아래 보조 설명 — 헤더에서 제목과 다른 행에 놓인다 */
   subtitle?: React.ReactNode;
   /** 제목 왼쪽 액션(수정 버튼 등) — 접기 토글과 별개의 인터랙션 */
   action?: React.ReactNode;
@@ -18,8 +18,15 @@ interface Props {
   description?: React.ReactNode;
   /** 헤더 우측 진행도 배지 — 입력 완료 수 / 필수 항목 수 */
   progress?: { done: number; total: number };
+  /** 진행도 배지의 톤 — 진행 정도에 따른 색은 호출부(도메인)가 정한다 */
+  progressTone?: BadgeTone;
   /** 본문 하단 고정 영역 — 이전/다음 이동 버튼 등 */
   footer?: React.ReactNode;
+  /**
+   * 화면 밖에서 방금 갱신된 섹션임을 알리는 배지 문구.
+   * 접혀 있어도 눈에 띄도록 카드 테두리도 함께 강조한다. 오류가 아니라 안내이므로 brand 톤을 쓴다.
+   */
+  highlightLabel?: string;
 
   /** 비제어 초기 상태 */
   defaultOpen?: boolean;
@@ -45,7 +52,9 @@ export const SectionAccordion = ({
   action,
   description,
   progress,
+  progressTone = "brand",
   footer,
+  highlightLabel,
   defaultOpen = false,
   open,
   onOpenChange,
@@ -66,6 +75,7 @@ export const SectionAccordion = ({
       className={cn(
         "overflow-hidden rounded-panel bg-surface shadow-panel ring-1 ring-rule",
         "scroll-mt-4",
+        highlightLabel && "ring-2 ring-brand-primary",
         className,
       )}
     >
@@ -78,20 +88,25 @@ export const SectionAccordion = ({
           aria-expanded={isOpen}
           className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left"
         >
-          <span className="flex min-w-0 items-center gap-2">
-            {/* 공간이 모자라면 보조 설명이 먼저 잘리고(shrink 가중치), 제목은 마지막에 줄어든다.
-                제목에 shrink-0 를 주면 긴 제목이 헤더의 min-content 를 밀어올려
-                좁은 화면에서 카드 자체가 안 줄어든다 */}
-            <span className="min-w-0 truncate text-h3 text-ink">{title}</span>
+          {/* 제목/보조 설명은 세로로 쌓는다 — 한 줄에 두면 좁은 폭에서 제목이 먼저 잘린다.
+              제목에 shrink-0 를 주면 긴 제목이 헤더의 min-content 를 밀어올려
+              좁은 화면에서 카드 자체가 안 줄어든다 */}
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="flex min-w-0 items-center gap-2">
+              <span className="min-w-0 truncate text-h3 text-ink">{title}</span>
+              {progress && (
+                <Badge tone={progressTone} className="shrink-0">
+                  {progress.done}/{progress.total}
+                </Badge>
+              )}
+              {highlightLabel && (
+                <Badge tone="brand" className="shrink-0">
+                  {highlightLabel}
+                </Badge>
+              )}
+            </span>
             {subtitle && (
-              <span className="min-w-0 shrink-10 truncate text-caption text-muted-ink">
-                {subtitle}
-              </span>
-            )}
-            {progress && (
-              <Badge tone="brand">
-                {progress.done}/{progress.total}
-              </Badge>
+              <span className="min-w-0 truncate text-caption text-muted-ink">{subtitle}</span>
             )}
           </span>
           <ChevronDown

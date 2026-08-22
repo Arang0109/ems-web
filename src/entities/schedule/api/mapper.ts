@@ -1,11 +1,16 @@
 import type {
   CreateScheduleRequest, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeStackSnapshotRequestBody,
-  UpdateBasicInfoRequest,
+  ChangeScheduleItemsRequest, UpdateScheduleItemRequest, UpdateBasicInfoRequest, UpdateScheduleRequest,
+  PreviousSheetResponse,
+  PreviousSheetCandidateResponse,
+  AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
 } from "./dto";
 import type {
-  ScheduleCreate, ScheduleDetail, SheetSave,
-  ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, BasicInfoUpdate,
+  ScheduleCreate, ScheduleDetail, SheetSave, SheetRef,
+  ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, BasicInfoUpdate, ScheduleMetaUpdate,
+  ScheduleItemsUpdate, ScheduleItemUpdate, PreviousSheet, PreviousSheetCandidate,
+  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate,
 } from "../model/types";
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -23,7 +28,17 @@ export const toRegisterRequest = (vo: ScheduleCreate): CreateScheduleRequest => 
 export const toScheduleDetail = (dto: ScheduleResponse): ScheduleDetail => dto;
 
 // 도메인 시트 입력 → 저장 요청 DTO: 재변환 없이 passthrough.
-export const toSaveSheetsRequest = (sheets: SheetSave[]): SaveSheetsRequest => ({ sheets });
+// 삭제 목록을 함께 실어야 서버가 "요청에서 빠진 시트"를 보관본 유지로 처리할 수 있다.
+export const toSaveSheetsRequest = (sheets: SheetSave[], deletedSheets: SheetRef[]): SaveSheetsRequest =>
+  ({ sheets, deletedSheets });
+
+// 응답 DTO → 도메인: 키를 그대로 유지하므로 구조 변환이 없다.
+// null(불러올 기록 없음)은 오류가 아니라 정상 결과이므로 그대로 통과시킨다.
+export const toPreviousSheet = (dto: PreviousSheetResponse | null): PreviousSheet | null => dto;
+
+export const toPreviousSheetCandidates = (
+  dtos: PreviousSheetCandidateResponse[],
+): PreviousSheetCandidate[] => dtos;
 
 // 장비 식별자는 서버 계약이 String이므로 숫자로 변환하지 않는다.
 export const toChangeEquipmentsRequest = (
@@ -48,6 +63,16 @@ export const toUpdateBasicInfoRequest = (vo: BasicInfoUpdate): UpdateBasicInfoRe
   samplingEndedAt: vo.samplingEndedAt,
   mentorName: vo.mentorName,
   menteeName: vo.menteeName,
+});
+
+// 날짜·문자열뿐이라 재변환 없이 passthrough.
+// measurementField 는 이 경로를 쓰는 화면이 다루지 않으므로 null(기존 값 유지)로 둔다.
+export const toUpdateScheduleRequest = (vo: ScheduleMetaUpdate): UpdateScheduleRequest => ({
+  measurementField: null,
+  sampledAt: vo.sampledAt,
+  schedulePurpose: vo.schedulePurpose,
+  referenceNumber: vo.referenceNumber,
+  tenant: vo.tenant,
 });
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -86,4 +111,39 @@ export const toChangeClientRequest = (vo: ClientSnapshotUpdate): ChangeClientSna
     grade: vo.workplace.grade,
     stack: vo.workplace.stack && toChangeStackBody(vo.workplace.stack),
   },
+});
+
+// 측정항목은 전체 교체이므로 부분 병합이 없다 — id 목록을 그대로 싣는다.
+export const toChangeItemsRequest = (vo: ScheduleItemsUpdate): ChangeScheduleItemsRequest => ({
+  pollutantIds: vo.pollutantIds,
+});
+
+// 측정항목 정정은 그 항목의 측정 조건을 확정해 보내므로 부분 병합이 없다 — 숫자 재변환 없이 passthrough.
+export const toUpdateItemRequest = (vo: ScheduleItemUpdate): UpdateScheduleItemRequest => ({
+  cycle: vo.cycle,
+  allowance: vo.allowance,
+  oxygenApplicable: vo.oxygenApplicable,
+});
+
+// ─────────────────────────────────────────────────────────────
+// 실험분석정보 — 응답은 키 구조가 같아 그대로 채택하고, 요청은 숫자 재변환 없이 passthrough.
+// ─────────────────────────────────────────────────────────────
+
+export const toAnalysisRecord = (dto: AnalysisRecordResponse): AnalysisRecord => dto;
+
+export const toAnalysisRecords = (dtos: AnalysisRecordResponse[]): AnalysisRecord[] => dtos;
+
+export const toCreateAnalysisRequest = (vo: AnalysisRecordCreate): CreateAnalysisRecordRequest => ({
+  pollutantId: vo.pollutantId,
+  analysisValue: vo.analysisValue,
+  unit: vo.unit,
+  analysisMethod: vo.analysisMethod,
+  analysisEquipment: vo.analysisEquipment,
+});
+
+export const toUpdateAnalysisRequest = (vo: AnalysisRecordUpdate): UpdateAnalysisRecordRequest => ({
+  analysisValue: vo.analysisValue,
+  unit: vo.unit,
+  analysisMethod: vo.analysisMethod,
+  analysisEquipment: vo.analysisEquipment,
 });

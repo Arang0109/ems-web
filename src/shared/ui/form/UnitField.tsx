@@ -3,7 +3,9 @@ import { CircleCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { HelpTip } from "@shared/ui/tooltip";
+import { NumericField } from "./NumericField";
 import { Select, type SelectOption } from "./Select";
+import { TimeField } from "./TimeField";
 
 interface Props {
   label: React.ReactNode;
@@ -118,6 +120,31 @@ export const UnitField = ({
                 "text-ink data-placeholder:text-muted-ink",
                 valueText,
               )}
+            />
+          ) : type === "time" && !readOnly ? (
+            /* 네이티브 시각 위젯은 브라우저마다 폭·모양이 달라 프레임과 어긋난다 */
+            <TimeField
+              id={fieldId}
+              value={value}
+              onChange={(v) => onChange?.(v)}
+              frame="none"
+              disabled={disabled}
+              label={typeof label === "string" ? label : hintLabel}
+              inputClassName={valueText}
+            />
+          ) : type === "number" && !readOnly ? (
+            /* 모바일 숫자 키패드에는 `-` 가 없다 — 부호는 ± 버튼이 맡는다 */
+            <NumericField
+              id={fieldId}
+              value={value}
+              onChange={(v) => onChange?.(v)}
+              allowNegative={min === undefined || min < 0}
+              step={step}
+              frame="none"
+              disabled={disabled}
+              placeholder={placeholder}
+              label={typeof label === "string" ? label : hintLabel}
+              inputClassName={valueText}
             />
           ) : (
             <input
