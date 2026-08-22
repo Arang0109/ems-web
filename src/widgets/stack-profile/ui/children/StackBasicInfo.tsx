@@ -1,13 +1,14 @@
 import { useState } from "react";
+import { SquarePen } from "lucide-react";
 
 import type { Stack } from "@entities/stack";
 import { UpdateStackForm } from "@features/update-stack";
+import { SectionAccordion } from "@shared/ui/accordion";
+import { IconButton } from "@shared/ui/buttons";
+import { DetailGrid, DetailRow } from "@shared/ui/form";
+import { useRemountKey } from "@shared/model";
 
 import type { StackProfile } from "../../model/types";
-
-import { Divider } from "@shared/ui/borders";
-import { IconButton } from "@shared/ui/buttons";
-import { Pencil } from "lucide-react";
 
 interface Props {
   stack: Stack | null;
@@ -15,57 +16,52 @@ interface Props {
   onSuccess?: () => void;
 }
 
-const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="bg-muted/40 rounded-xl px-4 py-3">
-    <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-    <p className="text-sm font-medium text-foreground">{value}</p>
-  </div>
-);
-
 export const StackBasicInfo = ({ stack, stackProfile, onSuccess }: Props) => {
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const updateFormKey = useRemountKey(updateModalOpen);
+
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">기본 정보</h3>
-        <IconButton icon={<Pencil size={14} />} onClick={() => setUpdateModalOpen(true)} />
-      </div>
-
-      <div className="space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground">시설 식별</p>
-        <div className="grid grid-cols-3 gap-3">
-          <InfoItem label="측정 분야" value={stackProfile.field} />
-          <InfoItem label="SEMS 번호" value={stackProfile.semsNumber} />
-          <InfoItem label="등급" value={stackProfile.grade} />
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-            <InfoItem label="측정시설명" value={stackProfile.name} />
-            <InfoItem label="업종 분류" value={stackProfile.businessCategory} />
-            <InfoItem label="주요 생산품" value={stackProfile.mainProduct} />
-          </div>
-      </div>
-
-      <Divider />
-
-      <div className="space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground">구조 정보</p>
-        <div className="grid grid-cols-2 gap-3">
-          <InfoItem label="방향" value={stackProfile.orientation} />
-          <InfoItem label="형태" value={stackProfile.shape} />
-          <InfoItem
-            label="높이"
-            value={stackProfile.height !== "-" ? `${stackProfile.height} m` : "-"}
+    // 수정 트리거가 헤더(접어도 보임)에 있으므로 폼은 아코디언 본문 밖에 둔다
+    <>
+      <SectionAccordion
+        title="측정지점 정보"
+        action={
+          <IconButton
+            icon={<SquarePen size={19} />}
+            label="측정지점 정보 수정"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setUpdateModalOpen(true)}
           />
-          <InfoItem label="지름 / 크기" value={stackProfile.diameter} />
-        </div>
-      </div>
+        }
+      >
+        <DetailGrid>
+          <DetailRow label="측정지점(굴뚝)" value={stackProfile.name} span={2} />
+          <DetailRow label="SEMS 번호" value={stackProfile.semsNumber} />
+        </DetailGrid>
+        <DetailGrid cols={3}>
+          <DetailRow label="측정 분야" value={stackProfile.field} />
+          <DetailRow label="주요 생산품" value={stackProfile.mainProduct} />
+          <DetailRow label="배출시설 종별" value={stackProfile.grade} />
+          <DetailRow label="측정공 방향" value={stackProfile.orientation} />
+          <DetailRow label="측정공 모양" value={stackProfile.shape} />
+          {/* diameter 는 mapper 가 shape 에 따라 단위까지 붙여 만든다 */}
+          <DetailRow label="측정공 직경(m)" value={stackProfile.diameter} />
+          {/* 단위는 라벨에 둔다 — 값에 붙이면 빈 값("-")에도 단위가 따라붙는다 */}
+          <DetailRow label="측정공 높이(m)" value={stackProfile.height} />
+          <DetailRow label="표준산소농도(%)" value={stackProfile.standardOxygen} />
+        </DetailGrid>
+      </SectionAccordion>
+
       <UpdateStackForm
+        key={updateFormKey}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         stack={stack}
         onSuccess={onSuccess}
       />
-    </div>
+    </>
   );
 };

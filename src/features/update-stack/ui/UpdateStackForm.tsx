@@ -1,6 +1,5 @@
 import { useUpdateStack } from '../model/hooks/use-update-stack';
 
-import { GRADE_LABEL, ORIENTATION_LABEL, SHAPE_LABEL } from '@shared/config';
 import { measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions } from "@shared/model";
 import type { Grade, MeasurementField, Orientation, Shape } from "@shared/model";
 import { FormDialog } from "@shared/ui/dialogs";
@@ -18,7 +17,7 @@ interface Props {
 }
 
 export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props) => {
-  const { form, handleSubmit, handleChange } = useUpdateStack({
+  const { form, fieldErrors, handleSubmit, handleChange } = useUpdateStack({
     stack: stack,
     onSuccess: () => {
       onOpenChange(false);
@@ -51,6 +50,8 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             value={form.name}
             onChange={(value) => handleChange("name", value)}
             startIcon={<Factory />}
+            invalid={!!fieldErrors?.name}
+            error={fieldErrors?.name}
           />
           <InputGroup
             id="semsNumber"
@@ -67,15 +68,8 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             label="시설 종별"
             placeholder="종별 선택"
             options={gradeOptions}
-            value={GRADE_LABEL[form.grade]}
+            value={form.grade}
             onValueChange={(value) => value && handleChange("grade", value as Grade)}
-          />
-          <InputGroup
-            id="businessCategory"
-            label="업종"
-            placeholder="업종"
-            value={form.businessCategory}
-            onChange={(value) => handleChange("businessCategory", value)}
           />
           <InputGroup
             id="mainProduct"
@@ -83,6 +77,15 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             placeholder="주요 생산품"
             value={form.mainProduct}
             onChange={(value) => handleChange("mainProduct", value)}
+          />
+          <InputGroup
+            id="standardOxygen"
+            label="기준산소농도 (%)"
+            placeholder="예: 4"
+            value={form.standardOxygen}
+            onChange={(value) => handleChange("standardOxygen", value)}
+            invalid={!!fieldErrors?.standardOxygen}
+            error={fieldErrors?.standardOxygen}
           />
         </div>
 
@@ -94,7 +97,7 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             label="방향"
             placeholder="방향 선택"
             options={orientationOptions}
-            value={ORIENTATION_LABEL[form.orientation]}
+            value={form.orientation}
             onValueChange={(value) => value && handleChange("orientation", value as Orientation)}
           />
           <InputGroup
@@ -109,7 +112,7 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             label="모양"
             placeholder="모양 선택"
             options={shapeOptions}
-            value={SHAPE_LABEL[form.shape]}
+            value={form.shape}
             onValueChange={(value) => value && handleChange("shape", value as Shape)}
           />
           <InputGroup

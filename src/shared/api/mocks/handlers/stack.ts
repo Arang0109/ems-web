@@ -141,45 +141,66 @@ type StackDetailRow = {
   name: string;
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
   height: string;
   horizontalLength: string;
   verticalLength: string;
   shape: Shape;
   orientation: Orientation;
+  standardOxygen: number | null;
   createdAt: string;
   modifiedAt: string;
-  preventions: { id: number; stackId: number; name: string; capacity: number | null; targetName: string; removalEfficiency: string }[];
+  preventions: { id: number; stackId: number; name: string; capacity: number | null; unit: string; targetName: string; removalEfficiency: string }[];
   facilities: { id: number; stackId: number; name: string; fuelUsage: string; productOutput: string; incinerationAmount: string; fuelInput: string; fuelType: string; unit: string }[];
+};
+
+/**
+ * 순서 변경 요청을 검증하고 목록을 재배열한다.
+ *
+ * 실서버와 같은 규칙을 흉내낸다 — `orderedIds` 는 그 측정지점의 시설 **전체**여야 하고,
+ * 중복·누락·미지의 id 가 하나라도 있으면 아무것도 저장하지 않는다.
+ * 이 경로가 있어야 프론트의 롤백·toast 를 mock 만으로 실제로 밟아볼 수 있다.
+ */
+const applyOrder = <T extends { id: number }>(current: T[], orderedIds: number[]): T[] | null => {
+  const hasDuplicate = new Set(orderedIds).size !== orderedIds.length;
+  const isSameSet =
+    !hasDuplicate &&
+    orderedIds.length === current.length &&
+    current.every((item) => orderedIds.includes(item.id));
+
+  if (!isSameSet) return null;
+
+  return orderedIds.map((id) => current.find((item) => item.id === id)!);
 };
 
 const stackDetails: Record<number, StackDetailRow> = {
   1001: {
     id: 1001, workplaceId: 101, field: 'AIR', name: '1호 굴뚝',
     semsNumber: 'SEMS-2025-001', grade: 'TYPE_1',
-    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    mainProduct: '산업용 화학품',
     height: '45.5', horizontalLength: '1.2', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: 4,
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2025-11-15T14:30:00',
     preventions: [
-      { id: 1, stackId: 1001, name: '전기집진시설', capacity: 500, targetName: '입자상', removalEfficiency: '95.1' },
-      { id: 2, stackId: 1001, name: '세정집진시설', capacity: null, targetName: '가스상', removalEfficiency: '90' },
+      { id: 1, stackId: 1001, name: '전기집진시설', capacity: 500, unit: 'm³/min', targetName: '입자상', removalEfficiency: '95.1' },
+      { id: 2, stackId: 1001, name: '세정집진시설', capacity: null, unit: '', targetName: '가스상', removalEfficiency: '90' },
     ],
     facilities: [
       { id: 1, stackId: 1001, name: '보일러 1호기', fuelUsage: '500', productOutput: '1200', incinerationAmount: '0', fuelInput: 'LNG', fuelType: '기체연료', unit: 'kg/h' },
       { id: 2, stackId: 1001, name: '소각로 1호기', fuelUsage: '200', productOutput: '0', incinerationAmount: '350', fuelInput: '경유', fuelType: '액체연료', unit: 'L/h' },
+      // 가운데 항목을 옮기는 순서 변경을 확인하려면 최소 3건이 필요하다
+      { id: 3, stackId: 1001, name: '건조로 1호기', fuelUsage: '80', productOutput: '400', incinerationAmount: '0', fuelInput: 'LPG', fuelType: '기체연료', unit: 'kg/h' },
     ],
   },
   1002: {
     id: 1002, workplaceId: 101, field: 'AIR', name: '2호 굴뚝',
     semsNumber: 'SEMS-2025-002', grade: 'TYPE_2',
-    businessCategory: '화학물질 및 화학제품 제조업', mainProduct: '산업용 화학품',
+    mainProduct: '산업용 화학품',
     height: '30.0', horizontalLength: '0.8', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: 6,
     createdAt: '2025-03-10T09:00:00', modifiedAt: '2026-01-20T11:00:00',
     preventions: [
-      { id: 3, stackId: 1002, name: '여과집진시설', capacity: 300, targetName: '입자상', removalEfficiency: '95.1' },
+      { id: 3, stackId: 1002, name: '여과집진시설', capacity: 300, unit: 'm³/min', targetName: '입자상', removalEfficiency: '95.1' },
     ],
     facilities: [
       { id: 3, stackId: 1002, name: '건조시설 1호기', fuelUsage: '300', productOutput: '800', incinerationAmount: '0', fuelInput: '등유', fuelType: '액체연료', unit: 'L/h' },
@@ -188,12 +209,12 @@ const stackDetails: Record<number, StackDetailRow> = {
   1008: {
     id: 1008, workplaceId: 106, field: 'WATER', name: '1호 배출구',
     semsNumber: 'SEMS-2024-008', grade: 'TYPE_3',
-    businessCategory: '기초화학물질 제조업', mainProduct: '합성수지',
+    mainProduct: '합성수지',
     height: '0.0', horizontalLength: '0.5', verticalLength: '0.3',
-    shape: 'RECTANGULAR', orientation: 'HORIZONTAL',
+    shape: 'RECTANGULAR', orientation: 'HORIZONTAL', standardOxygen: null,
     createdAt: '2024-05-12T08:00:00', modifiedAt: '2025-08-22T16:00:00',
     preventions: [
-      { id: 4, stackId: 1008, name: '폐수처리시설', capacity: 120, targetName: '용존성', removalEfficiency: '88' },
+      { id: 4, stackId: 1008, name: '폐수처리시설', capacity: 120, unit: 'm³/일', targetName: '용존성', removalEfficiency: '88' },
     ],
     facilities: [
       { id: 4, stackId: 1008, name: '반응조 1호기', fuelUsage: '0', productOutput: '450', incinerationAmount: '0', fuelInput: '-', fuelType: '-', unit: 'm³/일' },
@@ -203,9 +224,9 @@ const stackDetails: Record<number, StackDetailRow> = {
   1019: {
     id: 1019, workplaceId: 111, field: 'NOISE_VIBRATION', name: '측정지점 1',
     semsNumber: 'SEMS-2024-019', grade: 'TYPE_4',
-    businessCategory: '금속 가공제품 제조업', mainProduct: '금속부품',
+    mainProduct: '금속부품',
     height: '0.0', horizontalLength: '0.0', verticalLength: '0.0',
-    shape: 'CIRCULAR', orientation: 'VERTICAL',
+    shape: 'CIRCULAR', orientation: 'VERTICAL', standardOxygen: null,
     createdAt: '2024-02-14T10:00:00', modifiedAt: '2025-09-16T09:00:00',
     preventions: [],
     facilities: [
@@ -265,6 +286,27 @@ export const stackHandlers = [
     }, { status: 201 });
   }),
 
+  // `:preventionId` 보다 먼저 등록해야 한다 — 뒤에 두면 "order" 가 id 로 잡힌다
+  http.put(`${BASE_URL}/preventions/order`, async ({ request }) => {
+    const { stackId, orderedIds } = await request.json() as { stackId: number; orderedIds: number[] };
+    const detail = stackDetails[stackId];
+
+    if (!detail) {
+      return HttpResponse.json({ status: false, message: '측정지점을 찾을 수 없습니다.', data: null }, { status: 404 });
+    }
+
+    const ordered = applyOrder(detail.preventions, orderedIds);
+    if (!ordered) {
+      return HttpResponse.json(
+        { status: false, message: '시설 목록이 변경되었습니다. 새로고침 후 다시 시도해 주세요.', data: null },
+        { status: 400 },
+      );
+    }
+
+    detail.preventions = ordered;
+    return HttpResponse.json({ status: true, message: '방지시설 순서 변경 성공', data: null });
+  }),
+
   http.put(`${BASE_URL}/preventions/:preventionId`, async ({ params, request }) => {
     const body = await request.json() as Record<string, unknown>;
     return HttpResponse.json({
@@ -290,6 +332,27 @@ export const stackHandlers = [
       message: '연료시설 등록 성공',
       data: { id: Date.now(), ...body }
     }, { status: 201 });
+  }),
+
+  // `:facilityId` 보다 먼저 등록해야 한다 — 뒤에 두면 "order" 가 id 로 잡힌다
+  http.put(`${BASE_URL}/facilities/order`, async ({ request }) => {
+    const { stackId, orderedIds } = await request.json() as { stackId: number; orderedIds: number[] };
+    const detail = stackDetails[stackId];
+
+    if (!detail) {
+      return HttpResponse.json({ status: false, message: '측정지점을 찾을 수 없습니다.', data: null }, { status: 404 });
+    }
+
+    const ordered = applyOrder(detail.facilities, orderedIds);
+    if (!ordered) {
+      return HttpResponse.json(
+        { status: false, message: '시설 목록이 변경되었습니다. 새로고침 후 다시 시도해 주세요.', data: null },
+        { status: 400 },
+      );
+    }
+
+    detail.facilities = ordered;
+    return HttpResponse.json({ status: true, message: '배출시설 순서 변경 성공', data: null });
   }),
 
   http.put(`${BASE_URL}/facilities/:facilityId`, async ({ params, request }) => {

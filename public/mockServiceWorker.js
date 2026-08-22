@@ -96,6 +96,17 @@ addEventListener('fetch', function (event) {
     return
   }
 
+  // Bypass Server-Sent Events.
+  // An SSE body never ends, so relaying one through the worker breaks in three ways:
+  // handleRequest's response.clone() tees an infinite stream, sendToClient pends forever
+  // once the page's MSW client is replaced (e.g. by HMR), and the passthrough fetch below
+  // carries no AbortSignal so the page's abort() never reaches the upstream connection.
+  // The leaked sockets survive reloads and exhaust the origin's HTTP/1.1 connection pool,
+  // which freezes every later request. Let the browser handle these directly.
+  if (event.request.headers.get('accept')?.includes('text/event-stream')) {
+    return
+  }
+
   // Opening the DevTools triggers the "only-if-cached" request
   // that cannot be handled by the worker. Bypass such requests.
   if (

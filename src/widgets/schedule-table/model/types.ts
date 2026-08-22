@@ -6,8 +6,8 @@ export type ScheduleTableRow = {
   status: ScheduleStatus;     // 배지 렌더링용 원본 값
   referenceNumber: string;
   measurementField: string;   // 표시 라벨
-  measurementType: string;    // 표시 라벨
   clientName: string;
+  workplaceName: string;
   stackName: string;
   teamName: string;
 };

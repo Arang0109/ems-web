@@ -1,0 +1,1 @@
+export { EmptyText } from './EmptyText';

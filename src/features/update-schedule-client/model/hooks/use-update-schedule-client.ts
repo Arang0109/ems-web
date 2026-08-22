@@ -16,35 +16,28 @@ interface Props {
   onSuccess: () => void;
 }
 
-// number | null → Form string. null은 ""로 두어 "미지정"과 0을 구분한다.
-const toText = (v: number | null): string => (v != null ? String(v) : "");
-
 export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props) => {
   const { changeClient, isLoading } = useChangeClientAction();
 
   const workplace = client.workplace;
-  const stack = workplace.stack;
 
   // 부모가 key로 리마운트하므로 prop은 초기값으로만 쓴다(useEffect 동기화 금지).
   const [form, setForm] = useState<ScheduleClientUpdateForm>({
     name: client.name ?? "",
+    bizNumber: client.bizNumber ?? "",
+    representative: client.representative ?? "",
+    zipcode: client.zipcode ?? "",
+    roadAddress: client.roadAddress ?? "",
+    detailAddress: client.detailAddress ?? "",
+    email: client.email ?? "",
+    tel: client.tel ?? "",
     workplaceName: workplace.name ?? "",
+    workplaceBizNumber: workplace.bizNumber ?? "",
+    workplaceBusinessCategory: workplace.businessCategory ?? "",
     workplaceGrade: workplace.grade,
     workplaceZipcode: workplace.zipcode ?? "",
     workplaceRoadAddress: workplace.roadAddress ?? "",
     workplaceDetailAddress: workplace.detailAddress ?? "",
-    stackField: stack.field,
-    stackName: stack.name ?? "",
-    stackSemsNumber: stack.semsNumber ?? "",
-    stackGrade: stack.grade,
-    businessCategory: stack.businessCategory ?? "",
-    mainProduct: stack.mainProduct ?? "",
-    standardOxygen: toText(stack.standardOxygen),
-    height: toText(stack.height),
-    horizontalLength: toText(stack.horizontalLength),
-    verticalLength: toText(stack.verticalLength),
-    shape: stack.shape,
-    orientation: stack.orientation,
   });
 
   const [fieldErrors, setFieldErrors] =
@@ -55,7 +48,14 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleAddressChange = (
+  // 의뢰기관과 사업장이 각자 주소를 가지므로 핸들러를 분리한다.
+  const handleClientAddressChange = (
+    { zipcode, roadAddress, detailAddress }: AddressValue,
+  ) => {
+    setForm((prev) => ({ ...prev, zipcode, roadAddress, detailAddress }));
+  };
+
+  const handleWorkplaceAddressChange = (
     { zipcode, roadAddress, detailAddress }: AddressValue,
   ) => {
     setForm((prev) => ({
@@ -76,7 +76,7 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     }
 
     try {
-      // 의뢰기관·사업장·측정시설이 한 트리라 PATCH 한 번으로 함께 저장한다.
+      // 측정시설(stack)을 싣지 않으므로 서버 병합이 측정시설 카드의 값을 그대로 둔다.
       await changeClient(scheduleId, toClientSnapshotUpdate(form));
       toast.success("의뢰기관 정보가 수정되었습니다.");
       onSuccess();
@@ -86,5 +86,8 @@ export const useUpdateScheduleClient = ({ scheduleId, client, onSuccess }: Props
     }
   };
 
-  return { form, fieldErrors, isLoading, handleChange, handleAddressChange, handleSubmit };
+  return {
+    form, fieldErrors, isLoading, handleChange,
+    handleClientAddressChange, handleWorkplaceAddressChange, handleSubmit,
+  };
 };

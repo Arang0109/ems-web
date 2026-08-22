@@ -1,4 +1,4 @@
-import { Label } from "@/components/ui/label"
+import { Label } from "@shared/ui/primitives"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 export interface RadioOption {

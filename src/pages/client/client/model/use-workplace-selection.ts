@@ -8,6 +8,7 @@ const toWorkplace = (item: WorkplaceListItem): Workplace => ({
   clientId: item.clientId,
   name: item.workplaceName,
   bizNumber: item.bizNumber,
+  businessCategory: item.businessCategory,
   zipcode: item.zipcode,
   roadAddress: item.roadAddress,
   detailAddress: item.detailAddress,

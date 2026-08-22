@@ -39,14 +39,110 @@ feature-name/
     └── XxxForm.tsx
 ```
 
-### Select Feature (select-xxx)
+### 대형 폼 Feature (save-schedule-sheets 등)
+
+섹션이 많은 폼은 표준 구조를 확장한다.
 
 ```
 feature-name/
 ├── index.ts
-└── hooks/              # feature 루트 바로 아래, 폴더명 반드시 복수형
-    └── useXxxSelection.ts
+├── model/
+│   ├── types.ts
+│   ├── mapper.ts
+│   ├── validator.ts
+│   ├── section-progress.ts   # 섹션별 입력 진행도 계산
+│   ├── field-hints.ts        # 항목 도움말 문구 (shared/ui 의 HelpTip 이 소비)
+│   └── hooks/
+└── ui/
+    ├── XxxEditor.tsx         # 섹션 조합 셸
+    ├── sections/             # 섹션 단위 컴포넌트 + shell-props.ts
+    │   └── sampling-point/   # 한 파일로 감당 안 되는 섹션은 디렉토리로 편다 (아래 참조)
+    ├── calc/                 # 계산 결과 표면 — 섹션을 가로지르는 파생값 (아래 참조)
+    └── report/               # 인쇄/미리보기 전용 뷰
 ```
+
+### 입력과 계산 결과는 표면으로 가른다
+
+섹션 폼에는 **현장에서 적어 넣는 값**만 둔다. 계산 결과가 섹션마다 흩어지면
+"수분량이 이만큼인데 표준유량이 이게 맞나" 같은 대조를 섹션을 오가며 해야 한다.
+
+경계선은 `shared/ui` 가 이미 그어 놓은 두 컴포넌트를 그대로 쓴다.
+
+| 무엇 | 어디 |
+|------|------|
+| 입력에 딸린 파생값 **한 줄** (`CalcResultRow`) — 대기압 아래 mmHg 환산 등 | 그 입력 옆에 남는다 |
+| 입력 셀과 나란한 파생 **셀** (`TableResultCell`) — 전치 표의 `평균` 열 | 표에 남는다 |
+| 독립된 결과 **묶음** (`CalcResultGrid`) — 평균·자동계산·산정 예상치 | `ui/calc/` 의 드로어로 모은다 |
+
+같은 값이라도 **어떤 표현으로 놓였는지**가 기준이다. 측정지점 평균이 그 예다 —
+데스크탑 전치 표의 `평균` 열은 지점 값 옆에서 대조하는 자리라 남고, 모바일 카드 아래 붙던
+`측정지점 평균` 아코디언은 입력에서 떨어진 결과 묶음이라 드로어로 갔다.
+두 표현이 어긋나지 않도록 평균 판정은 `averageOf` 한 곳에서만 나온다.
+
+```
+ui/calc/
+├── SheetCalcDrawer.tsx   # 계산값 드로어 — 액션 바의 [계산값] 이 입구
+├── calc-groups.tsx       # previewCalc → CalcResultGrid 항목 묶음 빌더
+└── index.ts
+```
+
+- **고르는 컨트롤이 계산 결과에서 나오는 값이면 컨트롤도 드로어로 간다** — 노즐 사이즈
+  Select 가 그 경우다. 근거(추천 목록·예상치)와 떨어져 있으면 대조가 안 된다.
+  그래서 추천 후보를 눌러도 드로어를 닫지 않는다.
+- **읽기만 하는 묶음과 고르는 도구는 탭으로 가른다.** 세로로 쌓으면 고른 뒤 결과를 보려고
+  스크롤을 오가게 된다. 첫 탭은 **입구 버튼의 이름과 같은 것**으로 둔다(`계산값`) —
+  도구가 없는 카테고리(가스상)에서 탭 없이 그릴 때도 처음 보이는 화면이 같아진다.
+- **열림 상태는 액션 바를 가진 `XxxEditor` 가, 표면은 `XxxFormView` 가 소유한다.**
+  입구와 표면이 다른 컴포넌트에 있을 때는 상태만 위로 올린다 — 표면을 위로 올리면
+  섹션이 들고 있던 판정(배출가스 입력칸 노출 등)을 위에서 다시 계산해야 해 소스가 갈린다.
+- **드로어와 섹션이 같은 값을 그리면 스펙을 공유한다.** 배출가스 성분은
+  `sections/exhaust-gas-rows.tsx` 가 입력 회차 행과 평균 묶음을 함께 낸다.
+
+**섹션 하나가 200 줄을 넘거나 같은 데이터를 두 표현으로 그리면 디렉토리로 편다.**
+`sections/sampling-point/` 가 그 형태다 — 모바일 카드와 데스크탑 전치 표가 같은 항목을
+다르게 그리므로, 표현을 나누되 **스펙과 파생값은 한 소스로 묶는다.**
+
+```
+sections/sampling-point/
+├── index.ts                  # 섹션 컴포넌트만 노출
+├── SamplingPointSection.tsx  # 셸 — 요약 헤더 + 세 조각 조합
+├── PointCommonValues.tsx     # 지점과 무관한 시트 단위 입력 (입자상 전용)
+├── PointCards.tsx            # 모바일 표현 (지점 = 카드) — 지점별 값만
+├── PointTable.tsx            # 데스크탑 표현 (행=항목, 열=지점 + 평균 열)
+├── point-fields.tsx          # 항목 스펙 — 라벨·단위·하한·증감폭
+└── point-results.tsx         # 파생값 — 평균 판정·결과 행 빌더 (계산값 드로어도 소비)
+```
+
+- **두 표현은 스펙 배열(`point-fields`)을 공유한다.** 각자 필드를 나열하면 한쪽만 고쳐져 어긋난다.
+- **항목별 차이는 스펙에서만 선언한다.** 값의 하한(`min`)처럼 항목마다 갈리는 속성은
+  **선택 속성으로 두지 말 것** — 아무도 판단하지 않은 채 기본값이 먹는다.
+  실제로 동압(ΔP)에 음수 부호(±) 버튼이 붙어 있었다. `min: number | undefined` 처럼
+  **키를 필수로** 두면 새 항목을 추가할 때 컴파일러가 판단을 강제한다.
+
+### 스텝 위저드 폼 Feature (register-equipment 등)
+
+폼이 길어 모달 안에서 단계로 나누는 경우. `@shared/ui/dialogs` 의 `StepFormDialog` 를 쓴다.
+
+```
+feature-name/
+├── model/
+│   ├── types.ts
+│   ├── step-progress.ts      # 노출 스텝 목록(조건부 포함) + 스텝별 진행도
+│   ├── validator.ts          # validateXxxStep 스텝별 + STEP_VALIDATORS + 합집합
+│   └── hooks/
+└── ui/
+    ├── XxxForm.tsx           # StepFormDialog 에 스텝을 조합하는 셸
+    └── steps/                # 스텝 컴포넌트 + step-props.ts (공유 그리드 상수)
+```
+
+- **조건부 스텝은 `getVisibleXxxSteps(...)` 가 배열에서 빼서** 표현한다 (`hidden` 플래그 금지).
+- 진행도 배지의 분모는 **검증 규칙에서 파생**시킨다. 임의로 "입력 칸 수"를 세면
+  제출 가능한데도 미완성으로 읽히고, 배지와 검증이 어긋난다.
+- 훅은 `validateStep(id)`(스텝 단위 검증)과 `isDirty` 를 추가로 반환한다.
+  `Select`·`DatePicker`·`Checkbox` 는 `input` 이벤트를 내지 않아 모달의 기본 판정이 놓친다.
+
+> **훅은 `model/hooks/` 에 둔다.** 슬라이스 루트 `hooks/` 를 쓰는 슬라이스가
+> `sign-in`·`sign-out`·`contract-overview` 3개 남아 있으나 규칙 위반이며 정리 대상이다.
 
 ---
 
@@ -65,6 +161,10 @@ feature-name/
 - 함수명은 `validateXxxFields` 형태를 사용한다.
 - 반환 타입: `Partial<Record<keyof XxxForm, string>>` — 필드명 → 에러 메시지 맵
 - 필수 필드 누락, 포맷 검증 등을 담당한다.
+- 스텝 위저드 폼에서는 스텝별로 쪼개고 `STEP_VALIDATORS` 로 묶는다. 이때
+  **`validateXxxFields` 는 스텝 검증 함수들의 합집합이어야 한다** — 마지막 스텝에서
+  제출할 때 앞 스텝의 누락을 놓치지 않기 위함이다. 회귀 테스트로 강제한다
+  (`register-equipment/model/validator.test.ts` 참조).
 - `index.ts`에 export하지 않는다 (슬라이스 내부 유틸).
 
 ```ts
@@ -123,9 +223,14 @@ const handleChange = (name: keyof ClientRegisterForm, value: string) => {
 };
 ```
 
+- **스텝 위저드는 두 시점에 검증한다**: `다음` 클릭 시 **현재 스텝만**(`validateStep(id)`),
+  제출 시 **전체**를 검증하고 첫 실패 스텝으로 이동한다.
+
 - **submit 시 검증 → 에러 있으면 조기 반환**: 검증 실패 시 API를 호출하지 않고 반드시 return한다.
 
 ```ts
+// React 19 의 `React.SubmitEvent` 를 쓴다. `React.FormEvent` 는 @types/react 가
+// 비권장으로 안내하는 타입이다.
 const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
   e.preventDefault();
 
@@ -187,11 +292,13 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 조건 | 배치 위치 |
 |------|----------|
-| 여러 페이지에서 재사용 | `features/select-xxx/hooks/` |
+| 여러 페이지에서 재사용 | `features/select-xxx/model/hooks/` |
 | 특정 페이지 전용 | `pages/<sub-domain>/model/` |
 
 특정 페이지에서만 쓰이는 선택 로직을 features 슬라이스로 분리하는 것은 과설계다.
 작성 시점에 재사용 계획이 없다면 pages/model에 두고, 실제 재사용 시점에 features로 승격한다.
+
+> 현재 `select-*` feature 는 **0개**다. 선택 훅은 전부 `pages/*/model/use-*-selection.ts` 에 있다.
 
 ### 반환 인터페이스
 
@@ -210,7 +317,8 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `sign-in/ui/SignInForm.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `sign-in/ui/SocialSignIn.tsx` | `@/components/ui/button` 직접 import | `@/shared/ui/buttons`를 통해 사용 |
-| `register-client/ui/RegisterClientForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
-| `register-pollutant/ui/RegisterPollutantForm.tsx` | `@/components/ui/field` 직접 import | `@shared/ui/`에 FieldGroup 래퍼 추가 후 교체 |
+| `sign-in/hooks/`, `sign-out/hooks/`, `contract-overview/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
+| `sign-in/hooks/use-sign-in.ts` | `signInApi` 직접 호출 (`entities/auth` 에 액션 훅이 없음) | entity 액션 훅 신설 후 경유 |
+| `sign-in/model/mapper.ts` | Form → **Request DTO** 직접 변환 | 도메인 입력 모델을 거치도록 변경 |
+| `dashboard-summary/model/use-dashboard.ts` | `dashboardApi` 직접 호출, 훅이 `model/` 직하 | `entities/dashboard` 에 `model/` 신설 후 경유 |
+| `contract-overview/hooks/use-contract-overview.ts` | `workplaceApi` 직접 호출 | entity 페칭 훅 경유 |

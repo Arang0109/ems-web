@@ -1,4 +1,4 @@
-import { PageTitle } from "@shared/ui/semantics";
+import { PageLayout } from "@shared/ui/layout";
 
 import { ClientTable } from "@widgets/client-table";
 import { WorkplaceTable } from "@widgets/workplace-table";
@@ -25,33 +25,29 @@ export const ClientManagementPage = () => {
   } = useClientManagement();
 
   return (
-    <div className="p-6 space-y-5 min-h-full">
-      <PageTitle title="거래처 관리" description="측정대행 의뢰기관, 측정대상 사업장, 측정시설 목록이 표시됩니다."/>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ClientTable
-          selectedClient={selectedClient}
-          onRowClick={onSelectClient}
-          onSuccess={refetchWorkplaces}
-        />
-        <WorkplaceTable
-          workplaces={workplaces}
-          loading={workplacesLoading}
-          error={workplacesError}
-          selectedClient={selectedClient}
-          selectedWorkplace={selectedWorkplace}
-          onRowClick={onSelectWorkplace}
-          onSuccess={refetchWorkplaces}
-        />
-      </div>
-      <div className="grid grid-cols-1">
-        <StackTable
-          stacks={stacks}
-          loading={stacksLoading}
-          error={stacksError}
-          selectedWorkplace={selectedWorkplace}
-          onSuccess={refetchStacks} />
-      </div>
-    </div>
+    <PageLayout
+      title="거래처 관리"
+      description="측정대행 의뢰기관, 측정대상 사업장, 측정지점(굴뚝) 목록이 표시됩니다."
+    >
+      <ClientTable
+        onRowClick={onSelectClient}
+        onSuccess={refetchWorkplaces}
+      />
+      <WorkplaceTable
+        workplaces={workplaces}
+        loading={workplacesLoading}
+        error={workplacesError}
+        selectedClient={selectedClient}
+        selectedWorkplace={selectedWorkplace}
+        onRowClick={onSelectWorkplace}
+        onSuccess={refetchWorkplaces}
+      />
+      <StackTable
+        stacks={stacks}
+        loading={stacksLoading}
+        error={stacksError}
+        selectedWorkplace={selectedWorkplace}
+        onSuccess={refetchStacks} />
+    </PageLayout>
   );
 }

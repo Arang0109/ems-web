@@ -1,21 +1,19 @@
 import { useClientTable } from '../model/use-client-table';
+import { clientCardConfig } from '../model/mobile-card';
 
 import { RegisterClientForm } from '@features/register-client'
 import { UpdateClientForm } from '@features/update-client';
 
-import { BasicTable } from '@shared/ui/table';
+import { BasicTable, TableFooterBar, TablePanel } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
-import { Pagination } from '@shared/ui/pagination';
-import { Panel } from '@shared/ui/cards';
-import type { Client } from '@entities/client';
+import { useRemountKey } from '@shared/model';
 
 interface Props {
-  selectedClient: Client | null;
   onRowClick: (clientId: number) => void;
   onSuccess?: () => void;
 }
 
-export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) => {
+export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
   const {
     table,
 
@@ -23,59 +21,45 @@ export const ClientTable = ({ selectedClient, onSuccess, onRowClick }: Props) =>
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+    detailClient,
 
     globalFilter, setGlobalFilter,
 
     loading, error, refetch
   } = useClientTable({ onRowClick, onSuccess });
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const registerFormKey = useRemountKey(registerModalOpen);
+  const updateFormKey = useRemountKey(updateModalOpen);
+
   return (
-    <Panel>
-      <div className="px-5 pt-5 pb-4 border-b border-border">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-foreground">의뢰기관 목록</h2>
-          </div>
-          <RegisterClientForm
-            open={registerModalOpen}
-            onOpenChange={setRegisterModalOpen}
-            onSuccess={refetch}
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
-      </div>
-
-      <div className="p-5 flex-1 flex flex-col">
-        <BasicTable table={table} error={error} onRowClick={handleRowClick} />
-      </div>
-
-      {!loading && !error && (
-        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
-            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
-          </span>
-          <Pagination
-            pageIndex={table.getState().pagination.pageIndex}
-            pageCount={table.getPageCount()}
-            canPreviousPage={table.getCanPreviousPage()}
-            canNextPage={table.getCanNextPage()}
-            onPreviousPage={() => table.previousPage()}
-            onNextPage={() => table.nextPage()}
-            onPageChange={(idx) => table.setPageIndex(idx)}
-          />
-        </div>
-      )}
+    <>
+      <TablePanel
+        title="의뢰기관 목록"
+        actions={
+          <>
+            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
+            <RegisterClientForm
+              key={registerFormKey}
+              open={registerModalOpen}
+              onOpenChange={setRegisterModalOpen}
+              onSuccess={refetch}
+            />
+          </>
+        }
+        footer={!loading && !error && <TableFooterBar table={table} />}
+      >
+        <BasicTable
+          table={table} loading={loading} error={error} onRowClick={handleRowClick} mobileCard={clientCardConfig} />
+      </TablePanel>
 
       <UpdateClientForm
-        key={selectedClient?.id}
+        key={updateFormKey}
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
-        client={selectedClient}
+        client={detailClient}
         onSuccess={refetch}
       />
-    </Panel>
+    </>
   );
 }

@@ -1,82 +1,72 @@
-import type { SheetCalcPreview } from "@entities/schedule";
-import { SectionAccordion } from "@shared/ui/accordion";
-import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
+import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
+import { UnitField } from "@shared/ui/form";
+import { HelpTip } from "@shared/ui/tooltip";
 
+import { EXHAUST_GAS_HINT } from "../../model/field-hints";
+import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
 import type { ExhaustGasForm, GasColumnKey } from "../../model/types";
 import { GAS_READING_COUNT } from "../../model/types";
+import { visibleGasRows } from "./exhaust-gas-rows";
+import { FIELD_GRID, type SectionShellProps } from "./shell-props";
 
-interface Props {
+interface Props extends SectionShellProps {
   exhaustGas: ExhaustGasForm;
-  calc: SheetCalcPreview["exhaustGas"] | null;
-  standardOxygen: number | null;      // 기준산소농도 (측정시설 원장, read-only)
+  /** 측정항목에 배정돼 입력칸을 열어 둘 오염물질 */
+  visiblePollutants: ExhaustGasVisibility;
   editable: boolean;
   onChange: (patch: Partial<ExhaustGasForm>) => void;
   onReadingChange: (key: GasColumnKey, index: number, value: string) => void;
 }
 
-const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
-
-// 가스 성분별 행: 라벨 | 1~3회 입력 | 평균(계산)
-const GAS_ROWS: { key: GasColumnKey; label: string; avgKey: keyof SheetCalcPreview["exhaustGas"] }[] = [
-  { key: "o2", label: "O₂ (%)", avgKey: "o2Avg" },
-  { key: "co2", label: "CO₂ (%)", avgKey: "co2Avg" },
-  { key: "co", label: "CO (%)", avgKey: "coAvg" },
-  { key: "nox", label: "NOx (ppm)", avgKey: "noxAvg" },
-  { key: "sox", label: "SOx (ppm)", avgKey: "soxAvg" },
-];
-
 export const ExhaustGasSection = ({
-  exhaustGas, calc, standardOxygen, editable, onChange, onReadingChange,
-}: Props) => (
-  <SectionAccordion title="배출가스정보" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
-      <table className="w-full border-collapse min-w-[720px]">
-        <tbody>
-          <tr>
-            <TableLabelCell>항목</TableLabelCell>
-            {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
-              <TableLabelCell key={i}>{i + 1}회</TableLabelCell>
+  exhaustGas, visiblePollutants,
+  editable, onChange, onReadingChange, ...shell
+}: Props) => {
+  const gasRows = visibleGasRows(visiblePollutants);
+
+  return (
+    <SectionAccordion
+      {...shell}
+      title="배출가스 정보"
+      subtitle="O₂, CO₂, CO 등 가스 농도 측정값을 입력합니다."
+      description="1~3회 측정값을 입력하면 평균값이 자동으로 계산됩니다(하단 [계산값]). THC, NOx, SOx는 해당 측정항목이 있는 경우에만 입력란이 표시됩니다."
+    >
+      <div className={FIELD_GRID}>
+        <UnitField
+          label="가스분석기 측정 시작시간" required type="time"
+          hint={EXHAUST_GAS_HINT.gasAnalyzer}
+          value={exhaustGas.gasAnalyzerStartTime} disabled={!editable}
+          onChange={(v) => onChange({ gasAnalyzerStartTime: v })}
+        />
+        {visiblePollutants.thc && (
+          <UnitField
+            label="THC 측정 시작시간" required type="time"
+            value={exhaustGas.thcAnalyzerStartTime} disabled={!editable}
+            onChange={(v) => onChange({ thcAnalyzerStartTime: v })}
+          />
+        )}
+      </div>
+
+      {/* 회차별 도움말은 그룹 헤더에 하나만 둔다 — 성분마다 달면 같은 문구가 15개 붙는다 */}
+      {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
+        <SubAccordion
+          key={i}
+          title={`${i + 1}회 입력`}
+          defaultOpen={i === 0}
+          action={<HelpTip content={EXHAUST_GAS_HINT.reading} label={`${i + 1}회 입력 설명`} />}
+        >
+          <div className={FIELD_GRID}>
+            {gasRows.map((row) => (
+              <UnitField
+                key={row.key}
+                label={row.label} required unit={row.unit} type="number" min={0} step={0.1}
+                value={exhaustGas[row.key][i] ?? ""} disabled={!editable}
+                onChange={(v) => onReadingChange(row.key, i, v)}
+              />
             ))}
-            <TableLabelCell>평균</TableLabelCell>
-          </tr>
-
-          {GAS_ROWS.map((row) => (
-            <tr key={row.key}>
-              <TableLabelCell>{row.label}</TableLabelCell>
-              {Array.from({ length: GAS_READING_COUNT }, (_, i) => (
-                <TableInputCell key={i} type="number" value={exhaustGas[row.key][i] ?? ""} step={0.1}
-                  onChange={(v) => onReadingChange(row.key, i, v)} disabled={!editable} />
-              ))}
-              <TableResultCell value={display(calc?.[row.avgKey] as number | null)} />
-            </tr>
-          ))}
-
-          <tr>
-            <TableLabelCell>N₂ (%)</TableLabelCell>
-            <TableResultCell value={display(calc?.n2)} unit="%" colSpan={GAS_READING_COUNT + 1} />
-          </tr>
-          <tr>
-            <TableLabelCell>기준산소농도</TableLabelCell>
-            <TableResultCell value={display(standardOxygen)} unit="%" colSpan={GAS_READING_COUNT + 1} />
-          </tr>
-          <tr>
-            <TableLabelCell>산소보정계수</TableLabelCell>
-            <TableResultCell value={display(calc?.o2CorrectionFactor)} colSpan={GAS_READING_COUNT + 1} />
-          </tr>
-          <tr>
-            <TableLabelCell>표준상태 배출가스밀도 (ρ)</TableLabelCell>
-            <TableResultCell value={display(calc?.standardGasDensity)} unit="kg/Sm³" colSpan={GAS_READING_COUNT + 1} />
-          </tr>
-          <tr>
-            <TableLabelCell colSpan={2}>가스분석기 측정 시작시간</TableLabelCell>
-            <TableInputCell type="time" value={exhaustGas.gasAnalyzerStartTime}
-              onChange={(v) => onChange({ gasAnalyzerStartTime: v })} disabled={!editable} />
-            <TableLabelCell>THC 측정 시작시간</TableLabelCell>
-            <TableInputCell type="time" value={exhaustGas.thcAnalyzerStartTime}
-              onChange={(v) => onChange({ thcAnalyzerStartTime: v })} disabled={!editable} />
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </SectionAccordion>
-);
+          </div>
+        </SubAccordion>
+      ))}
+    </SectionAccordion>
+  );
+};

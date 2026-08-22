@@ -1,7 +1,7 @@
 import type { TeamSnapshot } from "@entities/schedule";
 import { EQUIP_TYPE_LABEL } from "@shared/config";
 import { FormDialog } from "@shared/ui/dialogs";
-import { FieldGroup, SectionTitle, Select } from "@shared/ui/form";
+import { FieldGroup, Select } from "@shared/ui/form";
 
 import { useUpdateScheduleEquipments } from "../model/hooks/use-update-schedule-equipments";
 
@@ -38,7 +38,6 @@ export const UpdateScheduleEquipmentsForm = ({
       onSubmit={handleSubmit}
     >
       <FieldGroup>
-        <SectionTitle>배정 장비</SectionTitle>
         <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="particleSamplerId"
@@ -77,10 +76,6 @@ export const UpdateScheduleEquipmentsForm = ({
             onValueChange={(value) => value && handleChange("nozzleId", value)}
           />
         </div>
-
-        <p className="text-xs text-muted-foreground">
-          장비를 변경하면 저장된 측정 데이터가 서버에서 재계산됩니다.
-        </p>
       </FieldGroup>
     </FormDialog>
   );

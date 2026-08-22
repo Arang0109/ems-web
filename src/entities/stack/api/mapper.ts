@@ -16,8 +16,8 @@ export const toRegisterRequest = (vo: StackCreate): StackRegisterRequest => ({
   name: trimValue(vo.name),
   semsNumber: trimValue(vo.semsNumber),
   grade: vo.grade,
-  businessCategory: trimValue(vo.businessCategory),
   mainProduct: trimValue(vo.mainProduct),
+  standardOxygen: vo.standardOxygen,
 });
 
 export const toRegisterFacilityRequest = (vo: FacilityCreate): FacilityRegisterRequest => ({
@@ -36,8 +36,8 @@ export const toUpdateRequest = (vo: StackUpdate): StackUpdateRequest => ({
   name: trimValue(vo.name),
   semsNumber: trimValue(vo.semsNumber),
   grade: vo.grade,
-  businessCategory: trimValue(vo.businessCategory),
   mainProduct: trimValue(vo.mainProduct),
+  standardOxygen: vo.standardOxygen,
   height: vo.height,
   horizontalLength: vo.horizontalLength,
   verticalLength: vo.verticalLength,
@@ -71,6 +71,7 @@ export const toRegisterPreventionRequest = (vo: PreventionCreate): PreventionReg
   stackId: vo.stackId,
   name: trimValue(vo.name),
   capacity: vo.capacity,
+  unit: trimValue(vo.unit),
   targetName: trimValue(vo.targetName),
   removalEfficiency: trimValue(vo.removalEfficiency),
 });
@@ -78,6 +79,7 @@ export const toRegisterPreventionRequest = (vo: PreventionCreate): PreventionReg
 export const toUpdatePreventionRequest = (vo: PreventionUpdate): PreventionUpdateRequest => ({
   name: trimValue(vo.name),
   capacity: vo.capacity,
+  unit: trimValue(vo.unit),
   targetName: trimValue(vo.targetName),
   removalEfficiency: trimValue(vo.removalEfficiency),
 });
@@ -90,13 +92,13 @@ export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
     name: dto.name,
     semsNumber: dto.semsNumber,
     grade: dto.grade,
-    businessCategory: dto.businessCategory,
     mainProduct: dto.mainProduct,
     height: dto.height,
     horizontalLength: dto.horizontalLength,
     verticalLength: dto.verticalLength,
     shape: dto.shape,
     orientation: dto.orientation,
+    standardOxygen: dto.standardOxygen ?? null,
     createdAt: dto.createdAt,
     modifiedAt: dto.modifiedAt
   },
@@ -104,6 +106,7 @@ export const toStackDetail = (dto: StackDetailResponse): StackDetail => ({
     id: data.id,
     name: data.name,
     capacity: data.capacity ?? null,
+    unit: data.unit ?? '',
     targetName: data.targetName ?? '',
     removalEfficiency: data.removalEfficiency ?? '',
   })),

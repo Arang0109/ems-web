@@ -7,7 +7,7 @@ import { useUpdateWorkplaceAction } from "@entities/workplace";
 import type { Workplace } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
-import type { AddressValue } from "@/shared/model";
+import type { AddressValue } from "@shared/model";
 
 interface Props {
   workplace: Workplace | null;
@@ -20,6 +20,7 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
   const [form, setForm] = useState<WorkplaceUpdateForm>({
     name: workplace?.name ?? '',
     bizNumber: workplace?.bizNumber ?? "",
+    businessCategory: workplace?.businessCategory ?? "",
     zipcode: workplace?.zipcode ?? '',
     roadAddress: workplace?.roadAddress ?? '',
     address: workplace?.detailAddress ?? "",

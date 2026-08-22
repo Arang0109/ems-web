@@ -18,26 +18,23 @@ export const useScheduleBasicInfo = ({ scheduleId, basicInfo, team }: Params) =>
   const { updateBasicInfo, isLoading } = useUpdateBasicInfoAction();
 
   // 부모(SheetsEditor)를 리마운트하면 입력 중인 시트 폼까지 날아가므로 리마운트하지 않는다.
-  // prop은 초기값으로만 쓰고, 저장 응답으로 재동기화한다.
   const [form, setForm] = useState<ScheduleBasicInfoForm>(() => fromBasicInfo(basicInfo, team));
-  const [savedForm, setSavedForm] = useState<ScheduleBasicInfoForm>(() => fromBasicInfo(basicInfo, team));
+  const [baselineForm, setBaselineForm] = useState<ScheduleBasicInfoForm>(() => fromBasicInfo(basicInfo, team));
 
   const isDirty = (Object.keys(form) as (keyof ScheduleBasicInfoForm)[])
-    .some((key) => form[key] !== savedForm[key]);
+    .some((key) => form[key] !== baselineForm[key]);
 
   const handleChange = (name: keyof ScheduleBasicInfoForm, value: string) =>
     setForm((prev) => ({ ...prev, [name]: value }));
 
-  // 변경이 없으면 요청하지 않는다(시트만 고치는 저장마다 PATCH가 나가는 것 방지).
-  // 실패 시 throw — 호출자가 toast로 최종 처리한다.
   const saveBasicInfo = async () => {
     if (scheduleId == null || !isDirty) return;
 
     const detail = await updateBasicInfo(scheduleId, toBasicInfoUpdate(form));
     const next = fromBasicInfo(detail.snapshot.basicInfo, detail.snapshot.team);
     setForm(next);
-    setSavedForm(next);
+    setBaselineForm(next);
   };
 
-  return { form, isLoading, handleChange, saveBasicInfo };
+  return { form, isDirty, isLoading, handleChange, saveBasicInfo };
 };

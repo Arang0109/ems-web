@@ -19,6 +19,7 @@ export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
   const { registerWorkplace, isLoading } = useRegisterWorkplaceAction();
 
   const [form, setForm] = useState<WorkplaceRegisterForm>(getDefaultWorkplaceRegisterForm(client));
+  const [checked, setChecked] = useState(false);
 
   const handleChange = (name: keyof WorkplaceRegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -32,6 +33,24 @@ export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
       workplaceDetailAddress: detailAddress,
     }));
   };
+
+  const copyClientInfo = () => {
+    if (!client) return;
+
+    if (!checked) {
+      setForm((prev) => ({
+        ...prev,
+        workplaceName: client.name,
+        workplaceBizNumber: client.bizNumber,
+        workplaceZipcode: client.zipcode,
+        workplaceRoadAddress: client.roadAddress,
+        workplaceDetailAddress: client.detailAddress,
+      }));
+    } else {
+      setForm(getDefaultWorkplaceRegisterForm(client));
+    }
+    setChecked(!checked);
+  }
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,5 +71,8 @@ export const useRegisterWorkplace = ({ client, onSuccess }: Props) => {
     handleSubmit,
     handleChange,
     handleAddressChange,
+
+    copyClientInfo,
+    checked,
   };
 }

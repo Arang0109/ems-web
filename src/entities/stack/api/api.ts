@@ -2,8 +2,8 @@ import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
 import type {
   StackRegisterRequest, StackUpdateRequest, StackListResponse, StackDetailResponse, StackResponse,
-  FacilityRegisterRequest, FacilityUpdateRequest,
-  PreventionRegisterRequest, PreventionUpdateRequest,
+  FacilityRegisterRequest, FacilityUpdateRequest, FacilityReorderRequest,
+  PreventionRegisterRequest, PreventionUpdateRequest, PreventionReorderRequest,
 } from './dto';
 
 export const stackApi = {
@@ -38,6 +38,11 @@ export const stackApi = {
     return res.data;
   },
 
+  reorderFacilities: async (data: FacilityReorderRequest): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.put(`/facilities/order`, data);
+    return res.data;
+  },
+
   deleteFacility: async (facilityId: number): Promise<ApiResponseMessage<void>> => {
     const res = await axiosPrivate.delete(`/facilities/${facilityId}`);
     return res.data;
@@ -50,6 +55,11 @@ export const stackApi = {
 
   updatePrevention: async (preventionId: number, data: PreventionUpdateRequest): Promise<ApiResponseMessage<void>> => {
     const res = await axiosPrivate.put(`/preventions/${preventionId}`, data);
+    return res.data;
+  },
+
+  reorderPreventions: async (data: PreventionReorderRequest): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.put(`/preventions/order`, data);
     return res.data;
   },
 

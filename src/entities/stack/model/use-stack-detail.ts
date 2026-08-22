@@ -5,6 +5,8 @@ import { getStackDetailDefault } from "./types";
 import { toStackDetail } from "../api/mapper";
 import { stackApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 export const useStackDetail = () => {
   const [data, setData] = useState<StackDetail>(getStackDetailDefault());
   const [loading, setLoading] = useState(true);
@@ -20,7 +22,7 @@ export const useStackDetail = () => {
       const detail = toStackDetail(res.data);
       setData(detail);
     } catch {
-      setError('데이터를 불러오는 데 실패했습니다.');
+      setError(ERROR_MESSAGE.FETCH);
     } finally {
       setLoading(false);
     }

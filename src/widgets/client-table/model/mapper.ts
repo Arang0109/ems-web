@@ -1,6 +1,5 @@
 import type { Client } from '@entities/client';
-import { formatBusinessNumber } from '@shared/lib';
-import { formatAddress } from '@shared/lib';
+import { formatAddress, formatBusinessNumber, formatPhoneNumber } from '@shared/lib';
 
 import type { ClientTableRow } from './types';
 
@@ -13,5 +12,5 @@ export const toClientRows = (col: Client): ClientTableRow => ({
 
   manager: col.manager,
   email: col.email,
-  tel: col.tel,
+  tel: formatPhoneNumber(col.tel),
 });

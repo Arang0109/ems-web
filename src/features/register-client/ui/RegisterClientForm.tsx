@@ -1,16 +1,16 @@
 import { useRegisterClient } from "../model/hooks/use-register-client";
 
 // UI
-import { FieldGroup } from "@/components/ui/field";
+
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 
 // Format
 import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
 
 // Icon
-import { MailIcon, User2Icon, Phone, Building2, Hash } from "lucide-react";
+import { MailIcon, User2Icon, Phone, Building2, Hash, Plus } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -28,7 +28,7 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
 
   return (
     <FormDialog
-      triggerLabel='측정대행 의뢰기관 등록'
+      triggerLabel={<><Plus /> 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

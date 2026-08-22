@@ -1,16 +1,18 @@
 import { useState } from "react";
 
-import type { EquipmentRegisterForm, EquipmentSpecForm } from "../types";
-import { getDefaultEquipmentRegisterForm, getDefaultSpecForm } from "../types";
+import type { EquipmentRegisterForm, EquipmentSpecForm, InspectionItemForm } from "../types";
+import { getDefaultEquipmentRegisterForm, getDefaultSpecForm, isEquipmentFormDirty } from "../types";
 import { toEquipmentCreate } from "../mapper";
-import { validateEquipmentFields } from "../validator";
+import { STEP_VALIDATORS, validateEquipmentFields } from "../validator";
+import type { EquipmentStepId } from "../step-progress";
 
 import { useRegisterEquipmentAction } from "@entities/equipment";
 
+import type { EquipType } from "@shared/model";
 import { toast } from "@shared/ui/toasts";
 
 interface Props {
-  defaultType?: string;
+  defaultType?: EquipType | '';
   onSuccess: () => void;
 }
 
@@ -29,7 +31,7 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
   };
 
   // 종류 변경 시 spec을 초기화한다.
-  const handleTypeChange = (type: string) => {
+  const handleTypeChange = (type: EquipType | '') => {
     setForm((prev) => ({ ...prev, type, spec: getDefaultSpecForm() }));
     setFieldErrors((prev) => ({ ...prev, type: undefined, spec: undefined }));
   };
@@ -73,6 +75,30 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
     }));
   };
 
+  const handleInspectionChange = (
+    index: number,
+    field: keyof InspectionItemForm,
+    value: string | boolean,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      inspections: prev.inspections.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    }));
+    setFieldErrors((prev) => ({ ...prev, inspections: undefined }));
+  };
+
+  /**
+   * 위저드의 '다음' 이 쓰는 스텝 단위 검증.
+   * 실패한 스텝의 에러만 채우고 이동을 막는다 (제출 시 전체 검증은 그대로 남는다).
+   */
+  const validateStep = (id: EquipmentStepId): boolean => {
+    const errors = STEP_VALIDATORS[id](form);
+    if (Object.keys(errors).length === 0) return true;
+
+    setFieldErrors((prev) => ({ ...prev, ...errors }));
+    return false;
+  };
+
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -96,6 +122,8 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
   return {
     form,
     isLoading,
+    // Select·DatePicker·Checkbox 위주라 모달의 input 기반 판정으로는 부족하다.
+    isDirty: isEquipmentFormDirty(form, defaultType),
 
     fieldErrors,
 
@@ -111,6 +139,9 @@ export const useRegisterEquipment = ({ defaultType = '', onSuccess }: Props) => 
     handleRemoveDiameter,
     handleDiameterChange,
 
+    handleInspectionChange,
+
+    validateStep,
     handleSubmit,
   };
 };

@@ -2,10 +2,10 @@ import { useTenantTable } from '../model/use-tenant-table';
 
 import { ProvisionTenantForm } from '@features/provision-tenant';
 
-import { BasicTable } from '@shared/ui/table';
+import { BasicTable, TableFooterBar } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
-import { Pagination } from '@shared/ui/pagination';
 import { Panel } from '@shared/ui/cards';
+import { useRemountKey } from '@shared/model';
 
 interface Props {
   onSuccess?: () => void;
@@ -22,14 +22,18 @@ export const TenantTable = ({ onSuccess }: Props) => {
     loading, error, refetch
   } = useTenantTable({ onSuccess });
 
+  // 열릴 때마다 폼을 초기 상태로 되돌린다
+  const provisionFormKey = useRemountKey(provisionModalOpen);
+
   return (
     <Panel>
       <div className="px-5 pt-5 pb-4 border-b border-border">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-sm font-semibold text-foreground">고객사 목록</h2>
+            <h2 className="text-h3 text-foreground">고객사 목록</h2>
           </div>
           <ProvisionTenantForm
+            key={provisionFormKey}
             open={provisionModalOpen}
             onOpenChange={setProvisionModalOpen}
             onSuccess={refetch}
@@ -46,20 +50,7 @@ export const TenantTable = ({ onSuccess }: Props) => {
       </div>
 
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
-            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
-          </span>
-          <Pagination
-            pageIndex={table.getState().pagination.pageIndex}
-            pageCount={table.getPageCount()}
-            canPreviousPage={table.getCanPreviousPage()}
-            canNextPage={table.getCanNextPage()}
-            onPreviousPage={() => table.previousPage()}
-            onNextPage={() => table.nextPage()}
-            onPageChange={(idx) => table.setPageIndex(idx)}
-          />
-        </div>
+        <TableFooterBar table={table} className="border-t border-border px-5 py-3" />
       )}
     </Panel>
   );

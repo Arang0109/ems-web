@@ -37,13 +37,22 @@ export const RegisterPreventionForm = ({ stackId, open, onOpenChange, onSuccess 
           onChange={value => handleChange('name', value)}
           startIcon={<Shield />}
         />
-        <InputGroup
-          id="capacity"
-          label="용량"
-          placeholder="예: 500"
-          value={form.capacity}
-          onChange={value => handleChange('capacity', value)}
-        />
+        <div className="grid md:grid-cols-2 gap-4">
+          <InputGroup
+            id="capacity"
+            label="용량"
+            placeholder="예: 500"
+            value={form.capacity}
+            onChange={value => handleChange('capacity', value)}
+          />
+          <InputGroup
+            id="unit"
+            label="단위"
+            placeholder="예: m³/min"
+            value={form.unit}
+            onChange={value => handleChange('unit', value)}
+          />
+        </div>
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="targetName"

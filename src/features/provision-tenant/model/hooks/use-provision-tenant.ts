@@ -5,11 +5,10 @@ import { getDefaultForm } from "../types";
 import { toTenantProvision } from "../mapper";
 import { validateTenantFields } from "../validator";
 
-import {
-  useProvisionTenantAction,
-  SUBSCRIPTION_PLAN_OPTIONS,
-  SUBSCRIPTION_PLAN_LABEL,
-} from "@entities/tenant";
+import { useProvisionTenantAction } from "@entities/tenant";
+
+import { SUBSCRIPTION_PLAN_OPTIONS } from "@shared/model";
+import { SUBSCRIPTION_PLAN_LABEL } from "@shared/config";
 
 import { toast } from "@shared/ui/toasts";
 import type { SelectOption } from "@shared/ui/form";

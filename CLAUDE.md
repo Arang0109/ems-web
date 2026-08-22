@@ -9,8 +9,34 @@
 
 - **경로:** `c:\dev\projects\new\ems-web`
 - **아키텍처:** Feature-Sliced Design (FSD)
-- **스택:** React + TypeScript + Vite + TailwindCSS v4 + shadcn/ui + MSW
+- **스택:** React 19 + TypeScript + Vite + TailwindCSS v4 + Base UI(shadcn/ui 기반) + MSW
 - **아키텍처 상세:** [ARCHITECTURE.md](./ARCHITECTURE.md) 참조
+- **디자인 시스템:** [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) 참조
+  (컬러·타이포·간격·코너 토큰, 컴포넌트 현황, shadcn 제거 진행 상황)
+- **배포:** `Dockerfile` + `docker/nginx.conf` + [deploy/README.md](./deploy/README.md)
+
+### 주요 의존성
+
+| 영역 | 라이브러리 |
+|------|-----------|
+| 라우팅 | `react-router` / `react-router-dom` 7 |
+| 테이블 | `@tanstack/react-table` 8 |
+| 차트 | `recharts` 3 (+ `@recharts/devtools`) |
+| UI 동작 레이어 | `@base-ui/react` (shadcn/ui 컴포넌트의 기반) |
+| 드래그앤드롭 | `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` (`shared/ui/sortable` 에서만 직접 쓴다) |
+| 토스트 | `sonner` |
+| 테마 | `next-themes` |
+| 날짜 | `date-fns`, `react-day-picker` |
+| 아이콘 | `lucide-react`, `@hugeicons/*` |
+| 폰트 | `pretendard` |
+| 주소 검색 | `@clroot/react-kakao-postcode` |
+| HTTP | `axios` |
+| 테스트 | `vitest` |
+
+> **상태관리·폼 라이브러리를 쓰지 않는 것이 의도된 결정이다.**
+> redux/zustand/react-query/react-hook-form/zod 를 도입하지 않는다.
+> 전역 상태는 `entities/auth` 의 Context 하나뿐이고, 폼은 `useState` + 슬라이스별
+> `model/validator.ts` 로 처리한다. 새 라이브러리 도입은 별도 합의 사항이다.
 
 ---
 
@@ -39,29 +65,54 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
 
 ## 환경 설정
 
-- **CSS:** TailwindCSS v4 (`postcss.config.js` 기반, `tailwind.config.js` 없음)
-- **Mock API:** MSW (개발 환경에서 자동 활성화)
-- **Path Aliases:**
-  - `@/` → `src/`
-  - `@shared/` → `src/shared/`
-  - `@entities/` → `src/entities/`
-  - `@features/` → `src/features/`
+- **CSS:** TailwindCSS v4 — `vite.config.ts` 의 `@tailwindcss/vite` 플러그인으로 연결한다.
+  `tailwind.config.js` 는 없고, 토큰은 `src/app/index.css` 의 `@theme inline` 에 정의한다.
+  (`postcss.config.js` 는 `export default {}` 인 빈 파일이다 — Tailwind 설정이 여기 있지 않다.)
+- **TypeScript:** `tsconfig.app.json` 에 `"strict": true`. 새 코드도 strict 를 통과해야 한다.
+- **API 프록시:** 개발 서버에서 `/api` → `http://localhost:8080` (`vite.config.ts`)
+- **Mock API:** MSW. `VITE_ENABLE_MSW` 환경변수로 켠다
+  (`.env.development` = `true`, `.env.production` = `false`).
+  도메인별 on/off 는 `src/shared/api/mocks/handlers/index.ts` 의 상태 마커로 관리한다.
+- **Path Aliases** (`vite.config.ts` · `tsconfig.app.json` · `vitest.config.ts` 3곳에 동일하게 정의):
+
+  | alias | 대상 |
+  |-------|------|
+  | `@/` | `src/` |
+  | `@app/` | `src/app/` |
+  | `@pages/` | `src/pages/` |
+  | `@widgets/` | `src/widgets/` |
+  | `@features/` | `src/features/` |
+  | `@entities/` | `src/entities/` |
+  | `@shared/` | `src/shared/` |
+
+  > FSD 레이어는 **레이어 alias(`@entities/` 등)를 쓴다.** `@/entities/` 형태는 쓰지 않는다.
+  > `@/` 는 FSD 밖의 shadcn 잔재(`@/components/ui/*`, `@/lib/utils`) 전용이다.
 
 ---
 
 ## 주요 명령어
 
 ```bash
-npm run dev       # 개발 서버 (MSW 포함)
-npm run build     # 빌드
-npm run preview   # 빌드 미리보기
-npx tsc -b        # 타입 체크 (--noEmit 은 쓰지 말 것 — 아래 참고)
+npm run dev        # 개발 서버 (MSW 포함)
+npm run build      # 빌드 (tsc -b && vite build)
+npm run preview    # 빌드 미리보기
+npm run lint       # ESLint
+npm run test       # 단위 테스트 (vitest run)
+npm run test:watch # 단위 테스트 watch
+npx tsc -b         # 타입 체크 (--noEmit 은 쓰지 말 것 — 아래 참고)
 ```
 
 > ⚠️ **타입 체크는 `npx tsc -b` 를 쓴다. `npx tsc --noEmit` 은 검사하는 파일이 0개라 항상 통과한다.**
 > 루트 `tsconfig.json` 이 `files: []` + `references` 구조(solution-style)인데, `references` 는
 > 빌드 모드(`-b`)에서만 따라가기 때문이다. `npm run build` 의 `tsc -b && vite build` 와
 > 동일한 검사여야 실제 빌드 실패를 미리 잡을 수 있다.
+
+### 테스트 정책
+
+`vitest.config.ts` 는 node 환경으로 `src/**/*.test.ts` 만 대상으로 한다 (DOM 없음).
+따라서 **테스트 대상은 순수 함수**다 — `shared/lib` 의 포맷/변환 헬퍼, `entities/*/lib/` 의
+도메인 계산 로직, feature 의 `validator.ts` / `mapper.ts`.
+컴포넌트·훅 테스트는 현재 대상이 아니다 (`@testing-library/react` 미설치).
 
 ---
 
@@ -166,6 +217,10 @@ deleteClient()
 ```
 
 조회는 `fetch`보다 `get`를 사용하여 통일한다.
+
+> 이 규칙은 `entities/*/api/api.ts` 의 **API 함수**에만 적용한다.
+> 훅이 노출하는 명령형 트리거(수동 조회 훅의 반환 함수)는 값을 반환하지 않고 상태를
+> 갱신하므로 `fetchXxx` 를 쓴다. 예: `const { data, fetchStacks } = useStacks()`
 
 ---
 
@@ -287,7 +342,7 @@ const [form, setForm] = useState({
 | **Domain 입력** | `entities/*/model/types.ts` | `number` (선택필드는 `number \| null`) | `number` | `string` |
 | **Domain→DTO** | `entities/*/api/mapper.ts` | passthrough | passthrough | passthrough |
 | **Request DTO** | `entities/*/api/dto.ts` | `number` (`number \| null`) | `number` | `string` |
-| **표시(Row)** | `widgets/*/model/mapper.ts` | `number` → `formatMoney()` 등 → `string` | — | — |
+| **표시(Row)** | `widgets/*/model/mapper.ts` | `number` → `formatNumber()` 등 → `string` | — | — |
 
 ### 규칙 상세
 
@@ -303,11 +358,15 @@ const [form, setForm] = useState({
 
 ### 변환 헬퍼 (`@shared/lib`)
 
-| 헬퍼 | 용도 | 빈값 처리 |
-|------|------|-----------|
-| `toNumber(s)` | **필수** 숫자 필드 파싱 (콤마·공백 제거, 소수·음수 허용) | `0` |
-| `toNumberOrNull(s)` | **선택(nullable)** 숫자 필드 파싱 | `null` |
-| `unformatNumber(s)` | 자릿수 문자열(코드) 정규화 — 결과는 `string` | `''` |
+| 헬퍼 | 방향 | 용도 | 빈값 처리 |
+|------|------|------|-----------|
+| `toNumber(s)` | Form → Domain | **필수** 숫자 필드 파싱 (콤마·공백 제거, 소수·음수 허용) | `0` |
+| `toNumberOrNull(s)` | Form → Domain | **선택(nullable)** 숫자 필드 파싱 | `null` |
+| `toFormValue(n)` | Domain → Form | `toNumber`/`toNumberOrNull` 의 **역방향**. 수정 폼 초기값 채우기 | `''` |
+| `unformatNumber(s)` | 양방향 | 자릿수 문자열(코드) 정규화 — 결과는 `string` | `''` |
+
+> 수정 폼에서 서버 값을 되돌릴 때 `String(value)` 를 쓰지 말 것 —
+> `null` 이 `"null"` 문자열이 되어 입력창에 그대로 노출된다. `toFormValue` 를 쓴다.
 
 ```ts
 // features/*/model/mapper.ts — Form(string) → Domain(number)

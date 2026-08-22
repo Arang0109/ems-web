@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-import type { ScheduleDetail, SheetSave } from "./types";
+import { ERROR_MESSAGE } from "@shared/config";
+
+import type { ScheduleDetail, SheetSave, SheetRef } from "./types";
 import { scheduleApi } from "../api/api";
 import { toSaveSheetsRequest, toScheduleDetail } from "../api/mapper";
 
@@ -8,19 +10,19 @@ export const useSaveSheetsAction = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 시트 저장 후 서버 계산결과가 채워진 최신 상세(도메인)를 반환한다.
-  const saveSheets = async (id: number, sheets: SheetSave[]): Promise<ScheduleDetail> => {
+  // 서버는 요청에 담긴 시트만 교체하므로 삭제는 deletedSheets 로 명시한다.
+  // 실패는 상태 코드를 지닌 ApiError 로 올라온다(충돌 409 구분이 필요해서다) — 그대로 던진다.
+  const saveSheets = async (
+    id: number, sheets: SheetSave[], deletedSheets: SheetRef[] = [],
+  ): Promise<ScheduleDetail> => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await scheduleApi.saveSheets(id, toSaveSheetsRequest(sheets));
-      if (!result.status) {
-        throw new Error(result.message ?? "서버 연결에 실패했습니다.");
-      }
-      return toScheduleDetail(result.data);
+      const response = await scheduleApi.saveSheets(id, toSaveSheetsRequest(sheets, deletedSheets));
+      return toScheduleDetail(response);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "서버 연결에 실패했습니다.";
+      const message = err instanceof Error ? err.message : ERROR_MESSAGE.NETWORK;
       setError(message);
       throw err;
     } finally {

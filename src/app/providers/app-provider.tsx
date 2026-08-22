@@ -1,7 +1,8 @@
 import React from "react";
 import { ThemeProvider } from "next-themes";
 
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@shared/ui/toasts";
+import { ConfirmProvider } from "@shared/ui/dialogs";
 import { AuthProvider } from "@app/providers";
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => (
@@ -12,8 +13,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => (
     disableTransitionOnChange
   >
     <AuthProvider>
-      {children}
-      <Toaster position="top-right" richColors />
+      <ConfirmProvider>
+        {children}
+        <Toaster position="top-right" richColors />
+      </ConfirmProvider>
     </AuthProvider>
   </ThemeProvider>
 );

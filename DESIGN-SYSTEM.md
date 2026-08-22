@@ -1,0 +1,613 @@
+# 디자인 시스템
+
+피그마에 정의된 디자인 시스템을 코드 토큰으로 옮기고, shadcn/ui(Base UI) 의존을 걷어내는 작업의 기록.
+
+> 최종 갱신: 2026-07-30
+
+---
+
+## 피그마 출처
+
+Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드 ID 로 접근한다** —
+섹션 03·04·05 의 레이어 이름이 전부 `Section - Space / Round` 로 중복돼 있다.
+
+- **fileKey** : `JUsYqubPZugaaM0ErbsGe5` (파일명 "민수님 외주", 단일 페이지 `0:1`)
+- **Design System 프레임** : `7:6901`
+
+| 노드 | 섹션 |
+|---|---|
+| `7:6921` | 01 컬러 |
+| `7:7828` | 02 타이포 |
+| `7:8468` | 03 간격과 코너 |
+| `7:9592` | 04 아이콘과 버튼 상태별 컴포넌트 |
+| `7:9788` | 05 데이터 입력 및 테이블 |
+
+그 외 참고 섹션 — `9:2723` 아이콘 목록, `11:4620` Input, `44:4288` Aside(사이드바).
+
+**화면 시안**
+
+| 노드 | 화면 | 비고 |
+|---|---|---|
+| `247:5214` | 측정계획 상세_MO | 모바일(390px) 기준. 데스크탑 시안 없음 → 파생 규칙은 아래 참조 |
+| `541:11826` | 측정계획-측정장비_MO | 장비별 접이식 카드 + 라벨/값 행. 다중값(피토관 계수·노즐 직경)은 Soft 칩 |
+| `541:12556` | 측정계획-측정정보_MO | 사전정보·의뢰기관·측정시설·측정항목 4개 카드. 측정항목은 주기별 상자 + 오염물질 칩(현재=Soft 면·브랜드 테두리) |
+
+> 측정계획 상세는 **현장 입력 화면이라 모바일이 1순위**다(피그마 메모 `43:2604`).
+> 데스크탑은 모바일 시안에서 파생한다 — 입력 48px→38px, 버튼 44px→36px,
+> 필드 1열→`md:` 2열→`xl:` 3열, 카드 패딩 16px→20px.
+
+> 컬러·타이포는 피그마 **Variables** 로 등록돼 있어 `get_variable_defs` 로 정확한 값을 받을 수 있다.
+> 간격·코너·컴포넌트 치수는 변수가 아니므로 섹션 본문 설명문과 노드 width/height 로 확인한다.
+
+---
+
+## 설계 원칙
+
+### 1. 토큰은 2단 구조
+
+```
+[원시 팔레트]  --brand-primary, --ink, --rule ...   ← 피그마와 1:1. 영속 레이어
+      ↓ 참조
+[shadcn shim]  --primary, --foreground, --border ... ← shadcn 제거 시 함께 사라질 레이어
+```
+
+피그마 값이 바뀌면 원시 팔레트만 고친다. shadcn을 걷어낼 때는 shim 블록만 삭제한다.
+원시 팔레트는 `@theme` 에도 등록되어 `bg-canvas`, `text-ink-soft`, `border-rule-dark` 같은
+유틸리티로 바로 쓸 수 있다. **신규 코드는 shim(`bg-background`)이 아니라 팔레트 이름을 쓴다.**
+
+### 2. shadcn ≠ Base UI
+
+- **shadcn 스타일 레이어** — cva 클래스와 마크업. 걷어내는 대상.
+- **Base UI(`@base-ui/react`) 동작 레이어** — 포커스 트랩, 키보드 내비게이션, 팝오버 포지셔닝, ARIA.
+  **유지한다.** 직접 구현하면 접근성 회귀 위험이 크다.
+
+### 3. shadcn 접점은 `shared/ui` 로만
+
+비즈니스 코드(features/widgets/pages)에서 `@/components/ui/*` 를 직접 import 하지 않는다.
+현재 **위반 0건**. 덕분에 앞으로의 교체는 `shared/ui` 내부만 고치면 앱 전체가 따라온다.
+
+---
+
+## 토큰 레퍼런스
+
+정의 위치: **`src/app/index.css`** (이 파일 하나가 디자인 시스템의 단일 출처)
+
+> ✅ **2026-07-30 피그마 대조 완료** — Figma Variables 및 03 섹션 노드 치수와 1:1 검증.
+> 컬러 15개 · 타이포 10단계(size·line-height·letter-spacing·weight) · 간격 space-1~10 · 코너 6토큰+full
+> **전부 일치**. 아래 표의 값은 추정이 아니라 검증된 값이다.
+> 단, `--chart-2~5` 는 피그마에 정의가 없는 **잠정값**으로 남아 있다(3순위 참조).
+
+### 컬러
+
+| 그룹 | 토큰 | 값 | 용도 |
+|---|---|---|---|
+| Brand | `--brand-primary` | `#239861` | Primary action · Selected — **면(fill) 전용** |
+| | `--brand-dark` | `#197347` | **밝은 배경 위 글씨·아이콘** |
+| | `--brand-soft` | `#edf8f2` | Selected background |
+| Neutral | `--canvas` | `#f7f8f8` | App background |
+| | `--surface` | `#ffffff` | Panel · Field |
+| | `--ink` | `#161b22` | Primary text |
+| | `--ink-soft` | `#4b5563` | Secondary text |
+| | `--muted-ink` | `#8b95a1` | Caption · Hint |
+| | `--rule` | `#e5e9e7` | Divider · Border |
+| | `--rule-dark` | `#d7ddda` | 입력 테두리 · Strong divider |
+| Status | `--danger` | `#e5484d` | Delay · Error |
+| | `--danger-soft` | `#fff0f1` | Error background |
+| | `--warning` | `#f59e0b` | Attention |
+| | `--warning-ink` | `#a45108` | Warning text · Icon |
+| | `--warning-soft` | `#fff7e6` | Warning background |
+| | `--info` | `#3b74e8` | 진행 단계 구분(분석) |
+| | `--info-ink` | `#2451b8` | Info text · Icon |
+| | `--info-soft` | `#eef3fd` | Info background |
+
+> **Primary 는 면, Dark 는 글씨.** 피그마 라벨(Dark="Hover")과 다르게 쓴다.
+> Primary 글씨는 흰 배경에서 3.44:1 이라 읽기 어렵고, Dark 는 5.86:1 로 편하다.
+
+**대비 검증 (WCAG 2.1)** — 사용자 결정에 따라 **값 조정은 하지 않음**. 기록용.
+
+<details>
+<summary>미달 항목</summary>
+
+| 조합 | 대비 | 기준 |
+|---|---|---|
+| Primary + 흰 글씨 | 3.66:1 | 본문 4.5 미달 |
+| Primary 글씨 on Canvas | 3.44:1 | 4.5 미달 |
+| Muted on Surface | 3.04:1 | 4.5 미달 |
+| Danger 글씨 on Surface | 3.91:1 | 4.5 미달 |
+| Rule 테두리 | 1.23:1 | UI 경계 3:1 미달 |
+| Rule Dark 테두리 | 1.38:1 | UI 경계 3:1 미달 |
+
+통과: Ink 17.30 / Warning+Ink 8.05 / Ink Soft 7.56 / **Dark 5.86** / Warning Ink 5.59 / Dark on Soft 5.39
+</details>
+
+### 컬러 — 다크 (`.dark`)
+
+`.dark` 는 **위 원시 팔레트 15개만 재정의한다.** shadcn shim(`--background` 등) · `--sidebar-*` ·
+`--chart-*` 는 `:root` 에서 이미 `var(--팔레트)` 참조이므로 다크에서 다시 선언하지 않는다.
+덕분에 `bg-canvas`·`text-ink`·`border-rule` 같은 팔레트 유틸을 쓰는 코드 전체가 자동으로 따라온다.
+
+뉴트럴에 브랜드 초록 색조를 아주 낮은 채도로 섞은 **그린 틴티드 다크**다.
+
+| 그룹 | 토큰 | 라이트 | 다크 | 용도 |
+|---|---|---|---|---|
+| Brand | `--brand-primary` | `#239861` | `#2fa96e` | Primary action · Selected — **면 전용** |
+| | `--brand-dark` | `#197347` | `#56c892` | 배경 위 글씨·아이콘 · Hover |
+| | `--brand-soft` | `#edf8f2` | `#16342a` | Selected background |
+| Neutral | `--canvas` | `#f7f8f8` | `#0e1311` | App background |
+| | `--surface` | `#ffffff` | `#171d1a` | Panel · Field |
+| | `--ink` | `#161b22` | `#e8ecea` | Primary text |
+| | `--ink-soft` | `#4b5563` | `#a8b3ae` | Secondary text |
+| | `--muted-ink` | `#8b95a1` | `#7b8781` | Caption · Hint |
+| | `--rule` | `#e5e9e7` | `#252d29` | Divider · Border |
+| | `--rule-dark` | `#d7ddda` | `#38423d` | 입력 테두리 · Strong divider |
+| Status | `--danger` | `#e5484d` | `#ff6369` | Delay · Error |
+| | `--danger-soft` | `#fff0f1` | `#2a1517` | Error background |
+| | `--warning` | `#f59e0b` | `#ffb224` | Attention |
+| | `--warning-ink` | `#a45108` | `#ffcb47` | Warning text · Icon |
+| | `--warning-soft` | `#fff7e6` | `#2b1d06` | Warning background |
+| | `--info` | `#3b74e8` | `#6ea8fe` | 진행 단계 구분(분석) |
+| | `--info-ink` | `#2451b8` | `#8fbcff` | Info text · Icon |
+| | `--info-soft` | `#eef3fd` | `#121d33` | Info background |
+
+> ⚠️ **다크에서는 `--brand-dark` 가 `--brand-primary` 보다 밝다.** 토큰 이름은 강조 계층을
+> 뜻하지 명도 방향이 아니다 — "밝은 배경 위 글씨"가 "어두운 배경 위 글씨"로 역할이 뒤집히기 때문이다.
+> `bg-brand-primary hover:bg-brand-dark`(Primary 버튼)는 두 모드 모두 "hover 시 강조" 방향을 유지한다.
+
+**대비 검증 (WCAG 2.1)** — 다크는 라이트 미달 항목이 전부 해소된다.
+
+| 조합 | 대비 | 판정 | 라이트 대비 |
+|---|---|---|---|
+| Ink on Canvas | 17.6:1 | AAA | 17.30 |
+| Ink Soft on Surface | 7.9:1 | AAA | 7.56 |
+| Muted on Canvas | 4.98:1 | AA | — |
+| Muted on Surface | 4.58:1 | AA | 3.04 ❌ → 해소 |
+| Primary 면 + Surface 글씨 (Primary 버튼) | 5.71:1 | AA | 3.66 ❌ → 해소 |
+| Dark on Surface | 8.2:1 | AAA | 5.86 |
+| Dark on Soft (Selected · Badge) | 6.46:1 | AA | 5.39 |
+| Danger on Danger Soft | 5.97:1 | AA | — |
+| Warning Ink on Warning Soft | 10.8:1 | AAA | 8.05 |
+
+다크 Primary 버튼은 **밝은 초록 면 + 어두운 글씨**다(`text-surface` 가 `#171d1a` 로 뒤집힘).
+라이트(초록 면 + 흰 글씨)와 인상이 다르지만, 대비를 확보하기 위한 의도된 차이다.
+
+`:root`/`.dark` 에 `color-scheme: light`/`dark` 를 선언해 네이티브 스크롤바 ·
+`<input type="date">` 피커 · autofill 도 테마를 따른다.
+
+### 타이포그래피
+
+유틸리티 하나가 **size·line-height·letter-spacing·weight 4개 속성**을 모두 적용한다.
+`font-*` 를 덧붙일 필요가 없다(필요하면 개별 항목만 덮어쓸 수 있다).
+
+| 유틸리티 | Size | LH | LS | Weight | 용도 |
+|---|---|---|---|---|---|
+| `text-display` | 32px | 1.2 | -0.05em | 700 | 페이지 인트로 |
+| `text-h1` | 25px | 1.2 | -0.03em | 700 | 페이지 제목 |
+| `text-h2` | 21px | 1.35 | -0.02em | 700 | 섹션 제목 |
+| `text-h3` | 18px | 1.35 | -0.02em | 600 | 패널 제목 |
+| `text-body-1` | 14px | 1.4 | -0.02em | 700 | 사이드 메뉴 선택 |
+| `text-body-2` | 14px | 1.4 | -0.02em | 400 | 설명 · 본문 |
+| `text-body-3` | 13px | 1.4 | -0.03em | 400 | 폼 · 테이블 본문 |
+| `text-body-4` | 13px | 1.4 | -0.03em | 600 | 버튼 |
+| `text-label` | 12px | 1.4 | -0.03em | 600 | 폼 · 테이블 제목 |
+| `text-caption` | 11px | 1.4 | -0.02em | 400 | 보조 정보 |
+
+> 피그마의 `%` 단위는 무손실 변환된다 (letter-spacing % = em, line-height % = 비율).
+> **스펙에 weight 500(`font-medium`)은 없다.** 400 / 600 / 700 만 쓴다.
+
+### 간격
+
+**Tailwind 기본 스케일과 정확히 일치하므로 별도 토큰이 없다.**
+4px 기본 단위: `1`=4px `2`=8px `3`=12px `4`=16px `5`=20px `6`=24px `8`=32px `10`=40px
+
+4px 그리드를 벗어난 `gap-0.5`(2px) `py-1.5`(6px) `px-2.5`(10px) 37곳은 **의도적으로 유지**한다.
+아이콘·뱃지 내부 간격에 실질적으로 필요하고, 4px로 올리면 조밀한 UI가 헐거워진다.
+
+### 코너 반경
+
+용도로 이름 붙인다. t-shirt 사이즈(`rounded-md` 등)는 shadcn shim 전용.
+
+| 유틸리티 | 값 | 용도 |
+|---|---|---|
+| `rounded-row-action` | 5px | 테이블 행 액션 *(아직 사용처 없음)* |
+| `rounded-button` | 6px | 버튼 |
+| `rounded-nav` | 8px | 내비게이션 · 폼 그룹 박스 |
+| `rounded-icon-tile` | 10px | 아이콘 타일 · 소형 카드 |
+| `rounded-panel` | 11px | 패널 · 카드 |
+| `rounded-dialog` | 13px | 다이얼로그 |
+| `rounded-full` | — | count 뱃지 · 아바타 |
+
+`--radius: 11px`(panel)로 두면 shadcn 내부 계산식이 저절로 맞는다:
+`calc(var(--radius) - 5px)` → 6px(button), `min(var(--radius-md), 8px)` → 6px(button).
+
+### 그림자
+
+| 유틸리티 | 값 | 용도 |
+|---|---|---|
+| `shadow-panel` | `0 2px 8px 0 rgba(18,31,24,.06)` | 섹션 카드 · 패널의 기본 입체감 |
+
+Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자와 1:1).
+
+---
+
+## 컴포넌트
+
+### 자체 구현 (shadcn 의존 없음)
+
+| 컴포넌트 | 위치 | 비고 |
+|---|---|---|
+| `Button` | `shared/ui/buttons/Button.tsx` | 순수 `<button>` + cva. 7개 상태 |
+| `IconButton`, `DetailViewButton` | `shared/ui/buttons/` | 위 Button 조합 |
+| `Badge` | `shared/ui/badges/Badge.tsx` | pill. 5개 톤 |
+| `StatusDot` | `shared/ui/badges/StatusDot.tsx` | 운영 상태 — 점 + 텍스트 |
+| `Toaster` | `shared/ui/toasts/Toaster.tsx` | sonner 래퍼 |
+| `ConfirmDialog` | `shared/ui/dialogs/ConfirmDialog.tsx` | 확인 다이얼로그. Base UI `alert-dialog` 직접 사용 (shadcn 래퍼 미경유). 호출은 `useConfirm` |
+| `FormDialogShell` | `shared/ui/dialogs/FormDialogShell.tsx` | 폼 모달의 공통 셸 — 아래 "모달 셸" 참조. 배럴에 노출하지 않는다 |
+| `StepFormDialog` | `shared/ui/dialogs/StepFormDialog.tsx` | 스텝 위저드 모달 — `StepNav` + 좌우 슬라이드 뷰포트. md 미만 전체화면 |
+| `DocumentViewerDialog` | `shared/ui/dialogs/DocumentViewerDialog.tsx` | 고정폭 문서(기록지·양식) 뷰어. md 미만 전체화면 / 데스크탑 96vw. 얇은 헤더(제목 + `toolbar` 슬롯 + ✕) + 푸터 없음 + 떠 있는 배율 컨트롤(폭 맞춤·±·핀치). 폼 셸을 쓰지 않는다 |
+| `Drawer` | `shared/ui/drawer/Drawer.tsx` | 화면 가장자리 오버레이 — 모바일 하단 바텀시트 / 데스크탑 사이드. Base UI `dialog` 직접 사용 (shadcn 래퍼 미경유). 폼 셸을 쓰지 않는다 — 닫아서 잃을 값이 없는 표면 전용. side 별 위치·슬라이드는 `drawer-size.ts` |
+| `Tabs` | `shared/ui/tabs/Tabs.tsx` | 언더라인형. Base UI `tabs` 직접 사용 (shadcn 래퍼 미경유) |
+| `Tooltip`, `HelpTip` | `shared/ui/tooltip/` | 말풍선(Ink 면 + Surface 글씨) + 라벨 옆 도움말 아이콘. Base UI `tooltip` 직접 사용. hover 가 `mouseOnly` 라 **터치에서 열리도록 클릭 토글을 얹었다** |
+| `SectionAccordion` | `shared/ui/accordion/SectionAccordion.tsx` | 섹션 카드 — 제목 + 진행도 배지 + 접이식 본문. 제어/비제어 모두 지원 |
+| `SubAccordion` | `shared/ui/accordion/SubAccordion.tsx` | 섹션 안의 중첩 그룹 (`bg-canvas`) |
+| `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select·시각 모드 지원 |
+| `TimeField` | `shared/ui/form/TimeField.tsx` | 시각 입력 — 숫자 타이핑 마스킹(`1430` → `14:30`) + 시·분 팝오버. 네이티브 `type="time"` 위젯이 브라우저마다 폭·모양이 달라 대체했다. `UnitField`·`InlineInput`·`TableInputCell` 이 `type="time"` 일 때 자동으로 이 컴포넌트를 쓴다 |
+| `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 **행** (좌 라벨 / 우 값+단위). 입력 필드의 `helper` 슬롯에 딸리는 파생값 1개 |
+| `CalcResultGrid` | `shared/ui/form/CalcResultGrid.tsx` | 자동계산 결과 **묶음** (라벨 위 / 값 아래, 프레임 없음). 입력과 독립된 결과 N개. 값 18px·라벨 12px muted, 전부 비면 `emptyText` 한 줄로 축약 |
+| `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행. MO 좌 라벨 / 우 값(48px, 하단 구분선) → 데스크탑 고정폭 라벨 열(7rem) + 값 가로 정렬(구분선 없음, ~32px). `span` 으로 긴 값에 열 확장 |
+| `DetailGrid` | `shared/ui/form/DetailGrid.tsx` | `DetailRow` 전용 그리드 셸. `cols` 1·2·3(기본 3 = md 2열 / xl 3열). 열 간격은 넓게·행 간격은 데스크탑에서 좁게 |
+| `ChipNav` | `shared/ui/nav/ChipNav.tsx` | 가로 스크롤 pill 칩 — 긴 폼의 섹션 바로가기. **순서·진행 표현은 `StepNav`** |
+| `StepNav` | `shared/ui/nav/StepNav.tsx` | 스텝 위저드 인디케이터 — 번호 원 + 연결선 + 완료/현재/미방문. md 미만은 라벨을 감추고 `2 / 4 구매 정보` 한 줄로 축약 |
+| `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
+| `PageLayout` | `shared/ui/layout/PageLayout.tsx` | 페이지 셸 — 제목 + 액션 + 본문 |
+| `Panel`, `SummaryCard`, `SummaryCardGroup` | `shared/ui/cards/` | 카드 셸 / 지표 타일 / 제목+타일 그리드 |
+| `EmptyText` | `shared/ui/feedback/EmptyText.tsx` | 패널 안 한 줄 빈 상태 |
+| `Skeleton`, `SkeletonPanel` | `shared/ui/skeletons/` | 자리표시 원자 / 패널 단위 로딩 |
+| `DateRangePicker` | `shared/ui/form/DateRangePicker.tsx` | 기간 선택 |
+| `SidebarMobileBar` | `shared/ui/sidebar/SidebarMobileBar.tsx` | 모바일 상단 바 |
+| `InputTable` | `shared/ui/table/InputTable.tsx` | 행=레코드·열=항목인 **입력 표** — 열 선언 배열(`label`·`readonly`·`input`·`result`·`action`)로 조립한다. 폭 합이 표의 `minWidth` 가 되고, 셀 간 키보드 이동(`useGridNavigation` — `Alt+방향키` 4방향, `Enter` 아래 행)이 기본으로 붙는다. 모바일 표현은 호출부 몫 |
+| `BasicTable` 외 테이블 부품 | `shared/ui/table/` | 아래 "반응형 테이블" 참조 |
+
+### 반응형 테이블
+
+`BasicTable` 은 렌더러가 아니라 **조합기**다. `useIsMobile`(md 미만)로 두 렌더러를 전환한다.
+
+```
+BasicTable
+├── DesktopTable    (md 이상)  — 표 형태. 셀 타이포·정렬 아이콘 담당
+└── MobileCardList  (md 미만)  — 카드 목록
+    └── derive-card-config     — 위젯의 model/mobile-card.tsx 선언을 카드 필드로 변환
+```
+
+셸 부품: `TablePanel`(패널 셸) · `TableFooterBar` + `TablePagination`(하단 바) ·
+`TableEmptyState`(빈 상태) · `RowActionCell`(행 상세보기 버튼) · `SortIcon`.
+
+> **모바일 1순위 원칙의 구현체가 이 구조다.** 새 테이블 위젯은 데스크탑 표만 만들지 말고
+> `model/mobile-card.tsx` 로 카드 표현을 함께 선언한다.
+
+### 모달 셸
+
+폼 모달도 렌더러가 아니라 **조합기** 구조다.
+
+```
+FormDialogShell            ← @/components/ui/dialog 의 유일한 소비자
+├── FormDialog             단일 폼  (푸터: 삭제 / 닫기 / 제출)
+└── StepFormDialog         스텝 위저드 (헤더: StepNav, 푸터: 이전·닫기 / 다음·제출)
+    └── StepViewport       패널을 1×1 그리드에 겹쳐 쌓고 translateX 로 슬라이드
+```
+
+셸이 실수 방지 장치 3가지(배경 클릭 차단 · 미저장 이탈 확인 · 엔터 암묵적 제출 차단)와
+크기·모바일 전체화면을 소유한다. **새 모달 표면을 만들 때 이 3가지를 다시 구현하지 말고
+셸을 조합한다.** 크기 상수는 `shared/ui/dialogs/dialog-size.ts`
+(`default` 600 / `lg` 768 / `xl` 1024px, + 모바일 전체화면 클래스).
+
+`fullScreenOnMobile` 은 `StepFormDialog` 에서만 기본값 `true` 다. 기존 `FormDialog` 호출부
+29곳은 중앙 모달 그대로다 — 전역 적용은 3순위 참조.
+
+> shadcn 제거 관점에서 **`dialog.tsx` 의 접점이 파일 하나로 줄었다.** 아래 "잔존 shadcn"의
+> `dialog` 155줄은 `FormDialogShell` 만 고치면 Base UI 순정으로 교체할 수 있다.
+
+### 읽기 전용 값에 입력창을 씌우지 않는다
+
+자동계산 결과처럼 사용자가 고칠 수 없는 값에 `readOnly` 입력 프레임을 쓰지 않는다.
+
+| 문제 | 내용 |
+|---|---|
+| 어포던스 오류 | `disabled` 가 아니라 `readOnly` 라 포커스가 잡힌다. 테두리 때문에 고칠 수 있는 값으로 읽히고, 탭 순회에도 걸린다 |
+| 값이 묻힌다 | 라벨 12px·값 14px 로 무게가 비슷한데 프레임이 시선을 가져간다. 결과가 주인공인 자리인데도 |
+| 세로 낭비 | 항목당 라벨 20px + 프레임 48px(모바일) ≈ 74px. 5개면 222px 이 텍스트 90px 로 줄어든다 |
+
+| 상황 | 쓸 것 |
+|---|---|
+| 입력 필드에 딸린 파생값 1개 | `CalcResultRow` (`UnitField` 의 `helper` 슬롯) |
+| 입력과 독립된 결과 묶음 N개 | `CalcResultGrid` |
+| 행=항목·열=측정점인 전치 표 | `TableResultCell` |
+
+> 계산 전에는 값이 전부 비어 자리만 차지한다. `CalcResultGrid` 의 `emptyText` 로
+> "측정값을 입력하면 …가 계산됩니다" 한 줄로 축약한다.
+
+### 전환 애니메이션
+
+전환에는 **`motion-reduce:transition-none` 을 함께 붙인다.** `prefers-reduced-motion` 을
+켠 사용자에게 움직임을 강요하지 않기 위한 것이고, Tailwind 내장 변형이라 JS 가 필요 없다.
+(`StepViewport` 의 슬라이드가 이 규약을 따른다.)
+
+**Button variant** (이름은 기존 호출부 호환을 위해 유지)
+
+| 피그마 | variant | 스타일 |
+|---|---|---|
+| PRIMARY | `default` | `bg-brand-primary text-surface` → hover `bg-brand-dark` |
+| DEFAULT | `outline` | `bg-surface border-rule text-ink` → hover `bg-brand-soft` |
+| SELECTED | `selected` | `bg-brand-soft border-brand-primary text-brand-dark` |
+| DESTRUCTIVE | `destructive` | `bg-surface border-danger text-danger` → hover `bg-danger-soft` |
+| (피그마 외) | `warning` | `bg-warning text-ink`(다크 `text-canvas`) → hover `bg-warning/85` |
+| ICON ONLY | `outline` + `size="icon"` | — |
+| FOCUS / DISABLED | base 상태 | 초록 링 / 회색 면 |
+
+> `warning` 은 피그마 스펙에 없는 확장이다. **"저장하지 않은 변경이 있다"** 를 색으로
+> 알리는 용도로만 쓰고(측정계획 상세 · 측정 데이터 탭의 저장 버튼), 저장된 상태에서는
+> `default` 로 되돌린다. 앰버 면 위 글씨는 항상 어두워야 하므로 다크에서 `canvas` 를 쓴다.
+
+**상태 톤** (`shared/ui/badges/tones.ts`) — 도메인 variant 가 아니라 의미 톤으로 표현한다.
+
+| 톤 | 의미 | 색 | 피그마 |
+|---|---|---|---|
+| `pending` | 대기 | ink-soft (회색) | 예정 |
+| `active` | 진행 중 — 현장 | warning (앰버) | (확장) |
+| `info` | 진행 중 — 분석 | **info (파랑)** | (확장) |
+| `progress` | 진행 중 | brand (초록) | 진행 중 |
+| `success` | 확정 완료 | brand (초록) | (확장) |
+| `done` | 종료 · 비활성 | muted (회색) | 완료 |
+| `danger` | 지연 · 중단 | danger (빨강) | 지연 |
+| `warning` | 확인 필요 | warning (앰버) | 확인 필요 |
+
+> **"상태는 텍스트와 점을 함께 표시하고, 색상만으로 구분하지 않습니다."**
+> `StatusDot` 은 `label` 을 필수 prop 으로 두어 이 원칙을 타입으로 강제한다.
+> 색은 라벨을 **읽기 전에 훑어보게** 해 줄 뿐, 색 없이도 정보가 온전해야 한다.
+
+`active`·`info`·`success` 는 피그마 스펙의 확장이다. **진행 단계가 여럿인 도메인**에서
+"진행 중"을 한 색으로 묶으면 목록에서 어느 단계인지 색으로 읽히지 않기 때문에 단계별로 색을 갈랐다.
+측정계획이 그 경우다 (`SCHEDULE_STATUS_TONE`):
+
+| 상태 | 톤 | 색 |
+|---|---|---|
+| 측정예정 | `pending` | 회색 |
+| 측정중 | `active` | 앰버 |
+| 분석값입력중 | `info` | 파랑 |
+| 성적서작성완료 | `success` | 초록 |
+| 취소 | `danger` | 빨강 |
+
+> `active`/`warning` 과 `success`/`progress` 는 **색값이 같다.** 한쪽으로 합치지 않은 것은
+> 이름이 곧 쓰임을 제한하기 때문이다 — 정상 진행 단계에 `warning` 을, 확정된 종료 상태에
+> `progress` 를 붙이면 다음 사람이 그 색을 경고·진행으로 잘못 읽는다. 색이 겹치는 것은 두 톤이
+> 한 화면에 같이 놓이지 않는 한 문제가 되지 않지만, 이름이 거짓말하면 매번 문제가 된다.
+>
+> 단계가 하나뿐인 도메인(측정장비·측정물질 카탈로그)은 그대로 `progress`/`done` 을 쓴다.
+
+### shadcn 이관분 — `shared/ui/primitives/`
+
+Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드에서 직접 쓰지 말 것.**
+
+`Field` `InputGroup` `Table` `Pagination` `Calendar` `Label` `Textarea`
+
+### 잔존 shadcn — `src/components/ui/` (12개 · 1,508줄)
+
+| 파일 | 줄 | Base UI 의존 |
+|---|---|---|
+| `sidebar` | 721 | merge-props, use-render |
+| `select` | 199 | select |
+| `dialog` | 155 | dialog |
+| `sheet` | 135 | dialog |
+| `popover` | 88 | popover |
+| `tooltip` | 66 | tooltip |
+| `radio-group` | 36 | radio, radio-group |
+| `checkbox` | 27 | checkbox |
+| `separator` | 25 | separator |
+| `button` | 23 | button |
+| `input` | 20 | input |
+| `skeleton` | 13 | — |
+
+여기에 `src/components/variants/buttonVariants.ts`(47줄)가 붙어 총 1,555줄이다.
+이 파일은 `shared/ui/buttons/button-variants.ts` 와 **중복**이며, `components/ui/button.tsx`
+체인을 정리할 때 함께 삭제한다.
+
+> `sheet` `tooltip` `skeleton` `button` `input` `separator` 는 **전부 `sidebar.tsx` 가 물고 있다.**
+> sidebar 하나를 처리하면 6개가 함께 풀린다.
+>
+> `tabs` (80줄)는 사용처가 0이라 **삭제 완료**했다.
+
+---
+
+## 완료된 작업
+
+| 단계 | 내용 |
+|---|---|
+| 1 | **컬러 토큰** — oklch 기본 팔레트 → 피그마 브랜드 팔레트. 2단 구조 도입 |
+| 2 | **폰트** — Noto Sans → Pretendard(dynamic-subset). `body` font-family 버그 수정 |
+| 3 | **타이포그래피** — 10단계 스케일 등록, 167곳 치환 (`font-medium` 60곳 재배정 포함) |
+| 4 | **간격·코너** — 코너 6토큰 신설 + shim 재지정, 36곳 치환. 간격은 변경 없음 |
+| 5 | **버튼** — 자체 Button 구현, shadcn Button 직접 import 7곳 전환 |
+| 6 | **배지·상태** — 톤 체계 도입, `Badge`·`StatusDot` 자체 구현, `BadgeWithIcon` 삭제 |
+| 7 | **shadcn 제거 1~3단계** — 4개 삭제 · 접점 격리 · 7개 이관. `components/` 2,927 → 1,635줄 |
+| 8 | **피그마 MCP 대조** — 토큰 전부 일치 확인, 컴포넌트 치수·상태 스펙 정합 (아래) |
+
+### 8단계 — 컴포넌트 치수·상태 스펙 정합 (2026-07-30)
+
+피그마 **Variables 로는 잡히지 않는** 값들이다. 04·05 섹션 본문 설명문과 노드 width/height 가 출처다.
+
+| 스펙 | 피그마 | 이전 | 반영 위치 |
+|---|---|---|---|
+| 입력 필드 높이 | 38px | `h-9`(36) | `components/ui/input.tsx` · `select.tsx` · `primitives/InputGroup.tsx` |
+| 폼 본문 글씨 | Body 3 (13px) | `text-base md:text-sm` | 위 3개 + `primitives/Textarea.tsx` |
+| 포커스 링 | 브랜드 초록 **12%** | `/50` · `/25` | 위 + `checkbox.tsx` · `radio-group.tsx` |
+| Read-only 면 | 회색 | 스타일 없음 | `input.tsx` · `Textarea.tsx` (`read-only:bg-canvas`) |
+| 테이블 헤더 행 | 42px | `h-10`(40) | `primitives/Table.tsx` |
+| 테이블 본문 행 | 52px | 패딩 의존(~34) | `primitives/Table.tsx` `py-2` + `BasicTable.tsx` `h-[52px]` |
+| 페이지네이션 | 28px 정사각 · 아이콘 12px | 36px · 16px | `primitives/Pagination.tsx` |
+| 현재 페이지 | PRIMARY(초록 면) | `outline`(흰 면) | `primitives/Pagination.tsx` |
+| 하단 바 | 높이 28px · 표와 간격 10px | `py-1` | `table/TableFooterBar.tsx` |
+
+- 헤더 텍스트의 `uppercase`·`tracking-wide` 제거 — 한글 헤더에 무의미하고 `text-label` 의 `-0.03em` 을 덮어썼다.
+  피그마 헤더 행 변수는 `Neutral_Ink Soft` + `Label_SBold`(12/600) + Canvas 면 + Rule Dark 선으로,
+  나머지는 이미 일치했다.
+- `Pagination` 은 `variant` prop 을 받도록 바꿨다. 이전·다음은 아이콘 전용 정사각이 되어
+  `이전`/`다음` 텍스트를 `sr-only` 로 옮겼다(접근성 이름은 그대로 한글).
+- 28px 은 `Button` size 램프(24·32·36·40)에 없어 `Pagination` 내부에서만 `size-7` 로 덮어썼다.
+  버튼 높이 36px(`h-9`)은 피그마와 이미 일치해 손대지 않았다.
+
+### 고친 버그
+
+- **`index.css` 의 `body { font-family }` 가 `html` 의 `font-sans` 를 덮어써 웹폰트가 미적용이던 문제.**
+  Noto Sans 를 로드만 하고 실제로는 Segoe UI 가 렌더링되고 있었다. 재발 방지 주석을 달았다.
+- `@layer base` 가 두 번 중복 선언되어 `html { @apply font-sans }` 가 이중 적용되던 문제.
+- `IconButton` 의 수동 variant 타입 목록에 실재하지 않는 `secondary` 가 남아 있던 문제
+  (`VariantProps` 파생으로 교체).
+- **`primitives/Pagination.tsx` 의 `mx-auto` 때문에 하단 바 페이지네이션이 우측 끝에 붙지 않던 문제.**
+  auto margin 은 부모의 `justify-between`·`justify-end` 보다 우선해 남은 여백을 좌우로 나눠 먹으므로
+  호출부에서 override 가 불가능했다. shadcn 원본의 `mx-auto w-full justify-center` 를 제거하고
+  정렬은 호출부(부모 레이아웃)가 정하도록 바꿨다. 테이블 위젯 9개가 함께 고쳐졌다.
+
+### 해소한 중복
+
+테이블 위젯 9개(`contract` `schedule` `stack` `stack-list` `workplace` `equipment` `member` `team` `tenant`)가
+각자 인라인으로 갖고 있던 하단 바 JSX(`총 N건` + `Pagination` 7줄)를 `table/TableFooterBar` 로 통합했다.
+패딩·보더는 호출부가 `className` 으로 주입한다(예: `border-t border-border px-5 py-3`).
+
+- `TableFooterBar` 의 높이는 `h-7` → `min-h-7`. 고정 높이면 호출부가 얹은 패딩에 내용(28px 버튼)이 눌린다.
+  페이지가 1장이면 `Pagination` 이 렌더되지 않으므로 최소 높이 28px 는 유지한다.
+- 배경(`bg-canvas`)은 `TableFooterBar` 에서 빼고 셸(`TablePanel`)의 footer 슬롯으로 옮겼다.
+  아직 흰 `Panel` 안에 있는 미마이그레이션 위젯이 회색 띠를 얻지 않도록.
+
+### 해소한 컨벤션 위반
+
+`CLAUDE.md` 의 "알려진 위반 사항"에 등재돼 있던 `@/components/ui/*` 직접 import 4건
+(`SignInForm` `SocialSignIn` `RegisterClientForm` `RegisterPollutantForm`) 전부 해소.
+
+---
+
+## 앞으로의 작업
+
+### 피그마 대조에서 남긴 항목 (8단계 범위 밖)
+
+토큰·치수는 맞췄으나 아래는 호출부 변경 규모가 커서 의도적으로 남겼다.
+
+- **행 액션 형태** — 피그마 05 는 `··· 상세보기`(more-horizontal + 텍스트, DEFAULT 톤) 와
+  `작업시작`(check-square, PRIMARY) 두 버튼이다. 코드는 `shared/ui/table/RowActionCell.tsx` 의
+  아이콘 전용 `IconButton`. 테이블 위젯 5개 + `RowActionCell` 재설계가 뒤따른다.
+  3순위 "`IconButton` 기본 variant" 결정과 함께 처리하는 편이 낫다.
+- **아이콘 규격 통일** — 피그마 04 는 **기본 19px · stroke 1.46px**, 49개 목록에 lucide 이름이 명시돼 있다
+  (노드 `9:2723`). 코드는 14~19px 혼용(`SortIcon` 14, 피그마 헤더 정렬 아이콘은 16,
+  `SummaryCard` 19, `Button` 내부 `size-4`). 아이콘 크기 토큰을 세울지 결정이 필요하다.
+- **Code Connect 매핑** — 피그마 컴포넌트 ↔ `shared/ui` 연결. 등록하면 이후 design-to-code 시
+  피그마가 우리 컴포넌트를 직접 추천한다. `Button`·`Badge`·`StatusDot`·테이블부터 매핑할 수 있다.
+- **입력값 18px Regular 이 타이포 10단계에 없다** — 측정계획 상세_MO 의 입력창 값은 18px/400 인데
+  스케일의 18px 는 `text-h3`(600) 뿐이다. 현재는 `UnitField` 안에서
+  `text-body-2 max-md:text-[1.125rem]` 로 **한 곳에만 격리**해 두었다.
+  모바일 입력 전용 단계를 스케일에 추가할지 결정이 필요하다.
+- **배지 글씨색** — 피그마 진행도 배지는 Brand Soft 면에 **Primary**(#239861) 글씨지만,
+  "Primary 는 면 전용, 밝은 배경 위 글씨는 Dark" 원칙에 따라 `Badge tone="brand"`(Dark)를 썼다.
+  대비 3.44 → 5.86. 원칙을 유지할지 피그마에 맞출지 확인이 필요하다.
+
+### 1순위 — 이미 결정됐으나 미실행
+
+~~**다크모드 제거**~~ — **결정 번복. 다크모드를 정식 지원한다.**
+
+기존 `.dark` 블록은 shadcn 스캐폴딩 값(회색 `--primary`, 파랑 `--sidebar-primary`, 보라 `--chart-*`)이라
+브랜드와 무관했고, 더 결정적으로 **원시 팔레트 15개를 재정의하지 않아** 다크 전환 시
+`bg-canvas`·`text-ink` 를 쓰는 코드 335회/62파일이 라이트 값으로 남았다.
+
+→ `.dark` 를 **원시 팔레트 15개 재정의**로 교체하여 해소했다("컬러 — 다크" 절 참조).
+`ThemeProvider`(`enableSystem={false}`, `defaultTheme="light"`) · `ThemeToggle` · `next-themes` 는 유지한다.
+
+~~**하드코딩 팔레트 직색 치환 — 5곳**~~ — **완료.** (Success/Info 는 브랜드 초록으로 통합)
+
+전부 "링크형 텍스트 버튼"의 파랑이었고, `dark:` 를 덧붙이는 대신 토큰으로 바꿔 `dark:` 자체를 없앴다.
+`button-variants.ts` 의 `link` variant 와 같은 표현(`text-brand-dark` + `hover:underline`)으로 통일했다.
+
+- `features/register-equipment/ui/steps/SpecStep.tsx:27` — 파랑 직색 → `text-brand-dark hover:underline`
+  (스텝 위저드 전환 때 `ui/SpecFields.tsx` 에서 옮겨온 파일)
+- `features/update-equipment/ui/SpecFields.tsx:27` — 위와 동일
+- `features/update-equipment/ui/InspectionFields.tsx:76` — 위와 동일
+- `features/register-stack-pollutant/ui/RegisterStackPollutantForm.tsx:56` — 위와 동일
+- `widgets/stack-table/ui/StackTable.tsx:41` — 파랑 `dark:` 변형만 제거
+  (라이트의 `text-brand-primary` 유지. 다크에서 `#2fa96e` on Surface = 5.71:1)
+
+> ℹ️ Tailwind v4 는 `.md` 도 스캔한다. 문서에 팔레트 직색 클래스명을 그대로 적으면
+> 쓰이지 않는 유틸이 산출 CSS 에 생성되므로, 위처럼 풀어 쓴다.
+
+여기에 `components/variants/buttonVariants.ts` 의 emerald/amber/sky variant 가 남아 있으나
+**호출부가 0건**이고(`components/ui/button.tsx` 만 import, 해당 variant 지정 없음)
+이 파일은 shadcn 제거 4단계에서 통째로 없어지므로 손대지 않았다.
+
+> 완료분: `widgets/metrics/MeasurementChart.tsx`(차트 색 토큰화),
+> `shared/ui/cards/SummaryCard.tsx`(색 스킴 prop 자체가 제거되어 토큰만 사용),
+> `widgets/workplace-table`(선택 강조 토큰화).
+> 삭제분: `widgets/metrics/SummaryCards.tsx`, `widgets/contract-chart/ContractChart.tsx`
+
+### 2순위 — shadcn 제거 4단계
+
+`sidebar`(721줄)를 중심으로 13개 처리. Base UI 는 유지하고 스타일 레이어만 벗긴다.
+`shared/ui/primitives/field.tsx`·`input-group.tsx` 가 아직 참조하는 `separator`·`input` 도 여기서 해소된다.
+
+### 3순위 — 미결정 사항
+
+| 항목 | 선택지 |
+|---|---|
+| **테이블 셀 타이포** | `DesktopTable` 이 `text-body-3 text-ink-soft` 로 셀 타이포를 정하는데, 위젯 6개의 `CustomCell` 이 `text-body-4 text-foreground` 로 덧씌우고 5개는 덧씌우지 않는다. 어느 쪽으로 통일할지 결정 필요 (`CustomCell` 11개 제거의 전제) |
+| **`TablePanel` 헤더 여백** | 현행 인라인 헤더(`px-5 pt-5 pb-4 border-b`) vs `TablePanel`(`bg-canvas p-2`). 11개 화면 시각 변화를 동반한다 |
+| **사이드바 메뉴 글꼴** | `text-body-1`(14/700, 스펙) / `font-semibold`(14/600, 요청) / 활성 항목만 강조 |
+| **`IconButton` 기본 variant** | `ghost`(현재, 테두리 없음) / `outline`(피그마 ICON ONLY) — 테이블 행 12곳에 영향 |
+| **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가. `.dark` 는 `:root` 의 팔레트 참조를 그대로 상속하므로 여기서 확정하면 두 모드에 동시 반영된다 |
+| **`Danger Ink` 신설** | Warning 에는 텍스트용 `#a45108` 이 있으나 Danger 에는 없음 |
+| **모달 폭·백드롭·z-index 토큰화** | 폭 프리셋은 `shared/ui/dialogs/dialog-size.ts` 로 모였으나 여전히 로컬 상수다. 백드롭(`bg-black/10 dark:bg-black/50` + `backdrop-blur-xs`)은 `dialog`·`sheet`·`ConfirmDialog`·`Drawer` 4곳에 중복이고 z-index 는 네 곳 모두 `z-50` 리터럴 (`Drawer` 쪽은 `DRAWER_BACKDROP_CLASS` 로 이름은 붙여 뒀다) |
+| **`fullScreenOnMobile` 전역 적용** | 현재 `StepFormDialog` 만 `true`. 나머지 `FormDialog` 28곳도 md 미만에서 전체화면으로 띄울지 — 모바일 1순위 원칙과는 맞으나 28개 화면의 시각 변화를 동반한다 |
+
+### 4순위 — 정리
+
+- ~~**`src/app/App.css` 삭제**~~ — **완료.** import 0건이던 Vite 스캐폴딩 잔재 제거
+- **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다
+- **`index.html` 에 `viewport-fit=cover`** — 없어서 `env(safe-area-inset-*)` 가 iOS 에서 0 으로
+  계산된다. 모달 전체화면 푸터가 `pb-[max(0.75rem,env(safe-area-inset-bottom))]` 로 미리 대비해
+  뒀으므로 켜는 순간 홈 인디케이터를 피한다. 다만 사이드바·`MainLayout` 이 노치 영역까지
+  확장되는 부수효과가 있어 전역 레이아웃 검토가 선행되어야 한다
+- **`계약 상태` 배지 적용** — `CONTRACT_STATUS_LABEL`(정상/만료 임박/만료)이 라벨맵만 있고
+  테이블에서 문자열 그대로 렌더된다. 피그마의 "만료 임박" 배지가 갈 자리
+- ~~**폼 입력 글씨 16px 문제**~~ — **완료(8단계).** `text-base md:text-sm` → `text-body-3`
+- ~~**기존 타입 오류 8건**~~ — **해소됨.** `features/update-schedule-client` 리팩터링 과정에서 정리되어
+  2026-07-30 기준 `npx tsc -b --force` 오류 0건
+- **`ring-ring/50` 잔존 1곳** — `components/variants/buttonVariants.ts`
+  (나머지는 `ring-ring/12` 로 이미 정리됨. `Calendar.tsx` 에는 애초에 없었고 `tabs.tsx` 는 삭제됨)
+- ~~`primitives/Calendar.tsx` · `components/ui/tabs.tsx`~~ —
+  `components/variants/buttonVariants.ts`. 피그마의 12% 규정은 **입력 필드** 스펙이고 이 3개는
+  입력 필드가 아니어서 8단계 범위에서 제외했다. 통일할지는 판단 필요
+
+---
+
+## 작업 시 참고
+
+### 검증 명령
+
+```bash
+npx tsc -b        # 타입 체크 (--noEmit 은 검사 파일이 0개라 항상 통과 — 쓰지 말 것)
+npx vite build    # CSS 생성 확인
+```
+
+새 토큰을 등록했을 때 유틸리티가 실제로 생성되는지 확인하려면, 임시 프로브 파일에
+클래스를 나열하고 빌드한 뒤 산출 CSS 를 grep 한다 (확인 후 프로브는 삭제).
+Tailwind 는 소스에서 발견된 클래스만 생성하므로, 미사용 토큰은 CSS 에 나타나지 않는다.
+
+### 피그마 값 수령
+
+정확도 순서: **Variables(`get_variable_defs`) > 노드 치수(`get_metadata`) > 섹션 본문 텍스트 > 스크린샷**.
+스크린샷은 압축 때문에 색상 hex 를 정확히 읽을 수 없다. 레이아웃·상태 확인용으로는 유용하다.
+
+Figma MCP 사용 순서 (fileKey·노드 ID 는 위 "피그마 출처" 참조):
+
+1. `get_variable_defs` — 컬러·타이포는 변수로 등록돼 있어 여기서 정확한 값이 나온다.
+   특정 노드에 걸린 변수만 반환하므로 **노드를 좁혀 조회**하면 그 컴포넌트가 쓰는 토큰을 알 수 있다
+   (예: 테이블 헤더 행 `11:5844` → `Neutral_Ink Soft` + `Label_SBold`).
+2. `get_metadata` — 치수 확인용. **Design System 페이지 전체(`0:1`)는 응답이 43만 자로 잘리므로**
+   프레임 단위로 조회하거나, 저장된 결과 파일을 파싱해서 필요한 노드만 추린다.
+3. `get_screenshot` — 상태(hover·focus·selected)와 배치 확인용.
+
+> 간격·코너·컴포넌트 치수(버튼 36 · 입력 38 · 헤더 42 · 행 52 · 페이지네이션 28)는
+> **변수가 아니다.** 섹션 본문 설명문과 노드 width/height 로만 확인된다.

@@ -1,4 +1,4 @@
-import type { ContractAmountUnit } from "@entities/contract";
+import type { ContractAmountUnit } from "@shared/model";
 
 export type ContractUpdateForm = {
   // 읽기 전용 (UI 표시만, DTO에 포함되지 않음)

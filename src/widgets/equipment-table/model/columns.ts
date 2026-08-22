@@ -1,15 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import type { RowData } from "@tanstack/react-table";
 
-import { CustomCell, StatusBadgeCell, ActionCell } from "../ui/Cells";
+import { RowActionCell } from "@shared/ui/table";
+import { CustomCell, StatusBadgeCell } from "../ui/Cells";
 import type { EquipmentTableRow } from "./types";
-
-declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    onViewEquipmentDetail?: (row: EquipmentTableRow) => void;
-  }
-}
 
 const columnHelper = createColumnHelper<EquipmentTableRow>();
 
@@ -40,6 +33,6 @@ export const defaultColumns = [
   }),
   columnHelper.display({
     id: 'actions',
-    cell: ActionCell,
+    cell: RowActionCell,
   }),
 ];

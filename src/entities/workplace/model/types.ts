@@ -11,6 +11,7 @@ export type WorkplaceCreate = {
   clientId: number;
   name: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;
   roadAddress: string;
   address: string;
@@ -22,6 +23,7 @@ export type WorkplaceCreate = {
 export type WorkplaceUpdate = {
   name: string;
   bizNumber: string;
+  businessCategory: string;
   zipcode: string;
   roadAddress: string;
   address: string;

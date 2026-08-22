@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthContext, TOKEN_KEY, type AuthUser } from "@entities/auth";
+import { AuthContext, TOKEN_KEY, type AuthCredentials, type AuthUser } from "@entities/auth";
 
 const USER_KEY = "authUser";
 
@@ -7,7 +7,14 @@ const getStoredUser = (): AuthUser | null => {
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as AuthUser;
+    // 팀 정보가 추가되기 전에 저장된 값에는 teamId/teamName 이 없다. 타입 단언이
+    // 거짓말하지 않도록 여기서 null 로 좁힌다 (재로그인하면 실제 값이 채워진다).
+    const parsed = JSON.parse(raw) as Partial<AuthUser>;
+    return {
+      ...parsed,
+      teamId: parsed.teamId ?? null,
+      teamName: parsed.teamName ?? null,
+    } as AuthUser;
   } catch {
     return null;
   }
@@ -19,13 +26,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
-  const login = (data: {
-    accessToken: string;
-    tenant: string;
-    username: string;
-    name: string;
-    role: string;
-  }) => {
+  const login = (data: AuthCredentials) => {
     const { accessToken, ...userData } = data;
 
     localStorage.setItem(TOKEN_KEY, accessToken);

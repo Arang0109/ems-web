@@ -1,25 +1,11 @@
-import { Button } from "@/components/ui/button"
-import {
-  Dialog as DialogPrimitive,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { cn } from "@/lib/utils"
+import { Button } from "@shared/ui/buttons"
+import { Send, X, Trash2 } from "lucide-react";
 
-// 모달 너비 프리셋
-const SIZE_CLASS = {
-  default: "sm:max-w-150",  // 600px
-  lg: "sm:max-w-3xl",       // 768px
-  xl: "sm:max-w-5xl",       // 1024px
-} as const;
+import { DialogClose, FormDialogShell } from "./FormDialogShell";
+import type { DialogSize } from "./dialog-size";
 
 interface DialogProps {
-  triggerLabel?: string;
+  triggerLabel?: React.ReactNode;
   title?: string;
   description?: string;
   children: React.ReactNode;
@@ -34,9 +20,23 @@ interface DialogProps {
   submitDisabled?: boolean;   // 제출 버튼 비활성 (disabled는 트리거 버튼용이라 분리)
   loadingLabel?: string;      // 로딩 중 제출 버튼 문구. 기본 "제출 중..."
   isLoading?: boolean;
-  size?: keyof typeof SIZE_CLASS;
+  size?: DialogSize;
+  /**
+   * 미저장 이탈 경고의 판정을 바깥에서 덮어쓴다.
+   *
+   * 기본값(미지정)은 폼 안에서 `input` 이벤트가 한 번이라도 났는지로 판정하는데,
+   * `Select`·`DatePicker` 같은 버튼 기반 컨트롤은 `input` 을 내지 않아 놓칠 수 있다.
+   * 정확한 판정이 필요한 폼은 훅에서 계산한 값을 넘긴다.
+   */
+  isDirty?: boolean;
 }
 
+/**
+ * 단일 폼 제출 모달.
+ *
+ * 실수 방지 장치·레이아웃은 `FormDialogShell` 이 소유하고, 여기서는 푸터 버튼만 조립한다.
+ * 폼이 길어 단계 분리가 필요하면 `StepFormDialog` 를 쓴다.
+ */
 export function FormDialog({
   triggerLabel,
   title,
@@ -54,37 +54,34 @@ export function FormDialog({
   loadingLabel = '제출 중...',
   isLoading,
   size = "default",
+  isDirty,
 }: DialogProps) {
   return (
-    <DialogPrimitive open={open} onOpenChange={onOpenChange}>
-      {triggerLabel && (
-        <DialogTrigger disabled={disabled} render={<Button variant="outline">{triggerLabel}</Button>} />
-      )}
-      <DialogContent className={cn(SIZE_CLASS[size], "flex max-h-[90vh] flex-col")}>
-        <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
-          <DialogHeader className="mb-5 shrink-0">
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>
-              {description}
-            </DialogDescription>
-          </DialogHeader>
-          {/* 내용이 길면 이 영역만 스크롤되어 헤더/푸터가 잘리지 않는다 */}
-          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            {children}
-          </div>
-          <DialogFooter className="mt-5 shrink-0">
-            {deleteLabel && (
-              <Button variant="destructive" onClick={onDelete}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
-            )}
-            <DialogClose render={<Button variant="outline">{cancelLabel}</Button>} />
-            {submitLabel && (
-              <Button type="submit" disabled={submitDisabled}>
-                {isLoading ? loadingLabel : submitLabel}
-              </Button>
-            )}
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </DialogPrimitive>
+    <FormDialogShell
+      triggerLabel={triggerLabel}
+      title={title}
+      description={description}
+      onSubmit={onSubmit}
+      open={open}
+      onOpenChange={onOpenChange}
+      disabled={disabled}
+      isDirty={isDirty}
+      size={size}
+      footer={
+        <>
+          {deleteLabel && (
+            <Button variant="destructive" onClick={onDelete} startIcon={Trash2}>{isLoading ? "삭제 중..." : deleteLabel}</Button>
+          )}
+          <DialogClose render={<Button variant="outline" startIcon={X}>{cancelLabel}</Button>} />
+          {submitLabel && (
+            <Button type="submit" disabled={submitDisabled} startIcon={Send}>
+              {isLoading ? loadingLabel : submitLabel}
+            </Button>
+          )}
+        </>
+      }
+    >
+      {children}
+    </FormDialogShell>
   )
 }

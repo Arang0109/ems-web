@@ -1,9 +1,13 @@
 import { useScheduleTable } from '../model/use-schedule-table';
+import { scheduleCardConfig } from '../model/mobile-card';
 import type { ScheduleTableRow } from '../model/types';
 
-import { BasicTable } from '@shared/ui/table';
-import { Search } from '@shared/ui/form';
-import { Pagination } from '@shared/ui/pagination';
+import { ScheduleFilterPopover } from './ScheduleFilterPopover';
+
+import { BasicTable, TableEmptyState, TableFooterBar } from '@shared/ui/table';
+import { Search, FilterSelect } from '@shared/ui/form';
+
+import { Activity, CalendarDays, Users } from 'lucide-react';
 
 interface Props {
   onRowClick?: (row: ScheduleTableRow) => void;
@@ -15,34 +19,64 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
 
     globalFilter, setGlobalFilter,
 
+    teamOptions,
+    statusOptions,
+    filter,
+
     loading, error,
   } = useScheduleTable();
 
   return (
     <div>
-      <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색 ...'} />
+      {/* 모바일에서는 검색이 가용 폭을 채운다 (피그마 필터 바의 flex-1) */}
+      <div className="mt-3 flex items-center gap-2">
+        <Search className="w-full" filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색'} />
+        <FilterSelect
+          icon={Users}
+          options={teamOptions}
+          value={filter.teamId}
+          onValueChange={filter.changeTeam}
+          placeholder="전체 팀"
+          ariaLabel="팀 필터"
+        />
+        <FilterSelect
+          icon={Activity}
+          options={statusOptions}
+          value={filter.status}
+          onValueChange={filter.changeStatus}
+          placeholder="전체 상태"
+          ariaLabel="상태 필터"
+        />
+        <ScheduleFilterPopover
+          range={filter.draftRange}
+          preset={filter.draftPreset}
+          activeCount={filter.activeFilterCount}
+          onPresetSelect={filter.selectPreset}
+          onRangeChange={filter.changeDraftRange}
+          onApply={filter.apply}
+          onReset={filter.reset}
+          onOpen={filter.syncDraft}
+        />
       </div>
 
       <div className="py-5 flex-1 flex flex-col">
-        <BasicTable table={table} error={error} onRowClick={onRowClick} />
+        <BasicTable
+          table={table}
+          error={error}
+          onRowClick={onRowClick}
+          mobileCard={scheduleCardConfig}
+          emptyState={
+            <TableEmptyState
+              icon={<CalendarDays className="size-5 text-muted-ink" />}
+              label="조건에 맞는 측정계획이 없습니다."
+              subLabel="기본 조회 범위는 오늘·내 팀입니다. 필터에서 기간이나 팀을 넓혀 보세요."
+            />
+          }
+        />
       </div>
 
       {!loading && !error && (
-        <div className="pt-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
-            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
-          </span>
-          <Pagination
-            pageIndex={table.getState().pagination.pageIndex}
-            pageCount={table.getPageCount()}
-            canPreviousPage={table.getCanPreviousPage()}
-            canNextPage={table.getCanNextPage()}
-            onPreviousPage={() => table.previousPage()}
-            onNextPage={() => table.nextPage()}
-            onPageChange={(idx) => table.setPageIndex(idx)}
-          />
-        </div>
+        <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </div>
   );

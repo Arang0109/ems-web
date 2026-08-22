@@ -1,13 +1,7 @@
 import type { ScheduleListItem } from "@entities/schedule";
-import { MEASUREMENT_FIELD_LABEL, MEASUREMENT_TYPE_LABEL } from "@shared/config";
-import type { MeasurementType } from "@shared/model";
+import { MEASUREMENT_FIELD_LABEL } from "@shared/config";
 
 import type { ScheduleTableRow } from "./types";
-
-const toMeasurementTypeLabel = (value: string | null): string => {
-  if (!value) return "-";
-  return MEASUREMENT_TYPE_LABEL[value as MeasurementType] ?? value;
-};
 
 export const toScheduleRows = (item: ScheduleListItem): ScheduleTableRow => ({
   id: String(item.id),
@@ -15,8 +9,8 @@ export const toScheduleRows = (item: ScheduleListItem): ScheduleTableRow => ({
   status: item.status,
   referenceNumber: item.referenceNumber ?? "-",
   measurementField: MEASUREMENT_FIELD_LABEL[item.measurementField],
-  measurementType: toMeasurementTypeLabel(item.schedulePurpose),
   clientName: item.clientName ?? "-",
+  workplaceName: item.workplaceName ?? "-",
   stackName: item.stackName ?? "-",
   teamName: item.teamName ?? "-",
 });

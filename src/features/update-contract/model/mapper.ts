@@ -1,7 +1,7 @@
 import type { ContractUpdate, ContractDetail } from "@entities/contract";
 import type { ContractUpdateForm } from "./types";
 
-import { trimValue, toNumber } from "@shared/lib";
+import { trimValue, toNumber, toNumberOrNull, toFormValue } from "@shared/lib";
 
 export const toContractUpdate = (form: ContractUpdateForm): ContractUpdate => ({
   contractName: trimValue(form.contractName),
@@ -11,8 +11,8 @@ export const toContractUpdate = (form: ContractUpdateForm): ContractUpdate => ({
   contractAmount: toNumber(form.contractAmount),
   contractAmountUnit: form.contractAmountUnit,
   vatIncluded: form.vatIncluded,
-  contractGuaranteeAmount: toNumber(form.contractGuaranteeAmount),
-  advancePaymentAmount: toNumber(form.advancePaymentAmount),
+  contractGuaranteeAmount: toNumberOrNull(form.contractGuaranteeAmount),
+  advancePaymentAmount: toNumberOrNull(form.advancePaymentAmount),
   advancePaymentDueDate: toNumber(form.advancePaymentDueDate),
   delayPenaltyRate: toNumber(form.delayPenaltyRate),
   remark: trimValue(form.remark),
@@ -26,12 +26,12 @@ export const toContractUpdateForm = (detail: ContractDetail): ContractUpdateForm
   contractDate: new Date(detail.contractDate),
   startDate: new Date(detail.startDate),
   completionDate: new Date(detail.completionDate),
-  contractAmount: String(detail.contractAmount),
+  contractAmount: toFormValue(detail.contractAmount),
   contractAmountUnit: detail.contractAmountUnit,
   vatIncluded: detail.vatIncluded,
-  contractGuaranteeAmount: String(detail.contractGuaranteeAmount),
-  advancePaymentAmount: String(detail.advancePaymentAmount),
-  advancePaymentDueDate: String(detail.advancePaymentDueDate),
-  delayPenaltyRate: String(detail.delayPenaltyRate),
+  contractGuaranteeAmount: toFormValue(detail.contractGuaranteeAmount),
+  advancePaymentAmount: toFormValue(detail.advancePaymentAmount),
+  advancePaymentDueDate: toFormValue(detail.advancePaymentDueDate),
+  delayPenaltyRate: toFormValue(detail.delayPenaltyRate),
   remark: detail.remark,
 });

@@ -10,6 +10,46 @@
 - widget 조합 및 레이아웃 배치
 - 페이지 제목(`<title>`) 등 메타 설정
 
+---
+
+## 페이지 셸 — `PageLayout` 사용
+
+페이지 최상단은 `@shared/ui/layout`의 `PageLayout`으로 감싼다.
+제목·설명·우측 액션 슬롯과 세로 간격(`space-y-5`)을 담당한다.
+
+```tsx
+<PageLayout title="측정 계획" description="..." actions={<Button>등록</Button>}>
+  <ScheduleTable />
+</PageLayout>
+```
+
+### 목록에서 진입하는 페이지는 `showBack` 을 넘긴다
+
+상세·등록 페이지는 `showBack backTo="/목록경로"` 를 넘긴다. 뒤로가기 버튼은 **모바일(md 미만)
+에서만** 노출된다 — 데스크탑은 사이드바가 상시 진입점이지만 모바일은 오프캔버스라 돌아갈 UI 가 없다.
+
+```tsx
+<PageLayout title="측정계획 상세" description="..." showBack backTo="/schedule">
+```
+
+`backTo` 없이 `showBack` 만 주면 히스토리 뒤로(-1)가 되는데, URL 로 직접 열린 경우 앱 밖으로
+나가므로 **목록 경로를 명시**한다. 저장 확인 등 커스텀 동작이 필요하면 `onBackClick` 을 쓴다.
+
+### 좌우·상하 여백은 페이지가 주지 않는다
+
+여백의 소유자는 레이아웃(`MainLayout`·`PlatformLayout`)이며 `px-4 py-6 md:px-7.5 md:py-10`로 통일되어 있다.
+페이지가 `p-6` 등을 다시 걸면 **이중 패딩**이 된다.
+
+```tsx
+// ❌ 레이아웃 패딩 위에 다시 패딩
+<div className="p-6 space-y-5 min-h-full">
+
+// ✅
+<PageLayout title="..." description="...">
+```
+
+모바일 여백을 좁히는 등 규격 자체를 바꿔야 하면 레이아웃을 수정한다.
+
 ## 금지 사항
 
 - 비즈니스 로직 작성 금지 — feature 훅에 위임
@@ -120,14 +160,28 @@ sub-domain/
 
 ## 현재 페이지 목록
 
-| sub-domain | 라우트 | 페이지 |
-|------------|--------|--------|
-| `client/client` | `/clients` | ClientManagementPage |
-| `client/client` | `/stacks` | StackPage |
-| `client/client` | `/stacks/:stackId` | StackDetailPage |
-| `client/contract` | `/contracts` | ContractPage |
-| `client/contract` | `/contracts/register` | ContractRegisterPage |
-| `client/contract` | `/contracts/:contractId` | ContractDetailPage |
-| `client/pollutant` | `/pollutants` | PollutantPage |
-| `dashboard` | `/dashboard` | Dashboard |
-| `sign-in` | `/` | SignInPage |
+| 그룹 / sub-domain | 라우트 | 페이지 | 가드 |
+|------------------|--------|--------|------|
+| `sign-in` | `/` | SignInPage | PublicRoute |
+| `dashboard` | `/dashboard` | Dashboard | ProtectedRoute |
+| `client/client` | `/clients` | ClientManagementPage | ProtectedRoute |
+| `client/client` | `/stacks` | StackPage | ProtectedRoute |
+| `client/client` | `/stacks/:stackId` | StackDetailPage | ProtectedRoute |
+| `client/contract` | `/contracts` | ContractPage | ProtectedRoute |
+| `client/contract` | `/contracts/register` | ContractRegisterPage | ProtectedRoute |
+| `client/contract` | `/contracts/:contractId` | ContractDetailPage | ProtectedRoute |
+| `client/pollutant` | `/pollutants` | PollutantPage | ProtectedRoute |
+| `equipment` | `/equipment` | EquipmentPage | ProtectedRoute |
+| `staff` | `/staff` | StaffPage | ProtectedRoute |
+| `schedule` | `/schedule` | SchedulePage | ProtectedRoute |
+| `schedule` | `/schedule/register` | ScheduleRegisterPage | ProtectedRoute |
+| `schedule` | `/schedule/canceled` | CanceledSchedulePage | ProtectedRoute |
+| `schedule` | `/schedule/deleted` | DeletedSchedulePage | **AdminRoute** |
+| `schedule` | `/schedule/:scheduleId` | ScheduleDetailPage | ProtectedRoute |
+| `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
+| `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
+| `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
+| `platform/pollutant-catalog` | `/platform/pollutant-catalog` | PlatformPollutantCatalogPage | **PlatformRoute** |
+
+> 단일 페이지 도메인(`equipment`, `staff`, `schedule`)은 sub-domain 폴더 없이
+> 그룹 폴더 직하에 페이지를 두는 평면 배치를 허용한다. 페이지가 늘어나면 분리한다.

@@ -1,5 +1,5 @@
 import type { Equipment } from "@entities/equipment";
-import { formatMoney } from "@shared/lib";
+import { formatNumber } from "@shared/lib";
 
 import type { EquipmentTableRow } from "./types";
 
@@ -9,6 +9,6 @@ export const toEquipmentRows = (col: Equipment): EquipmentTableRow => ({
   equipmentName: col.equipmentName,
   modelName: col.modelName,
   manufacturer: col.manufacturer,
-  price: formatMoney(col.price),
+  price: formatNumber(col.price),
   status: col.status,
 });

@@ -1,8 +1,7 @@
 import { useStackListTable } from '../model/use-stack-list-table';
 
-import { BasicTable } from '@shared/ui/table';
+import { BasicTable, TableFooterBar } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
-import { Pagination } from '@shared/ui/pagination';
 import { Panel } from '@shared/ui/cards';
 
 export const StackListTable = () => {
@@ -13,34 +12,23 @@ export const StackListTable = () => {
   } = useStackListTable();
 
   return (
-    <Panel>
-      <div className="px-5 pt-5 pb-4 border-b border-border">
-        <h2 className="text-sm font-semibold text-foreground">측정시설 목록</h2>
-      </div>
+    <Panel className="p-0 flex flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-3 bg-canvas p-2">
+        <h2 className="text-h3 text-foreground">측정지점(굴뚝) 목록</h2>
 
-      <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정시설, 측정분야 검색 ...'} />
-      </div>
+        <div className="flex items-center justify-end gap-2">
+          <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정지점, 측정분야 검색 ...'} />
+        </div>
+      </header>
 
-      <div className="p-5 flex-1 flex flex-col">
+      
+
+      <div className="bg-canvas">
         <BasicTable table={table} error={error} />
       </div>
 
       {!loading && !error && (
-        <div className="px-5 py-3 border-t border-border flex items-center justify-between">
-          <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground leading-none">
-            총 <span className="font-medium text-muted-foreground">{table.getFilteredRowModel().rows.length}</span>건
-          </span>
-          <Pagination
-            pageIndex={table.getState().pagination.pageIndex}
-            pageCount={table.getPageCount()}
-            canPreviousPage={table.getCanPreviousPage()}
-            canNextPage={table.getCanNextPage()}
-            onPreviousPage={() => table.previousPage()}
-            onNextPage={() => table.nextPage()}
-            onPageChange={(idx) => table.setPageIndex(idx)}
-          />
-        </div>
+        <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </Panel>
   );

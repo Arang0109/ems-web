@@ -8,8 +8,9 @@ export type StackRegisterForm = {
   stackName: string,
   semsNumber: string;
   grade: Grade;
-  businessCategory: string;
   mainProduct: string;
+  /** 기준산소농도(%) — 텍스트 입력이라 string. number 변환은 mapper에서 한 번만 한다 */
+  standardOxygen: string;
 }
 
 export const getDefaultStackRegisterForm = (workplace?: Workplace | null): StackRegisterForm => ({
@@ -19,6 +20,6 @@ export const getDefaultStackRegisterForm = (workplace?: Workplace | null): Stack
   stackName: "",
   semsNumber: "",
   grade: "TYPE_1",
-  businessCategory: "",
   mainProduct: "",
+  standardOxygen: "",
 });

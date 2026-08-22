@@ -5,6 +5,10 @@ export type {
   EquipmentCreate,
   EquipmentUpdate,
   EquipmentStatusChange,
+  InspectionItem,
+  InspectionItemInput,
+  InspectionRecord,
+  InspectionRecordCreate,
   EquipmentSpec,
   ParticleSamplerSpec,
   GasSamplerSpec,
@@ -21,3 +25,5 @@ export { useRegisterEquipmentAction } from './model/use-register-equipment-actio
 export { useUpdateEquipmentAction } from './model/use-update-equipment-action';
 export { useDeleteEquipmentAction } from './model/use-delete-equipment-action';
 export { useChangeEquipmentStatusAction } from './model/use-change-equipment-status-action';
+export { useInspectionRecords } from './model/use-inspection-records';
+export { useRecordInspectionAction } from './model/use-record-inspection-action';

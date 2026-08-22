@@ -77,9 +77,11 @@ export type ParticleForm = {
   thimbleFilter: string;            // 측정여지번호
   bgThimbleFilter: string;          // 바탕여지번호
 };
-
 export type SheetForm = {
   category: MeasurementCategory;
+  // 서버가 소유하는 낙관적 락 토큰. 사용자가 편집하지 않고 왕복만 하며,
+  // null 이면 아직 서버에 저장된 적 없는 신규 시트다.
+  version: number | null;
   weather: WeatherForm;
   moisture: MoistureForm;
   exhaustGas: ExhaustGasForm;
@@ -99,7 +101,9 @@ export const getDefaultMoistureForm = (): MoistureForm => ({
   samplingStartTime: "", samplingEndTime: "",
 });
 
-// 회차별 컬럼 초기값 — 대기 중 산소농도(20.9%)를 O₂ 기본값으로, 나머지 가스는 0으로 채운다.
+// 회차별 컬럼 초기값 — 대기 중 산소농도(20.9%)를 O₂ 기본값으로 둔다.
+// NOx·SOx는 비워 둔다. 측정항목에 배정됐을 때만 입력칸이 열리는데 0을 미리 채우면
+// "입력값이 있다"고 잡혀 조건부 노출이 무력화되고, 측정하지도 않은 0이 서버에 기록된다.
 const defaultColumn = (value: string): string[] =>
   Array.from({ length: GAS_READING_COUNT }, () => value);
 
@@ -107,8 +111,8 @@ export const getDefaultExhaustGasForm = (): ExhaustGasForm => ({
   o2: defaultColumn("20.9"),
   co2: defaultColumn("0"),
   co: defaultColumn("0"),
-  nox: defaultColumn("0"),
-  sox: defaultColumn("0"),
+  nox: defaultColumn(""),
+  sox: defaultColumn(""),
   gasAnalyzerStartTime: "",
   thcAnalyzerStartTime: "",
 });
@@ -132,6 +136,7 @@ export const getDefaultParticleForm = (): ParticleForm => ({
 // pointCount: 굴뚝 치수 기반 규정 요구 측정점 수(자동 산출). 수동 추가/삭제로 조정 가능.
 export const getDefaultSheetForm = (category: MeasurementCategory, pointCount = 1): SheetForm => ({
   category,
+  version: null,
   weather: getDefaultWeatherForm(),
   moisture: getDefaultMoistureForm(),
   exhaustGas: getDefaultExhaustGasForm(),
@@ -140,11 +145,6 @@ export const getDefaultSheetForm = (category: MeasurementCategory, pointCount = 
   particle: getDefaultParticleForm(),
 });
 
-// 측정계획 스냅샷 단위의 공통 값 — 시트 단위 값이 아니다. PATCH /basic-info 하나로 저장한다.
-// 시각은 서버 필드명(samplingStartedAt/EndedAt)을 그대로 써서
-// 시트별 채취시각(MoistureForm/ParticleForm의 samplingStartTime/EndTime)과 구분한다.
-// 채취자 표기명(mentorName/menteeName)은 basicInfo가 아니라 team 스냅샷에 저장되지만,
-// 같은 요청으로 함께 반영되므로 이 폼에서 함께 다룬다.
 export type ScheduleBasicInfoForm = {
   samplingStartedAt: string;        // "HH:mm"
   samplingEndedAt: string;

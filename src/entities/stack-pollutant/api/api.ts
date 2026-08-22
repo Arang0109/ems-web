@@ -1,6 +1,6 @@
 import { axiosPrivate } from '@shared/api';
 import type { ApiResponseMessage } from '@shared/model';
-import type { StackPollutantRegisterRequest, StackPollutantTableResponse, StackPollutantResponse, StackPollutantBatchRegisterRequest, StackPollutantBatchResponse } from './dto';
+import type { StackPollutantRegisterRequest, StackPollutantTableResponse, StackPollutantResponse, StackPollutantBatchRegisterRequest, StackPollutantBatchResponse, StackPollutantUpdateRequest } from './dto';
 
 export const stackPollutantApi = {
   getStackPollutants: async (
@@ -22,6 +22,18 @@ export const stackPollutantApi = {
     data: StackPollutantBatchRegisterRequest
   ): Promise<ApiResponseMessage<StackPollutantBatchResponse>> => {
     const res = await axiosPrivate.post('stack-pollutants/batch', data);
+    return res.data;
+  },
+
+  updateStackPollutant: async (
+    id: number, data: StackPollutantUpdateRequest
+  ): Promise<ApiResponseMessage<StackPollutantResponse>> => {
+    const res = await axiosPrivate.put(`stack-pollutants/${id}`, data);
+    return res.data;
+  },
+
+  deleteStackPollutant: async (id: number): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.delete(`stack-pollutants/${id}`);
     return res.data;
   },
 }

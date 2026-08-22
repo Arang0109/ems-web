@@ -1,6 +1,6 @@
 import type { StackUpdate } from "@entities/stack";
 import type { StackUpdateForm } from "./types";
-import { trimValue } from "@shared/lib";
+import { toNumberOrNull, trimValue } from "@shared/lib";
 
 
 export const toStackUpdate = (
@@ -10,11 +10,12 @@ export const toStackUpdate = (
   name: trimValue(form.name),
   semsNumber: trimValue(form.semsNumber),
   grade: form.grade,
-  businessCategory: trimValue(form.businessCategory),
   mainProduct: trimValue(form.mainProduct),
-  height: trimValue(form.height),
-  horizontalLength: trimValue(form.horizontalLength),
-  verticalLength: trimValue(form.verticalLength),
+  // 서버가 nullable(Integer)이라 빈 입력은 0이 아니라 null(= 기존 값 유지)로 보낸다.
+  standardOxygen: toNumberOrNull(form.standardOxygen),
+  height: toNumberOrNull(form.height),
+  horizontalLength: toNumberOrNull(form.horizontalLength),
+  verticalLength: toNumberOrNull(form.verticalLength),
   shape: form.shape,
   orientation: form.orientation
 })

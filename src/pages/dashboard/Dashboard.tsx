@@ -1,48 +1,65 @@
-import { MeasurementChart, SummaryCards } from '@widgets/metrics';
 import { useDashboard } from '@features/dashboard-summary';
 
-import { PageTitle } from '@shared/ui/semantics';
+import { MeasurementChart } from '@widgets/metrics';
+import { DashboardStats } from '@widgets/dashboard-stats';
+import { DashboardAlerts } from '@widgets/dashboard-alerts';
+import { TeamScheduleTable } from '@widgets/team-schedule-table';
 
-const SkeletonCard = ({ className = '' }: { className?: string }) => (
-  <div className={`bg-card rounded-2xl border border-border animate-pulse ${className}`}>
-    <div className="p-6 space-y-4">
-      <div className="h-4 bg-muted rounded-lg w-1/3" />
-      <div className="h-3 bg-muted rounded-lg w-1/4" />
-      <div className="h-40 bg-muted rounded-xl" />
-    </div>
-  </div>
-);
+import { useIsMobile } from '@shared/model';
+import { PageLayout } from '@shared/ui/layout';
+import { SkeletonPanel } from '@shared/ui/skeletons';
 
+/**
+ * 대시보드.
+ *
+ * `useDashboard` 는 두 엔드포인트를 한 번에 받아 stats·alerts 위젯 모두에 먹이는
+ * coordinator 훅이라 페이지가 보유한다. 위젯별로 나누면 같은 summary 요청이 2번 나간다
+ * (쿼리 캐시가 없는 plain useEffect 구조). pages/CLAUDE.md 의 조합 예외에 해당한다.
+ */
 export const Dashboard = () => {
-  const { stats, summary, isLoading, error } = useDashboard();
+  const {
+    stats, overallStats, monthlyStats,
+    expiringContracts, inspectionDueEquipments,
+    isLoading, error,
+  } = useDashboard();
+  const isMobileDevice = useIsMobile();
 
   return (
-    <div className="p-6 space-y-5 min-h-full">
-      <PageTitle title="대시보드" description="측정 현황 및 통계 요약"/>
+    <PageLayout title="대시보드" description="측정 현황 및 통계 요약">
+      {/* MainLayout 이 이미 <main> 이므로 여기서는 div — 중첩 main 은 유효하지 않다 */}
+      <div className="flex flex-col items-start gap-5 lg:flex-row lg:justify-between">
+        <section className="w-full grow space-y-5">
+          {error && (
+            <div className="bg-danger-soft border border-danger text-danger text-body-2 rounded-icon-tile px-4 py-3">
+              {error}
+            </div>
+          )}
+          <TeamScheduleTable />
 
-      {error && (
-        <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-xl px-4 py-3">
-          {error}
-        </div>
-      )}
+          {!isMobileDevice && (
+            isLoading || !stats ? (
+              <SkeletonPanel bodyClassName="h-64" />
+            ) : (
+              <MeasurementChart stats={stats} />
+            )
+          )}
 
-      {/* Summary KPI cards */}
-      {isLoading || !summary ? (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-card rounded-2xl border border-border animate-pulse h-20" />
-          ))}
-        </div>
-      ) : (
-        <SummaryCards summary={summary} />
-      )}
+          {!isMobileDevice && (
+            <DashboardStats
+              overallStats={overallStats}
+              monthlyStats={monthlyStats}
+              isLoading={isLoading}
+            />
+          )}
+          
+        </section>
 
-      {/* Measurement trend chart */}
-      {isLoading || !stats ? (
-        <SkeletonCard />
-      ) : (
-        <MeasurementChart stats={stats} />
-      )}
-    </div>
+        <DashboardAlerts
+          contracts={expiringContracts}
+          equipments={inspectionDueEquipments}
+          isLoading={isLoading}
+        />
+      </div>
+    </PageLayout>
   );
 };

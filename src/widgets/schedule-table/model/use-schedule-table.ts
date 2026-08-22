@@ -1,52 +1,62 @@
 import { useMemo } from 'react';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
 import { useSchedules } from '@entities/schedule';
-import { useTableState } from '@shared/model';
+import { useTeams } from '@entities/team';
+
+import { isWithinDateRange } from '@shared/lib';
+import { useDataTable, scheduleStatusOptions } from '@shared/model';
+import { TABLE_PAGE_SIZE } from "@shared/config";
 
 import { defaultColumns } from './columns';
 import { toScheduleRows } from './mapper';
+import { ALL_STATUSES, ALL_TEAMS, useScheduleFilter } from './use-schedule-filter';
+
+// 취소된 계획은 이 목록에 오지 않으므로(전용 화면에서 관리) 필터 선택지에서도 뺀다.
+const statusOptions = [
+  { value: ALL_STATUSES, label: '전체 상태' },
+  ...scheduleStatusOptions.filter((option) => option.value !== 'CANCELED'),
+];
 
 export const useScheduleTable = () => {
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 10 });
+  const filter = useScheduleFilter();
 
   const { data, loading, error } = useSchedules();
+  const { data: teams } = useTeams();
 
-  const tableData = useMemo(
-    () => data?.map(toScheduleRows),
-    [data]
+  const teamOptions = useMemo(
+    () => [
+      { value: ALL_TEAMS, label: '전체 팀' },
+      ...teams.map((team) => ({ value: String(team.id), label: team.name })),
+    ],
+    [teams],
   );
 
-  const table = useReactTable({
-    columns: defaultColumns,
+  // 서버 목록 API 가 아직 기간·팀·상태 파라미터를 받지 않으므로 여기서 좁힌다.
+  // (서버가 쿼리 파라미터를 지원하면 이 필터는 `useSchedules(query)` 로 옮긴다)
+  const tableData = useMemo(
+    () =>
+      data
+        .filter((item) => isWithinDateRange(item.sampledAt, filter.appliedRange))
+        .filter((item) => filter.teamId === ALL_TEAMS || String(item.teamId) === filter.teamId)
+        .filter((item) => filter.status === ALL_STATUSES || item.status === filter.status)
+        .map(toScheduleRows),
+    [data, filter.appliedRange, filter.teamId, filter.status],
+  );
+
+  const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    columns: defaultColumns,
+    pageSize: TABLE_PAGE_SIZE.DEFAULT,
   });
 
   return {
     table,
 
     globalFilter, setGlobalFilter,
+
+    teamOptions,
+    statusOptions,
+    filter,
 
     loading, error,
   };

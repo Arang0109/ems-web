@@ -1,4 +1,4 @@
-import type { EquipmentUpdateForm, EquipmentSpecForm } from "./types";
+import type { EquipmentUpdateForm, EquipmentSpecForm, InspectionItemForm } from "./types";
 import type { EquipType } from "@shared/model";
 
 const isPositive = (v: string) => v.trim() !== '' && Number(v) > 0;
@@ -28,9 +28,19 @@ const validateSpec = (type: EquipType, spec: EquipmentSpecForm): string | undefi
         return '직경은 0보다 큰 값이어야 합니다.';
       }
       return undefined;
+    // 가스분석기는 사양이 없어 검증할 값도 없다.
+    case 'GAS_ANALYZER':
+      return undefined;
     default:
       return undefined;
   }
+};
+
+const validateInspections = (inspections: InspectionItemForm[]): string | undefined => {
+  const invalid = inspections.find(
+    (item) => item.enabled && item.cycleMonths.trim() !== '' && !isPositive(item.cycleMonths)
+  );
+  return invalid ? '검사 주기는 0보다 큰 값이어야 합니다.' : undefined;
 };
 
 export const validateEquipmentUpdateFields = (type: EquipType, form: EquipmentUpdateForm) => {
@@ -42,6 +52,9 @@ export const validateEquipmentUpdateFields = (type: EquipType, form: EquipmentUp
 
   const specError = validateSpec(type, form.spec);
   if (specError) errors.spec = specError;
+
+  const inspectionError = validateInspections(form.inspections);
+  if (inspectionError) errors.inspections = inspectionError;
 
   return errors;
 };

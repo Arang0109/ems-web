@@ -4,6 +4,8 @@ import type { WorkplaceListItem } from "./types";
 import { toWorkplaceListItems } from "../api/mapper";
 import { workplaceApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 export const useWorkplaces = () => {
   const [data, setData] = useState<WorkplaceListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ export const useWorkplaces = () => {
       const res = await workplaceApi.getWorkplaces(clientId);
       setData(toWorkplaceListItems(res.data));
     } catch {
-      setError('데이터를 불러오는 데 실패했습니다.');
+      setError(ERROR_MESSAGE.FETCH);
     } finally {
       setLoading(false);
     }

@@ -1,79 +1,64 @@
 import { useState, useMemo } from 'react';
 
-import {
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-} from '@tanstack/react-table';
-
 import { useTeams } from '@entities/team';
 
 import { defaultColumns } from './columns';
 import { toTeamRows } from './mapper';
 import type { TeamTableRow } from './types';
 
-import { useTableState } from '@shared/model';
+import { useDataTable } from '@shared/model';
+
+import { TABLE_PAGE_SIZE } from "@shared/config";
 
 interface Props {
-  onRowClick: (teamId: number) => void;
   onSuccess?: () => void;
 }
 
-export const useTeamTable = ({ onRowClick, onSuccess }: Props) => {
+export const useTeamTable = ({ onSuccess }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
+  const [detailTeamId, setDetailTeamId] = useState<number | null>(null);
 
-  const {
-    sorting, setSorting,
-    globalFilter, setGlobalFilter,
-    pagination, setPagination } = useTableState({ pageSize: 5 });
   const { data, loading, error, refetch: teamRefetch } = useTeams();
 
   const tableData = useMemo(
-    () => data?.map(toTeamRows),
+    () => data.map(toTeamRows),
     [data]
   );
 
-  const handleViewDetail = () => {
-    setUpdateModalOpen(true);
-  };
+  // Row 는 표시용 포맷 값이라 폼 초기값으로 쓸 수 없다. 목록 원본에서 같은 id 를 찾는다.
+  // id 만 보관하고 파생시켜야 refetch 이후에도 모달이 최신 값을 따른다.
+  const detailTeam = useMemo(
+    () => data.find((team) => team.id === detailTeamId) ?? null,
+    [data, detailTeamId],
+  );
 
   const refetch = () => {
     teamRefetch();
     onSuccess?.();
   };
 
-  const table = useReactTable({
-    columns: defaultColumns,
-    data: tableData,
-
-    state: { sorting, globalFilter, pagination },
-
-    onPaginationChange: setPagination,
-    onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
-
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-
-    meta: { onViewTeamDetail: handleViewDetail },
-  });
-
-  const handleRowClick = (row: TeamTableRow) => {
-    onRowClick(row.id);
+  const handleViewDetail = (row: TeamTableRow) => {
+    setDetailTeamId(row.id);
+    setUpdateModalOpen(true);
   };
+
+  const { table, globalFilter, setGlobalFilter } = useDataTable<TeamTableRow>({
+    data: tableData,
+    columns: defaultColumns,
+    pageSize: TABLE_PAGE_SIZE.COMPACT,
+    onViewDetail: handleViewDetail,
+  });
 
   return {
     table,
 
-    handleRowClick,
+    handleRowClick: handleViewDetail,
 
     registerModalOpen, setRegisterModalOpen,
     updateModalOpen, setUpdateModalOpen,
+    detailTeam,
 
     globalFilter, setGlobalFilter,
 

@@ -1,30 +1,37 @@
 import { SectionAccordion } from "@shared/ui/accordion";
-import { TableLabelCell, TableInputCell } from "@shared/ui/table";
+import { UnitField } from "@shared/ui/form";
 
+import { THIMBLE_HINT } from "../../model/field-hints";
 import type { ParticleForm } from "../../model/types";
+import { FIELD_GRID, type SectionShellProps } from "./shell-props";
 
-interface Props {
+interface Props extends SectionShellProps {
   particle: ParticleForm;
   editable: boolean;
-  onChange: (patch: Partial<ParticleForm>) => void;
+  onParticleChange: (patch: Partial<ParticleForm>) => void;
 }
 
-// 원통여지 — 입자상 시트 전용 (측정여지번호 / 바탕여지번호)
-export const ThimbleSection = ({ particle, editable, onChange }: Props) => (
-  <SectionAccordion title="원통여지" defaultOpen>
-    <div className="overflow-x-auto border-x border-b border-border rounded-b-lg">
-      <table className="w-full border-collapse min-w-[480px]">
-        <tbody>
-          <tr>
-            <TableLabelCell>측정여지번호</TableLabelCell>
-            <TableInputCell value={particle.thimbleFilter}
-              onChange={(v) => onChange({ thimbleFilter: v })} disabled={!editable} />
-            <TableLabelCell>바탕여지번호</TableLabelCell>
-            <TableInputCell value={particle.bgThimbleFilter}
-              onChange={(v) => onChange({ bgThimbleFilter: v })} disabled={!editable} />
-          </tr>
-        </tbody>
-      </table>
+// 원통여지 번호만 담는 섹션. 입자상 시트에서만 노출된다.
+// (시료채취 입력은 모든 기록지가 쓰는 항목이라 "가스상 물질" 섹션으로 이관했다.)
+export const ThimbleSection = ({ particle, editable, onParticleChange, ...shell }: Props) => (
+  <SectionAccordion
+    {...shell}
+    title="여지"
+    subtitle="채취에 사용한 원통여지 정보를 입력합니다."
+  >
+    <div className={FIELD_GRID}>
+      <UnitField
+        label="측정여지번호" required
+        hint={THIMBLE_HINT.thimbleFilter}
+        value={particle.thimbleFilter} disabled={!editable}
+        onChange={(v) => onParticleChange({ thimbleFilter: v })}
+      />
+      <UnitField
+        label="바탕여지번호" required
+        hint={THIMBLE_HINT.bgThimbleFilter}
+        value={particle.bgThimbleFilter} disabled={!editable}
+        onChange={(v) => onParticleChange({ bgThimbleFilter: v })}
+      />
     </div>
   </SectionAccordion>
 );

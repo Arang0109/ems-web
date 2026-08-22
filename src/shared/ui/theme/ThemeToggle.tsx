@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 
@@ -7,12 +6,10 @@ import { IconButton } from "@shared/ui/buttons";
 /** 라이트↔다크 2단 테마 토글 버튼 */
 export const ThemeToggle = () => {
   const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
 
-  // 초기 렌더에서는 resolvedTheme이 확정되지 않으므로 마운트 후 아이콘을 결정
-  useEffect(() => setMounted(true), []);
-
-  const isDark = mounted && resolvedTheme === "dark";
+  // SPA 라 하이드레이션이 없다 — 테마가 확정되기 전 첫 렌더에서는 resolvedTheme 이
+  // undefined 라 라이트로 보고, 확정되면 다시 렌더된다(마운트 플래그가 필요 없는 이유).
+  const isDark = resolvedTheme === "dark";
 
   return (
     <IconButton

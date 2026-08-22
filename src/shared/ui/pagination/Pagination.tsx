@@ -6,7 +6,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+} from "@shared/ui/primitives";
 
 interface PaginationProps {
   pageIndex: number;
@@ -16,6 +16,8 @@ interface PaginationProps {
   onPreviousPage: () => void;
   onNextPage: () => void;
   onPageChange: (pageIndex: number) => void;
+  /** 폭은 내용에 맞고 정렬은 부모 레이아웃이 결정한다. 전체 폭 가운데 정렬이 필요하면 `w-full justify-center` 를 넘긴다 */
+  className?: string;
 }
 
 function getPageNumbers(pageIndex: number, pageCount: number): (number | 'ellipsis')[] {
@@ -49,13 +51,14 @@ export const Pagination = ({
   onPreviousPage,
   onNextPage,
   onPageChange,
+  className,
 }: PaginationProps) => {
   if (pageCount <= 1) return null;
 
   const pages = getPageNumbers(pageIndex, pageCount);
 
   return (
-    <PaginationPrimitive>
+    <PaginationPrimitive className={className}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

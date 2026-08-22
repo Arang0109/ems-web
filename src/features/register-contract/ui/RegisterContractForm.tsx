@@ -1,10 +1,11 @@
 import { useRegisterContract } from "../model/hooks/use-register-contract";
 
-import { CONTRACT_AMOUNT_UNIT_LABEL, contractAmountUnitOptions, VAT_INCLUDED_LABEL, type ContractAmountUnit } from "@entities/contract";
+import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
-import { formatMoney, unformatNumber, toKoreanAmount } from "@shared/lib";
+import { formatNumber, unformatNumber, toKoreanAmount } from "@shared/lib";
+import { Send } from "lucide-react";
 
 export const RegisterContractForm = () => {
   const { 
@@ -22,7 +23,7 @@ export const RegisterContractForm = () => {
       <FieldGroup>
           <div className="flex justify-between">
             <SectionTitle>계약 정보</SectionTitle>
-            <Button type="submit">계약 작성</Button>
+            <Button type="submit" startIcon={Send}>계약</Button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
@@ -80,7 +81,7 @@ export const RegisterContractForm = () => {
             <InputGroup
               id="contractAmount"
               label="계약금액(원)"
-              value={formatMoney(form.contractAmount)}
+              value={formatNumber(form.contractAmount)}
               onChange={(value) => handleChange("contractAmount", unformatNumber(value))}
               helperText={toKoreanAmount(form.contractAmount) || undefined}
             />
@@ -88,7 +89,7 @@ export const RegisterContractForm = () => {
               id="contractAmountUnit"
               label="계약금액 단위"
               placeholder="단위 선택"
-              value={CONTRACT_AMOUNT_UNIT_LABEL[form.contractAmountUnit]}
+              value={form.contractAmountUnit}
               options={contractAmountUnitOptions}
               onValueChange={(value) => value && handleChange("contractAmountUnit", value as ContractAmountUnit)}
             />
@@ -96,7 +97,7 @@ export const RegisterContractForm = () => {
               id="vatIncluded"
               label="부가세 여부"
               placeholder="선택"
-              value={VAT_INCLUDED_LABEL[String(form.vatIncluded) as 'true' | 'false']}
+              value={String(form.vatIncluded) as 'true' | 'false'}
               options={[
                 { value: 'true', label: '포함' },
                 { value: 'false', label: '미포함' },
@@ -106,7 +107,7 @@ export const RegisterContractForm = () => {
             <InputGroup
               id="contractGuaranteeAmount"
               label="계약보증금"
-              value={formatMoney(form.contractGuaranteeAmount)}
+              value={formatNumber(form.contractGuaranteeAmount)}
               onChange={(value) => handleChange("contractGuaranteeAmount", unformatNumber(value))}
               helperText={toKoreanAmount(form.contractGuaranteeAmount) || undefined}
             />
@@ -115,7 +116,7 @@ export const RegisterContractForm = () => {
             <InputGroup
               id="advancePaymentAmount"
               label="선금"
-              value={formatMoney(form.advancePaymentAmount)}
+              value={formatNumber(form.advancePaymentAmount)}
               onChange={(value) => handleChange("advancePaymentAmount", unformatNumber(value))}
               helperText={toKoreanAmount(form.advancePaymentAmount) || undefined}
             />
@@ -124,6 +125,7 @@ export const RegisterContractForm = () => {
               prefix="계약체결 후"
               suffix="일 이내 지급"
               type="number"
+              min={0}
               width="w-12"
               value={form.advancePaymentDueDate}
               onChange={(value) => handleChange("advancePaymentDueDate", value)}
@@ -133,6 +135,7 @@ export const RegisterContractForm = () => {
               prefix="지체 상금율 : 계약금액의"
               suffix="%"
               type="number"
+              min={0}
               width="w-12"
               value={form.delayPenaltyRate}
               onChange={(value) => handleChange("delayPenaltyRate", value)}

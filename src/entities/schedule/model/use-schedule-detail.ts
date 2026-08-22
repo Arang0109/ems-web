@@ -4,25 +4,32 @@ import type { ScheduleDetail } from "./types";
 import { toScheduleDetail } from "../api/mapper";
 import { scheduleApi } from "../api/api";
 
+import { ERROR_MESSAGE } from "@shared/config";
+
 // 타입 B(수동 호출): 부모(useParams)에서 fetchSchedule(id)를 명시 호출해야 로드된다.
 export const useScheduleDetail = () => {
   const [data, setData] = useState<ScheduleDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSchedule = useCallback(async (id: number) => {
+  // 값을 함께 반환한다 — 저장 충돌 복구처럼 조회 결과를 곧바로 대조해야 하는 호출부가 있다.
+  const fetchSchedule = useCallback(async (id: number): Promise<ScheduleDetail | null> => {
     setLoading(true);
     setError(null);
 
     try {
       const res = await scheduleApi.getSchedule(id);
       if (!res.status) {
-        setError(res.message ?? "데이터를 불러오지 못했습니다.");
-        return;
+        setError(res.message ?? ERROR_MESSAGE.FETCH);
+        return null;
       }
-      setData(toScheduleDetail(res.data));
+
+      const detail = toScheduleDetail(res.data);
+      setData(detail);
+      return detail;
     } catch {
-      setError("데이터를 불러오는 데 실패했습니다.");
+      setError(ERROR_MESSAGE.FETCH);
+      return null;
     } finally {
       setLoading(false);
     }

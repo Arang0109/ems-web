@@ -1,33 +1,28 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import type { RowData } from "@tanstack/react-table";
 
-import { CustomCell, ActionCell } from "../ui/Cells";
+import { RowActionCell } from "@shared/ui/table";
+
 import type { ClientTableRow } from "./types";
-
-declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    onViewClientDetail?: (row: ClientTableRow) => void;
-  }
-}
 
 const columnHelper = createColumnHelper<ClientTableRow>();
 
 export const defaultColumns = [
   columnHelper.accessor('name', {
     header: '측정대행 의뢰기관',
-    cell: CustomCell,
   }),
   columnHelper.accessor('representative', {
     header: '대표자명',
-    cell: CustomCell,
   }),
   columnHelper.accessor('address', {
     header: '측정대행 의뢰기관 주소',
-    cell: CustomCell,
+  }),
+  columnHelper.accessor('bizNumber', {
+    header: '사업자번호',
   }),
   columnHelper.display({
     id: 'actions',
-    cell: ActionCell,
+    size: 10,
+    header: '비고',
+    cell: RowActionCell,
   }),
 ];

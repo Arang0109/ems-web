@@ -1,14 +1,17 @@
 import type {
-  BasicInfo, BasicInfoUpdate, MeasurementSheet, SamplingPoint, SheetSave, TeamSnapshot,
+  BasicInfo, BasicInfoUpdate, MeasurementSheet, Sample, SamplingPoint, SheetSave, TeamSnapshot,
 } from "@entities/schedule";
 import type { WeatherCondition, WindDirection } from "@shared/model";
-import { formatTime, toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
+import { formatTime, toFormValue, toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
 
 import type {
-  SheetForm, WeatherForm, MoistureForm,
+  SheetForm, WeatherForm, MoistureForm, ExhaustGasForm,
   SamplingPointForm, SampleForm, ParticleForm, ScheduleBasicInfoForm,
 } from "./types";
-import { GAS_READING_COUNT, isParticleCategory } from "./types";
+import {
+  GAS_READING_COUNT, isParticleCategory,
+  getDefaultWeatherForm, getDefaultMoistureForm, getDefaultExhaustGasForm,
+} from "./types";
 
 // ── Form → Domain ──────────────────────────────────────────────
 // 숫자는 전부 nullable(빈 입력 → null). 계산결과 필드는 null로 두어 서버가 채우게 한다.
@@ -23,6 +26,8 @@ export const toSheetSave = (form: SheetForm): SheetSave => {
 
   return {
     category: form.category,
+    // 서버 소유 값 — 읽어간 그대로 돌려보내야 서버가 동시 편집 충돌을 판정할 수 있다.
+    version: form.version,
     weather: {
       pressure: n(form.weather.pressure),
       weatherCondition: (form.weather.weatherCondition || null) as WeatherCondition | null,
@@ -105,76 +110,85 @@ const toColumn = (values: string[]): number[] =>
 // ── Domain → Form ──────────────────────────────────────────────
 // 조회된 기존 시트를 폼 초기값으로 채운다.
 
-// 숫자 → 문자열 (null → "")
-const s = (v: number | null | undefined): string => (v == null ? "" : String(v));
 // 농도 배열 → 항상 GAS_READING_COUNT 길이의 Form 컬럼 (모자란 회차는 빈 문자열)
 const fromColumn = (values: number[] | undefined): string[] =>
-  Array.from({ length: GAS_READING_COUNT }, (_, i) => s(values?.[i]));
+  Array.from({ length: GAS_READING_COUNT }, (_, i) => toFormValue(values?.[i]));
 
+// 서버는 블록 자체를 비워서 줄 수 있다 — 이전 회차 불러오기는 그 회차에만 유효한 기상 조건을
+// weather: null 로 내려준다. 블록이 없으면 신규 시트와 같은 상태이므로 기본 폼으로 채운다.
 export const fromSheet = (sheet: MeasurementSheet): SheetForm => ({
   category: sheet.category,
+  version: sheet.version,
   weather: fromWeather(sheet.weather),
   moisture: fromMoisture(sheet.moisture),
-  exhaustGas: {
-    o2: fromColumn(sheet.exhaustGas.o2Concentration),
-    co2: fromColumn(sheet.exhaustGas.co2Concentration),
-    co: fromColumn(sheet.exhaustGas.coConcentration),
-    nox: fromColumn(sheet.exhaustGas.noxConcentration),
-    sox: fromColumn(sheet.exhaustGas.soxConcentration),
-    gasAnalyzerStartTime: formatTime(sheet.exhaustGas.gasAnalyzerStartTime),
-    thcAnalyzerStartTime: formatTime(sheet.exhaustGas.thcAnalyzerStartTime),
-  },
+  exhaustGas: fromExhaustGas(sheet.exhaustGas),
   samplingPoints: (sheet.samplingPoints ?? []).map(fromPoint),
   samples: (sheet.samples ?? []).map(fromSample),
   particle: fromParticle(sheet),
 });
 
-const fromWeather = (w: MeasurementSheet["weather"]): WeatherForm => ({
-  pressure: s(w.pressure),
-  weatherCondition: w.weatherCondition ?? "",
-  temperature: s(w.temperature),
-  humidity: s(w.humidity),
-  windDirection: w.windDirection ?? "",
-  windSpeed: s(w.windSpeed),
-});
+const fromWeather = (w: MeasurementSheet["weather"]): WeatherForm => (
+  w ? {
+    pressure: toFormValue(w.pressure),
+    weatherCondition: w.weatherCondition ?? "",
+    temperature: toFormValue(w.temperature),
+    humidity: toFormValue(w.humidity),
+    windDirection: w.windDirection ?? "",
+    windSpeed: toFormValue(w.windSpeed),
+  } : getDefaultWeatherForm()
+);
 
-const fromMoisture = (m: MeasurementSheet["moisture"]): MoistureForm => ({
-  weightBefore: s(m.weight?.before),
-  weightAfter: s(m.weight?.after),
-  gasMeterTempIn: s(m.gasMeterTemperature?.in),
-  gasMeterTempOut: s(m.gasMeterTemperature?.out),
-  dryGasVolumeBefore: s(m.dryGasVolume?.before),
-  dryGasVolumeAfter: s(m.dryGasVolume?.after),
-  suctionVelocity: s(m.suctionVelocity),
-  gasMeterGaugePressure: s(m.gasMeterGaugePressure),
-  samplingStartTime: formatTime(m.samplingStartTime),
-  samplingEndTime: formatTime(m.samplingEndTime),
-});
+const fromMoisture = (m: MeasurementSheet["moisture"]): MoistureForm => (
+  m ? {
+    weightBefore: toFormValue(m.weight?.before),
+    weightAfter: toFormValue(m.weight?.after),
+    gasMeterTempIn: toFormValue(m.gasMeterTemperature?.in),
+    gasMeterTempOut: toFormValue(m.gasMeterTemperature?.out),
+    dryGasVolumeBefore: toFormValue(m.dryGasVolume?.before),
+    dryGasVolumeAfter: toFormValue(m.dryGasVolume?.after),
+    suctionVelocity: toFormValue(m.suctionVelocity),
+    gasMeterGaugePressure: toFormValue(m.gasMeterGaugePressure),
+    samplingStartTime: formatTime(m.samplingStartTime),
+    samplingEndTime: formatTime(m.samplingEndTime),
+  } : getDefaultMoistureForm()
+);
+
+const fromExhaustGas = (g: MeasurementSheet["exhaustGas"]): ExhaustGasForm => (
+  g ? {
+    o2: fromColumn(g.o2Concentration),
+    co2: fromColumn(g.co2Concentration),
+    co: fromColumn(g.coConcentration),
+    nox: fromColumn(g.noxConcentration),
+    sox: fromColumn(g.soxConcentration),
+    gasAnalyzerStartTime: formatTime(g.gasAnalyzerStartTime),
+    thcAnalyzerStartTime: formatTime(g.thcAnalyzerStartTime),
+  } : getDefaultExhaustGasForm()
+);
 
 const fromPoint = (p: SamplingPoint): SamplingPointForm => ({
-  Ts: s(p.Ts), Pv: s(p.Pv), Ps: s(p.Ps),
-  inTm: s(p.particle?.equipmentTemperature?.inTm),
-  outTm: s(p.particle?.equipmentTemperature?.outTm),
-  beforeVm: s(p.particle?.equipmentVolume?.beforeVm),
-  afterVm: s(p.particle?.equipmentVolume?.afterVm),
-  samplingTime: s(p.particle?.samplingTime),
-  vacuumGaugePressure: s(p.particle?.vacuumGaugePressure),
-  finalImpingerTemperature: s(p.particle?.finalImpingerTemperature),
+  Ts: toFormValue(p.Ts), Pv: toFormValue(p.Pv), Ps: toFormValue(p.Ps),
+  inTm: toFormValue(p.particle?.equipmentTemperature?.inTm),
+  outTm: toFormValue(p.particle?.equipmentTemperature?.outTm),
+  beforeVm: toFormValue(p.particle?.equipmentVolume?.beforeVm),
+  afterVm: toFormValue(p.particle?.equipmentVolume?.afterVm),
+  samplingTime: toFormValue(p.particle?.samplingTime),
+  vacuumGaugePressure: toFormValue(p.particle?.vacuumGaugePressure),
+  finalImpingerTemperature: toFormValue(p.particle?.finalImpingerTemperature),
 });
 
-const fromSample = (sp: MeasurementSheet["samples"][number]): SampleForm => ({
+const fromSample = (sp: Sample): SampleForm => ({
   sampleName: sp.sampleName ?? "",
   startTime: formatTime(sp.startTime),
   endTime: formatTime(sp.endTime),
-  suctionQuantity: s(sp.suctionQuantity),
-  gasMeterGaugePressure: s(sp.gasMeterGaugePressure),
-  inTemperature: s(sp.inTemperature),
-  outTemperature: s(sp.outTemperature),
-  beforeVolume: s(sp.beforeVolume),
-  afterVolume: s(sp.afterVolume),
+  suctionQuantity: toFormValue(sp.suctionQuantity),
+  gasMeterGaugePressure: toFormValue(sp.gasMeterGaugePressure),
+  inTemperature: toFormValue(sp.inTemperature),
+  outTemperature: toFormValue(sp.outTemperature),
+  beforeVolume: toFormValue(sp.beforeVolume),
+  afterVolume: toFormValue(sp.afterVolume),
   blankSampleNumber: sp.blankSampleNumber ?? "",
   sampleNumber: sp.sampleNumber ?? "",
-  samplingVolume: s(sp.samplingVolume),
+  samplingVolume: toFormValue(sp.samplingVolume),
 });
 
 // nozzleSize는 측정점별 저장이지만 UI는 시트당 1개 — 첫 non-null 측정점 값을 채택한다.
@@ -184,7 +198,7 @@ const fromParticle = (sheet: MeasurementSheet): ParticleForm => {
     .find((v): v is number => v != null);
 
   return {
-    nozzleSize: s(nozzleSize),
+    nozzleSize: toFormValue(nozzleSize),
     samplingStartTime: formatTime(sheet.particle?.samplingStartTime),
     samplingEndTime: formatTime(sheet.particle?.samplingEndTime),
     thimbleFilter: sheet.particle?.thimbleFilter ?? "",

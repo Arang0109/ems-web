@@ -1,5 +1,7 @@
 import type { Team } from "@entities/team";
 
+import { toFormValue } from "@shared/lib";
+
 export type TeamUpdateForm = {
   name: string;
   mentorUserId: string;
@@ -20,8 +22,8 @@ export const getDefaultForm = (team: Team | null): TeamUpdateForm => {
 
   return {
     name: team.name ?? '',
-    mentorUserId: team.mentorUserId != null ? String(team.mentorUserId) : '',
-    menteeUserId: team.menteeUserId != null ? String(team.menteeUserId) : '',
+    mentorUserId: toFormValue(team.mentorUserId),
+    menteeUserId: toFormValue(team.menteeUserId),
     particleSamplerId: team.particleSamplerId ?? '',
     gasSamplerId: team.gasSamplerId ?? '',
     pitotTubeId: team.pitotTubeId ?? '',

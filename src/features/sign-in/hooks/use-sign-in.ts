@@ -57,6 +57,8 @@ export const useSignIn = () => {
         tenant: res.data.tenant,
         username: res.data.username,
         name: res.data.name,
+        teamId: res.data.teamId,
+        teamName: res.data.teamName,
         role: res.data.role,
       });
       // 플랫폼 운영자는 운영자 콘솔로, 그 외(고객사 유저)는 대시보드로

@@ -1,20 +1,20 @@
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-type ButtonSize = "default" | "sm" | "lg" | "icon" | "xs";
+import { Button } from "./Button";
+import { type ButtonVariants } from "./button-variants";
 
-interface IconButtonProps {
+interface Props {
   icon: React.ReactNode;
   label?: string;
   onClick?: () => void;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: ButtonVariants["variant"];
+  size?: ButtonVariants["size"];
   disabled?: boolean;
   className?: string;
   type?: "button" | "submit" | "reset";
 }
 
+/** 아이콘 전용 버튼. 피그마 ICON ONLY 스타일은 variant="outline" 으로 쓴다. */
 export const IconButton = ({
   icon,
   label,
@@ -24,7 +24,7 @@ export const IconButton = ({
   disabled,
   className,
   type = "button",
-}: IconButtonProps) => (
+}: Props) => (
   <Button
     type={type}
     variant={variant}

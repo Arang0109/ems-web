@@ -1,8 +1,8 @@
 import { useSignIn } from "../hooks/use-sign-in";
 
-import { Input, Checkbox } from "@shared/ui/form";
+import { InputGroup, Checkbox } from "@shared/ui/form";
 import { Link } from "@shared/ui/links";
-import { Button } from "@/components/ui/button";
+import { Button } from "@shared/ui/buttons";
 
 
 export const SignInForm = () => {
@@ -18,26 +18,22 @@ export const SignInForm = () => {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <Input
+      <InputGroup
         id="username"
-        name="username"
         label="아이디"
         value={form.username}
         onChange={(value) => handleChange("username", value)}
         placeholder="아이디"
-        autoComplete="username"
-        isInvalid={error}
+        invalid={error}
       />
-      <Input
+      <InputGroup
         id="password"
-        name="password"
         label="비밀번호"
         type="password"
         value={form.password}
         onChange={(value) => handleChange("password", value)}
         placeholder="••••••••"
-        autoComplete="current-password"
-        isInvalid={error}
+        invalid={error}
       />
       <div className="flex gap-4">
         <Link to="/sign-up">회원가입</Link>

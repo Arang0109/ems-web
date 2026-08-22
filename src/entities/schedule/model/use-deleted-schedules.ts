@@ -1,0 +1,32 @@
+import { useState, useEffect, useCallback } from "react";
+
+import { scheduleApi } from "../api/api";
+import type { ScheduleListItem } from "./types";
+
+/** 삭제(감춤)된 측정계획 목록. 관리자 전용 화면에서만 사용한다. */
+export const useDeletedSchedules = () => {
+  const [data, setData] = useState<ScheduleListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState(0);
+
+  const refetch = useCallback(() => {
+    setIsLoading(true);
+    setRevision((r) => r + 1);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    scheduleApi.getDeletedSchedules()
+      .then((res) => {
+        if (cancelled) return;
+        if (res.status) setData(res.data);
+        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
+      })
+      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+    return () => { cancelled = true; };
+  }, [revision]);
+
+  return { data, isLoading, error, refetch };
+};

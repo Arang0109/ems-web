@@ -1,5 +1,6 @@
 import type { ContractListItem } from "@entities/contract";
 import { MEASUREMENT_FIELD_LABEL } from "@shared/config";
+import { formatDate } from "@shared/lib";
 import type { MeasurementField } from "@shared/model";
 import type { ContractTableRow } from "./types";
 
@@ -20,5 +21,5 @@ export const toContractRows = (row: ContractListItem): ContractTableRow => ({
   contractName: row.contractName,
   taskPeriod: row.taskPeriod,
   contractStatus: row.contractStatus,
-  contractDate: row.contractDate,
+  contractDate: formatDate(row.contractDate),
 });

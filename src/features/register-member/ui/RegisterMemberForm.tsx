@@ -9,7 +9,7 @@ import { InputGroup, SectionTitle, FieldGroup, Select } from "@shared/ui/form";
 import { formatPhoneNumber, unformatNumber } from '@shared/lib';
 
 // Icon
-import { MailIcon, User2Icon, Phone, KeyRound, Building2 } from "lucide-react";
+import { MailIcon, User2Icon, Phone, KeyRound, Building2, Plus } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -27,7 +27,7 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
 
   return (
     <FormDialog
-      triggerLabel='회원 등록'
+      triggerLabel={<><Plus /> 등록</>}
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}

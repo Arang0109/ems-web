@@ -2,11 +2,13 @@ import type {
   CreateEquipmentRequest,
   UpdateEquipmentRequest,
   ChangeEquipmentStatusRequest,
+  RecordInspectionRequest,
 } from "./dto";
 import type {
   EquipmentCreate,
   EquipmentUpdate,
   EquipmentStatusChange,
+  InspectionRecordCreate,
 } from "../model/types";
 
 import { trimValue } from "@shared/lib";
@@ -24,7 +26,7 @@ const toRequestBody = (vo: EquipmentCreate): CreateEquipmentRequest => ({
   originCountry: trimValue(vo.originCountry),
   purchaseDate: vo.purchaseDate,
   remark: trimValue(vo.remark),
-  calibrationCycle: vo.calibrationCycle,
+  inspections: vo.inspections,
   spec: vo.spec,
 });
 
@@ -36,4 +38,14 @@ export const toUpdateRequest = (vo: EquipmentUpdate): UpdateEquipmentRequest =>
 
 export const toStatusChangeRequest = (vo: EquipmentStatusChange): ChangeEquipmentStatusRequest => ({
   status: vo.status,
+});
+
+export const toRecordInspectionRequest = (vo: InspectionRecordCreate): RecordInspectionRequest => ({
+  type: vo.type,
+  inspectedAt: vo.inspectedAt,
+  validUntil: vo.validUntil,
+  agency: trimValue(vo.agency),
+  certificateNumber: trimValue(vo.certificateNumber),
+  result: vo.result,
+  remark: trimValue(vo.remark),
 });

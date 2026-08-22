@@ -3,14 +3,14 @@ import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 
 import type { Workplace } from '@entities/workplace';
 
+import { formatBusinessNumber } from '@shared/lib';
 import { FormDialog } from "@shared/ui/dialogs";
 import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
 import type { Grade } from "@shared/model";
 import { gradeOptions } from "@shared/model";
-import { GRADE_LABEL } from "@shared/config";
 
 import { Building2, Hash, User2 } from "lucide-react";
-import type { Client } from '@/entities/client';
+import type { Client } from '@entities/client';
 
 interface Props {
   open: boolean;
@@ -72,19 +72,28 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, client, workplace, onS
           <InputGroup
             id="bizNumber"
             label="사업자등록번호"
-            value={form.bizNumber}
+            value={formatBusinessNumber(form.bizNumber)}
             onChange={(value) => handleChange('bizNumber', value)}
             startIcon={<Hash />}
           />
         </div>
+        <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="grade"
             label="시설 종별"
             placeholder="종별 선택"
             options={gradeOptions}
-            value={GRADE_LABEL[form.grade]}
+            value={form.grade}
             onValueChange={(value) => value && handleChange("grade", value as Grade)}
           />
+          <InputGroup
+            id="businessCategory"
+            label="업종"
+            placeholder="업종"
+            value={form.businessCategory}
+            onChange={(value) => handleChange("businessCategory", value)}
+          />
+        </div>
         <AddressInput
           id="address"
           placeholder="상세주소"
@@ -102,7 +111,7 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, client, workplace, onS
         <InputGroup
           id="samplingWitness"
           label="환경기술인"
-          placeholder="채취 증인"
+          placeholder="환경기술인"
           value={form.samplingWitness}
           onChange={(value) => handleChange("samplingWitness", value)}
           startIcon={<User2 />}

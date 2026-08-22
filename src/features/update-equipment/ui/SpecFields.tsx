@@ -24,7 +24,7 @@ const AddRowButton = ({ label, onClick }: { label: string; onClick: () => void }
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+    className="inline-flex items-center gap-1 text-body-2 text-brand-dark hover:underline"
   >
     <Plus className="size-4" /> {label}
   </button>
@@ -59,6 +59,10 @@ export const SpecFields = ({
     <div className="space-y-4">
       <SectionTitle>사양</SectionTitle>
 
+      {type === 'GAS_ANALYZER' && (
+        <p className="text-body-2 text-muted-foreground">가스분석기는 별도 사양 항목이 없습니다.</p>
+      )}
+
       {type === 'PARTICLE_SAMPLER' && (
         <div className="grid md:grid-cols-3 gap-4">
           <InputGroup id="totalVolume" label="총유량" placeholder="총유량" value={spec.totalVolume}
@@ -87,7 +91,7 @@ export const SpecFields = ({
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground">계수 목록</span>
+              <span className="text-body-4 text-foreground">계수 목록</span>
               <AddRowButton label="계수 추가" onClick={onAddCoefficient} />
             </div>
             {spec.coefficients.map((c, i) => (
@@ -106,7 +110,7 @@ export const SpecFields = ({
       {type === 'NOZZLE' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">직경 목록</span>
+            <span className="text-body-4 text-foreground">직경 목록</span>
             <AddRowButton label="직경 추가" onClick={onAddDiameter} />
           </div>
           {spec.diameters.map((d, i) => (
@@ -119,7 +123,7 @@ export const SpecFields = ({
         </div>
       )}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && <p className="text-body-2 text-destructive">{error}</p>}
     </div>
   );
 };

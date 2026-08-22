@@ -1,5 +1,4 @@
 import type { ScheduleCreate } from "@entities/schedule";
-import type { MeasurementField } from "@shared/model";
 
 import type { ScheduleRegisterForm } from "./types";
 
@@ -9,7 +8,7 @@ import { trimValue } from "@shared/lib";
 export const toScheduleCreate = (form: ScheduleRegisterForm): ScheduleCreate => ({
   stackId: Number(form.stackId),
   teamId: Number(form.teamId),
-  measurementField: form.measurementField as MeasurementField,
+  measurementField: form.measurementField,
   sampledAt: form.measureDate,                    // 서버 LocalDate ("yyyy-MM-dd")
   schedulePurpose: form.measurementType || null,
   referenceNumber: trimValue(form.referenceNumber) || null,

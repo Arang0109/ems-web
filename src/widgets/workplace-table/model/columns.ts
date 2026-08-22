@@ -1,15 +1,10 @@
-import { createColumnHelper, type RowData } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 
 import type { WorkplaceTableRow } from './types';
 
-import { CustomCell, ActionCell } from '../ui/Cells';
+import { RowActionCell } from "@shared/ui/table";
 
-declare module '@tanstack/react-table' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface TableMeta<TData extends RowData> {
-    onViewWorkplaceDetail?: (row: WorkplaceTableRow) => void;
-  }
-}
+import { CustomCell } from '../ui/Cells';
 
 const columnHelper = createColumnHelper<WorkplaceTableRow>();
 
@@ -28,8 +23,10 @@ export const defaultColumns = [
     cell: CustomCell,
     enableSorting: false,
   }),
-    columnHelper.display({
-      id: 'actions',
-      cell: ActionCell,
-    }),
+  columnHelper.display({
+    id: 'actions',
+    header: '비고',
+    size: 10,
+    cell: RowActionCell,
+  }),
 ];

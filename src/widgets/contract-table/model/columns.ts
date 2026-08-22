@@ -1,6 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { CustomCell, DateCell, PathCell } from "../ui/Cells";
+import { RowActionCell } from "@shared/ui/table";
+
+import { CustomCell, DateCell } from "../ui/Cells";
 import type { ContractTableRow } from "./types";
 
 const columnHelper = createColumnHelper<ContractTableRow>();
@@ -33,7 +35,8 @@ export const defaultColumns = [
     enableSorting: false,
   }),
   columnHelper.display({
+    id: 'actions',
     header: '상세보기',
-    cell: PathCell,
+    cell: RowActionCell,
   }),
 ];

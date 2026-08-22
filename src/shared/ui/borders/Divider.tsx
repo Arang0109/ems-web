@@ -10,7 +10,7 @@ export const Divider = ({ text }: DividerProps) => {
       <div className="absolute inset-0 flex items-center">
         <Separator />
       </div>
-      <div className="relative flex justify-center text-[11px]">
+      <div className="relative flex justify-center text-caption">
         <span className="px-2 bg-background/95 text-muted-foreground">{text}</span>
       </div>
     </div>
