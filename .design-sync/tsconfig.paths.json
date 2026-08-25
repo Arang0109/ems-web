@@ -1,0 +1,113 @@
+{
+  "_comment": "생성 파일 - 직접 고치지 말고 `node .design-sync/gen-paths.mjs` 로 다시 만들 것. 이유는 gen-paths.mjs 주석 참고.",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@shared/api": [
+        "../src/shared/api/index.ts"
+      ],
+      "@shared/config": [
+        "../src/shared/config/index.ts"
+      ],
+      "@shared/lib": [
+        "../src/shared/lib/index.ts"
+      ],
+      "@shared/model": [
+        "../src/shared/model/index.ts"
+      ],
+      "@shared/ui/accordion": [
+        "../src/shared/ui/accordion/index.ts"
+      ],
+      "@shared/ui/badges": [
+        "../src/shared/ui/badges/index.ts"
+      ],
+      "@shared/ui/borders": [
+        "../src/shared/ui/borders/index.ts"
+      ],
+      "@shared/ui/buttons": [
+        "../src/shared/ui/buttons/index.ts"
+      ],
+      "@shared/ui/cards": [
+        "../src/shared/ui/cards/index.ts"
+      ],
+      "@shared/ui/dialogs": [
+        "../src/shared/ui/dialogs/index.ts"
+      ],
+      "@shared/ui/drawer": [
+        "../src/shared/ui/drawer/index.ts"
+      ],
+      "@shared/ui/feedback": [
+        "../src/shared/ui/feedback/index.ts"
+      ],
+      "@shared/ui/form": [
+        "../src/shared/ui/form/index.ts"
+      ],
+      "@shared/ui/layout": [
+        "../src/shared/ui/layout/index.ts"
+      ],
+      "@shared/ui/links": [
+        "../src/shared/ui/links/index.ts"
+      ],
+      "@shared/ui/nav": [
+        "../src/shared/ui/nav/index.ts"
+      ],
+      "@shared/ui/pagination": [
+        "../src/shared/ui/pagination/index.ts"
+      ],
+      "@shared/ui/popover": [
+        "../src/shared/ui/popover/index.ts"
+      ],
+      "@shared/ui/primitives": [
+        "../src/shared/ui/primitives/index.ts"
+      ],
+      "@shared/ui/semantics": [
+        "../src/shared/ui/semantics/index.ts"
+      ],
+      "@shared/ui/sidebar": [
+        "../src/shared/ui/sidebar/index.ts"
+      ],
+      "@shared/ui/skeletons": [
+        "../src/shared/ui/skeletons/index.ts"
+      ],
+      "@shared/ui/sortable": [
+        "../src/shared/ui/sortable/index.ts"
+      ],
+      "@shared/ui/table": [
+        "../src/shared/ui/table/index.ts"
+      ],
+      "@shared/ui/tabs": [
+        "../src/shared/ui/tabs/index.ts"
+      ],
+      "@shared/ui/theme": [
+        "../src/shared/ui/theme/index.ts"
+      ],
+      "@shared/ui/toasts": [
+        "../src/shared/ui/toasts/index.ts"
+      ],
+      "@shared/ui/tooltip": [
+        "../src/shared/ui/tooltip/index.ts"
+      ],
+      "@/*": [
+        "../src/*"
+      ],
+      "@app/*": [
+        "../src/app/*"
+      ],
+      "@entities/*": [
+        "../src/entities/*"
+      ],
+      "@features/*": [
+        "../src/features/*"
+      ],
+      "@pages/*": [
+        "../src/pages/*"
+      ],
+      "@shared/*": [
+        "../src/shared/*"
+      ],
+      "@widgets/*": [
+        "../src/widgets/*"
+      ]
+    }
+  }
+}

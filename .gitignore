@@ -28,3 +28,10 @@ dist-ssr
 
 # deploy — 로컬 접속 정보(EC2 IP·SSH 키 경로 등), 커밋 금지
 deploy/deploy.local.sh
+
+# design-sync — 스테이징된 컨버터 스크립트·생성 산출물·머신 로컬 상태
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
