@@ -17,7 +17,10 @@ import { toast } from "@shared/ui/toasts";
 import type { SheetForm } from "../types";
 import { getDefaultSheetForm } from "../types";
 import { toSheetSave, fromSheet } from "../mapper";
-import { validateSheetFields } from "../validator";
+import {
+  describeMissingRequired, describeMoistureWeightIssues, validateSheetFields,
+} from "../validator";
+import { getAssignedPollutants } from "../measured-pollutants";
 import type { UpdatedSections } from "../remote-sync";
 import { applyRemoteSheets } from "../remote-sync";
 import type { SheetBaseline } from "../conflict";
@@ -31,6 +34,9 @@ import { useExportSamplingRecords } from "./use-export-sampling-records";
 interface Params {
   scheduleId: number | null;
   snapshot: ScheduleSnapshot | null;
+  // 저장 전후 상태 비교용. 스냅샷에도 status 사본이 있었으나 서버가 더는 내려보내지 않으며,
+  // 진실의 원천은 응답 최상위(메타)다 — 비교 양쪽을 같은 출처로 맞춘다.
+  status: ScheduleStatus | null;
   externals: SheetCalcExternals;
   onSaved?: () => void;
 }
@@ -46,7 +52,7 @@ const UPDATED_HIGHLIGHT_MS = 8_000;
 // 카테고리만 교체하므로(나머지는 보관본 유지), 삭제는 deletedSheets 로 명시해 보낸다.
 // 계산값 표시는 previewCalc(서버 파이프라인 풀 미러링)가 담당한다 — 저장 후에도 폼 값에서 동일하게 재현된다.
 export const useSaveSheets = ({
-  scheduleId, snapshot, externals, onSaved,
+  scheduleId, snapshot, status, externals, onSaved,
 }: Params) => {
   const { saveSheets, isLoading } = useSaveSheetsAction();
   const {
@@ -73,6 +79,9 @@ export const useSaveSheets = ({
   // 서버에 저장된 적 있는 시트만 담는다. 신규 시트를 지운 것은 서버가 알 필요가 없다.
   const [deletedSheets, setDeletedSheets] = useState<SheetRef[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  // 미입력 필수 칸의 빨강 표시. 화면을 처음 열었을 때는 조용히 두고, 저장을 한 번 누른 뒤부터 켠다 —
+  // 새 기록지를 열자마자 화면 전체가 빨개지면 경고가 무뎌진다.
+  const [showMissing, setShowMissing] = useState(false);
   // 다른 사용자의 저장으로 방금 갱신된 섹션 — 화면에서 어디가 바뀌었는지 짚어준다.
   const [updatedSections, setUpdatedSections] = useState<UpdatedSections>({});
 
@@ -97,6 +106,13 @@ export const useSaveSheets = ({
   const isSheetsDirty = changedSheets.length > 0 || deletedSheets.length > 0;
 
   const activeSheet = sheets[activeIndex] ?? null;
+
+  // 측정항목은 측정계획 단위라 시트별로 갈리지 않는다. 스냅샷에서 한 번만 파생한다.
+  // 필수 칸 판정(저장 검증·진행도 배지·미입력 강조)이 모두 이 값을 본다.
+  const assignedPollutants = useMemo(
+    () => getAssignedPollutants(snapshot?.items),
+    [snapshot?.items],
+  );
 
   // 활성 시트 입력에서 서버 계산값을 프론트에서 실시간으로 재현한 미리보기(effect 금지, 파생만).
   const previewCalc = useMemo<SheetCalcPreview | null>(
@@ -263,7 +279,38 @@ export const useSaveSheets = ({
       return { ok: false };
     }
 
-    const previousStatus = snapshot?.status ?? null;
+    // 흡습병 무게차가 법정 허용 범위를 벗어난 기록지 — 화면의 경고는 활성 기록지만 비추므로
+    // 다른 탭에 열어 둔 기록지는 여기서만 드러난다. 실제로 잰 값은 남겨야 하므로 막지는 않는다.
+    const moistureIssues = describeMoistureWeightIssues(sheets);
+    if (moistureIssues.total > 0) {
+      const isConfirmed = await confirm({
+        title: "흡습병 무게차가 법정 허용 범위를 벗어났습니다",
+        description: `${moistureIssues.description}
+
+범위를 벗어난 채취는 수분량 산정 근거로 쓸 수 없습니다. 이대로 저장할까요?`,
+        confirmLabel: "이대로 저장",
+        cancelLabel: "돌아가서 확인",
+      });
+      if (!isConfirmed) return { ok: false };
+    }
+
+    // 필수 미입력은 저장을 막지 않는다 — 현장에서 나중에 채우는 흐름이 정상이기 때문이다.
+    // 대신 이 시점부터 빈 칸을 화면에 켜고, 규모를 알린 뒤 한 번만 확인받는다.
+    setShowMissing(true);
+    const missing = describeMissingRequired(sheets, assignedPollutants);
+    if (missing.total > 0) {
+      const isConfirmed = await confirm({
+        title: "미입력 필수 항목이 있습니다",
+        description: `${missing.description}
+
+이대로 저장할까요? 빈 칸은 화면에 표시해 두었습니다.`,
+        confirmLabel: "이대로 저장",
+        cancelLabel: "돌아가서 입력",
+      });
+      if (!isConfirmed) return { ok: false };
+    }
+
+    const previousStatus = status;
 
     try {
       // 공통 정보(채취시간·담당자)를 먼저 반영한다. 실패하면 시트는 건드리지 않아
@@ -297,7 +344,7 @@ export const useSaveSheets = ({
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     const result = await runSave();
     if (!result.ok) return;
 
@@ -326,6 +373,10 @@ export const useSaveSheets = ({
     basicInfoForm: basicInfoForm,
     // 다른 사용자의 저장으로 방금 갱신된 섹션(카테고리별). 화면에서 강조하는 데 쓴다.
     updatedSections,
+    // 이 측정계획에 배정된 THC·NOx·SOx — 필수 칸 판정의 기준이다.
+    assignedPollutants,
+    // 저장을 한 번 눌렀는가 — 미입력 필수 칸의 빨강 표시를 켜는 스위치.
+    showMissing,
 
     handleBasicInfoChange: handleChange,
     setActiveIndex,

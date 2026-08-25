@@ -1,5 +1,4 @@
 import type { ScheduleSnapshot } from "@entities/schedule";
-import { CompleteScheduleCard } from "@features/manage-schedule-lifecycle";
 import { ScheduleAnalysisEditor } from "@features/save-schedule-analysis";
 
 import type { ScheduleStatus } from "@shared/model";
@@ -28,7 +27,5 @@ export const AnalysisInput = ({ scheduleId, snapshot, status, editable, onRefetc
       editable={editable}
       onSaved={onRefetch}
     />
-
-    <CompleteScheduleCard scheduleId={scheduleId} status={status} onSuccess={onRefetch} />
   </div>
 );

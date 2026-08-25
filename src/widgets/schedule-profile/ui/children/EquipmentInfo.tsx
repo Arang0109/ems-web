@@ -52,7 +52,7 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
   const sorted = useMemo(() => sortEquipmentsByType(equipments), [equipments]);
 
   // 현장에서 한눈에 확인하는 화면이라 모든 카드를 펼친 상태로 시작한다.
-  const [closedIds, setClosedIds] = useState<Record<string, boolean>>({});
+  const [openedIds, setOpenedIds] = useState<Record<string, boolean>>({});
 
   return (
     <div className="space-y-4">
@@ -78,9 +78,9 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
           id={cardDomId(equip.equipmentId)}
           title={EQUIP_TYPE_LABEL[equip.type] ?? equip.type}
           subtitle={EQUIP_TYPE_DESCRIPTION[equip.type]}
-          open={!closedIds[equip.equipmentId]}
+          open={openedIds[equip.equipmentId]}
           onOpenChange={(open) => {
-            setClosedIds((prev) => ({ ...prev, [equip.equipmentId]: !open }));
+            setOpenedIds((prev) => ({ ...prev, [equip.equipmentId]: open }));
           }}
         >
           {/* 데스크탑 DetailRow 는 라벨(7rem)+값을 가로로 놓으므로 기존 5열은 값이 들어갈 폭이 없다 */}

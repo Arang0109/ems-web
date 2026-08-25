@@ -1,11 +1,14 @@
 import { Fragment, type ReactNode } from "react";
 
 import { useGridNavigation } from "@shared/model";
+import type { FieldTone } from "@shared/model";
+import type { SelectOption } from "@shared/ui/form";
 import { cn } from "@/lib/utils";
 
 import { TableInputCell } from "./TableInputCell";
 import { TableLabelCell } from "./TableLabelCell";
 import { TableResultCell } from "./TableResultCell";
+import { TableSelectCell } from "./TableSelectCell";
 
 interface ColumnBase {
   /** 열 머리 */
@@ -47,6 +50,29 @@ interface InputColumn<T> extends ColumnBase {
   step?: number;
   /** 행별 비활성. 표 전체의 `editable` 과 합쳐진다 */
   disabled?: (row: T) => boolean;
+  /** 셀별 상태 색. 의미는 호출부가 정한다 — 셀 단위로 갈리므로 행이 아니라 여기서 받는다 */
+  tone?: (row: T, index: number) => FieldTone;
+  /** 그 셀에 포커스가 들어왔을 때 */
+  onFocus?: (row: T, index: number) => void;
+}
+
+/**
+ * 정해진 값 중 하나를 고르는 칸.
+ *
+ * 트리거가 버튼이라 `Alt+화살표` 이동에는 끼지 않는다 — 이동은 `Tab` 이 맡는다.
+ */
+interface SelectColumn<T> extends ColumnBase {
+  kind: "select";
+  options: SelectOption[];
+  value: (row: T) => string;
+  onChange: (row: T, value: string, index: number) => void;
+  placeholder?: string;
+  /** 행별 비활성. 표 전체의 `editable` 과 합쳐진다 */
+  disabled?: (row: T) => boolean;
+  /** 셀별 상태 색. 의미는 호출부가 정한다 */
+  tone?: (row: T, index: number) => FieldTone;
+  /** 그 셀에 포커스가 들어왔을 때 */
+  onFocus?: (row: T, index: number) => void;
 }
 
 /** 자동계산 결과 — 회색 배경으로 입력 칸과 구분된다 */
@@ -66,6 +92,7 @@ export type InputTableColumn<T> =
   | LabelColumn<T>
   | ReadonlyColumn<T>
   | InputColumn<T>
+  | SelectColumn<T>
   | ResultColumn<T>
   | ActionColumn<T>;
 
@@ -117,6 +144,22 @@ const renderCell = <T,>(
           step={column.step}
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
+          tone={column.tone?.(row, index)}
+          onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
+          onChange={(v) => column.onChange(row, v, index)}
+        />
+      );
+
+    case "select":
+      return (
+        <TableSelectCell
+          key={key}
+          options={column.options}
+          placeholder={column.placeholder}
+          value={column.value(row)}
+          disabled={!editable || (column.disabled?.(row) ?? false)}
+          tone={column.tone?.(row, index)}
+          onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
       );
@@ -195,7 +238,7 @@ export const InputTable = <T,>({
           })}
         </tbody>
       </table>
-      <p className="text-caption text-danger">셀은 <b>Alt + 방향키</b>로 조작이 가능합니다.</p>
+      <p className="text-caption text-muted-ink">셀은 <b>Alt + 방향키</b>로 조작이 가능합니다.</p>
     </div>
   );
 };

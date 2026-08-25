@@ -37,7 +37,7 @@ export const useScheduleProfile = (scheduleId: string | undefined) => {
       snapshot
         ? getSheetCalcExternals(snapshot)
         : {
-            standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
+            stackName: "", standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
             pitotCoefficients: [], deltaH: null, nozzleDiameters: [],
           },
     [snapshot],

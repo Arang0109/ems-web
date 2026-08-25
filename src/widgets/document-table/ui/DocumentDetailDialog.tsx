@@ -38,7 +38,7 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
     versionsLoading,
     versionsError,
     uploadOpen, setUploadOpen,
-    handleVersionUploaded,
+    handleVersionChanged,
   } = useDocumentDetailDialog({ document, open, onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -79,7 +79,7 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
         documentId={document.id}
         open={uploadOpen}
         onOpenChange={setUploadOpen}
-        onSuccess={handleVersionUploaded}
+        onSuccess={handleVersionChanged}
       />
     </>
   );

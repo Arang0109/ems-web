@@ -8,10 +8,11 @@ import { UnitField } from "@shared/ui/form";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
 import { GAS_SAMPLE_HINT } from "../../model/field-hints";
+import { REQUIRED_SAMPLE_FIELDS, fieldPath } from "../../model/required-fields";
 import type { SampleForm } from "../../model/types";
-import type { SectionShellProps } from "./shell-props";
+import type { FieldStateProps, SectionShellProps } from "./shell-props";
 
-interface Props extends SectionShellProps {
+interface Props extends SectionShellProps, FieldStateProps {
   samples: SampleForm[];
   editable: boolean;
   onSampleChange: (index: number, patch: Partial<SampleForm>) => void;
@@ -30,46 +31,48 @@ interface GasField {
   /** 데스크탑 표의 열 폭 (px) — 표는 가로 스크롤이므로 항목별로 다르게 준다 */
   width: number;
   hint?: string;
-  required?: boolean;
 }
+
+/** 필수 별표는 손으로 적지 않는다 — 저장 검증·진행도 배지와 같은 목록에서 파생시킨다 */
+const isRequired = (field: keyof SampleForm): boolean => REQUIRED_SAMPLE_FIELDS.includes(field);
 
 /**
  * 입력 순서 = 현장 기록지의 기입 순서.
  * 항목명 → 채취시간 → 흡인 조건 → 채취량·적산값 → 시료번호.
  */
 const GAS_FIELDS: GasField[] = [
-  { field: "sampleName", label: "항목명", type: "text", width: 140, hint: GAS_SAMPLE_HINT.sampleName, required: true },
-  { field: "startTime", label: "채취 시작", type: "time", width: 110, required: true },
-  { field: "endTime", label: "채취 종료", type: "time", width: 110, required: true },
+  { field: "sampleName", label: "항목명", type: "text", width: 140, hint: GAS_SAMPLE_HINT.sampleName },
+  { field: "startTime", label: "채취 시작", type: "time", width: 110 },
+  { field: "endTime", label: "채취 종료", type: "time", width: 110 },
   {
     field: "suctionQuantity", label: "흡인유량", unit: "L/min", type: "number", min: 0, step: 0.1,
-    width: 110, hint: GAS_SAMPLE_HINT.suctionQuantity, required: true,
+    width: 110, hint: GAS_SAMPLE_HINT.suctionQuantity,
   },
   {
     field: "gasMeterGaugePressure", label: "가스미터압", unit: "mmH₂O", type: "number", step: 0.1,
-    width: 120, hint: GAS_SAMPLE_HINT.gasMeterGaugePressure, required: true,
+    width: 120, hint: GAS_SAMPLE_HINT.gasMeterGaugePressure,
   },
   {
     field: "inTemperature", label: "가스미터온도 (입구)", unit: "°C", type: "number", step: 0.1,
-    width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature, required: true,
+    width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature,
   },
   {
     field: "outTemperature", label: "가스미터온도 (출구)", unit: "°C", type: "number", step: 0.1,
-    width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature, required: true,
+    width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature,
   },
   {
     field: "samplingVolume", label: "시료채취량", unit: "L", type: "number", min: 0, step: 0.1,
-    width: 120, hint: GAS_SAMPLE_HINT.samplingVolume, required: true,
+    width: 120, hint: GAS_SAMPLE_HINT.samplingVolume,
   },
   {
     field: "beforeVolume", label: "채취 전 적산값", unit: "L", type: "number", min: 0, step: 0.01,
-    width: 130, hint: GAS_SAMPLE_HINT.volume, required: true,
+    width: 130, hint: GAS_SAMPLE_HINT.volume,
   },
   {
     field: "afterVolume", label: "채취 후 적산값", unit: "L", type: "number", min: 0, step: 0.01,
-    width: 130, hint: GAS_SAMPLE_HINT.volume, required: true,
+    width: 130, hint: GAS_SAMPLE_HINT.volume,
   },
-  { field: "sampleNumber", label: "본시료", type: "text", width: 120, hint: GAS_SAMPLE_HINT.sampleNumber, required: true },
+  { field: "sampleNumber", label: "본시료", type: "text", width: 120, hint: GAS_SAMPLE_HINT.sampleNumber },
   { field: "blankSampleNumber", label: "바탕시료", type: "text", width: 120, hint: GAS_SAMPLE_HINT.blankSampleNumber },
 ];
 
@@ -94,7 +97,8 @@ const subtitleOf = (sample: SampleForm): string => {
  * 모바일은 제목만 보이는 카드를 눌러 모달에서 고친다(칸이 12개라 카드에 펼치면 읽히지 않는다).
  */
 export const GaseousSection = ({
-  samples, editable, onSampleChange, onAddSample, onRemoveSample, ...shell
+  samples, editable, onSampleChange, onAddSample, onRemoveSample,
+  fieldTone, onFieldFocus, ...shell
 }: Props) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const editingSample = editingIndex == null ? null : samples[editingIndex] ?? null;
@@ -104,13 +108,22 @@ export const GaseousSection = ({
 
     ...GAS_FIELDS.map((f): InputTableColumn<SampleForm> => ({
       kind: "input",
-      header: f.unit ? `${f.label} (${f.unit})` : f.label,
+      // 모바일 모달의 `required` 별표와 같은 표시를 데스크탑 표 머리에도 준다
+      header: (
+        <>
+          {f.unit ? `${f.label} (${f.unit})` : f.label}
+          {isRequired(f.field) && <span className="text-danger">*</span>}
+        </>
+      ),
+      hintLabel: `${f.label} 설명`,
       hint: f.hint,
       width: f.width,
       type: f.type,
       min: f.min,
       step: f.step,
       value: (sample) => sample[f.field],
+      tone: (_, index) => fieldTone(fieldPath.sample(index, f.field)),
+      onFocus: (_, index) => onFieldFocus(fieldPath.sample(index, f.field)),
       onChange: (_, v, index) => onSampleChange(index, { [f.field]: v }),
     })),
 
@@ -213,7 +226,7 @@ export const GaseousSection = ({
               <UnitField
                 key={f.field}
                 label={f.label}
-                required={f.required}
+                required={isRequired(f.field)}
                 hint={f.hint}
                 unit={f.unit}
                 type={f.type}
@@ -221,6 +234,8 @@ export const GaseousSection = ({
                 step={f.step}
                 value={editingSample[f.field]}
                 disabled={!editable}
+                tone={fieldTone(fieldPath.sample(editingIndex, f.field))}
+                onFocus={() => onFieldFocus(fieldPath.sample(editingIndex, f.field))}
                 onChange={(v) => onSampleChange(editingIndex, { [f.field]: v })}
               />
             ))}

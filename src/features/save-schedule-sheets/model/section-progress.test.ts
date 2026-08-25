@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { getDefaultSheetForm } from "./types";
-import type { ExhaustGasVisibility } from "./measured-pollutants";
+import type { AssignedPollutants } from "./measured-pollutants";
 import { getProgressTone, getSectionProgress } from "./section-progress";
 
-const visibility = (over: Partial<ExhaustGasVisibility> = {}): ExhaustGasVisibility => ({
+// 분모 판정의 기준은 **배정 여부**다 — 노출 판정(visiblePollutants)은 화면에만 쓰인다.
+const assigned = (over: Partial<AssignedPollutants> = {}): AssignedPollutants => ({
   thc: false, nox: false, sox: false, ...over,
 });
 
@@ -13,31 +14,31 @@ describe("getSectionProgress — 배출가스 분모", () => {
   const sheet = getDefaultSheetForm("GAS");
 
   it("아무 항목도 배정되지 않으면 3성분과 시작시간만 센다", () => {
-    expect(getSectionProgress(sheet, "exhaust", visibility()).total).toBe(10);
+    expect(getSectionProgress(sheet, "exhaust", assigned()).total).toBe(10);
   });
 
   it("NOx 가 배정되면 회차 3칸이 분모에 더해진다", () => {
-    expect(getSectionProgress(sheet, "exhaust", visibility({ nox: true })).total).toBe(13);
+    expect(getSectionProgress(sheet, "exhaust", assigned({ nox: true })).total).toBe(13);
   });
 
   it("THC·NOx·SOx 가 모두 배정되면 17칸이 된다", () => {
-    const all = visibility({ thc: true, nox: true, sox: true });
+    const all = assigned({ thc: true, nox: true, sox: true });
     expect(getSectionProgress(sheet, "exhaust", all).total).toBe(17);
   });
 
-  it("숨긴 항목의 입력값은 진행도에 반영되지 않는다", () => {
+  it("배정되지 않은 항목의 입력값은 진행도에 반영되지 않는다", () => {
     const withNox = { ...sheet, exhaustGas: { ...sheet.exhaustGas, nox: ["1", "2", "3"] } };
 
-    // 3성분 기본값 9칸은 항상 채워져 있고, 노출 중인 NOx 3칸이 분모·분자 양쪽에 더해진다
-    expect(getSectionProgress(withNox, "exhaust", visibility({ nox: true })))
+    // 3성분 기본값 9칸은 항상 채워져 있고, 배정된 NOx 3칸이 분모·분자 양쪽에 더해진다
+    expect(getSectionProgress(withNox, "exhaust", assigned({ nox: true })))
       .toEqual({ done: 12, total: 13 });
-    // 숨긴 상태면 양쪽 모두에서 빠진다
-    expect(getSectionProgress(withNox, "exhaust", visibility()))
+    // 배정되지 않았으면 양쪽 모두에서 빠진다
+    expect(getSectionProgress(withNox, "exhaust", assigned()))
       .toEqual({ done: 9, total: 10 });
   });
 
   it("NOx·SOx 기본값이 비어 있어 새 기록지의 진행도를 부풀리지 않는다", () => {
-    const all = visibility({ thc: true, nox: true, sox: true });
+    const all = assigned({ thc: true, nox: true, sox: true });
     // 채워진 것은 3성분 기본값 9칸뿐 — NOx·SOx 6칸과 THC 는 비어 있다
     expect(getSectionProgress(sheet, "exhaust", all)).toEqual({ done: 9, total: 17 });
   });

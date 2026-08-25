@@ -58,14 +58,25 @@ const serverSheet = (over: Partial<MeasurementSheet> = {}): MeasurementSheet => 
 });
 
 describe("fromSheet — 서버가 블록을 비워 보낼 때", () => {
-  // 이전 회차 불러오기(SheetReuse)는 그 회차에만 유효한 기상 조건을
-  // 필드가 아니라 weather 블록째 null 로 비워서 내려준다.
+  // 이전 회차 불러오기(SheetReuse)는 그 회차에만 유효한 기상 조건을 비우고 대기압만 남긴다.
+  // 남길 대기압조차 없던 회차는 필드가 아니라 weather 블록째 null 로 내려온다.
   it("weather 가 null 이어도 던지지 않고 기본 기상 폼으로 채운다", () => {
     const form = fromSheet(serverSheet({ weather: null }));
 
     expect(form.weather).toEqual(getDefaultWeatherForm());
     // 나머지 블록은 그대로 읽혀야 한다 — 불러오기의 목적이 이 값들이다.
     expect(form.samplingPoints[0].Ts).toBe("120");
+  });
+
+  it("대기압만 남은 기상 블록은 대기압만 채우고 나머지는 빈 값으로 둔다", () => {
+    const form = fromSheet(serverSheet({
+      weather: {
+        pressure: 1013, weatherCondition: null, temperature: null,
+        humidity: null, windDirection: null, windSpeed: null, pa: null,
+      },
+    }));
+
+    expect(form.weather).toEqual({ ...getDefaultWeatherForm(), pressure: "1013" });
   });
 
   it("moisture 가 null 이어도 기본 수분 폼으로 채운다", () => {

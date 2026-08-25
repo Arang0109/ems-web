@@ -16,47 +16,19 @@ import { scheduleHandlers } from './schedule';
 
 // 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
 export const handlers = [
-  // [ACTIVE]   로그인(role 포함) — 관리자/플랫폼 운영자 콘솔 접근용
   // ...authHandlers,
-
-  // [ACTIVE]   플랫폼 운영자 콘솔 — 고객사 발급/조회
-  // ...tenantHandlers,
-
-  // [ACTIVE]
   // ...dashboardHandlers,
-
-  // [ACTIVE]   측정계획 등록 연쇄 select용 (거래처·사업장)
+  // ...tenantHandlers,
   // ...clientHandlers,
-
-  // [ACTIVE]   측정계획 등록 연쇄 select용 (측정시설)
   // ...stackHandlers,
-
-  // [ACTIVE]
   // ...stackPollutantHandlers,
-
-  // [READY]
   // ...contractHandlers,
-
-  // [ACTIVE]
   // ...pollutantHandlers,
-
-  // [ACTIVE]   플랫폼 운영자 콘솔 — 법정 측정물질 카탈로그.
-            //  store 를 pollutantHandlers 와 공유하므로 함께 켜고 끈다.
   // ...pollutantCatalogHandlers,
-
-  // [ACTIVE]   회원 관리(관리자 페이지) + 팀 사수·부사수 조회
   // ...memberHandlers,
   // ...roleHandlers,
-
-  // [ACTIVE]   문서 관리(관리자 페이지) — 버전 관리·업로드/다운로드
   // ...documentHandlers,
-
-  // [ACTIVE]   측정장비 관리
   // ...equipmentHandlers,
-
-  // [ACTIVE]   팀 관리 + 측정계획 등록 연쇄 select용
   // ...teamHandlers,
-
-  // [ACTIVE]   측정계획 관리
   // ...scheduleHandlers,
 ];

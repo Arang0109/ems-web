@@ -24,7 +24,12 @@ interface Props {
   /** 헤더 우측 슬롯 — 문서 전환 등 뷰어별 액션 */
   toolbar?: React.ReactNode;
 
-  /** 문서의 고정 폭(px). "폭 맞춤" 배율의 기준이 된다 */
+  /**
+   * 문서를 그릴 때 주는 폭(px)이자 **최소 폭**. 배율의 기준은 이 값이 아니라 뷰어가 실측한
+   * 잉크 폭이다 — 문서는 이보다 넓게 그려져도 된다(표의 min-content 가 넘치는 경우가 흔하다).
+   *
+   * 다만 **문서 안에 스크롤 컨테이너를 두면 실측이 그 안쪽을 못 보므로** 두지 말 것.
+   */
   documentWidth: number;
   children: React.ReactNode;
 }
@@ -103,27 +108,56 @@ const DocumentViewport = ({
 
   const [viewportWidth, setViewportWidth] = React.useState(0);
   const [documentHeight, setDocumentHeight] = React.useState(0);
+  // 문서가 실제로 차지하는 폭. 표가 선언 폭을 넘겨 그려지는 일이 흔하므로 눈금을 여기서 얻는다.
+  const [measuredWidth, setMeasuredWidth] = React.useState(0);
   // null 이면 "폭 맞춤" — 화면 회전·창 크기 변경을 그대로 따라간다.
   const [pinnedScale, setPinnedScale] = React.useState<number | null>(null);
 
-  React.useEffect(() => {
+  // 문서 크기는 변환 전 값이다 — transform 은 레이아웃 박스를 바꾸지 않는다.
+  // scrollWidth 는 overflow: visible 인 요소에서도 넘친 자식을 포함하므로 실제 폭을 준다.
+  const measure = React.useCallback(() => {
     const viewport = viewportRef.current;
     const documentEl = documentRef.current;
     if (!viewport || !documentEl) return;
 
-    // 문서 높이는 변환 전 크기다 — transform 은 레이아웃 박스를 바꾸지 않는다.
-    const observer = new ResizeObserver(() => {
-      setViewportWidth(viewport.clientWidth);
-      setDocumentHeight(documentEl.offsetHeight);
-    });
+    setViewportWidth(viewport.clientWidth);
+    setDocumentHeight(documentEl.offsetHeight);
+    setMeasuredWidth(documentEl.scrollWidth);
+  }, []);
+
+  /**
+   * 매 커밋 다시 잰다. 문서 요소의 폭은 `documentWidth` 로 **고정**이라 안의 표가 넓어져도
+   * `ResizeObserver` 의 관측 박스는 그대로다 — 문서를 갈아끼워 내용만 바뀌면(기록지 전환)
+   * 관측만으로는 발화하지 않는다.
+   *
+   * 같은 값으로 `setState` 하면 React 가 리렌더를 건너뛰므로 루프가 되지 않는다.
+   */
+  React.useLayoutEffect(measure);
+
+  React.useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    const documentEl = documentRef.current;
+    if (!viewport || !documentEl) return;
+
+    const observer = new ResizeObserver(measure);
     observer.observe(viewport);
     observer.observe(documentEl);
 
     return () => observer.disconnect();
-  }, []);
+  }, [measure]);
+
+  /**
+   * 배율·상자 크기의 분모. **선언값이 아니라 실측값을 쓴다** — 문서가 `documentWidth` 보다
+   * 넓게 그려지면 남는 폭이 전부 한쪽으로만 생겨 좌우가 어긋난다.
+   * 측정 전 첫 프레임에는 선언값이 폴백으로 남는다.
+   *
+   * 되먹임 루프는 생기지 않는다 — 문서 요소의 폭은 `documentWidth` 로 고정이라
+   * 상자 크기가 바뀌어도 다시 측정되지 않는다.
+   */
+  const contentWidth = Math.max(documentWidth, measuredWidth);
 
   const fitScale =
-    viewportWidth > 0 ? clampScale((viewportWidth - GUTTER * 2) / documentWidth) : 1;
+    viewportWidth > 0 ? clampScale((viewportWidth - GUTTER * 2) / contentWidth) : 1;
   const scale = pinnedScale ?? fitScale;
 
   // 제스처 도중 리스너를 다시 붙이면 시작 배율을 잃는다. 최신 배율은 ref 로만 읽는다.
@@ -209,24 +243,28 @@ const DocumentViewport = ({
         ref={viewportRef}
         className="h-full w-full touch-pan-x touch-pan-y overflow-auto overscroll-contain bg-canvas"
       >
-        {/* 변환된 문서는 자리를 차지하지 않으므로, 배율만큼의 크기를 이 상자가 대신 잡아준다 */}
-        <div
-          style={{
-            width: documentWidth * scale + GUTTER * 2,
-            height: documentHeight * scale + GUTTER * 2,
-            padding: GUTTER,
-            marginInline: "auto",
-          }}
-        >
+        {/* 상자가 뷰포트보다 좁으면 뷰포트 폭(= 상자가 가운데로), 넓으면 상자 폭(= 가로 스크롤).
+            스크롤 컨테이너에서 margin auto 만 쓰면 넘칠 때 왼쪽 여백이 스크롤 영역에 안 잡힌다. */}
+        <div className="w-max min-w-full">
+          {/* 변환된 문서는 자리를 차지하지 않으므로, 배율만큼의 크기를 이 상자가 대신 잡아준다 */}
           <div
-            ref={documentRef}
             style={{
-              width: documentWidth,
-              transform: `scale(${scale})`,
-              transformOrigin: "top left",
+              width: contentWidth * scale + GUTTER * 2,
+              height: documentHeight * scale + GUTTER * 2,
+              padding: GUTTER,
+              marginInline: "auto",
             }}
           >
-            {children}
+            <div
+              ref={documentRef}
+              style={{
+                width: documentWidth,
+                transform: `scale(${scale})`,
+                transformOrigin: "top left",
+              }}
+            >
+              {children}
+            </div>
           </div>
         </div>
       </div>

@@ -22,4 +22,6 @@ export type DocumentVersionTableRow = {
   size: string;
   changeNote: string;
   createdAt: string;
+  /** 마지막 남은 버전은 서버가 삭제를 막으므로 버튼도 비활성한다. */
+  isDeletable: boolean;
 };

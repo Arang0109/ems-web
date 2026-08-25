@@ -16,6 +16,9 @@ interface UseDataTableOptions<TData extends RowData> {
   /** TanStack 자체 타입 재사용 — `createColumnHelper` 의 이종 배열을 그대로 받는다 */
   columns: TableOptions<TData>['columns'];
   pageSize?: number;
+  /** 페이지를 외부(URL 쿼리 등)가 소유할 때. `onPageIndexChange` 와 짝으로 넘긴다 */
+  pageIndex?: number;
+  onPageIndexChange?: (pageIndex: number) => void;
   /** 행 상세보기 콜백. `table.options.meta` 로 주입되어 `RowActionCell` 이 읽는다 */
   onViewDetail?: RowDetailHandler<TData>;
   /** 드물게 필요한 TanStack 옵션 덮어쓰기 (`getRowId` 등) */
@@ -30,10 +33,12 @@ export const useDataTable = <TData extends RowData>({
   data,
   columns,
   pageSize,
+  pageIndex,
+  onPageIndexChange,
   onViewDetail,
   overrides,
 }: UseDataTableOptions<TData>) => {
-  const tableState = useTableState({ pageSize });
+  const tableState = useTableState({ pageSize, pageIndex, onPageIndexChange });
   const { sorting, globalFilter, pagination, setSorting, setGlobalFilter, setPagination } = tableState;
 
   const table = useReactTable({
@@ -50,6 +55,11 @@ export const useDataTable = <TData extends RowData>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+
+    // 페이지를 바깥이 소유하면 자동 리셋을 끈다 — TanStack 은 `data` 참조가 바뀔 때마다
+    // 페이지를 0 으로 되돌리므로(최초 로드·refetch 포함) 복원한 페이지가 곧바로 날아간다.
+    // 대신 조건이 바뀔 때 페이지를 되돌리는 책임은 소유자에게 있다.
+    ...(pageIndex !== undefined && { autoResetPageIndex: false }),
 
     ...overrides,
 

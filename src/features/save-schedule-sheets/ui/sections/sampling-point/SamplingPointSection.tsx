@@ -5,13 +5,13 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { Button } from "@shared/ui/buttons";
 
 import type { ParticleForm, SamplingPointForm } from "../../../model/types";
-import type { SectionShellProps } from "../shell-props";
+import type { FieldStateProps, SectionShellProps } from "../shell-props";
 import { PointCards } from "./PointCards";
 import { PointCommonValues } from "./PointCommonValues";
 import { PointTable } from "./PointTable";
 import { buildPointGroups, display } from "./point-results";
 
-interface Props extends SectionShellProps {
+interface Props extends SectionShellProps, FieldStateProps {
   isParticle: boolean;
   points: SamplingPointForm[];
   particle: ParticleForm;
@@ -37,9 +37,11 @@ interface Props extends SectionShellProps {
 export const SamplingPointSection = ({
   isParticle, points, particle, preview, editable,
   onPointChange, onAddPoint, onRemovePoint, onCopyPreviousPoint,
-  onParticleChange,
+  onParticleChange, fieldTone, onFieldFocus,
   ...shell
 }: Props) => {
+  const fieldState = { fieldTone, onFieldFocus };
+
   const groups = buildPointGroups(isParticle, preview);
 
   return (
@@ -67,6 +69,7 @@ export const SamplingPointSection = ({
       {/* 공통 값(채취 시작시각)은 입자상 기록지에만 있다 */}
       {isParticle && (
         <PointCommonValues
+          {...fieldState}
           particle={particle}
           editable={editable}
           onParticleChange={onParticleChange}
@@ -74,6 +77,7 @@ export const SamplingPointSection = ({
       )}
 
       <PointCards
+        {...fieldState}
         isParticle={isParticle}
         points={points}
         preview={preview}
@@ -84,6 +88,7 @@ export const SamplingPointSection = ({
       />
 
       <PointTable
+        {...fieldState}
         points={points}
         preview={preview}
         groups={groups}

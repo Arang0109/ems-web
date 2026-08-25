@@ -7,11 +7,13 @@ import { Button, IconButton } from "@shared/ui/buttons";
 import { UnitField, CalcResultRow, CalcResultGrid } from "@shared/ui/form";
 
 import { POINT_HINT } from "../../../model/field-hints";
+import { fieldPath } from "../../../model/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { FLOW_FIELDS, ISOKINETIC_FIELDS, VM_RESULT_AFTER, type PointField } from "./point-fields";
 import { display, isokineticResults, toResultItems, vmResult } from "./point-results";
+import type { FieldStateProps } from "../shell-props";
 
-interface Props {
+interface Props extends FieldStateProps {
   isParticle: boolean;
   points: SamplingPointForm[];
   preview: SheetCalcPreview | null;
@@ -39,6 +41,7 @@ const GroupLabel = ({ children }: { children: React.ReactNode }) => (
 export const PointCards = ({
   isParticle, points, preview, editable,
   onPointChange, onRemovePoint, onCopyPreviousPoint,
+  fieldTone, onFieldFocus,
 }: Props) => {
   const vm = vmResult(preview);
 
@@ -49,6 +52,8 @@ export const PointCards = ({
       hint={POINT_HINT[f.field]}
       hintLabel={`${f.name} 설명`}
       value={points[i][f.field]} disabled={!editable}
+      tone={fieldTone(fieldPath.point(i, f.field))}
+      onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
       onChange={(v) => onPointChange(i, { [f.field]: v })}
     />
   );

@@ -20,6 +20,8 @@ export const badgeVariants = cva(
         neutral: 'bg-rule text-ink-soft',
         /** 주의 — "만료 임박" */
         danger: 'bg-danger-soft text-danger',
+        /** 안내 — "불러옴 8" 처럼 오류도 경고도 아닌 참고 표시 */
+        info: 'bg-info-soft text-info-ink',
         /** 확인 필요 */
         warning: 'bg-warning-soft text-warning-ink',
         /** 안내문 — "상태 변경은 이력에 남습니다." */

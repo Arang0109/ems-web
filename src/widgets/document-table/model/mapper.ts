@@ -18,6 +18,7 @@ export const toDocumentRows = (col: Document): DocumentTableRow => ({
 export const toDocumentVersionRows = (
   col: DocumentVersion,
   documentId: number,
+  isDeletable: boolean,
 ): DocumentVersionTableRow => ({
   documentId,
   versionNo: col.versionNo,
@@ -26,4 +27,5 @@ export const toDocumentVersionRows = (
   size: formatFileSize(col.size),
   changeNote: col.changeNote,
   createdAt: formatDateTime(col.createdAt),
+  isDeletable,
 });

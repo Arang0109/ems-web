@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { NozzleRecommendation, SheetCalcPreview } from "@entities/schedule";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@shared/model";
+import type { FieldTone } from "@shared/model";
 import { Drawer } from "@shared/ui/drawer";
 import { CalcResultGrid, InputGroup, UnitField } from "@shared/ui/form";
 import { Tabs } from "@shared/ui/tabs";
@@ -38,6 +39,9 @@ interface Props {
 
   editable: boolean;
   onParticleChange: (patch: Partial<ParticleForm>) => void;
+  /** 노즐 사이즈도 필수 입력이라 섹션 폼과 같은 상태 색을 받는다 */
+  nozzleTone?: FieldTone;
+  onNozzleFocus?: () => void;
 }
 
 const display = (v: number | null): string => (v == null ? "-" : String(v));
@@ -62,7 +66,7 @@ const display = (v: number | null): string => (v == null ? "-" : String(v));
 export const SheetCalcDrawer = ({
   open, onOpenChange, isParticle, particle, points, preview, standardOxygen, visiblePollutants,
   nozzleOptions, recommendations, nozzleEstimate, targetVolume, onTargetVolumeChange,
-  editable, onParticleChange,
+  editable, onParticleChange, nozzleTone, onNozzleFocus,
 }: Props) => {
   const isMobile = useIsMobile();
 
@@ -122,6 +126,8 @@ export const SheetCalcDrawer = ({
         label="노즐 사이즈 (cm)" required options={nozzleOptions} placeholder="노즐 선택"
         hint={PARTICLE_HINT.nozzleSize}
         value={particle.nozzleSize} disabled={!editable}
+        tone={nozzleTone}
+        onFocus={onNozzleFocus}
         onChange={(v) => onParticleChange({ nozzleSize: v })}
       />
 

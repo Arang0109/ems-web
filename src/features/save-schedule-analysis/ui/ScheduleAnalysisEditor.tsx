@@ -19,9 +19,10 @@ interface Props {
 /**
  * 실험분석 탭 본문.
  *
- * 두 저장 경로가 한 화면에 있다. 진행 정보는 계획 문서(PATCH basic-info)로, 항목별 분석 결과는
- * 별도 컬렉션(analyses)으로 간다. 저장 버튼을 하나로 합치지 않은 이유는 두 경로의 실패가
- * 서로를 되돌리지 못하기 때문이다 — 합치면 한쪽만 반영된 상태를 사용자가 알 수 없다.
+ * 저장 경로가 갈라져 있다. 진행 정보는 계획 문서(PATCH basic-info)로, 항목별 채취시간·분석
+ * 결과는 별도 컬렉션(analyses)으로 간다. 진행 정보의 저장 버튼을 아래 표와 합치지 않은 이유는
+ * 두 경로의 실패가 서로를 되돌리지 못하기 때문이다 — 합치면 한쪽만 반영된 상태를 사용자가 알 수 없다.
+ * (표 안의 채취시간·분석 결과는 같은 문서의 칸이라 버튼 하나로 두고 훅이 바뀐 경로만 호출한다.)
  */
 export const ScheduleAnalysisEditor = ({
   scheduleId, status, basicInfo, items, editable, onSaved,
@@ -48,6 +49,7 @@ export const ScheduleAnalysisEditor = ({
         isDirty={analysis.isDirty}
         isLoading={analysis.isLoading}
         filledCount={analysis.filledCount}
+        timeFilledCount={analysis.timeFilledCount}
         onChange={analysis.handleChange}
         onSave={analysis.handleSave}
         onRemove={analysis.handleRemove}

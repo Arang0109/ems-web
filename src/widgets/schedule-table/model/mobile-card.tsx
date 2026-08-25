@@ -12,7 +12,7 @@ import type { ScheduleTableRow } from './types';
  */
 export const scheduleCardConfig: MobileCardConfig<ScheduleTableRow> = {
   title: (row) => row.stackName,
-  subtitle: (row) => `${row.measureDate} | ${row.teamName}`,
+  subtitle: (row) => `${row.measureDate} | ${row.referenceNumber}`,
   status: (row) => <StatusPill status={row.status} />,
   // columns: 1,
   // fields: [

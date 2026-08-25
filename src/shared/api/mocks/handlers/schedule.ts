@@ -31,12 +31,6 @@ type MockSchedule = {
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
-  /** soft delete 시각. null이면 활성 상태다. */
-  deletedAt?: string | null;
-  deletedBy?: number | null;
-  /** 마지막 취소 시각·사유. 서버는 상태 변경 이력에서 뽑지만 목에서는 계획에 직접 붙인다. */
-  canceledAt?: string | null;
-  cancelReason?: string | null;
 };
 
 const now = '2026-07-14T09:00:00';
@@ -66,7 +60,6 @@ let schedules: MockSchedule[] = [
     id: 5, stackId: 5, teamId: 1, measurementField: 'AIR', sampledAt: daysFromToday(-20),
     status: 'CANCELED', schedulePurpose: 'REFERENCE', referenceNumber: null,
     workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 176', teamName: '대기측정 1팀', createdAt: now,
-    canceledAt: `${daysFromToday(-18)}T10:00:00`, cancelReason: '의뢰기관 요청으로 측정 일정 취소',
   },
 ];
 
@@ -159,12 +152,8 @@ const computeSheet = (sheet: LooseSheet): LooseSheet => {
 };
 
 // 측정계획 상세 스냅샷 구성 (표시·계산 검증에 필요한 최소 트리).
+// 문서의 저장 메타(id·scheduleId·tenantId·status)는 서버 응답에 담기지 않는다 — 최상위 메타가 진실의 원천이다.
 const buildSnapshot = (schedule: MockSchedule) => ({
-  id: `snap-${schedule.id}`,
-  scheduleId: schedule.id,
-  tenantId: 1,
-  referenceNumber: schedule.referenceNumber,
-  status: schedule.status,
   basicInfo: {
     referenceNumber: schedule.referenceNumber,
     sampledAt: schedule.sampledAt,
@@ -277,27 +266,13 @@ const buildScheduleResponse = (schedule: MockSchedule) => ({
   snapshot: buildSnapshot(schedule),
 });
 
-const buildScheduleListResponse = (schedule: MockSchedule) => ({
-  ...schedule,
-  deletedAt: schedule.deletedAt ?? null,
-  deletedBy: schedule.deletedBy ?? null,
-  // 서버와 같이 취소 목록에서만 채운다 — 값은 상태 변경 이력의 마지막 취소 건에서 온다.
-  canceledAt: null as string | null,
-  cancelReason: null as string | null,
-});
-
-
-const buildCanceledScheduleListResponse = (schedule: MockSchedule) => ({
-  ...buildScheduleListResponse(schedule),
-  canceledAt: schedule.canceledAt ?? null,
-  cancelReason: schedule.cancelReason ?? null,
-});
+const buildScheduleListResponse = (schedule: MockSchedule) => ({ ...schedule });
 
 export const scheduleHandlers = [
-  // 목록 조회 — 삭제(감춤)·취소된 계획은 제외한다.
+  // 목록 조회 — 취소된 계획은 제외한다.
   http.get(`${BASE_URL}/schedules`, () => {
     const active = schedules
-      .filter((s) => !s.deletedAt && s.status !== 'CANCELED')
+      .filter((s) => s.status !== 'CANCELED')
       .map(buildScheduleListResponse);
     return HttpResponse.json({ status: true, message: '측정계획 목록 조회 성공', data: active });
   }),
@@ -305,21 +280,15 @@ export const scheduleHandlers = [
   // 취소된 측정계획 목록 — `/schedules/:id` 보다 먼저 등록해야 "canceled"가 id로 잡히지 않는다.
   http.get(`${BASE_URL}/schedules/canceled`, () => {
     const canceled = schedules
-      .filter((s) => !s.deletedAt && s.status === 'CANCELED')
-      .map(buildCanceledScheduleListResponse);
+      .filter((s) => s.status === 'CANCELED')
+      .map(buildScheduleListResponse);
     return HttpResponse.json({ status: true, message: '취소된 측정계획 목록 조회 성공', data: canceled });
-  }),
-
-  // 삭제된 측정계획 목록 (ADMIN) — `/schedules/:id` 보다 먼저 등록해야 "deleted"가 id로 잡히지 않는다.
-  http.get(`${BASE_URL}/schedules/deleted`, () => {
-    const deleted = schedules.filter((s) => s.deletedAt).map(buildScheduleListResponse);
-    return HttpResponse.json({ status: true, message: '삭제된 측정계획 목록 조회 성공', data: deleted });
   }),
 
   // 상세 조회 (스냅샷 포함)
   http.get(`${BASE_URL}/schedules/:id`, ({ params }) => {
     const id = Number(params.id);
-    const schedule = schedules.find((s) => s.id === id && !s.deletedAt);
+    const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
@@ -567,21 +536,14 @@ export const scheduleHandlers = [
     return HttpResponse.json({ status: true, message: '측정계획 성적서 작성 완료 처리 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 취소 — 사유 필수. 취소된 계획은 목록에 남는다(삭제와 다르다).
-  http.post(`${BASE_URL}/schedules/:id/cancellation`, async ({ params, request }) => {
+  // 취소 — 취소된 계획은 목록에 남는다(삭제와 다르다).
+  http.post(`${BASE_URL}/schedules/:id/cancellation`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
 
-    const { reason } = (await request.json()) as { reason?: string };
-    if (!reason?.trim()) {
-      return HttpResponse.json(
-        { status: false, message: '취소 사유를 입력해 주세요.', data: null },
-        { status: 400 },
-      );
-    }
     if (!canTransitionScheduleStatus(schedule.status, 'CANCELED')) {
       return HttpResponse.json(
         { status: false, message: '허용되지 않는 상태 변경입니다.', data: null },
@@ -590,13 +552,11 @@ export const scheduleHandlers = [
     }
 
     schedule.status = 'CANCELED';
-    schedule.canceledAt = new Date().toISOString();
-    schedule.cancelReason = reason.trim();
 
     return HttpResponse.json({ status: true, message: '측정계획 취소 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 삭제(soft delete) — 실측 데이터가 없는 '측정예정'과 '취소'에서만 허용된다.
+  // 삭제(물리 삭제) — 실측 데이터가 없는 '측정예정'과 '취소'에서만 허용되며 되돌릴 수 없다.
   http.delete(`${BASE_URL}/schedules/:id`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
@@ -610,26 +570,21 @@ export const scheduleHandlers = [
         { status: 409 },
       );
     }
-    schedule.deletedAt = new Date().toISOString();
+    // 서버는 메타·세부 문서·실험분석정보를 함께 지운다. 목에서는 계획과 시트를 지운다.
+    schedules = schedules.filter((s) => s.id !== id);
+    delete sheetStore[id];
 
     return HttpResponse.json({ status: true, message: '측정계획 삭제 성공', data: null });
   }),
 
   // 재개방 — 완료·취소를 되돌린다. 돌아갈 단계는 저장된 데이터에서 재도출한다.
-  http.post(`${BASE_URL}/schedules/:id/reopen`, async ({ params, request }) => {
+  http.post(`${BASE_URL}/schedules/:id/reopen`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
 
-    const { reason } = (await request.json()) as { reason?: string };
-    if (!reason?.trim()) {
-      return HttpResponse.json(
-        { status: false, message: '재개방 사유를 입력해 주세요.', data: null },
-        { status: 400 },
-      );
-    }
     if (!canReopenSchedule(schedule.status)) {
       return HttpResponse.json(
         { status: false, message: '완료되었거나 취소된 측정계획만 재개방할 수 있습니다.', data: null },
@@ -640,18 +595,6 @@ export const scheduleHandlers = [
     schedule.status = deriveProgress(schedule.id);
 
     return HttpResponse.json({ status: true, message: '측정계획 재개방 성공', data: buildScheduleResponse(schedule) });
-  }),
-
-  // 복구 (ADMIN)
-  http.post(`${BASE_URL}/schedules/:id/restore`, ({ params }) => {
-    const id = Number(params.id);
-    const schedule = schedules.find((s) => s.id === id);
-    if (!schedule?.deletedAt) {
-      return HttpResponse.json({ status: false, message: '삭제되지 않은 측정계획은 복구할 수 없습니다.', data: null }, { status: 409 });
-    }
-
-    schedule.deletedAt = null;
-    return HttpResponse.json({ status: true, message: '측정계획 복구 성공', data: buildScheduleResponse(schedule) });
   }),
 
   // 등록 (동일 시설·팀·측정일 중복 시 409)

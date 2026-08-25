@@ -50,7 +50,7 @@ const makeSheet = (over: Partial<SheetSave> = {}): SheetSave => ({
 });
 
 const makeExternals = (over: Partial<SheetCalcExternals> = {}): SheetCalcExternals => ({
-  standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
+  stackName: "", standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
   pitotCoefficients: [], deltaH: null, nozzleDiameters: [],
   ...over,
 });

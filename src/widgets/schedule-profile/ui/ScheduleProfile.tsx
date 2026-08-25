@@ -12,6 +12,7 @@ import { MeasurementInfo } from "./children/MeasurementInfo";
 import { EquipmentInfo } from "./children/EquipmentInfo";
 import { SheetInput } from "./children/SheetInput";
 import { AnalysisInput } from "./children/AnalysisInput";
+import { ReportInfo } from "./children/ReportInfo";
 
 export const ScheduleProfile = () => {
   const { scheduleId } = useParams<{ scheduleId: string }>();
@@ -52,7 +53,7 @@ export const ScheduleProfile = () => {
       // 본문이 섹션 카드들로 구성되므로 탭의 카드 셸은 끈다.
       panel: false,
       content: (
-        <SheetInput scheduleId={id} snapshot={snapshot} editable={editable} externals={externals} onSaved={refetch} />
+        <SheetInput scheduleId={id} snapshot={snapshot} status={status} editable={editable} externals={externals} onSaved={refetch} />
       ),
     },
     {
@@ -68,6 +69,15 @@ export const ScheduleProfile = () => {
           editable={editable}
           onRefetch={refetch}
         />
+      ),
+    },
+    {
+      value: "report",
+      label: "성적서",
+      // 본문이 섹션 카드로 구성되므로 탭의 카드 셸은 끈다.
+      panel: false,
+      content: (
+        <ReportInfo scheduleId={id} snapshot={snapshot} editable={editable} onRefetch={refetch} />
       ),
     },
     {
@@ -91,8 +101,8 @@ export const ScheduleProfile = () => {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="text-body-3 text-muted-ink">관리번호</span>
-          <span className="text-body-4 text-ink">{value(snapshot.referenceNumber)}</span>
+          <span className="text-body-3 text-muted-ink">{externals.stackName} | </span>
+          <span className="text-body-4 text-ink">{value(snapshot.basicInfo?.referenceNumber)}</span>
           {status && (
             <StatusDot pill tone={SCHEDULE_STATUS_TONE[status]} label={SCHEDULE_STATUS_LABEL[status]} className="text-body-3" />
           )}

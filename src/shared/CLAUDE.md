@@ -145,8 +145,9 @@ const handleDelete = async () => {
 스텝 이동은 `다음` 이 현재 스텝만 검증하고, 제출은 전체를 검증해 **첫 실패 스텝으로 이동**한다.
 `StepNav` 클릭 이동은 앞뒤 모두 자유롭다 — 등록 폼이지 결제 플로우가 아니다.
 
-`fullScreenOnMobile` 은 여기서만 기본값 `true`(md 미만 전체화면)다.
-기존 `FormDialog` 호출부는 기본값 `false` 라 동작이 바뀌지 않는다.
+`fullScreenOnMobile`(md 미만 전체화면)은 **여기서만 기본값 `true`** 다.
+`FormDialog` 도 같은 prop 을 받지만 기본값이 `false` 라 켜는 호출부만 전체화면이 된다 —
+좁은 화면에서 좌우 여백까지 빼앗기면 못 쓰게 되는 폼(입력 칸이 많거나 표를 품은 `size="lg"`·`"xl"` 폼)에 켠다.
 
 ### 가장자리 오버레이는 `Drawer` — 폼 모달과 갈래가 다르다
 
@@ -180,10 +181,16 @@ const handleDelete = async () => {
 |------|------|
 | `FormDialogShell` 을 쓰지 않는다 | 미저장 이탈 확인·엔터 제출 차단은 **폼**의 장치다. 읽기 전용 문서는 배경 탭·ESC 로 바로 닫히는 편이 맞다 |
 | 푸터를 두지 않는다 | 닫기는 헤더의 ✕ 하나면 된다. 버튼 줄 하나가 문서 세로 영역을 통째로 먹는다 |
-| 문서 컴포넌트는 **고정 폭으로만** 그린다 (`REPORT_DOCUMENT_WIDTH` 등 상수로 노출) | 좁은 화면에 맞춰 표를 접거나 늘리면 종이 기록지와 대조할 수가 없다. 축소는 뷰어의 배율이 맡는다 |
+| 문서 컴포넌트는 **좁은 화면에 맞춰 접거나 늘리지 않는다.** 최소 폭을 상수로 노출한다 (`REPORT_DOCUMENT_WIDTH` 등) | 표를 접으면 종이 기록지와 대조할 수가 없다. 축소는 뷰어의 배율이 맡는다 |
 | 배율은 뷰어가 소유한다 | 기본 "폭 맞춤"(화면 회전을 따라감) + `−`/`+` 버튼 + 핀치·트랙패드 확대. 확대는 **화면 중앙을 기준**으로 스크롤을 되맞춘다 |
 
-`documentWidth` 는 문서의 실제 고정 폭을 그대로 넘긴다 — 폭 맞춤 배율의 분모다.
+`documentWidth` 로는 문서의 **최소 폭**을 넘긴다. 폭 맞춤 배율의 분모는 뷰어가 `scrollWidth` 로
+직접 재며, 이 값은 측정 전 첫 프레임의 폴백이자 하한이다 — **선언값을 분모로 믿으면 안 된다.**
+문서가 선언값보다 넓게 그려지는 순간(표의 min-content 가 넘치는 경우가 흔하다) 남는 폭이 전부
+한쪽으로만 생겨 문서가 가운데에서 밀려난다.
+
+> 대신 **문서 안에 스크롤 컨테이너를 두지 않는다** — 실측이 그 안쪽 넘침을 보지 못해 폭이
+> 조용히 선언값으로 되돌아간다.
 헤더 우측 `toolbar` 슬롯에는 문서 전환처럼 뷰어를 닫지 않고 해야 하는 액션만 둔다.
 
 ### 시각 입력은 `<input type="time">` 이 아니라 `TimeField` 를 쓴다
@@ -287,6 +294,7 @@ open 상태를 직접 소유하고 트리거 클릭으로 토글한다(hover·�
 | `label` | `TableLabelCell` (`th scope="row"`) | 행을 식별하는 이름 |
 | `readonly` | `td` | 고칠 수 없는 원장 값 (참고용) |
 | `input` | `TableInputCell` | 입력 칸. `type="number"`·`"time"` 은 `NumericField`·`TimeField` 로 렌더된다 |
+| `select` | `TableSelectCell` | 정해진 값 중 하나를 고르는 칸(단위 등). 트리거가 버튼이라 `Alt+화살표` 이동에는 끼지 않는다 — 이동은 `Tab` 이 맡는다 |
 | `result` | `TableResultCell` | 자동계산 결과 (회색 배경) |
 | `action` | `td` | 행 삭제 등. `editable` 이 꺼지면 열째로 빠진다 |
 
@@ -344,7 +352,7 @@ const gridNav = useGridNavigation();
 | `TableEmptyState` | 빈 상태 |
 | `RowActionCell` | 행 상세보기 버튼. `table.options.meta.onViewDetail` 을 읽는다 |
 | `SortIcon` | 정렬 방향 아이콘 |
-| `TableLabelCell`, `TableInputCell`, `TableResultCell` | 기록지형(문서형) 테이블 셀. `TableLabelCell` 은 `scope` 로 행 머리·열 머리를 겸한다 |
+| `TableLabelCell`, `TableInputCell`, `TableSelectCell`, `TableResultCell` | 기록지형(문서형) 테이블 셀. `TableLabelCell` 은 `scope` 로 행 머리·열 머리를 겸한다 |
 | `InputTable` | 행=레코드·열=항목인 입력 표의 **조합기** — 열 선언 배열로 조립하고 셀 간 키보드 이동이 붙는다. 위 참조 |
 
 ---

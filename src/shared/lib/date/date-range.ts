@@ -1,4 +1,14 @@
-import { endOfMonth, endOfWeek, format, startOfMonth, startOfWeek, subDays, addDays } from "date-fns";
+import {
+  endOfMonth,
+  endOfWeek,
+  format,
+  isValid,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+  subDays,
+  addDays,
+} from "date-fns";
 
 /**
  * 시작·종료가 모두 확정된 날짜 구간.
@@ -21,6 +31,21 @@ const AROUND_DAYS = 30;
 
 /** `Date` → `yyyy-MM-dd`. 서버 날짜 문자열과 같은 표현으로 맞춰 시간·타임존 영향을 없앤다. */
 export const toDateKey = (date: Date): string => format(date, "yyyy-MM-dd");
+
+/**
+ * `toDateKey` 의 역방향. 쿼리스트링처럼 신뢰할 수 없는 입력을 받으므로
+ * 형식이 어긋나거나 실재하지 않는 날짜(`2026-02-31`)면 `null` 을 돌려준다.
+ *
+ * `new Date('2026-08-01')` 은 UTC 자정으로 해석돼 KST 에서 하루 밀리므로 쓰지 않는다.
+ * `parseISO` 는 날짜만 있는 문자열을 로컬 자정으로 읽는다.
+ */
+export const fromDateKey = (key: string | null | undefined): Date | null => {
+  if (!key) return null;
+
+  const parsed = parseISO(key);
+  // 되돌린 표현이 입력과 같아야 한다 — 굴러간 날짜·패딩 없는 표기를 걸러낸다
+  return isValid(parsed) && toDateKey(parsed) === key ? parsed : null;
+};
 
 /** 프리셋을 기준일(`today`) 기준의 실제 구간으로 변환한다. */
 export const toPresetRange = (preset: DateRangePreset, today: Date): DateRangeValue => {

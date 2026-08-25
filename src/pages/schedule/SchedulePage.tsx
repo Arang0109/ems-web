@@ -1,16 +1,16 @@
-import { useNavigate } from "react-router-dom";
-
-import { useAuth, isAdmin } from "@entities/auth";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { ScheduleTable } from "@widgets/schedule-table";
 
 import { PageLayout } from "@shared/ui/layout";
 import { Button } from "@shared/ui/buttons";
-import { Plus, Trash2, XCircle } from "lucide-react";
+import { Plus, XCircle } from "lucide-react";
+
+import { toScheduleListState } from "./model/list-location";
 
 export const SchedulePage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const location = useLocation();
 
   const goRegister = () => navigate("/schedule/register");
 
@@ -31,18 +31,6 @@ export const SchedulePage = () => {
             취소된 계획
           </Button>
 
-          {/* 삭제(감춤)된 계획의 복구는 관리자만 한다 */}
-          {isAdmin(user?.role) && (
-            <Button
-              className="hidden md:inline-flex"
-              variant="outline"
-              startIcon={Trash2}
-              onClick={() => navigate("/schedule/deleted")}
-            >
-              삭제된 계획
-            </Button>
-          )}
-
           {/* 모바일 — 피그마 MO 시안의 36px 정사각 아이콘 버튼 */}
           <Button
             className="md:hidden"
@@ -57,7 +45,12 @@ export const SchedulePage = () => {
         </>
       }
     >
-      <ScheduleTable onRowClick={(row) => navigate(`/schedule/${row.id}`)} />
+      {/* 조회 조건은 URL 쿼리에 있다 — 상세의 뒤로가기가 보던 목록으로 되돌아오도록 실어 보낸다 */}
+      <ScheduleTable
+        onRowClick={(row) =>
+          navigate(`/schedule/${row.id}`, { state: toScheduleListState(location.search) })
+        }
+      />
     </PageLayout>
   );
 };

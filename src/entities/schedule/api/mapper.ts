@@ -1,3 +1,5 @@
+import { measurementUnitText } from "@shared/model";
+
 import type {
   CreateScheduleRequest, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeStackSnapshotRequestBody,
@@ -5,12 +7,13 @@ import type {
   PreviousSheetResponse,
   PreviousSheetCandidateResponse,
   AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
+  SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from "./dto";
 import type {
   ScheduleCreate, ScheduleDetail, SheetSave, SheetRef,
   ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, BasicInfoUpdate, ScheduleMetaUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate, PreviousSheet, PreviousSheetCandidate,
-  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate,
+  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate, SamplingTimesSave, AnalysisResultsSave,
 } from "../model/types";
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -129,6 +132,14 @@ export const toUpdateItemRequest = (vo: ScheduleItemUpdate): UpdateScheduleItemR
 // 실험분석정보 — 응답은 키 구조가 같아 그대로 채택하고, 요청은 숫자 재변환 없이 passthrough.
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * 측정단위를 서버에 보낼 표기로 맞춘다 — `MG_PER_SM3` 가 아니라 `mg/Sm³`, `PPM` 이 아니라 `ppm`.
+ *
+ * 단위 enum 은 Select 입력을 위한 화면 쪽 사정이고, 서버 계약의 `unit` 은 성적서에 그대로 찍히는
+ * 자유 문자열이다. 이미 표기로 들어온 값은 그대로 통과하며(멱등), enum 이 아닌 값은 손대지 않는다.
+ */
+const toUnitNotation = (unit: string | null): string | null => measurementUnitText(unit) || null;
+
 export const toAnalysisRecord = (dto: AnalysisRecordResponse): AnalysisRecord => dto;
 
 export const toAnalysisRecords = (dtos: AnalysisRecordResponse[]): AnalysisRecord[] => dtos;
@@ -136,14 +147,32 @@ export const toAnalysisRecords = (dtos: AnalysisRecordResponse[]): AnalysisRecor
 export const toCreateAnalysisRequest = (vo: AnalysisRecordCreate): CreateAnalysisRecordRequest => ({
   pollutantId: vo.pollutantId,
   analysisValue: vo.analysisValue,
-  unit: vo.unit,
+  unit: toUnitNotation(vo.unit),
   analysisMethod: vo.analysisMethod,
   analysisEquipment: vo.analysisEquipment,
 });
 
 export const toUpdateAnalysisRequest = (vo: AnalysisRecordUpdate): UpdateAnalysisRecordRequest => ({
   analysisValue: vo.analysisValue,
-  unit: vo.unit,
+  unit: toUnitNotation(vo.unit),
   analysisMethod: vo.analysisMethod,
   analysisEquipment: vo.analysisEquipment,
+});
+
+export const toSaveAnalysisResultsRequest = (vo: AnalysisResultsSave): SaveAnalysisResultsRequest => ({
+  items: vo.items.map((item) => ({
+    pollutantId: item.pollutantId,
+    analysisValue: item.analysisValue,
+    unit: toUnitNotation(item.unit),
+    analysisMethod: item.analysisMethod,
+    analysisEquipment: item.analysisEquipment,
+  })),
+});
+
+export const toSaveSamplingTimesRequest = (vo: SamplingTimesSave): SaveSamplingTimesRequest => ({
+  items: vo.items.map((item) => ({
+    pollutantId: item.pollutantId,
+    samplingStartedAt: item.samplingStartedAt,
+    samplingEndedAt: item.samplingEndedAt,
+  })),
 });

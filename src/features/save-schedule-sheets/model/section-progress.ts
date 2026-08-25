@@ -1,8 +1,8 @@
 import type { BadgeTone } from "@shared/ui/badges";
 
-import type { ExhaustGasVisibility } from "./measured-pollutants";
+import type { AssignedPollutants } from "./measured-pollutants";
+import { getRequiredFields, readField } from "./required-fields";
 import type { SheetForm } from "./types";
-import { isParticleCategory } from "./types";
 
 // 측정 데이터 입력 화면의 섹션 메타 — 섹션 바로가기·이전/다음 이동·진행도 배지가 공유한다.
 // 순서가 곧 이동 순서다.
@@ -47,77 +47,21 @@ export const getProgressTone = ({ done, total }: SectionProgress): BadgeTone => 
   return "warning";
 };
 
-const isFilled = (value: string): boolean => value.trim() !== "";
-
-const progressOf = (values: string[]): SectionProgress => ({
-  done: values.filter(isFilled).length,
-  total: values.length,
-});
-
 /**
  * 섹션별 진행도(입력 완료 수 / 필수 항목 수).
  *
- * 분모는 폼 모델의 "필수 입력" 필드만 센다. 자동계산 결과는 입력이 아니므로 제외하고,
- * 풍향처럼 선택 입력인 필드도 제외한다(피그마 기상정보 배지가 5/5 인 이유).
- * 측정점·시료처럼 개수가 가변인 섹션은 분모도 함께 늘어난다.
- *
- * `visiblePollutants` 는 배출가스 섹션에서 실제로 노출 중인 THC·NOx·SOx 입력칸을 알려준다.
- * 화면에 없는 칸을 분모에 남기면 채울 방법이 없는 배지가 되므로 노출된 것만 센다.
+ * 분모는 {@link getRequiredFields} 에서 **파생**시킨다. 여기서 따로 세면 별표·배지·검증이
+ * 각자 다른 목록을 보게 되어, 제출은 되는데 배지는 미완성인 화면이 만들어진다.
  */
 export const getSectionProgress = (
   sheet: SheetForm,
   id: SheetSectionId,
-  visiblePollutants: ExhaustGasVisibility,
+  assigned: AssignedPollutants,
 ): SectionProgress => {
-  const particle = isParticleCategory(sheet.category);
+  const required = getRequiredFields(sheet, id, assigned);
 
-  switch (id) {
-    case "weather": {
-      const { pressure, temperature, humidity, weatherCondition, windDirection, windSpeed } = sheet.weather;
-      return progressOf([pressure, temperature, humidity, weatherCondition, windDirection, windSpeed]);
-    }
-
-    case "moisture": {
-      const m = sheet.moisture;
-      return progressOf([
-        m.weightBefore, m.weightAfter,
-        m.gasMeterTempIn, m.gasMeterTempOut,
-        m.dryGasVolumeBefore, m.dryGasVolumeAfter,
-        m.gasMeterGaugePressure, m.suctionVelocity,
-      ]);
-    }
-
-    case "exhaust": {
-      const g = sheet.exhaustGas;
-      return progressOf([
-        g.gasAnalyzerStartTime,
-        ...(visiblePollutants.thc ? [g.thcAnalyzerStartTime] : []),
-        ...g.o2, ...g.co2, ...g.co,
-        ...(visiblePollutants.nox ? g.nox : []),
-        ...(visiblePollutants.sox ? g.sox : []),
-      ]);
-    }
-
-    case "point": {
-      const pointValues = sheet.samplingPoints.flatMap((p) =>
-        particle
-          ? [p.Ts, p.Pv, p.Ps, p.inTm, p.outTm, p.samplingTime, p.beforeVm, p.afterVm,
-             p.vacuumGaugePressure, p.finalImpingerTemperature]
-          : [p.Ts, p.Pv, p.Ps],
-      );
-      const particleValues = particle
-        ? [sheet.particle.nozzleSize, sheet.particle.samplingStartTime]
-        : [];
-      return progressOf([...pointValues, ...particleValues]);
-    }
-
-    case "sample":
-      return progressOf([sheet.particle.thimbleFilter, sheet.particle.bgThimbleFilter]);
-
-    case "gaseous":
-      // 바탕시료는 선택 입력이라 분모에서 뺀다.
-      return progressOf(sheet.samples.flatMap((s) => [
-        s.sampleName
-      ]));
-  }
+  return {
+    done: required.filter((path) => readField(sheet, path).trim() !== "").length,
+    total: required.length,
+  };
 };

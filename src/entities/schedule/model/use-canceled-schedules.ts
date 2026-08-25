@@ -5,7 +5,6 @@ import type { ScheduleListItem } from "./types";
 
 /**
  * 취소된 측정계획 목록. 일반 목록에서 빠져 있으므로 전용 화면에서 조회한다.
- * 이 응답에서만 `canceledAt`·`cancelReason` 이 채워진다.
  */
 export const useCanceledSchedules = () => {
   const [data, setData] = useState<ScheduleListItem[]>([]);

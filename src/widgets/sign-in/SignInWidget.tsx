@@ -8,7 +8,7 @@ export const SignInWidget = () => {
       {/* 헤더 */}
       <header className="mb-8 text-center">
         <h1 className="text-h1 text-foreground">
-          EMS
+          Env-Bridge
         </h1>
         <p className="mt-1 text-caption text-muted-foreground">환경측정 업무를 더 쉽고 빠르게</p>
       </header>

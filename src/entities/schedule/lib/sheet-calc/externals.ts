@@ -15,6 +15,7 @@ export const getSheetCalcExternals = (snapshot: ScheduleSnapshot): SheetCalcExte
   const nozzleSpec = equipments.find((e) => e.type === "NOZZLE")?.spec as NozzleSpecDto | null | undefined;
 
   return {
+    stackName: stack?.name ?? null,
     standardOxygen: stack?.standardOxygen ?? null,
     shape: stack?.shape ?? null,
     horizontalLength: stack?.horizontalLength ?? null,

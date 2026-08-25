@@ -13,6 +13,7 @@ export { RowActionCell } from './RowActionCell';
 // 기록지형 테이블 셀 (측정 기록지 등 문서형 화면)
 export { TableLabelCell } from './TableLabelCell';
 export { TableInputCell } from './TableInputCell';
+export { TableSelectCell } from './TableSelectCell';
 export { TableResultCell } from './TableResultCell';
 
 // 행=레코드·열=항목인 입력 표 (셀 안에서 바로 편집 + 키보드 이동)

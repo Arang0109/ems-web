@@ -29,6 +29,22 @@ export type PollutantChipItem = {
 };
 
 /**
+ * 성적서에 실릴 측정항목 한 줄.
+ *
+ * 측정주기로 나누지 않은 **단일 평면 목록**이다 — 성적서의 항목 순서는 계획 전체에 대한
+ * 하나의 순서이고, 그 순서가 곧 기록부 몇 번째 장 어느 칸에 들어갈지를 정하기 때문이다.
+ * `id` 는 `SortableList` 가 요구하는 축이며 측정계획 문서 안에서 유일한 `pollutantId` 를 쓴다.
+ */
+export type ReportItem = {
+  id: number;
+  name: string;
+  allowance: string;
+  /** 산소보정의 기준이 되는 측정시설의 기준산소농도 표기. 없으면 "-" */
+  standardOxygen: string;
+  oxygenApplicable: boolean;
+};
+
+/**
  * 측정주기별 측정항목 묶음.
  *
  * `current` 는 이번 측정계획에 포함된 항목, `others` 는 같은 주기의 나머지 등록 항목이다.

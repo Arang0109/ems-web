@@ -18,10 +18,6 @@ export type ScheduleListResponse = {
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
-  deletedAt: string | null;         // 삭제된 계획 목록에서만 채워진다
-  deletedBy: number | null;
-  canceledAt: string | null;        // 취소된 계획 목록에서만 채워진다 (마지막 취소 시각)
-  cancelReason: string | null;
 };
 
 export type CreateScheduleRequest = {
@@ -54,12 +50,9 @@ export type ScheduleResponse = {
   snapshot: ScheduleSnapshotDto;
 };
 
+// 문서의 저장 메타(id·scheduleId·tenantId·status·version)는 서버가 내려보내지 않는다.
+// 같은 값이 ScheduleResponse 최상위에 있고 그쪽이 진실의 원천이다(메타는 MySQL, 스냅샷은 사본).
 export type ScheduleSnapshotDto = {
-  id: string;
-  scheduleId: number;
-  tenantId: number;
-  referenceNumber: string | null;
-  status: ScheduleStatus;
   basicInfo: BasicInfoDto;
   team: TeamSnapshotDto;
   client: ClientSnapshotDto;
@@ -258,7 +251,8 @@ export type MeasurementSheetDto = {
 
 // 서버가 내려주는 시트. 서버 도메인(MeasurementSheet)의 블록은 전부 nullable 참조라
 // 값이 아니라 블록 자체가 비어서 올 수 있다 — 이전 회차 불러오기(SheetReuse)는 그 회차에만
-// 유효한 기상 조건을 weather: null 로 비워서 준다. 읽기 경로는 반드시 블록 null 을 방어해야 한다.
+// 유효한 기상 조건을 비우고 대기압만 남기는데, 그 대기압조차 없으면 weather: null 로 준다.
+// 읽기 경로는 반드시 블록 null 을 방어해야 한다.
 export type MeasurementSheetResponse =
   Omit<MeasurementSheetDto, "weather" | "moisture" | "exhaustGas" | "samplingPoints" | "samples"> & {
     weather: WeatherDataDto | null;
@@ -402,7 +396,9 @@ export type SaveSheetsRequest = {
 // 회차 고유값(시료번호·채취 시각·기상·version)은 서버가 비워서 내려준다 —
 // 특히 version 이 null 인 것은 옛 버전을 되돌려 보내면 저장이 409 로 거부되기 때문이다.
 // 이미 서버에 있는 시트를 덮어쓸 때는 호출부가 현재 시트의 version 을 다시 넣어야 한다.
-// 기상은 필드 단위가 아니라 weather 블록 자체가 null 로 온다.
+// 기상은 대기압(pressure)만 남고 나머지 필드는 null 이다 — 대기압은 그날 날씨보다 굴뚝이 놓인
+// 지역의 고도에 좌우되어 회차가 바뀌어도 크게 움직이지 않는다. 대기압이 없던 회차는 weather
+// 블록 자체가 null 로 온다.
 //
 // 불러올 기록이 없으면 응답의 data 자체가 null 이다(첫 회차이거나 그 기록지를 처음 쓰는 경우).
 export type PreviousSheetResponse = {
@@ -488,6 +484,14 @@ export type ChangeScheduleItemsRequest = {
   pollutantIds: number[];
 };
 
+// 측정항목 순서 변경 — PUT /schedules/{id}/items/order
+// 배열 순서가 곧 성적서의 항목 표기 순서다. 기록부 서식은 한 장에 실리는 항목 수가 정해져 있어
+// (대기측정기록부 4개) 템플릿이 items[0]~items[3] 처럼 인덱스로 칸을 지목한다.
+// orderedPollutantIds 는 이 계획의 측정항목 전체여야 하며, 집합이 서버와 다르면 저장이 거절된다.
+export type ReorderScheduleItemsRequest = {
+  orderedPollutantIds: number[];
+};
+
 // 측정항목 정정 — PATCH /schedules/{id}/items/{pollutantId}
 // 이 회차 문서에 담긴 측정항목 하나의 측정 조건만 바로잡는다(어느 물질인지는 경로가 정한다).
 // 측정시설 원장(stack-pollutant)은 바뀌지 않으므로, 원장까지 고치려면 그쪽 API를 따로 호출한다.
@@ -531,27 +535,23 @@ export type UpdateScheduleRequest = {
 };
 
 // ─────────────────────────────────────────────────────────────
-// 생애주기 — 완료 / 취소 / 재개방 / 상태 이력
+// 생애주기 — 완료 / 취소 / 재개방
 //
 // 전진(측정중·분석중)은 채취 시작시각·실측값·시료접수일 입력 시 서버가 자동 처리하므로 요청 계약이 없다.
-// 완료(POST /completion)와 복구(POST /restore)는 본문이 없고, 취소·재개방만 사유를 받는다.
+// 완료·취소·재개방·삭제는 모두 본문이 없어 요청 타입도 없다 — 상태 변경 이력을 남기지 않으므로
+// 취소·재개방 사유도 받지 않는다.
 // ─────────────────────────────────────────────────────────────
-
-/** 측정계획 취소 — POST /schedules/{id}/cancellation. 서버에서 사유가 필수(@NotBlank)다. */
-export type CancelScheduleRequest = {
-  reason: string;
-};
-
-/** 완료 재개방 — POST /schedules/{id}/reopen (ADMIN). 서버에서 사유가 필수(@NotBlank)다. */
-export type ReopenScheduleRequest = {
-  reason: string;
-};
 
 // ─────────────────────────────────────────────────────────────
 // 실험분석정보 — /schedules/{scheduleId}/analyses (MongoDB, 측정항목 1건 = 문서 1건)
 //
 // 시트(현장 실측)와 다른 애그리거트다. 허용기준치·산소보정 적용 여부는 등록 시 서버가
 // 측정 시점 스냅샷(items)에서 복사하므로 요청에 담지 않으며, 수정 대상도 아니다.
+//
+// 한 문서를 두 탭이 필드를 나눠 소유한다 — 실험·분석 탭은 실험실 입력값(analysisValue·unit·
+// analysisMethod·analysisEquipment)만, 성적서 탭은 채취시간(samplingStartedAt·samplingEndedAt)만
+// 쓴다. 저장 경로도 갈라져 있어(PUT /{analysisId} vs PUT /sampling-times) 두 탭을 동시에 열어도
+// 서로의 입력을 덮어쓰지 않는다.
 // ─────────────────────────────────────────────────────────────
 
 export type AnalysisRecordResponse = {
@@ -566,14 +566,17 @@ export type AnalysisRecordResponse = {
   unit: string | null;              // 측정단위
   analysisMethod: string | null;    // 측정분석방법
   analysisEquipment: string | null; // 분석장비
+  samplingStartedAt: string | null; // 채취 시작시각 ("HH:mm:ss") — 성적서 탭 작성분
+  samplingEndedAt: string | null;   // 채취 종료시각 ("HH:mm:ss") — 성적서 탭 작성분
   createdAt: string;
   modifiedAt: string;
 };
 
+/** 측정분석값은 필수가 아니다 — 성적서 탭이 채취시간만 먼저 저장해 둔 문서가 정상 상태다. */
 export type CreateAnalysisRecordRequest = {
   pollutantId: number;
-  analysisValue: number;
-  unit: string | null;
+  analysisValue: number | null;
+  unit: string | null;             // 측정단위 표기("ppm"·"mg/Sm³") — enum 값이 아니다
   analysisMethod: string | null;
   analysisEquipment: string | null;
 };
@@ -581,7 +584,46 @@ export type CreateAnalysisRecordRequest = {
 /** 전달하지 않은(null) 필드는 서버가 기존 값을 유지한다. 측정항목은 바꿀 수 없다. */
 export type UpdateAnalysisRecordRequest = {
   analysisValue: number | null;
-  unit: string | null;
+  unit: string | null;             // 측정단위 표기("ppm"·"mg/Sm³") — enum 값이 아니다
   analysisMethod: string | null;
   analysisEquipment: string | null;
+};
+
+/**
+ * 성적서 항목별 채취시간 일괄 저장 — PUT /schedules/{scheduleId}/analyses/sampling-times
+ *
+ * 전달한 항목만 갱신하며, 요청에 없는 항목의 채취시간은 서버 값이 그대로 남는다.
+ * 반대로 **전달한 항목의 null 시각은 "지웠다"는 뜻**이라 기존 값을 비운다(수정 PUT 과 규칙이 다르다).
+ * 실험실 입력값은 이 경로로 바뀌지 않는다.
+ *
+ * 채취시간은 현장 채취 기록지에서 자동으로 옮겨오지 않는다 — 기록지는 알데히드류를 VOCs 로
+ * 통칭해 시료 한 건으로 적지만 성적서는 항목마다 따로 쓰기 때문이다(시료 1건 ↔ 항목 N건).
+ */
+export type SaveSamplingTimesRequest = {
+  items: SamplingTimeEntryDto[];
+};
+
+/**
+ * 항목별 실험분석 결과 일괄 저장 — PUT /schedules/{scheduleId}/analyses/results
+ *
+ * 측정물질을 키로 upsert 한다. 문서 id로 신규·기존을 가리지 않으므로, 성적서 탭이 먼저 문서를
+ * 만들어 둔 뒤에도 409 없이 저장된다. 채취시간은 이 경로로 바뀌지 않는다(성적서 탭 소유).
+ * 전달한 항목의 null 은 "기존 값 유지"가 아니라 "지움"이다.
+ */
+export type SaveAnalysisResultsRequest = {
+  items: AnalysisResultEntryDto[];
+};
+
+export type AnalysisResultEntryDto = {
+  pollutantId: number;
+  analysisValue: number | null;
+  unit: string | null;             // 측정단위 표기("ppm"·"mg/Sm³") — enum 값이 아니다
+  analysisMethod: string | null;
+  analysisEquipment: string | null;
+};
+
+export type SamplingTimeEntryDto = {
+  pollutantId: number;
+  samplingStartedAt: string | null; // "HH:mm:ss"
+  samplingEndedAt: string | null;   // "HH:mm:ss"
 };

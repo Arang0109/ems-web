@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { DeleteCell, ReasonCell, TextCell } from "../ui/Cells";
+import { DeleteCell, TextCell } from "../ui/Cells";
 import type { CanceledScheduleTableRow } from "./types";
 
 const columnHelper = createColumnHelper<CanceledScheduleTableRow>();
@@ -16,7 +16,5 @@ export const defaultColumns = [
   columnHelper.accessor('workplaceName', { header: '사업장', cell: TextCell }),
   columnHelper.accessor('stackName', { header: '배출구', cell: TextCell }),
   columnHelper.accessor('teamName', { header: '팀', cell: TextCell }),
-  columnHelper.accessor('canceledDate', { header: '취소일', cell: TextCell, size: 70 }),
-  columnHelper.accessor('cancelReason', { header: '취소 사유', cell: ReasonCell }),
   columnHelper.display({ id: 'actions', header: '', cell: DeleteCell, size: 80 }),
 ];

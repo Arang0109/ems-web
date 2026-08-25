@@ -4,12 +4,13 @@ import { HelpTip } from "@shared/ui/tooltip";
 
 import { EXHAUST_GAS_HINT } from "../../model/field-hints";
 import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
+import { fieldPath } from "../../model/required-fields";
 import type { ExhaustGasForm, GasColumnKey } from "../../model/types";
 import { GAS_READING_COUNT } from "../../model/types";
 import { visibleGasRows } from "./exhaust-gas-rows";
-import { FIELD_GRID, type SectionShellProps } from "./shell-props";
+import { FIELD_GRID, type FieldStateProps, type SectionShellProps } from "./shell-props";
 
-interface Props extends SectionShellProps {
+interface Props extends SectionShellProps, FieldStateProps {
   exhaustGas: ExhaustGasForm;
   /** 측정항목에 배정돼 입력칸을 열어 둘 오염물질 */
   visiblePollutants: ExhaustGasVisibility;
@@ -20,7 +21,7 @@ interface Props extends SectionShellProps {
 
 export const ExhaustGasSection = ({
   exhaustGas, visiblePollutants,
-  editable, onChange, onReadingChange, ...shell
+  editable, onChange, onReadingChange, fieldTone, onFieldFocus, ...shell
 }: Props) => {
   const gasRows = visibleGasRows(visiblePollutants);
 
@@ -33,15 +34,19 @@ export const ExhaustGasSection = ({
     >
       <div className={FIELD_GRID}>
         <UnitField
-          label="가스분석기 측정 시작시간" required type="time"
+          label="가스분석기 측정 시작시간" type="time"
           hint={EXHAUST_GAS_HINT.gasAnalyzer}
           value={exhaustGas.gasAnalyzerStartTime} disabled={!editable}
+          tone={fieldTone(fieldPath.exhaustTime("gasAnalyzerStartTime"))}
+          onFocus={() => onFieldFocus(fieldPath.exhaustTime("gasAnalyzerStartTime"))}
           onChange={(v) => onChange({ gasAnalyzerStartTime: v })}
         />
         {visiblePollutants.thc && (
           <UnitField
             label="THC 측정 시작시간" required type="time"
             value={exhaustGas.thcAnalyzerStartTime} disabled={!editable}
+            tone={fieldTone(fieldPath.exhaustTime("thcAnalyzerStartTime"))}
+            onFocus={() => onFieldFocus(fieldPath.exhaustTime("thcAnalyzerStartTime"))}
             onChange={(v) => onChange({ thcAnalyzerStartTime: v })}
           />
         )}
@@ -61,6 +66,8 @@ export const ExhaustGasSection = ({
                 key={row.key}
                 label={row.label} required unit={row.unit} type="number" min={0} step={0.1}
                 value={exhaustGas[row.key][i] ?? ""} disabled={!editable}
+                tone={fieldTone(fieldPath.exhaustReading(row.key, i))}
+                onFocus={() => onFieldFocus(fieldPath.exhaustReading(row.key, i))}
                 onChange={(v) => onReadingChange(row.key, i, v)}
               />
             ))}

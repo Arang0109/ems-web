@@ -115,7 +115,8 @@ const fromColumn = (values: number[] | undefined): string[] =>
   Array.from({ length: GAS_READING_COUNT }, (_, i) => toFormValue(values?.[i]));
 
 // 서버는 블록 자체를 비워서 줄 수 있다 — 이전 회차 불러오기는 그 회차에만 유효한 기상 조건을
-// weather: null 로 내려준다. 블록이 없으면 신규 시트와 같은 상태이므로 기본 폼으로 채운다.
+// 비우고 대기압만 남기는데, 남길 대기압조차 없으면 weather: null 로 준다.
+// 블록이 없으면 신규 시트와 같은 상태이므로 기본 폼으로 채운다.
 export const fromSheet = (sheet: MeasurementSheet): SheetForm => ({
   category: sheet.category,
   version: sheet.version,

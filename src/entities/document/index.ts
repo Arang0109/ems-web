@@ -22,4 +22,5 @@ export { useRegisterDocumentAction } from './model/use-register-document-action'
 export { useAddDocumentVersionAction } from './model/use-add-document-version-action';
 export { useUpdateDocumentAction } from './model/use-update-document-action';
 export { useDeleteDocumentAction } from './model/use-delete-document-action';
+export { useDeleteDocumentVersionAction } from './model/use-delete-document-version-action';
 export { useDownloadDocumentAction } from './model/use-download-document-action';

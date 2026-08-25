@@ -83,16 +83,12 @@ export const MeasurementInfo = ({
   const editingStackPollutantId =
     stackPollutants.find((row) => row.pollutant.id === editingPollutantId)?.id ?? null;
 
-  const totalItemCount = groups.reduce(
-    (acc, group) => acc + group.current.length + group.others.length,
-    0,
-  );
-
   return (
     <div className="space-y-4">
       <SectionAccordion
         title="사전 정보"
         action={editAction("사전 정보 수정", () => setBasicInfoEditOpen(true))}
+        defaultOpen={true}
       >
         <DetailGrid>
           <DetailRow label="관리번호" value={value(basicInfo.referenceNumber)} />
@@ -111,7 +107,6 @@ export const MeasurementInfo = ({
 
       <SectionAccordion
         title="측정항목"
-        subtitle={<span className="text-body-4 text-brand-dark">{totalItemCount}개</span>}
         action={editAction("측정항목 수정", () => setItemsEditOpen(true))}
         defaultOpen
       >

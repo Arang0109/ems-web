@@ -10,13 +10,18 @@ import type { ScheduleBasicInfoForm, SheetForm } from "../../model/types";
 import {
   calcMoistureSamplingMinutes, getGasAnalyzerEndTime, getThcAnalyzerEndTime,
 } from "../../model/derived-times";
+import { calcWallDistances, getSectionRadiusCm } from "../../model/wall-distances";
+import { StackCrossSection } from "./StackCrossSection";
 
 // 종이 기록지(대기시료 채취기록지) 재현 — 표시 전용. 구버전 ReportPreviewContent 이식.
 
 /**
- * 기록지의 고정 폭(px). 23열이 뭉개지지 않는 최소 폭이며, 이 값보다 좁혀서 그리지 않는다.
+ * 기록지의 **최소** 폭(px). 23열이 뭉개지지 않는 하한이며, 이 값보다 좁혀서 그리지 않는다.
  * 화면이 좁을 때 줄이는 것은 뷰어(`DocumentViewerDialog`)의 배율이 맡는다 —
  * 표를 접거나 늘리면 종이 기록지와 대조할 수가 없다.
+ *
+ * 실제 폭은 이보다 넓을 수 있다. 머리 셀(`TableLabelCell`)이 `whitespace-nowrap` 이라
+ * 표의 min-content 가 이 값을 넘기기 때문이며, 그 실측은 뷰어가 한다.
  */
 export const REPORT_DOCUMENT_WIDTH = 800;
 
@@ -33,10 +38,12 @@ const VCell = ({
   children, colSpan, rowSpan,
 }: { children?: React.ReactNode; colSpan?: number; rowSpan?: number }) => (
   <td colSpan={colSpan} rowSpan={rowSpan}
-    className="border border-border p-1 text-center align-middle">
+    className="border border-border p-1 text-center align-middle bg-surface">
     {children}
   </td>
 );
+
+const hrToMin = (v: number | null | undefined): number => v == null || Number.isNaN(v) ? 0 : v/60;
 
 const fmt = (v: number | null | undefined, scale: number): string =>
   v == null || Number.isNaN(v) ? "" : v.toFixed(scale);
@@ -57,6 +64,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
   const { basicInfo, client, items } = snapshot;
   const stack = client.workplace.stack;
   const preventionName = stack.preventions?.[0]?.name ?? "방지시설 설치의무 면제";
+  const preventionCapacity = stack.preventions?.[0]?.capacity ?? "-";
 
   const isParticle = sheet.category !== "GAS";
   const points = sheet.samplingPoints;
@@ -66,24 +74,18 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
   const samplerSpec = snapshot.equipments?.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as
     | ParticleSamplerSpec | null | undefined;
 
-  // 연도 직경·벽면거리 (원형: r − r·√((2i−1)/2n), cm)
-  const pointCnt = points.length;
-  const d = stack.shape === "CIRCULAR" ? stack.horizontalLength : stack.verticalLength;
-  const r = d == null ? null : d / 2;
-  const wallDistances: string[] = [];
-  let stackLength: string;
-  if (stack.shape === "CIRCULAR") {
-    for (let i = 1; i <= pointCnt; i++) {
-      if (r != null && pointCnt > 0) {
-        wallDistances.push(((r - r * Math.sqrt((2 * i - 1) / (2 * pointCnt))) * 100).toFixed(1));
-      }
-    }
-    stackLength = stack.horizontalLength != null ? stack.horizontalLength.toFixed(3) : "";
-  } else {
-    if (r != null) wallDistances.push((r * 100).toFixed(1));
-    stackLength = stack.horizontalLength != null && stack.verticalLength != null
-      ? `${stack.horizontalLength.toFixed(3)} × ${stack.verticalLength.toFixed(3)}` : "";
-  }
+  // 연도 직경·벽면거리 — 벽면거리 행과 단면 도형이 같은 값을 쓴다
+  const section = {
+    shape: stack.shape,
+    horizontalLength: stack.horizontalLength,
+    verticalLength: stack.verticalLength,
+  };
+  const radiusCm = getSectionRadiusCm(section);
+  const wallDistances = calcWallDistances(section, points.length);
+  const stackLength = stack.shape === "CIRCULAR"
+    ? (stack.horizontalLength != null ? stack.horizontalLength.toFixed(3) : "")
+    : (stack.horizontalLength != null && stack.verticalLength != null
+      ? `${stack.horizontalLength.toFixed(3)} × ${stack.verticalLength.toFixed(3)}` : "");
 
   // 평균값 (기록지 평균행)
   const avgTs = quantity?.avgTg == null ? null : quantity.avgTg - 273;
@@ -91,12 +93,21 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
   const avgVacuum = avgOf(points.map((p) => p.vacuumGaugePressure));
   const avgFinalImpinger = avgOf(points.map((p) => p.finalImpingerTemperature));
 
-  // 가스흡입량 — 마지막 채취 후 지시량을 표준상태로 환산
-  const lastAfterVm = [...points].reverse().map((p) => toNumberOrNull(p.afterVm)).find((v) => v != null) ?? null;
+  // 총 채취량(m³) — 지점별 (채취 후 − 채취 전) 의 합. 마지막 지시량 자체가 아니다.
+  const totalVm = particleCalc?.totalVm ?? null;
+
+  // 가스흡입량 — 총 채취량을 표준상태로 환산
   const suctionVolume = (() => {
-    if (lastAfterVm == null || avgTmC == null || preview?.weather.pa == null || particleCalc?.avgOrificeDp == null) return null;
+    if (totalVm == null || avgTmC == null || preview?.weather.pa == null || particleCalc?.avgOrificeDp == null) return null;
     const deltaHmmHg = particleCalc.avgOrificeDp / 13.6;
-    return lastAfterVm * (273 / (273 + avgTmC)) * ((preview.weather.pa + deltaHmmHg) / 760);
+    return totalVm * (273 / (273 + avgTmC)) * ((preview.weather.pa + deltaHmmHg) / 760);
+  })();
+
+  // 흡입유량(L/min) — 총 채취량 ÷ 총 채취시간
+  const suctionFlowRate = (() => {
+    const minutes = particleCalc?.totalSamplingTime ?? null;
+    if (totalVm == null || minutes == null || minutes === 0) return null;
+    return (totalVm * 1000) / minutes;
   })();
 
   const startVolume = toNumberOrNull(points[0]?.beforeVm ?? "");
@@ -119,8 +130,13 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
     ? WIND_DIRECTION_LABEL[sheet.weather.windDirection as WindDirection] : "-";
 
   return (
-    /* 폭은 항상 REPORT_DOCUMENT_WIDTH 고정 — 가로 스크롤·축소는 뷰어가 배율로 처리한다 */
-    <div className="bg-background p-4" style={{ width: REPORT_DOCUMENT_WIDTH }}>
+    /* 종이는 표를 정확히 감싼다 — 폭을 상수에 묶어 두면 머리 셀(whitespace-nowrap)이 밀어낸
+       만큼 표만 오른쪽으로 삐져나가 좌우가 어긋난다. 좁은 화면에 맞춰 줄이는 것은 뷰어의 배율이 맡는다.
+       bg-surface 인 이유 — `--background` 는 뷰어 배경(`--canvas`)과 같은 값이라 종이가 보이지 않는다. */
+    <div
+      className="bg-surface p-4"
+      style={{ minWidth: REPORT_DOCUMENT_WIDTH, width: "min-content" }}
+    >
       <h1 className="mb-3 text-center text-h1 tracking-widest">
         대기시료 채취기록지
       </h1>
@@ -146,20 +162,25 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>업 체 명</TableLabelCell>
               <VCell colSpan={5}>{client.workplace.name}</VCell>
               <VCell rowSpan={5} colSpan={6}>
-                <div className="mb-1">굴뚝높이: {stack.height?.toFixed(1) ?? "-"} m</div>
+                <div className="mb-1">굴뚝높이: {formatNumber(stack.height, {minDecimals:1})} m</div>
                 <div className="mb-1">굴뚝단면 및 측정점 배열</div>
-                <div className="w-24 h-24 border-2 border-border rounded-full mx-auto flex items-center justify-center text-muted-foreground">
-                  ○
-                </div>
+                <StackCrossSection
+                  shape={stack.shape}
+                  orientation={stack.orientation}
+                  wallDistances={wallDistances}
+                  radiusCm={radiusCm}
+                  horizontalLength={stack.horizontalLength}
+                  verticalLength={stack.verticalLength}
+                />
               </VCell>
               <TableLabelCell colSpan={3}>대기온도</TableLabelCell>
-              <VCell colSpan={2}>{sheet.weather.temperature || "-"} <i>°C</i></VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.weather.temperature, {minDecimals:1})} <i>°C</i></VCell>
               <TableLabelCell colSpan={2}>습 도</TableLabelCell>
-              <VCell colSpan={1}>{sheet.weather.humidity || "-"} <i>%</i></VCell>
+              <VCell colSpan={1}>{formatNumber(sheet.weather.humidity, {minDecimals:1})} <i>%</i></VCell>
             </tr>
             <tr>
               <TableLabelCell colSpan={4}>배 출 시 설</TableLabelCell>
-              <VCell colSpan={5}>{stack.semsNumber}{stack.name ? `(${stack.name})` : ""}</VCell>
+              <VCell colSpan={5}>{stack.semsNumber}({stack.name}) <sub><i>{formatNumber(preventionCapacity)} Sm³/min</i></sub></VCell>
               <TableLabelCell colSpan={3}>풍 향</TableLabelCell>
               <VCell colSpan={2}>{windLabel}</VCell>
               <TableLabelCell colSpan={2}>날 씨</TableLabelCell>
@@ -169,7 +190,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>방지시설명</TableLabelCell>
               <VCell colSpan={5}>{preventionName}</VCell>
               <TableLabelCell colSpan={3}>풍 속</TableLabelCell>
-              <VCell colSpan={2}>{sheet.weather.windSpeed || "-"} <i>m/s</i></VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.weather.windSpeed, {minDecimals:1})} <i>m/s</i></VCell>
               <TableLabelCell colSpan={2}>피토관계수</TableLabelCell>
               <VCell colSpan={1}>{quantity?.Cp?.toFixed(3) ?? "-"}</VCell>
             </tr>
@@ -201,7 +222,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>연도 면적(m²)</TableLabelCell>
               <VCell colSpan={5}>{fmt(quantity?.area, 3) || "-"}</VCell>
               <TableLabelCell colSpan={2}>1지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[0] ?? ""}</VCell>
+              <VCell colSpan={4}>{wallDistances[0]?.toFixed(1) ?? ""}</VCell>
               <TableLabelCell colSpan={3}>O₂ (%)</TableLabelCell>
               <VCell colSpan={2}>{fmt(preview?.exhaustGas.o2Avg, 1)}</VCell>
               <TableLabelCell colSpan={2}>CO₂ (%)</TableLabelCell>
@@ -214,7 +235,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
                 {isParticle ? `측정 ${sheet.particle.thimbleFilter}, 바탕 ${sheet.particle.bgThimbleFilter}` : null}
               </VCell>
               <TableLabelCell colSpan={2}>2지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[1] ?? ""}</VCell>
+              <VCell colSpan={4}>{wallDistances[1]?.toFixed(1) ?? ""}</VCell>
               <TableLabelCell colSpan={3}>누출검사 확인 (mmHg)</TableLabelCell>
               <VCell colSpan={2}>{isParticle ? 381 : "-"}</VCell>
               <TableLabelCell colSpan={2}>배출가스 정압 (mmHg)</TableLabelCell>
@@ -225,7 +246,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>기술책임자 확인</TableLabelCell>
               <VCell colSpan={5}>(서명)</VCell>
               <TableLabelCell colSpan={2}>3지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[2] ?? ""}</VCell>
+              <VCell colSpan={4}>{wallDistances[2]?.toFixed(1) ?? ""}</VCell>
               <TableLabelCell colSpan={5}>흡인노즐 (mm)</TableLabelCell>
               <VCell colSpan={3}>{fmt(toNumber(sheet.particle.nozzleSize) * 10, 2) || "-"}</VCell>
             </tr>
@@ -234,7 +255,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>시료채취자 확인</TableLabelCell>
               <VCell colSpan={5}>{basicInfoForm.mentorName || "-"} (서명)<br />{basicInfoForm.menteeName || "-"} (서명)</VCell>
               <TableLabelCell colSpan={2}>4지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[3] ?? ""}</VCell>
+              <VCell colSpan={4}>{wallDistances[3]?.toFixed(1) ?? ""}</VCell>
               <TableLabelCell colSpan={5}>노즐단면적 (cm²)</TableLabelCell>
               <VCell colSpan={3}>{fmt(nozzleArea, 3) || "-"}</VCell>
             </tr>
@@ -243,7 +264,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={4}>환경기술인</TableLabelCell>
               <VCell colSpan={5}>{basicInfoForm.facilityManager || "-"} (서명)</VCell>
               <TableLabelCell colSpan={2}>5지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[4] ?? ""}</VCell>
+              <VCell colSpan={4}>{wallDistances[4]?.toFixed(1) ?? ""}</VCell>
               <TableLabelCell colSpan={5}>등속흡인계수 (%)</TableLabelCell>
               <VCell colSpan={3}>{fmt(particleCalc?.avgIsokineticRatio, 1)}</VCell>
             </tr>
@@ -254,6 +275,14 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
                 [입자상 물질] &nbsp;&nbsp; 측정시간 (&nbsp;
                 {timeRange(sheet.particle.samplingStartTime, sheet.particle.samplingEndTime)}
                 &nbsp;)
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                흡입유량 : {formatNumber(suctionFlowRate, {maxDecimals:1})} L/min
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                유량 : {formatNumber(hrToMin(quantity?.standardQuantity), {maxDecimals:1})} Sm³/min
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                {/* 이 행은 colSpan 23 짜리 nowrap 셀이라 표 폭을 좌우한다 —
+                    포맷을 거치지 않으면 raw float 한 줄로 문서가 통째로 넓어진다 */}
+                유속 : {formatNumber(quantity?.Vs, {maxDecimals:1})} m/s
               </TableLabelCell>
             </tr>
 
@@ -269,7 +298,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell rowSpan={2} colSpan={2}>여과지홀더 온도</TableLabelCell>
               <TableLabelCell rowSpan={2} colSpan={2}>임핀저<br />출구온도</TableLabelCell>
               <TableLabelCell>채취 전</TableLabelCell>
-              <VCell>{startVolume == null ? "0.00" : formatNumber((startVolume * 1000).toFixed(2))}</VCell>
+              <VCell>{startVolume == null ? "0.00" : formatNumber(startVolume * 1000, {minDecimals:2})}</VCell>
             </tr>
             <tr>
               <TableLabelCell>Ts</TableLabelCell>
@@ -290,17 +319,17 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
                   <TableLabelCell colSpan={2}>{i + 1}번</TableLabelCell>
                   <VCell colSpan={2}>{mp?.samplingTime ?? ""}</VCell>
                   <VCell colSpan={2}>{mp?.vacuumGaugePressure ?? ""}</VCell>
-                  <VCell colSpan={2}>{mp?.Ps ?? ""}</VCell>
-                  <VCell colSpan={2}>{mp?.Pv ?? ""}</VCell>
+                  <VCell colSpan={2}>{formatNumber(mp?.Ps, {minDecimals:1})}</VCell>
+                  <VCell colSpan={2}>{formatNumber(mp?.Pv, {minDecimals:1})}</VCell>
                   <VCell>{mp?.Ts ?? ""}</VCell>
                   <VCell>{mp?.inTm ?? ""}</VCell>
                   <VCell>{mp?.outTm ?? ""}</VCell>
-                  <VCell colSpan={2}>{pc?.kFactor ?? ""}</VCell>
-                  <VCell colSpan={2}>{pc?.orificeDp ?? ""}</VCell>
+                  <VCell colSpan={2}>{formatNumber(pc?.kFactor, {minDecimals:2})}</VCell>
+                  <VCell colSpan={2}>{formatNumber(pc?.orificeDp, {minDecimals:2})}</VCell>
                   <VCell colSpan={2}>{isParticle ? mp?.Ts ?? "" : ""}</VCell>
                   <VCell colSpan={2}>{mp?.finalImpingerTemperature ?? ""}</VCell>
-                  <VCell>{after == null ? "" : formatNumber((after * 1000).toFixed(2))}</VCell>
-                  <VCell>{before != null && after != null ? formatNumber(((after - before) * 1000).toFixed(2)) : ""}</VCell>
+                  <VCell>{after == null ? "" : formatNumber(after * 1000, {minDecimals:2})}</VCell>
+                  <VCell>{before != null && after != null ? formatNumber((after - before) * 1000, {minDecimals:2}) : ""}</VCell>
                 </tr>
               );
             })}
@@ -310,7 +339,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <TableLabelCell colSpan={2}>합 계</TableLabelCell>
               <VCell colSpan={2}>{particleCalc?.totalSamplingTime ?? ""}</VCell>
               <td colSpan={18} className="border border-border bg-muted/40" />
-              <VCell>{lastAfterVm == null ? "" : formatNumber((lastAfterVm * 1000).toFixed(2))}</VCell>
+              <VCell>{totalVm == null ? "" : formatNumber(totalVm * 1000, {minDecimals:2})}</VCell>
             </tr>
 
             {/* 평균 행 */}
@@ -333,7 +362,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
             <tr>
               <TableLabelCell colSpan={4}>[ 수 분 ]</TableLabelCell>
               <TableLabelCell colSpan={2}>수분량(%)</TableLabelCell>
-              <VCell colSpan={3}>{preview?.moisture.xw ?? ""}</VCell>
+              <VCell colSpan={3}>{formatNumber(preview?.moisture.xw, {minDecimals:2})}</VCell>
               <TableLabelCell colSpan={4}>배출가스온도(°C)</TableLabelCell>
               <VCell colSpan={4}>{fmt(avgTs, 1)}</VCell>
               <TableLabelCell colSpan={4}>포화수증기압</TableLabelCell>
@@ -359,14 +388,14 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
             </tr>
             <tr>
               <VCell colSpan={3}>{formatNumber(sheet.moisture.suctionVelocity, { minDecimals: 1 }) || "-"}</VCell>
-              <VCell colSpan={3}>{preview?.moisture.pm_g ?? "-"}</VCell>
-              <VCell colSpan={2}>{sheet.moisture.gasMeterTempIn || "-"}</VCell>
-              <VCell colSpan={2}>{sheet.moisture.gasMeterTempOut || "-"}</VCell>
-              <VCell colSpan={2}>{sheet.moisture.weightBefore || "-"}</VCell>
-              <VCell colSpan={2}>{sheet.moisture.weightAfter || "-"}</VCell>
+              <VCell colSpan={3}>{formatNumber(preview?.moisture.pm_g, {minDecimals:2})}</VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.moisture.gasMeterTempIn, {minDecimals:0})}</VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.moisture.gasMeterTempOut, {minDecimals:0})}</VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.moisture.weightBefore, {minDecimals:2})}</VCell>
+              <VCell colSpan={2}>{formatNumber(sheet.moisture.weightAfter, {minDecimals:2})}</VCell>
               <VCell colSpan={3}>{formatNumber(sheet.moisture.dryGasVolumeBefore, { minDecimals: 1 }) || "-"}</VCell>
               <VCell colSpan={3}>{formatNumber(sheet.moisture.dryGasVolumeAfter, { minDecimals: 1 }) || "-"}</VCell>
-              <VCell colSpan={3}>{fmt(moistureVolume, 1)}</VCell>
+              <VCell colSpan={3}>{fmt(moistureVolume, 0)}</VCell>
             </tr>
 
             {/* ════════ [가스상 및 VOCs 물질] ════════ */}
@@ -410,8 +439,8 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
               <tr key={i}>
                 <VCell colSpan={3}>{sample?.sampleName ?? "-"}</VCell>
                 <VCell colSpan={4}>{sample ? timeRange(sample.startTime, sample.endTime) : ""}</VCell>
-                <VCell>{sample?.suctionQuantity ?? ""}</VCell>
-                <VCell>{sample?.gasMeterGaugePressure ?? ""}</VCell>
+                <VCell>{formatNumber(sample?.suctionQuantity, {minDecimals:1})}</VCell>
+                <VCell>{formatNumber(sample?.gasMeterGaugePressure, {minDecimals:2})}</VCell>
                 <VCell>{sample?.inTemperature ?? ""}</VCell>
                 <VCell>{sample?.outTemperature ?? ""}</VCell>
                 <VCell colSpan={2}>{sample?.beforeVolume ?? ""}</VCell>

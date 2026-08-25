@@ -1,8 +1,8 @@
 import type {
-  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate,
+  AnalysisRecord, AnalysisResultsSave, SamplingTimesSave,
   BasicInfo, BasicInfoUpdate, MeasurementItemSnapshot,
 } from "@entities/schedule";
-import { toNumber, toNumberOrNull, trimValue } from "@shared/lib";
+import { toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
 
 import {
   getDefaultAnalysisProgressForm, toEmptyRow, toSavedRow,
@@ -26,20 +26,41 @@ export const toAnalysisRows = (
   });
 };
 
-// 분석값은 필수, 나머지는 비우면 null(미입력)로 보낸다 — 빈 문자열을 저장하면 "입력했는데 공백"이 된다.
-export const toAnalysisCreate = (row: AnalysisRowForm): AnalysisRecordCreate => ({
-  pollutantId: row.pollutantId,
-  analysisValue: toNumber(row.analysisValue),
-  unit: emptyToNull(row.unit),
-  analysisMethod: emptyToNull(row.analysisMethod),
-  analysisEquipment: emptyToNull(row.analysisEquipment),
+/**
+ * 실험실 입력값의 저장 요청으로 바꾼다. 측정물질을 키로 upsert 하므로
+ * <b>문서 id를 담지 않는다</b> — 신규·기존을 가릴 필요가 없다.
+ *
+ * 비운 칸은 null 로 보내며 서버는 이를 "지웠다"로 읽는다. 빈 문자열을 그대로 저장하면
+ * "입력했는데 공백"이 되어 미입력과 구분되지 않는다.
+ *
+ * <b>넘긴 행만 요청에 담긴다.</b> 호출부는 표 전체가 아니라 기준선과 달라진 행만 넘긴다 —
+ * 빈 행에도 측정항목 원장의 분석방법·장비가 초기값으로 들어 있어, 전부 보내면 손대지 않은
+ * 항목까지 서버에 기록이 생긴다(`useScheduleAnalysis`).
+ */
+export const toAnalysisResultsSave = (rows: AnalysisRowForm[]): AnalysisResultsSave => ({
+  items: rows.map((row) => ({
+    pollutantId: row.pollutantId,
+    analysisValue: toNumberOrNull(row.analysisValue),
+    unit: emptyToNull(row.unit),
+    analysisMethod: emptyToNull(row.analysisMethod),
+    analysisEquipment: emptyToNull(row.analysisEquipment),
+  })),
 });
 
-export const toAnalysisUpdate = (row: AnalysisRowForm): AnalysisRecordUpdate => ({
-  analysisValue: toNumberOrNull(row.analysisValue),
-  unit: emptyToNull(row.unit),
-  analysisMethod: emptyToNull(row.analysisMethod),
-  analysisEquipment: emptyToNull(row.analysisEquipment),
+/**
+ * 채취시간의 저장 요청으로 바꾼다. 같은 행의 실험실 입력값과 <b>경로가 갈라지는</b> 이유는
+ * 서버가 두 필드군의 소유를 나눠 두었기 때문이다 — 이 요청은 시각만 갈아끼우고
+ * 분석값·단위·방법·장비는 건드리지 않는다.
+ *
+ * 비운 칸은 null 로 보내며 서버는 이를 "지웠다"로 읽는다 — 표 전체를 보내므로
+ * 빈 칸은 "미전달"이 아니라 "지웠다"는 뜻이다.
+ */
+export const toSamplingTimesSave = (rows: AnalysisRowForm[]): SamplingTimesSave => ({
+  items: rows.map((row) => ({
+    pollutantId: row.pollutantId,
+    samplingStartedAt: unformatTime(row.samplingStartedAt),
+    samplingEndedAt: unformatTime(row.samplingEndedAt),
+  })),
 });
 
 export const fromBasicInfo = (basicInfo: BasicInfo | null): AnalysisProgressForm => {

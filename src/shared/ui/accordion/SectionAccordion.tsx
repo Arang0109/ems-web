@@ -4,6 +4,20 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge, type BadgeTone } from "@shared/ui/badges";
 
+/** 헤더에 다는 강조 배지 하나 — 무엇을 알릴지는 호출부(도메인)가 정한다 */
+export interface SectionHighlight {
+  label: string;
+  tone: BadgeTone;
+}
+
+/** 강조가 붙은 카드의 테두리 — 첫 배지의 톤을 따른다 */
+const HIGHLIGHT_RING: Partial<Record<BadgeTone, string>> = {
+  brand: "ring-2 ring-brand-primary",
+  info: "ring-2 ring-info",
+  danger: "ring-2 ring-danger",
+  warning: "ring-2 ring-warning",
+};
+
 interface Props {
   title: React.ReactNode;
   children: React.ReactNode;
@@ -14,6 +28,8 @@ interface Props {
   subtitle?: React.ReactNode;
   /** 제목 왼쪽 액션(수정 버튼 등) — 접기 토글과 별개의 인터랙션 */
   action?: React.ReactNode;
+  /** 헤더 우측 액션(펼침 화살표 앞) — 접기 토글과 별개의 인터랙션 */
+  trailing?: React.ReactNode;
   /** 제목 아래 안내문 */
   description?: React.ReactNode;
   /** 헤더 우측 진행도 배지 — 입력 완료 수 / 필수 항목 수 */
@@ -23,10 +39,11 @@ interface Props {
   /** 본문 하단 고정 영역 — 이전/다음 이동 버튼 등 */
   footer?: React.ReactNode;
   /**
-   * 화면 밖에서 방금 갱신된 섹션임을 알리는 배지 문구.
-   * 접혀 있어도 눈에 띄도록 카드 테두리도 함께 강조한다. 오류가 아니라 안내이므로 brand 톤을 쓴다.
+   * 헤더에 다는 강조 배지 목록 — "방금 갱신됨"·"불러옴 8"·"미입력 3" 처럼 여러 개가 겹칠 수 있다.
+   * 접혀 있어도 눈에 띄도록 **첫 배지의 톤으로 카드 테두리도** 함께 강조한다.
+   * 그래서 가장 급한 것을 앞에 둔다.
    */
-  highlightLabel?: string;
+  highlights?: SectionHighlight[];
 
   /** 비제어 초기 상태 */
   defaultOpen?: boolean;
@@ -50,11 +67,12 @@ export const SectionAccordion = ({
   id,
   subtitle,
   action,
+  trailing,
   description,
   progress,
   progressTone = "brand",
   footer,
-  highlightLabel,
+  highlights,
   defaultOpen = false,
   open,
   onOpenChange,
@@ -75,47 +93,48 @@ export const SectionAccordion = ({
       className={cn(
         "overflow-hidden rounded-panel bg-surface shadow-panel ring-1 ring-rule",
         "scroll-mt-4",
-        highlightLabel && "ring-2 ring-brand-primary",
+        highlights?.length && HIGHLIGHT_RING[highlights[0].tone],
         className,
       )}
     >
-      {/* action 은 토글 버튼 밖에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은 마크업이 된다 */}
+      {/* action·trailing 은 토글 버튼 밖에 둔다 — 버튼 안에 버튼을 넣으면 유효하지 않은 마크업이 된다 */}
       <div className="flex items-center gap-2 p-4 md:p-5">
         {action}
         <button
           type="button"
           onClick={toggle}
           aria-expanded={isOpen}
-          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left"
+          className="flex min-w-0 flex-1 flex-col gap-0.5 text-left"
         >
           {/* 제목/보조 설명은 세로로 쌓는다 — 한 줄에 두면 좁은 폭에서 제목이 먼저 잘린다.
               제목에 shrink-0 를 주면 긴 제목이 헤더의 min-content 를 밀어올려
               좁은 화면에서 카드 자체가 안 줄어든다 */}
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="flex min-w-0 items-center gap-2">
-              <span className="min-w-0 truncate text-h3 text-ink">{title}</span>
-              {progress && (
-                <Badge tone={progressTone} className="shrink-0">
-                  {progress.done}/{progress.total}
-                </Badge>
-              )}
-              {highlightLabel && (
-                <Badge tone="brand" className="shrink-0">
-                  {highlightLabel}
-                </Badge>
-              )}
-            </span>
-            {subtitle && (
-              <span className="min-w-0 truncate text-caption text-muted-ink">{subtitle}</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <span className="min-w-0 truncate text-h3 text-ink">{title}</span>
+            {progress && (
+              <Badge tone={progressTone} className="shrink-0">
+                {progress.done}/{progress.total}
+              </Badge>
             )}
+            {highlights?.map((highlight) => (
+              <Badge key={highlight.label} tone={highlight.tone} className="shrink-0">
+                {highlight.label}
+              </Badge>
+            ))}
           </span>
+          {subtitle && (
+            <span className="min-w-0 truncate text-caption text-muted-ink">{subtitle}</span>
+          )}
+        </button>
+
+        {trailing}
+
+        {/* chevron 도 토글이다. trailing 을 사이에 끼우려면 버튼 밖으로 나와야 하므로
+            보조 클릭 영역으로 분리한다 — 상태는 위 버튼의 aria-expanded 가 이미 알린다 */}
+        <button type="button" onClick={toggle} tabIndex={-1} aria-hidden className="shrink-0">
           <ChevronDown
             size={19}
-            aria-hidden
-            className={cn(
-              "shrink-0 text-ink transition-transform duration-300",
-              isOpen && "rotate-180",
-            )}
+            className={cn("text-ink transition-transform duration-300", isOpen && "rotate-180")}
           />
         </button>
       </div>

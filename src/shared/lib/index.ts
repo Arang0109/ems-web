@@ -26,6 +26,7 @@ export {
 export {
   DATE_RANGE_PRESET,
   toDateKey,
+  fromDateKey,
   toPresetRange,
   isWithinDateRange,
   isSameDateRange,

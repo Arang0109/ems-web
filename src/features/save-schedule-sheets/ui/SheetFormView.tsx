@@ -1,7 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
+import { Check } from "lucide-react";
 
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
 import { addMinutes } from "@shared/lib";
+import type { SectionHighlight } from "@shared/ui/accordion";
+import { Button } from "@shared/ui/buttons";
 import { ChipNav } from "@shared/ui/nav";
 import { useRemountKey } from "@shared/model";
 
@@ -16,12 +19,15 @@ import {
 import {
   getProgressTone, getSectionProgress, getVisibleSections, type SheetSectionId,
 } from "../model/section-progress";
+import { fieldPath, getMissingRequiredFields } from "../model/required-fields";
 import type { AssignedPollutants, ExhaustGasVisibility } from "../model/measured-pollutants";
 import { getExhaustGasVisibility, hasSavedExhaustGasValue } from "../model/measured-pollutants";
 import {
   DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate,
 } from "../model/nozzle-estimate";
 import { calcParticleSamplingMinutes } from "../model/derived-times";
+import { checkMoistureWeightGain } from "../model/validator";
+import type { SheetFieldState } from "./sheet-field-state";
 import { WeatherSection } from "./sections/WeatherSection";
 import { MoistureSection } from "./sections/MoistureSection";
 import { ExhaustGasSection } from "./sections/ExhaustGasSection";
@@ -36,6 +42,8 @@ interface Props {
   externals: SheetCalcExternals;
   /** 이 측정계획에 배정된 THC·NOx·SOx — 배출가스 섹션의 입력칸 노출을 결정한다 */
   assignedPollutants: AssignedPollutants;
+  /** 칸 단위 강조(불러온 값·미입력 필수) — 판정 규칙은 SheetsEditor 가 소유한다 */
+  fieldState: SheetFieldState;
   editable: boolean;
   /** 다른 사용자의 저장으로 방금 갱신된 섹션 — 어디가 바뀌었는지 짚어준다 */
   updatedSections?: SheetSectionId[];
@@ -62,7 +70,7 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 });
 
 export const SheetFormView = ({
-  sheet, previewCalc, externals, assignedPollutants, editable, updatedSections,
+  sheet, previewCalc, externals, assignedPollutants, fieldState, editable, updatedSections,
   calcDrawerOpen, onCalcDrawerOpenChange, onChange,
 }: Props) => {
   // 차압 범위 슬라이더는 열릴 때마다 초기 상태로 되돌린다 (희망 흡입량은 아래에서 유지한다)
@@ -91,7 +99,7 @@ export const SheetFormView = ({
 
   // 첫 섹션만 펼친 상태로 시작한다 — 모바일에서 한 번에 한 섹션씩 채우는 흐름.
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => ({
-    weather: true,
+    // weather: true
   }));
 
   const setSectionOpen = useCallback((id: SheetSectionId, open: boolean) => {
@@ -112,8 +120,29 @@ export const SheetFormView = ({
   // 접혀 있는 섹션이 갱신됐을 때도 눈에 띄어야 하므로 배지는 카드 헤더에 붙인다.
   const updated = useMemo(() => new Set(updatedSections ?? []), [updatedSections]);
 
+  /**
+   * 헤더 강조 배지. 카드 테두리는 **첫 배지의 톤**을 따르므로 순서가 곧 우선순위다 —
+   * 화면 밖에서 일어난 일(다른 사용자의 저장)이 먼저고, 그다음이 잘못 들어간 값(법정 범위
+   * 이탈), 마지막이 아직 채우지 않은 빈 칸이다.
+   */
+  const highlightsOf = (id: SheetSectionId, borrowed: number): SectionHighlight[] => {
+    const missing = fieldState.showMissing
+      ? getMissingRequiredFields(sheet, id, assignedPollutants).length
+      : 0;
+    // 섹션을 접어 둔 채로 저장하러 가는 흐름이 흔하므로, 칸 안의 경고를 헤더에도 올린다.
+    const outOfRange = id === "moisture" && checkMoistureWeightGain(sheet.moisture) !== null;
+
+    return [
+      ...(updated.has(id) ? [{ label: "방금 갱신됨", tone: "brand" as const }] : []),
+      ...(outOfRange ? [{ label: "무게차 범위 초과", tone: "danger" as const }] : []),
+      ...(missing > 0 ? [{ label: `미입력 ${missing}`, tone: "danger" as const }] : []),
+      ...(borrowed > 0 ? [{ label: `불러옴 ${borrowed}`, tone: "info" as const }] : []),
+    ];
+  };
+
   const shellProps = (id: SheetSectionId) => {
-    const progress = getSectionProgress(sheet, id, visiblePollutants);
+    const progress = getSectionProgress(sheet, id, assignedPollutants);
+    const borrowedCount = fieldState.borrowedCountOf(id);
 
     return {
       id: sectionDomId(id),
@@ -121,8 +150,25 @@ export const SheetFormView = ({
       onOpenChange: (open: boolean) => setSectionOpen(id, open),
       progress,
       progressTone: getProgressTone(progress),
-      highlightLabel: updated.has(id) ? "방금 갱신됨" : undefined,
+      highlights: highlightsOf(id, borrowedCount),
+      // 불러온 값이 남아 있는 동안만 뜬다 — 접어 둔 섹션에서도 눌러 한 번에 정리할 수 있다.
+      trailing: borrowedCount > 0 ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="xs"
+          onClick={() => fieldState.onAcknowledgeSection(id)}
+        >
+          <Check size={13} />전체 확인
+        </Button>
+      ) : undefined,
     };
+  };
+
+  // 섹션마다 한 벌씩 넘기는 칸 상태 창구 — 판정은 전부 SheetsEditor 가 한다.
+  const fieldProps = {
+    fieldTone: fieldState.fieldTone,
+    onFieldFocus: fieldState.onFieldFocus,
   };
 
   const patchWeather = (patch: Partial<WeatherForm>) =>
@@ -214,20 +260,20 @@ export const SheetFormView = ({
         onSelect={(id) => goToSection(id as SheetSectionId)}
       />
 
-      <WeatherSection {...shellProps("weather")}
+      <WeatherSection {...fieldProps} {...shellProps("weather")}
         weather={sheet.weather} calc={previewCalc?.weather ?? null}
         editable={editable} onChange={patchWeather} />
 
-      <MoistureSection {...shellProps("moisture")}
+      <MoistureSection {...fieldProps} {...shellProps("moisture")}
         moisture={sheet.moisture} calc={previewCalc?.moisture ?? null}
         editable={editable} onChange={patchMoisture} />
 
-      <ExhaustGasSection {...shellProps("exhaust")}
+      <ExhaustGasSection {...fieldProps} {...shellProps("exhaust")}
         exhaustGas={sheet.exhaustGas}
         visiblePollutants={visiblePollutants}
         editable={editable} onChange={patchExhaust} onReadingChange={patchReading} />
 
-      <SamplingPointSection {...shellProps("point")}
+      <SamplingPointSection {...fieldProps} {...shellProps("point")}
         isParticle={particle}
         points={sheet.samplingPoints}
         particle={sheet.particle}
@@ -241,7 +287,7 @@ export const SheetFormView = ({
       />
 
       {particle && (
-        <ThimbleSection {...shellProps("sample")}
+        <ThimbleSection {...fieldProps} {...shellProps("sample")}
           particle={sheet.particle}
           editable={editable}
           onParticleChange={patchParticle}
@@ -249,7 +295,7 @@ export const SheetFormView = ({
       )}
 
       {/* 가스상 물질은 카테고리와 무관하게 모든 기록지가 작성한다. */}
-      <GaseousSection {...shellProps("gaseous")}
+      <GaseousSection {...fieldProps} {...shellProps("gaseous")}
         samples={sheet.samples}
         editable={editable}
         onSampleChange={patchSample}
@@ -275,6 +321,8 @@ export const SheetFormView = ({
         onTargetVolumeChange={setNozzleTargetVolume}
         editable={editable}
         onParticleChange={patchParticle}
+        nozzleTone={fieldState.fieldTone(fieldPath.particle("nozzleSize"))}
+        onNozzleFocus={() => fieldState.onFieldFocus(fieldPath.particle("nozzleSize"))}
       />
     </div>
   );

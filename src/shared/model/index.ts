@@ -1,11 +1,11 @@
 export type { FieldErrorResponse, ApiResponseMessage } from './types/api-types';
 
-export type { size } from './types/style-types';
+export type { size, FieldTone } from './types/style-types';
 export { SIZE_STYLES } from './types/style-types';
 
 export {
   CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, MEASUREMENT_METHOD,
-  POLLUTANT_PHASE, MEASUREMENT_CYCLE,
+  POLLUTANT_PHASE, MEASUREMENT_UNIT, MEASUREMENT_CYCLE,
   EQUIP_TYPE, EQUIP_STATUS, CHANGEABLE_EQUIP_STATUS, PITOT_TUBE_TYPE,
   INSPECTION_TYPE, INSPECTION_RESULT,
   SCHEDULE_STATUS, MEASUREMENT_TYPE,
@@ -13,7 +13,8 @@ export {
   DOCUMENT_CATEGORY, CONTRACT_AMOUNT_UNIT,
   TENANT_STATUS, SUBSCRIPTION_PLAN, SUBSCRIPTION_PLAN_OPTIONS, USER_ROLES,
   documentCategoryOptions, contractAmountUnitOptions,
-  measurementMethodOptions, pollutantPhaseOptions,
+  measurementMethodOptions, pollutantPhaseOptions, measurementUnitOptions,
+  toMeasurementUnit, measurementUnitText,
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
   equipTypeOptions, equipStatusOptions, pitotTubeTypeOptions, measurementCycleOptions,
   inspectionTypeOptions, inspectionResultOptions,
@@ -24,7 +25,7 @@ export {
 } from './types/common-types';
 export type {
   ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod,
-  PollutantPhase, MeasurementCycle,
+  PollutantPhase, MeasurementUnit, MeasurementCycle,
   EquipType, EquipStatus, ChangeableEquipStatus, PitotTubeType, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,

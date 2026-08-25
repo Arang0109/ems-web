@@ -12,13 +12,13 @@ const calcXw = (ctx: SheetCalcContext): number | null => {
   if (ctx.ma == null || ctx.tm_g == null || ctx.vm_g == null || ctx.pa == null || ctx.pm_g == null) return null;
 
   const pm = ctx.pa + ctx.pm_g;
-  const waterVolStp = ctx.ma * roundHalfUp(STANDARD_MOLAR_VOLUME / 18, 5);
-  const dryVolStp = ctx.vm_g * roundHalfUp(273 / toKelvin(ctx.tm_g), 5) * roundHalfUp(pm / 760, 5);
+  const waterVolStp = ctx.ma * STANDARD_MOLAR_VOLUME / 18;
+  const dryVolStp = ctx.vm_g * 273 / toKelvin(ctx.tm_g) * pm / 760;
   const denominator = waterVolStp + dryVolStp;
   if (denominator === 0) return null;
 
   // 서버: 100 × (비율 scale 5) — 추가 반올림 없음(scale 2 정규화만)
-  return roundHalfUp(100 * roundHalfUp(waterVolStp / denominator, 5), 2);
+  return roundHalfUp(100 * waterVolStp / denominator, 2);
 };
 
 export const moistureStep: SheetCalcStep = (ctx, { sheet }) => {

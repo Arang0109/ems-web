@@ -176,7 +176,6 @@ sub-domain/
 | `schedule` | `/schedule` | SchedulePage | ProtectedRoute |
 | `schedule` | `/schedule/register` | ScheduleRegisterPage | ProtectedRoute |
 | `schedule` | `/schedule/canceled` | CanceledSchedulePage | ProtectedRoute |
-| `schedule` | `/schedule/deleted` | DeletedSchedulePage | **AdminRoute** |
 | `schedule` | `/schedule/:scheduleId` | ScheduleDetailPage | ProtectedRoute |
 | `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
 | `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |

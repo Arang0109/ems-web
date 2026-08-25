@@ -46,7 +46,8 @@ export type ParticleSamplerSpec = ParticleSamplerSpecDto;
 export type MeasurementItemSnapshot = MeasurementItemSnapshotDto;
 
 // 조회된 시트(읽기 모델). 블록(weather·moisture·exhaustGas·측정점·시료)이 null 로 올 수 있다 —
-// 이전 회차 불러오기가 기상 블록을 비워서 주기 때문이며, 읽는 쪽이 방어해야 한다.
+// 이전 회차 불러오기가 대기압조차 없는 회차의 기상 블록을 비워서 주기 때문이며,
+// 읽는 쪽이 방어해야 한다.
 export type MeasurementSheet = MeasurementSheetResponse;
 export type WeatherData = WeatherDataDto;
 export type MoistureData = MoistureDataDto;
@@ -174,6 +175,12 @@ export type SamplingRecordsExport = {
   filename: string;
 };
 
+// 성적서 내려받기 결과 — 서버가 채운 xlsx 한 개와 Content-Disposition에서 얻은 파일명.
+export type ReportExport = {
+  blob: Blob;
+  filename: string;
+};
+
 // ─────────────────────────────────────────────────────────────
 // 실험분석정보 (schedule 하위 리소스)
 // 응답은 숫자가 이미 number이고 키 구조가 화면과 같아 DTO를 도메인으로 채택한다.
@@ -184,7 +191,7 @@ export type AnalysisRecord = AnalysisRecordResponse;
 /** 등록 입력. 허용기준치·산소보정 적용 여부는 서버가 측정 시점 스냅샷에서 복사한다. */
 export type AnalysisRecordCreate = {
   pollutantId: number;
-  analysisValue: number;            // 측정분석값 (필수)
+  analysisValue: number | null;     // 측정분석값. 채취시간만 먼저 저장된 항목이 있어 필수가 아니다
   unit: string | null;              // 측정단위
   analysisMethod: string | null;    // 측정분석방법
   analysisEquipment: string | null; // 분석장비
@@ -196,4 +203,39 @@ export type AnalysisRecordUpdate = {
   unit: string | null;
   analysisMethod: string | null;
   analysisEquipment: string | null;
+};
+
+/**
+ * 항목별 실험분석 결과 일괄 저장 입력.
+ *
+ * 측정물질을 키로 upsert 하므로 호출자가 문서 id로 신규·기존을 가릴 필요가 없다 — 성적서 탭이
+ * 먼저 문서를 만들어 둔 뒤에도 충돌하지 않는다. null 은 "지움"이며 채취시간은 바뀌지 않는다.
+ */
+export type AnalysisResultsSave = {
+  items: AnalysisResultEntry[];
+};
+
+export type AnalysisResultEntry = {
+  pollutantId: number;
+  analysisValue: number | null;
+  unit: string | null;
+  analysisMethod: string | null;
+  analysisEquipment: string | null;
+};
+
+/**
+ * 성적서 항목별 채취시간 일괄 저장 입력.
+ *
+ * 수정(PUT)과 달리 **null 은 "기존 값 유지"가 아니라 "지움"**이다 — 성적서 탭이 항목 표 전체를
+ * 보내므로 빈 칸을 미전달로 읽으면 한번 채운 시각을 다시 비울 방법이 없어진다.
+ * 실험실 입력값은 이 경로로 바뀌지 않는다(실험·분석 탭이 소유).
+ */
+export type SamplingTimesSave = {
+  items: SamplingTimeEntry[];
+};
+
+export type SamplingTimeEntry = {
+  pollutantId: number;
+  samplingStartedAt: string | null;   // 서버 LocalTime ("HH:mm:ss")
+  samplingEndedAt: string | null;
 };
