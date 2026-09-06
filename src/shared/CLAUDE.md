@@ -590,8 +590,8 @@ MSW는 등록 순서대로 매칭하므로, 구체적인 경로를 먼저 등록
 
 ```ts
 // ✅ 올바른 순서
-http.get('/workplaces/contract-summary', ...),
-http.get('/workplaces', ...),
+http.get('/schedules/canceled', ...),
+http.get('/schedules/:id', ...),
 
-// ❌ 역순이면 /workplaces가 /workplaces/contract-summary를 가로챔
+// ❌ 역순이면 /schedules/:id 가 'canceled' 를 id 로 잡아 가로챈다
 ```

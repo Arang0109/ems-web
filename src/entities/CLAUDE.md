@@ -105,48 +105,76 @@ Domain 입력 모델 → 요청 DTO, 응답 DTO → Domain 변환 순수 함수�
 ### 데이터 페칭 훅 — 타입 A: 자동 로드
 
 마운트 시 자동으로 API를 호출하고, `refetch()`로 재조회를 트리거한다.
-`revision` state를 증가시켜 `useEffect`를 재실행하는 패턴을 사용한다.
-
-적용 entity: `client` (`useClients`, `useClientDetail`), `contract` (`useContracts`), `workplace` (`useWorkplaceDetail`), `pollutant` (`usePollutants`), `pollutant-catalog` (`usePollutantCatalogs`)
-
-> 조회 조건을 받는 훅(`usePollutants`·`usePollutantCatalogs`)은 **조건을 원시값으로 풀어**
-> `useEffect` 의존성에 넣는다. 객체를 그대로 두면 매 렌더 새 참조라 무한 재조회가 된다.
+**`useFetch`(`@shared/model`)를 쓴다.** 상태 배선(`data`/`isLoading`/`error`/`refetch`)과 세 가지
+방어 — 늦게 도착한 응답 무시, 조건 변경 시 렌더 중 상태 되돌리기, 성공 시 직전 에러 지우기 — 를
+공통 훅이 소유한다. 개별 훅은 "무엇을 어떤 조건으로 부르는가"만 남는다.
 
 ```ts
-return { data, isLoading, error, refetch };
+export const useClients = () =>
+  useFetch<Client[]>(async () => unwrapMessage(await clientApi.getClientList()), []);
 ```
 
-> ⚠️ **현황:** 조회 훅 24개는 아직 `loading` 을 반환한다. 액션 훅 42개는 이미 `isLoading` 이다.
-> 루트 `CLAUDE.md` 의 boolean 접두어 규칙(`is/has/can/should`)에 따라 **`isLoading` 으로 통일**하며,
-> 조회 훅 전환은 shared 훅 추상화 작업에서 함께 처리한다. 새 훅은 `isLoading` 으로 쓴다.
+| 옵션 | 용도 |
+|------|------|
+| `deps` | 조회 조건. **원시값만** 담는다 — 키를 이어 붙여 비교하므로 객체를 넣으면 매 렌더 달라진다 |
+| `enabled` | false면 조회하지 않고 로딩도 아니다(모달이 닫혀 있는 동안) |
+| `resetOnChange` | 조건이 바뀌면 이전 결과를 즉시 버린다. 다른 대상의 값이 잠깐 남아 보이면 안 될 때 |
+
+응답 판정은 `unwrapMessage`(`@shared/api`)가 한다 — `status: false` 는 `ApiResponseError` 로
+던져 서버 문구가 그대로 화면에 남고, 요청 자체가 실패하면 표준 문구로 덮인다.
+
+```ts
+return { data, isLoading, error, refetch, clear };
+```
 
 ### 데이터 페칭 훅 — 타입 B: 수동 호출
 
 마운트 시 자동 호출하지 않고, 외부에서 `fetchXxx(id)`를 명시적으로 호출해야 데이터를 로드한다.
 부모 컴포넌트의 선택 이벤트에 의해 트리거되는 종속 데이터에 사용한다.
 
-적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`, `useStackDetail`), `contract` (`useContractDetail`), `stack-pollutant` (`useStackPollutants`)
+**`useLazyFetch`(`@shared/model`)를 쓴다.** 트리거 이름만 슬라이스가 정한다.
+
+적용 entity: `workplace` (`useWorkplaces`), `stack` (`useStacks`, `useStackDetail`), `contract` (`useContractDetail`), `stack-pollutant` (`useStackPollutants`), `schedule` (`useScheduleDetail`, `useScheduleAnalyses`)
 
 ```ts
-return { data, isLoading, error, fetchWorkplaces };
+export const useWorkplaces = () => {
+  const { data, isLoading, error, fetch } = useLazyFetch(
+    async (clientId: number | null) => toWorkplaceListItems((await workplaceApi.getWorkplaces(clientId)).data),
+    [] as WorkplaceListItem[],
+    { resetOnFetch: true },
+  );
+
+  return { data, isLoading, error, fetchWorkplaces: fetch };
+};
 ```
 
 > 반환 함수명이 `fetchXxx` 인 것은 의도된 것이다. 루트 `CLAUDE.md` 의 "조회는 `get`" 규칙은
 > `api/api.ts` 의 API 함수 대상이고, 이쪽은 상태를 갱신하는 명령형 트리거다.
 >
-> 기본 반환은 `Promise<void>` 다. 다만 **조회 결과를 렌더가 아니라 그 자리에서 써야 하는**
-> 호출부가 있으면 값을 함께 반환한다 (`useScheduleDetail` → `Promise<ScheduleDetail | null>`).
-> 저장이 409로 거부됐을 때 서버 최신본을 받아 곧바로 대조해야 하는 경우가 그렇다 —
-> 다음 렌더의 `data` 를 기다리면 비동기 흐름이 꼬인다. 상태 갱신은 그대로 수행한다.
+> 트리거는 **조회한 값을 함께 반환**한다(`Promise<T | null>`). 저장이 409로 거부됐을 때 서버
+> 최신본을 받아 곧바로 대조해야 하는 호출부가 있고, 다음 렌더의 `data` 를 기다리면 비동기
+> 흐름이 꼬이기 때문이다. 실패는 `null` 이며 예외를 던지지 않는다 — 조회 실패는 `error` 상태로
+> 화면이 안내하고 흐름은 이어져야 한다.
 
 ### 액션 훅 — CRUD 작업
 
-도메인 입력 모델을 받아 `api/mapper.ts`로 DTO 변환 후 API를 호출한다.
-`isLoading`, `error` 상태를 직접 관리한다.
+**`useAsyncAction`(`@shared/model`)을 쓴다.** 도메인 입력 모델을 받아 `api/mapper.ts`로 DTO 변환 후
+API를 호출한다. `isLoading`·`error` 배선과 실패 시 재던지기는 공통 훅이 소유한다.
 
 ```ts
-return { registerClient, isLoading, error };
+export const useRegisterClientAction = () => {
+  const { run, isLoading, error } = useAsyncAction(async (data: ClientCreate) => {
+    unwrapMessage(await clientApi.registerClient(toRegisterRequest(data)));
+  });
+
+  return { registerClient: run, isLoading, error };
+};
 ```
+
+> **에러는 삼키지 않고 다시 던진다.** 엔티티는 도메인 기능만 알아야 하므로 토스트·모달·화면 이동은
+> feature 훅이 맡는다. `error` 상태를 함께 두는 것은 엔티티 자신의 상태를 위해서다.
+>
+> `run` 은 **참조가 고정**돼 있다 — 호출부가 `useEffect` 의존성에 넣어도 무한 루프가 되지 않는다.
 
 ✅ 허용
 - API 호출
@@ -212,7 +240,7 @@ return { registerClient, isLoading, error };
 |--------|-----------|
 | `client` | `Client`, `ClientCreate`, `ClientUpdate` |
 | `contract` | `ContractListItem`, `ContractDetail`, `ContractCreate`, `ContractUpdate` |
-| `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate`, `ContractOverview` |
+| `workplace` | `Workplace`, `WorkplaceListItem`, `WorkplaceCreate`, `WorkplaceUpdate` |
 | `stack` | `Stack`, `StackCreate`, `StackUpdate`, `StackListItem`, `StackDetail`, `Prevention`, `PreventionCreate`, `PreventionUpdate`, `Facility`, `FacilityCreate`, `FacilityUpdate` |
 | `stack-pollutant` | `StackPollutantListItem`, `StackPollutantCreate` |
 | `pollutant` | `Pollutant`, `PollutantCandidate`, `PollutantCreate`, `PollutantUpdate` |
@@ -221,7 +249,7 @@ return { registerClient, isLoading, error };
 | `equipment` | `Equipment`, `EquipmentCreate`, `EquipmentUpdate`, `EquipmentStatusChange`, `InspectionItem`, `InspectionItemInput`, `InspectionRecord`, `InspectionRecordCreate`, `EquipmentSpec` 및 종류별 Spec 타입 |
 | `member` | `Member`, `MemberCreate`, `MemberUpdate`, `Role` |
 | `team` | `Team`, `TeamCreate`, `TeamUpdate` |
-| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `MeasurementSheet` 및 시트 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
+| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
 | `tenant` | `Tenant`, `TenantProvision`, `TenantAdminCreate` |
 
 > **공용 enum·레이블은 entity 에 두지 않는다.** `MeasurementField`, `Grade`, `DocumentCategory`,
