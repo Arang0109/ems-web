@@ -33,8 +33,8 @@ export const densityStep: SheetCalcStep = (ctx) => {
 
   const standardGasDensityRaw = calcStandardGasDensityRaw({ o2, co2, co, n2, xw });
 
-  // 저장·표시는 round 2 지만, 현장조건 환산에는 **반올림 전 원시값**을 넘긴다
-  // (서버 DensityStep 이 그렇게 한다). 반올림된 값을 넘기면 오차가 실려 유량까지 어긋난다.
+  // **현장조건 환산에도 round 2 된 표준밀도를 넘긴다.** 성적서 엑셀이 표에 찍힌 표준밀도를
+  // 그대로 다음 칸에 물려 쓰기 때문이다 — 원시값을 넘기면 엑셀과 유량이 어긋난다.
   ctx.standardGasDensity = roundHalfUp(standardGasDensityRaw, 2);
-  ctx.gasDensity = calcGasDensity(standardGasDensityRaw, ctx);
+  ctx.gasDensity = calcGasDensity(ctx.standardGasDensity, ctx);
 };
