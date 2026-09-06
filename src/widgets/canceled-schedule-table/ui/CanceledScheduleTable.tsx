@@ -6,9 +6,9 @@ import { Search } from '@shared/ui/form';
 import { useCanceledScheduleTable } from '../model/use-canceled-schedule-table';
 
 /**
- * 취소된 측정계획 목록. 취소 시각·사유를 함께 보여 주고 행마다 삭제 버튼을 둔다.
- * 취소 건에는 사유를 남겨 둬야 할 것과 애초에 잘못 만들어진 것이 섞여 있어,
- * 후자를 골라 감추는 것이 이 화면의 목적이다.
+ * 취소된 측정계획 목록. 행마다 삭제 버튼을 둔다.
+ * 취소 건에는 이력으로 남겨 둬야 할 것과 애초에 잘못 만들어진 것이 섞여 있어,
+ * 후자를 골라 지우는 것이 이 화면의 목적이다.
  */
 export const CanceledScheduleTable = () => {
   const { table, globalFilter, setGlobalFilter, isLoading, error } = useCanceledScheduleTable();
@@ -20,7 +20,7 @@ export const CanceledScheduleTable = () => {
           className="w-full"
           filter={globalFilter}
           setFilter={setGlobalFilter}
-          placeholder={'관리번호, 시설, 팀, 취소 사유 검색'}
+          placeholder={'관리번호, 시설, 팀 검색'}
         />
       </div>
 

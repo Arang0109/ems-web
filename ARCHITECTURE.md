@@ -61,10 +61,10 @@ app → pages → widgets → features → entities → shared
 
 | 레이어 | 개수 | 슬라이스 |
 |--------|------|---------|
-| pages | 8 그룹 / 라우트 17개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`), `equipment`, `schedule`, `staff`, `admin`(하위 `member`·`document`), `platform`(하위 `tenant`) |
-| widgets | 20 | `sign-in`, `layouts`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `schedule-profile`, `tenant-table` |
-| features | 34 | `sign-in`, `sign-out`, `contract-overview`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `save-schedule-sheets`, `download-document`, `add-document-version`, `register-*`(client·workplace·stack·contract·pollutant·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·facility·prevention·document·equipment·member·team·schedule-client·schedule-equipments) |
-| entities | 14 | `auth`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `document`, `equipment`, `member`, `schedule`, `team`, `tenant` |
+| pages | 8 그룹 / 라우트 19개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`), `equipment`, `schedule`, `staff`, `admin`(하위 `member`·`document`), `platform`(하위 `tenant`·`pollutant-catalog`) |
+| widgets | 22 | `sign-in`, `layouts`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `pollutant-catalog-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `canceled-schedule-table`, `schedule-profile`, `tenant-table` |
+| features | 45 | `sign-in`, `sign-out`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `download-document`, `add-document-version`, `delete-document-version`, `export-schedule-report`, `manage-schedule-lifecycle`, `save-schedule-sheets`, `save-schedule-analysis`, `register-*`(client·workplace·stack·contract·pollutant·pollutant-catalog·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·stack-pollutant·facility·prevention·document·equipment·member·pollutant·pollutant-catalog·team·schedule-basic-info·schedule-client·schedule-equipments·schedule-item·schedule-items·schedule-stack) |
+| entities | 16 | `auth`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `pollutant-catalog`, `document`, `equipment`, `measurement-record`, `member`, `schedule`, `team`, `tenant` |
 | shared | — | `api`, `config`, `lib`, `model`, `ui` |
 
 > 슬라이스가 추가·삭제되면 이 표를 갱신한다. 개수는 `ls -1 src/<레이어> | grep -v CLAUDE.md | wc -l` 로 실측한다.
@@ -161,7 +161,7 @@ shared/model/types/common-types (공통 enum/type)
 |------|------|-----------|
 | `entities/auth/index.ts` | `SignInRequest`/`SignInResponse` DTO 를 public API 로 노출 | auth 액션 훅을 만들어 DTO 노출 제거 |
 | `entities/dashboard` | `model/` 자체가 없어 DTO 4종을 그대로 노출 | `model/types.ts` + 페칭 훅 신설 |
-| `features/{sign-in,sign-out,contract-overview}` | `entities/*/api/api.ts` 직접 호출 (entity 훅 부재가 원인) | 위 두 항목 해소 시 함께 정리 |
-| `features/{sign-in,sign-out,contract-overview}` | 훅이 슬라이스 루트 `hooks/` 에 위치 | `model/hooks/` 로 이동 |
+| `features/{sign-in,sign-out}` | `entities/*/api/api.ts` 직접 호출 (entity 훅 부재가 원인) | 위 두 항목 해소 시 함께 정리 |
+| `features/{sign-in,sign-out}` | 훅이 슬라이스 루트 `hooks/` 에 위치 | `model/hooks/` 로 이동 |
 | `src/shared/ui/*`, `src/widgets/schedule-profile/**` | `@/lib/utils` 의 `cn` 직접 사용 | shadcn 관행으로 인정할지 `@shared/lib` 로 이전할지 미결정 |
 | `src/components/variants/buttonVariants.ts` | `shared/ui/buttons/button-variants.ts` 와 중복 | `components/ui/button.tsx` → `sheet`/`dialog`/`sidebar` 체인과 함께 정리 |

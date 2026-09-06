@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementSheet } from "@entities/schedule";
+import type { SamplingSheet } from "@entities/schedule";
 import type { MeasurementCategory } from "@shared/model";
 
 import { getChangedSheets, toSheetBaseline } from "./conflict";
@@ -13,36 +13,38 @@ type ServerValues = { weightBefore?: number; gasAnalyzerStartTime?: string };
 /** 서버 시트. 대조에 쓰는 category·version 과 블록별 구분값만 의미가 있다. */
 const serverSheet = (
   category: MeasurementCategory, version: number | null, values: ServerValues = {},
-): MeasurementSheet => ({
+): SamplingSheet => ({
   category,
   version,
   weather: {
-    pressure: null, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: null, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: values.weightBefore ?? null, after: null },
+    bottleWeight: { before: values.weightBefore ?? null, after: null },
     gasMeterTemperature: { in: null, out: null },
     dryGasVolume: { before: null, after: null },
     suctionVelocity: null, gasMeterGaugePressure: null,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [], co2Concentration: [], coConcentration: [],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: values.gasAnalyzerStartTime ?? null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
-  quantity: null,
-  particle: null,
+  flowRate: null,
+  particulateSampling: null,
   samplingPoints: [],
-  samples: [],
-  samplingPointCnt: null,
-  avgTm: null,
+  gaseousSamplings: [],
+  samplingPointCount: null,
 });
 
-// 폼은 서버 스냅샷에서 출발한다(`snapshot.sheets.map(fromSheet)`). 픽스처도 같은 경로를 따라야
+// 폼은 서버 스냅샷에서 출발한다(`snapshot.samplingData.sheets.map(fromSheet)`). 픽스처도 같은 경로를 따라야
 // "서버와 맞춰진 상태"가 정확히 재현된다 — 기본 폼으로 만들면 측정점 개수부터 서버와 어긋난다.
 const myForm = (category: MeasurementCategory, version: number | null): SheetForm =>
   fromSheet(serverSheet(category, version));
@@ -58,7 +60,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
     const mine = editMoisture(synced, "12.5");
 
     const result = applyRemoteSheets(
-      [mine], baseline, [], [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })],
+      [mine], baseline, [], [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })], [],
     );
 
     expect(result.sheets[0].moisture.weightBefore).toBe("12.5");
@@ -71,7 +73,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
     const mine = editMoisture(synced, "12.5");
 
     const result = applyRemoteSheets(
-      [mine], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)],
+      [mine], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)], [],
     );
 
     expect(result.sheets[0].version).toBe(2);
@@ -82,7 +84,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
     const mine = editMoisture(synced, "12.5");
 
     const result = applyRemoteSheets(
-      [mine], toSheetBaseline([synced]), [], [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })],
+      [mine], toSheetBaseline([synced]), [], [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })], [],
     );
 
     // 상대 블록의 기준선만 옮겨야 한다. 내 블록까지 옮기면 내 입력이 "안 바뀐 것"으로 잡혀 서버에 안 올라간다.
@@ -92,7 +94,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
   it("상대가 저장했어도 내용이 그대로면 사용자에게 알리지 않는다", () => {
     const synced = myForm("GAS", 1);
 
-    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)]);
+    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)], []);
 
     expect(result.touchedCategories).toEqual([]);
     expect(result.updatedSections).toEqual({});
@@ -101,7 +103,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
   it("내용이 그대로여도 올라간 version 은 이어받는다 — 안 그러면 다음 저장이 409로 막힌다", () => {
     const synced = myForm("GAS", 1);
 
-    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)]);
+    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 2)], []);
 
     expect(result.changed).toBe(true);
     expect(result.sheets[0].version).toBe(2);
@@ -110,7 +112,7 @@ describe("applyRemoteSheets — 사수·부사수가 한 기록지를 나눠 입
   it("version 도 내용도 그대로면 폼을 건드리지 않는다", () => {
     const synced = myForm("GAS", 1);
 
-    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 1)]);
+    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 1)], []);
 
     expect(result.changed).toBe(false);
   });
@@ -122,7 +124,7 @@ describe("applyRemoteSheets — 둘이 같은 항목을 고친 경우", () => {
     const synced = myForm("GAS", 1);
     return applyRemoteSheets(
       [editMoisture(synced, "내 입력")], toSheetBaseline([synced]), [],
-      [serverSheet("GAS", 2, { weightBefore: 99 })],
+      [serverSheet("GAS", 2, { weightBefore: 99 })], [],
     );
   };
 
@@ -146,7 +148,7 @@ describe("applyRemoteSheets — 둘이 같은 항목을 고친 경우", () => {
 
     const result = applyRemoteSheets(
       [editMoisture(gas, "내 입력"), dust], baseline, [],
-      [serverSheet("GAS", 2, { weightBefore: 99 }), serverSheet("DUST", 3)],
+      [serverSheet("GAS", 2, { weightBefore: 99 }), serverSheet("DUST", 3)], [],
     );
 
     expect(result.sheets.find((s) => s.category === "GAS")?.version).toBe(1);
@@ -158,7 +160,7 @@ describe("applyRemoteSheets — 둘이 같은 항목을 고친 경우", () => {
 
     const result = applyRemoteSheets(
       [editMoisture(synced, "내 입력")], toSheetBaseline([synced]), [],
-      [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })],
+      [serverSheet("GAS", 2, { gasAnalyzerStartTime: "09:30" })], [],
     );
 
     expect(result.conflictingCategories).toEqual([]);
@@ -171,7 +173,7 @@ describe("applyRemoteSheets — 기록지 추가·삭제", () => {
     const synced = myForm("GAS", 1);
 
     const result = applyRemoteSheets(
-      [synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 1), serverSheet("DUST", 0)],
+      [synced], toSheetBaseline([synced]), [], [serverSheet("GAS", 1), serverSheet("DUST", 0)], [],
     );
 
     expect(result.sheets.map((sheet) => sheet.category)).toEqual(["GAS", "DUST"]);
@@ -184,7 +186,7 @@ describe("applyRemoteSheets — 기록지 추가·삭제", () => {
     const result = applyRemoteSheets(
       [synced], toSheetBaseline([synced]),
       [{ category: "DUST", version: 0 }],
-      [serverSheet("GAS", 1), serverSheet("DUST", 0)],
+      [serverSheet("GAS", 1), serverSheet("DUST", 0)], [],
     );
 
     expect(result.sheets.map((sheet) => sheet.category)).toEqual(["GAS"]);
@@ -193,7 +195,7 @@ describe("applyRemoteSheets — 기록지 추가·삭제", () => {
   it("상대가 지운 기록지는 내 입력이 없을 때만 화면에서 내린다", () => {
     const synced = myForm("DUST", 1);
 
-    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], []);
+    const result = applyRemoteSheets([synced], toSheetBaseline([synced]), [], [], []);
 
     expect(result.sheets).toEqual([]);
     expect(result.baseline.DUST).toBeUndefined();
@@ -203,7 +205,7 @@ describe("applyRemoteSheets — 기록지 추가·삭제", () => {
     const synced = myForm("DUST", 1);
     const mine = editMoisture(synced, "12.5");
 
-    const result = applyRemoteSheets([mine], toSheetBaseline([synced]), [], []);
+    const result = applyRemoteSheets([mine], toSheetBaseline([synced]), [], [], []);
 
     expect(result.sheets).toEqual([mine]);
   });
@@ -212,7 +214,7 @@ describe("applyRemoteSheets — 기록지 추가·삭제", () => {
     // 같은 카테고리를 둘이 각자 새로 만든 경우다. 판단은 저장 시점의 409 경로가 한다.
     const mine = myForm("GAS", null);
 
-    const result = applyRemoteSheets([mine], {}, [], [serverSheet("GAS", 0)]);
+    const result = applyRemoteSheets([mine], {}, [], [serverSheet("GAS", 0)], []);
 
     expect(result.sheets).toEqual([mine]);
   });

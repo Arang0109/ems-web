@@ -29,13 +29,6 @@ export type WorkplaceResponse = {
   grade: Grade;
 }
 
-export type ContractOverviewResponse = {
-  recentContractCount: number;
-  totalContractCount: number;
-  expiringSoonContractCount: number;
-  expiredContractCount: number;
-}
-
 export type WorkplaceRegisterRequest = {
   clientId: number;
   name: string;

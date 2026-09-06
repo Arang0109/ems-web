@@ -70,6 +70,11 @@ export const documentApi = {
     return res.data;
   },
 
+  deleteDocumentVersion: async (id: number, versionNo: number): Promise<ApiResponseMessage<void>> => {
+    const res = await axiosPrivate.delete(`/admin/documents/${id}/versions/${versionNo}`);
+    return res.data;
+  },
+
   // 다운로드 2종은 응답이 ApiResponse로 감싸지지 않은 바이너리이고 파일명이 헤더에 있으므로
   // AxiosResponse 전체를 반환한다. validateStatus는 건드리지 않는다 —
   // 인터셉터를 우회하면 401 자동 refresh가 동작하지 않는다.

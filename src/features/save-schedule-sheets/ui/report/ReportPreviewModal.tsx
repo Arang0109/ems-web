@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import type { ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
+import type {
+  ScheduleDetail, ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview,
+} from "@entities/schedule";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { IconButton } from "@shared/ui/buttons";
 import { DocumentViewerDialog } from "@shared/ui/dialogs";
@@ -16,6 +18,8 @@ interface Props {
   /** 뷰어 안에서 기록지를 넘긴다 — 뒤의 편집 화면도 같은 시트로 따라간다 */
   onActiveIndexChange: (index: number) => void;
   preview: SheetCalcPreview | null;
+  /** 계획 메타(관리번호·채취일자) — 기록지 머리에 실린다. 스냅샷에는 사본이 없다. */
+  schedule: ScheduleDetail | null;
   snapshot: ScheduleSnapshot | null;
   basicInfoForm: ScheduleBasicInfoForm;
   externals: SheetCalcExternals;
@@ -24,7 +28,7 @@ interface Props {
 // 기록지 미리보기 — 현재 입력과 실시간 계산값으로 종이 기록지를 재현한다.
 export const ReportPreviewModal = ({
   open, onOpenChange, sheets, activeIndex, onActiveIndexChange,
-  preview, snapshot, basicInfoForm, externals,
+  preview, schedule, snapshot, basicInfoForm, externals,
 }: Props) => {
   const sheet = sheets[activeIndex] ?? null;
 
@@ -57,7 +61,7 @@ export const ReportPreviewModal = ({
       documentWidth={REPORT_DOCUMENT_WIDTH}
     >
       {sheet && snapshot ? (
-        <ReportPreviewContent sheet={sheet} preview={preview} snapshot={snapshot}
+        <ReportPreviewContent sheet={sheet} preview={preview} schedule={schedule} snapshot={snapshot}
           basicInfoForm={basicInfoForm} externals={externals} />
       ) : (
         <p className="py-6 text-center text-body-2 text-muted-ink">미리보기할 기록지가 없습니다.</p>

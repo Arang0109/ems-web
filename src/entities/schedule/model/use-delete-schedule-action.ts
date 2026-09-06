@@ -1,32 +1,11 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { scheduleApi } from "../api/api";
 
 export const useDeleteScheduleAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number) => {
+    unwrapMessage(await scheduleApi.deleteSchedule(id));
+  });
 
-  const deleteSchedule = async (id: number) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await scheduleApi.deleteSchedule(id);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    deleteSchedule,
-    
-    isLoading, error,
-  }
-}
+  return { deleteSchedule: run, isLoading, error };
+};

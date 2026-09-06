@@ -32,6 +32,9 @@ export const densityStep: SheetCalcStep = (ctx) => {
   if (o2 == null || co2 == null || co == null || n2 == null || xw == null) return;
 
   const standardGasDensityRaw = calcStandardGasDensityRaw({ o2, co2, co, n2, xw });
+
+  // **현장조건 환산에도 round 2 된 표준밀도를 넘긴다.** 성적서 엑셀이 표에 찍힌 표준밀도를
+  // 그대로 다음 칸에 물려 쓰기 때문이다 — 원시값을 넘기면 엑셀과 유량이 어긋난다.
   ctx.standardGasDensity = roundHalfUp(standardGasDensityRaw, 2);
   ctx.gasDensity = calcGasDensity(ctx.standardGasDensity, ctx);
 };

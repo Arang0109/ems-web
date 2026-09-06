@@ -21,7 +21,7 @@ export const useWorkplaceSelection = () => {
   const [selectedWorkplaceId, setSelectedWorkplaceId] = useState<number | null>(null);
   const [selectedWorkplaceItem, setSelectedWorkplaceItem] = useState<WorkplaceListItem | null>(null);
 
-  const { data: stacks, fetchStacks, loading, error } = useStacks();
+  const { data: stacks, fetchStacks, isLoading: loading, error } = useStacks();
 
   const selectedWorkplace: Workplace | null = selectedWorkplaceItem
     ? toWorkplace(selectedWorkplaceItem)
@@ -49,6 +49,6 @@ export const useWorkplaceSelection = () => {
     clearWorkplaceSelection,
     refetchStacks,
 
-    loading, error,
+    isLoading: loading, error,
   }
 }

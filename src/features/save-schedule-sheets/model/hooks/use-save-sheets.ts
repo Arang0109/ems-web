@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
-  ScheduleSnapshot, SheetCalcPreview, SheetCalcExternals, SheetRef, SheetsSavedEvent,
+  SamplingSheet, ScheduleSnapshot, SheetCalcPreview, SheetCalcExternals, SheetRef,
+  SheetsSavedEvent,
 } from "@entities/schedule";
 import {
   calcSheetPreview, calcRequiredPointCount, subscribeScheduleStream,
@@ -17,7 +18,13 @@ import { toast } from "@shared/ui/toasts";
 import type { SheetForm } from "../types";
 import { getDefaultSheetForm } from "../types";
 import { toSheetSave, fromSheet } from "../mapper";
-import { validateSheetFields } from "../validator";
+import {
+  describeMissingRequired, describeMoistureWeightIssues, validateSheetFields,
+} from "../validator";
+import { getAssignedPollutants } from "../measured-pollutants";
+import {
+  buildGasSampleGroups, getUnassignedGroups, getUnresolvedItems, hydrateSheets,
+} from "../gaseous-rows";
 import type { UpdatedSections } from "../remote-sync";
 import { applyRemoteSheets } from "../remote-sync";
 import type { SheetBaseline } from "../conflict";
@@ -31,6 +38,9 @@ import { useExportSamplingRecords } from "./use-export-sampling-records";
 interface Params {
   scheduleId: number | null;
   snapshot: ScheduleSnapshot | null;
+  // 저장 전후 상태 비교용. 스냅샷에도 status 사본이 있었으나 서버가 더는 내려보내지 않으며,
+  // 진실의 원천은 응답 최상위(메타)다 — 비교 양쪽을 같은 출처로 맞춘다.
+  status: ScheduleStatus | null;
   externals: SheetCalcExternals;
   onSaved?: () => void;
 }
@@ -46,7 +56,7 @@ const UPDATED_HIGHLIGHT_MS = 8_000;
 // 카테고리만 교체하므로(나머지는 보관본 유지), 삭제는 deletedSheets 로 명시해 보낸다.
 // 계산값 표시는 previewCalc(서버 파이프라인 풀 미러링)가 담당한다 — 저장 후에도 폼 값에서 동일하게 재현된다.
 export const useSaveSheets = ({
-  scheduleId, snapshot, externals, onSaved,
+  scheduleId, snapshot, status, externals, onSaved,
 }: Params) => {
   const { saveSheets, isLoading } = useSaveSheetsAction();
   const {
@@ -55,8 +65,9 @@ export const useSaveSheets = ({
   } = useScheduleBasicInfo(
     {
       scheduleId,
-      basicInfo: snapshot?.basicInfo ?? null,
-      team: snapshot?.team ?? null
+      sampling: snapshot?.samplingData ?? null,
+      tenant: snapshot?.tenant ?? null,
+      team: snapshot?.team ?? null,
     });
 
   // 충돌 복구 전용 재조회. 화면 트리를 소유한 위젯의 조회와 인스턴스를 나눠야
@@ -67,12 +78,36 @@ export const useSaveSheets = ({
   const { user } = useAuth();
   const currentUsername = user?.username ?? null;
 
-  const [sheets, setSheets] = useState<SheetForm[]>(() => snapshot?.sheets.map(fromSheet) ?? []);
+  // 측정계획의 측정항목에서 파생한 가스상 시료 행. 측정항목은 측정계획 단위라 시트별로 갈리지 않는다.
+  const gasSampleGroups = useMemo(
+    () => buildGasSampleGroups(snapshot?.items ?? []),
+    [snapshot?.items],
+  );
+
+  /**
+   * 서버 시트를 폼으로 들일 때 가스상 표가 빈 기록지를 측정항목으로 채운다.
+   *
+   * **결과를 기준선에도 함께 반영한다.** 자동 채움은 규칙에서 결정적으로 재생성되므로 편집이
+   * 아니라 화면 표현이다. 기준선에서 빠지면 사용자가 아무것도 입력하지 않았는데 미저장 변경으로
+   * 잡혀 이탈 경고가 뜨고, 동시편집 병합에서 빈 자동 행이 dirty 로 잡혀 동료가 방금 저장한
+   * 실측값을 이긴다. 저장하지 않고 나가도 다시 열면 같은 규칙으로 다시 채워지므로 잃는 것이 없다.
+   */
+  const hydrate = useCallback(
+    (serverSheets: SamplingSheet[]) => hydrateSheets(serverSheets.map(fromSheet), gasSampleGroups),
+    [gasSampleGroups],
+  );
+
+  const [sheets, setSheets] = useState<SheetForm[]>(
+    () => hydrateSheets(snapshot?.samplingData?.sheets?.map(fromSheet) ?? [], buildGasSampleGroups(snapshot?.items ?? [])),
+  );
   // 저장 기준선 — 마지막으로 서버에 반영된 상태를 카테고리별로 기록한다.
   const [baseline, setBaseline] = useState<SheetBaseline>(() => toSheetBaseline(sheets));
   // 서버에 저장된 적 있는 시트만 담는다. 신규 시트를 지운 것은 서버가 알 필요가 없다.
   const [deletedSheets, setDeletedSheets] = useState<SheetRef[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  // 미입력 필수 칸의 빨강 표시. 화면을 처음 열었을 때는 조용히 두고, 저장을 한 번 누른 뒤부터 켠다 —
+  // 새 기록지를 열자마자 화면 전체가 빨개지면 경고가 무뎌진다.
+  const [showMissing, setShowMissing] = useState(false);
   // 다른 사용자의 저장으로 방금 갱신된 섹션 — 화면에서 어디가 바뀌었는지 짚어준다.
   const [updatedSections, setUpdatedSections] = useState<UpdatedSections>({});
 
@@ -81,6 +116,7 @@ export const useSaveSheets = ({
   const sheetsRef = useRef(sheets);
   const baselineRef = useRef(baseline);
   const deletedRef = useRef(deletedSheets);
+  const groupsRef = useRef(gasSampleGroups);
   // 동기화 세대 — 응답이 순서를 지키지 않아도 마지막 것만 반영하기 위한 표식.
   const syncSeqRef = useRef(0);
 
@@ -89,6 +125,7 @@ export const useSaveSheets = ({
     sheetsRef.current = sheets;
     baselineRef.current = baseline;
     deletedRef.current = deletedSheets;
+    groupsRef.current = gasSampleGroups;
   });
 
   // 저장 요청에 실을 시트 — 내가 실제로 바꾼 것만. 신규 시트는 기준선에 없으므로 항상 포함된다.
@@ -97,6 +134,26 @@ export const useSaveSheets = ({
   const isSheetsDirty = changedSheets.length > 0 || deletedSheets.length > 0;
 
   const activeSheet = sheets[activeIndex] ?? null;
+
+  // 측정항목은 측정계획 단위라 시트별로 갈리지 않는다. 스냅샷에서 한 번만 파생한다.
+  // 필수 칸 판정(저장 검증·진행도 배지·미입력 강조)이 모두 이 값을 본다.
+  const assignedPollutants = useMemo(
+    () => getAssignedPollutants(snapshot?.items),
+    [snapshot?.items],
+  );
+
+  // 아직 어느 기록지에도 적히지 않은 가스상 항목. 기록지 하나가 아니라 전체를 가로질러 판정하므로
+  // 첫 기록지에 몰아 적는 방식도, 칸이 넘쳐 다음 기록지로 넘기는 방식도 그대로 성립한다.
+  const unassignedGroups = useMemo(
+    () => getUnassignedGroups(gasSampleGroups, sheets),
+    [gasSampleGroups, sheets],
+  );
+
+  // 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목 — 화면에서 수동 추가를 안내한다.
+  const unresolvedItems = useMemo(
+    () => getUnresolvedItems(snapshot?.items ?? []),
+    [snapshot?.items],
+  );
 
   // 활성 시트 입력에서 서버 계산값을 프론트에서 실시간으로 재현한 미리보기(effect 금지, 파생만).
   const previewCalc = useMemo<SheetCalcPreview | null>(
@@ -107,7 +164,8 @@ export const useSaveSheets = ({
   const addSheet = (category: MeasurementCategory) => {
     // 측정점 수는 굴뚝 치수 기반 규정 요구수로 자동 생성(치수 미입력이면 1개). 수동 조정 가능.
     const pointCount = calcRequiredPointCount(externals) ?? 1;
-    setSheets((prev) => [...prev, getDefaultSheetForm(category, pointCount)]);
+    // 새 기록지의 가스상 표도 측정항목으로 채운다. 아직 어느 기록지에도 없는 것만 들어간다.
+    setSheets((prev) => hydrateSheets([...prev, getDefaultSheetForm(category, pointCount)], gasSampleGroups));
     // 같은 카테고리를 지웠다가 다시 추가한 것은 삭제가 아니라 교체다.
     setDeletedSheets((prev) => prev.filter((ref) => ref.category !== category));
     setActiveIndex(sheets.length);
@@ -151,7 +209,8 @@ export const useSaveSheets = ({
     if (!latest || seq !== syncSeqRef.current) return;
 
     const result = applyRemoteSheets(
-      sheetsRef.current, baselineRef.current, deletedRef.current, latest.snapshot.sheets,
+      sheetsRef.current, baselineRef.current, deletedRef.current, latest.snapshot.samplingData?.sheets ?? [],
+      groupsRef.current,
     );
 
     if (result.changed) {
@@ -213,7 +272,7 @@ export const useSaveSheets = ({
       return;
     }
 
-    const serverSheets = latest.snapshot.sheets;
+    const serverSheets = latest.snapshot.samplingData?.sheets ?? [];
     const diff = diffSheetVersions(
       sheets, serverSheets, deletedSheets, changedSheets.map((sheet) => sheet.category),
     );
@@ -235,7 +294,7 @@ export const useSaveSheets = ({
     });
     if (!isConfirmed) return;   // 저장되지 않은 채로 남는다 — 값을 직접 옮겨 적을 수 있게.
 
-    const next = resolveWithServer(sheets, serverSheets, categories);
+    const next = hydrateSheets(resolveWithServer(sheets, serverSheets, categories), gasSampleGroups);
     setSheets(next);
     // 되돌린 기록지는 서버 값과 같아졌으므로 기준선도 함께 옮긴다.
     // 그러지 않으면 다음 저장에서 "내가 바꾼 기록지"로 잡혀 애먼 version 이 올라간다.
@@ -263,7 +322,38 @@ export const useSaveSheets = ({
       return { ok: false };
     }
 
-    const previousStatus = snapshot?.status ?? null;
+    // 흡습병 무게차가 법정 허용 범위를 벗어난 기록지 — 화면의 경고는 활성 기록지만 비추므로
+    // 다른 탭에 열어 둔 기록지는 여기서만 드러난다. 실제로 잰 값은 남겨야 하므로 막지는 않는다.
+    const moistureIssues = describeMoistureWeightIssues(sheets);
+    if (moistureIssues.total > 0) {
+      const isConfirmed = await confirm({
+        title: "흡습병 무게차가 법정 허용 범위를 벗어났습니다",
+        description: `${moistureIssues.description}
+
+범위를 벗어난 채취는 수분량 산정 근거로 쓸 수 없습니다. 이대로 저장할까요?`,
+        confirmLabel: "이대로 저장",
+        cancelLabel: "돌아가서 확인",
+      });
+      if (!isConfirmed) return { ok: false };
+    }
+
+    // 필수 미입력은 저장을 막지 않는다 — 현장에서 나중에 채우는 흐름이 정상이기 때문이다.
+    // 대신 이 시점부터 빈 칸을 화면에 켜고, 규모를 알린 뒤 한 번만 확인받는다.
+    setShowMissing(true);
+    const missing = describeMissingRequired(sheets, assignedPollutants);
+    if (missing.total > 0) {
+      const isConfirmed = await confirm({
+        title: "미입력 필수 항목이 있습니다",
+        description: `${missing.description}
+
+이대로 저장할까요? 빈 칸은 화면에 표시해 두었습니다.`,
+        confirmLabel: "이대로 저장",
+        cancelLabel: "돌아가서 입력",
+      });
+      if (!isConfirmed) return { ok: false };
+    }
+
+    const previousStatus = status;
 
     try {
       // 공통 정보(채취시간·담당자)를 먼저 반영한다. 실패하면 시트는 건드리지 않아
@@ -274,7 +364,7 @@ export const useSaveSheets = ({
       // 다음 사람의 저장이 애먼 기록지에서 충돌한다. 요청에 없는 기록지는 서버가 그대로 둔다.
       const detail = await saveSheets(scheduleId, changedSheets.map(toSheetSave), deletedSheets);
       // 서버 계산결과가 반영된 최신 시트로 폼을 동기화하고 기준선도 함께 옮긴다.
-      const saved = detail.snapshot.sheets.map(fromSheet);
+      const saved = hydrate(detail.snapshot.samplingData?.sheets ?? []);
       setSheets(saved);
       setBaseline(toSheetBaseline(saved));
       setDeletedSheets([]);
@@ -297,7 +387,7 @@ export const useSaveSheets = ({
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     const result = await runSave();
     if (!result.ok) return;
 
@@ -326,6 +416,13 @@ export const useSaveSheets = ({
     basicInfoForm: basicInfoForm,
     // 다른 사용자의 저장으로 방금 갱신된 섹션(카테고리별). 화면에서 강조하는 데 쓴다.
     updatedSections,
+    // 이 측정계획에 배정된 THC·NOx·SOx — 필수 칸 판정의 기준이다.
+    assignedPollutants,
+    // 가스상 표에서 아직 적히지 않은 항목과, 자동으로 만들 수 없는 항목.
+    unassignedGroups,
+    unresolvedItems,
+    // 저장을 한 번 눌렀는가 — 미입력 필수 칸의 빨강 표시를 켜는 스위치.
+    showMissing,
 
     handleBasicInfoChange: handleChange,
     setActiveIndex,

@@ -9,7 +9,7 @@ interface Props {
 
 export const useClientSelection = ({ onChange }: Props) => {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
-  const { data: workplaces, fetchWorkplaces, loading, error} = useWorkplaces();
+  const { data: workplaces, fetchWorkplaces, isLoading: loading, error} = useWorkplaces();
 
   const { data: selectedClient } = useClientDetail({
     id: selectedClientId,
@@ -31,6 +31,6 @@ export const useClientSelection = ({ onChange }: Props) => {
     handleSelectClientRow,
     refetchWorkplaces,
 
-    loading, error,
+    isLoading: loading, error,
   };
 };

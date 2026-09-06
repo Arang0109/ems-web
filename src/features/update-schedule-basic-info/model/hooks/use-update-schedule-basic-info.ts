@@ -1,7 +1,8 @@
 import { useState } from "react";
 
 import { useUpdateScheduleAction } from "@entities/schedule";
-import type { BasicInfo, TenantSnapshot } from "@entities/schedule";
+import type { ScheduleDetail } from "@entities/schedule";
+import type { MeasurementType } from "@shared/model";
 import { toast } from "@shared/ui/toasts";
 
 import type { ScheduleBasicInfoUpdateForm } from "../types";
@@ -10,23 +11,22 @@ import { validateScheduleBasicInfoFields } from "../validator";
 
 interface Props {
   scheduleId: number;
-  /** 이 회차 문서의 기본정보 — 폼의 초기값 */
-  basicInfo: BasicInfo;
-  /** 조회된 고객사 스냅샷. 값을 바꾸려는 것이 아니라 서버의 덮어쓰기로부터 지키기 위해 되돌려 보낸다. */
-  tenant: TenantSnapshot | null;
+  /** 이 회차의 계획 메타 — 폼의 초기값. 스냅샷이 아니라 응답 최상위가 진실의 원천이다. */
+  schedule: ScheduleDetail;
   onSuccess: () => void;
 }
 
 export const useUpdateScheduleBasicInfo = ({
-  scheduleId, basicInfo, tenant, onSuccess,
+  scheduleId, schedule, onSuccess,
 }: Props) => {
   const { updateSchedule, isLoading } = useUpdateScheduleAction();
 
   // 부모가 key로 리마운트하므로 prop은 초기값으로만 쓴다(useEffect 동기화 금지).
   const [form, setForm] = useState<ScheduleBasicInfoUpdateForm>({
-    referenceNumber: basicInfo.referenceNumber ?? "",
-    measureDate: basicInfo.sampledAt ?? "",
-    measurementType: basicInfo.schedulePurpose ?? "",
+    referenceNumber: schedule.referenceNumber ?? "",
+    measureDate: schedule.sampledAt ?? "",
+    // 서버 계약은 자유 문자열이지만 입력은 Select 로 받는다 — 목록 밖의 값은 미지정으로 떨어진다.
+    measurementType: (schedule.schedulePurpose as MeasurementType | null) ?? "",
   });
 
   const [fieldErrors, setFieldErrors] =
@@ -49,7 +49,7 @@ export const useUpdateScheduleBasicInfo = ({
     }
 
     try {
-      await updateSchedule(scheduleId, toScheduleMetaUpdate(form, tenant));
+      await updateSchedule(scheduleId, toScheduleMetaUpdate(form));
       toast.success("사전 정보가 수정되었습니다.");
       onSuccess();
     } catch (err) {

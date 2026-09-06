@@ -5,7 +5,7 @@ import { convertHpaToMmHg, convertMmH2OToInchH2O, convertMmH2OToMmHg } from "../
 // Pg는 InitStep이 채운 avgPs에 의존한다.
 
 export const pressureStep: SheetCalcStep = (ctx, { sheet }) => {
-  const pressure = sheet.weather?.pressure;
+  const pressure = sheet.weather?.atmosphericPressure;
   if (pressure != null) ctx.pa = convertHpaToMmHg(pressure);
 
   const gasMeterGaugePressure = sheet.moisture?.gasMeterGaugePressure;

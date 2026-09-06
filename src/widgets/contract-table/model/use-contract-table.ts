@@ -15,7 +15,7 @@ import { TABLE_PAGE_SIZE } from "@shared/config";
 export const useContractTable = () => {
   const navigate = useNavigate();
 
-  const { data, loading, error } = useContracts();
+  const { data, isLoading: loading, error } = useContracts();
   const tableData = useMemo(() => data.map(toContractRows), [data]);
 
   const { table, globalFilter, setGlobalFilter } = useDataTable({
@@ -25,5 +25,5 @@ export const useContractTable = () => {
     onViewDetail: (row: ContractTableRow) => navigate(`/contracts/${row.id}`),
   });
 
-  return { table, loading, error, globalFilter, setGlobalFilter };
+  return { table, isLoading: loading, error, globalFilter, setGlobalFilter };
 };

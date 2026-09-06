@@ -12,21 +12,22 @@ const calcXw = (ctx: SheetCalcContext): number | null => {
   if (ctx.ma == null || ctx.tm_g == null || ctx.vm_g == null || ctx.pa == null || ctx.pm_g == null) return null;
 
   const pm = ctx.pa + ctx.pm_g;
-  const waterVolStp = ctx.ma * roundHalfUp(STANDARD_MOLAR_VOLUME / 18, 5);
-  const dryVolStp = ctx.vm_g * roundHalfUp(273 / toKelvin(ctx.tm_g), 5) * roundHalfUp(pm / 760, 5);
+  const waterVolStp = ctx.ma * STANDARD_MOLAR_VOLUME / 18;
+  const dryVolStp = ctx.vm_g * 273 / toKelvin(ctx.tm_g) * pm / 760;
   const denominator = waterVolStp + dryVolStp;
   if (denominator === 0) return null;
 
-  // 서버: 100 × (비율 scale 5) — 추가 반올림 없음(scale 2 정규화만)
-  return roundHalfUp(100 * roundHalfUp(waterVolStp / denominator, 5), 2);
+  // **곱한 뒤 scale 2 로 반올림한다.** 성적서 엑셀이 내는 수분량과 값이 같아야 하므로
+  // 이 순서를 바꾸지 않는다 — 비율을 먼저 scale 5 로 반올림하면 11.82 대신 11.818 이 된다.
+  return roundHalfUp(100 * waterVolStp / denominator, 2);
 };
 
 export const moistureStep: SheetCalcStep = (ctx, { sheet }) => {
   const moisture = sheet.moisture;
   if (!moisture) return;
 
-  const before = moisture.weight?.before;
-  const after = moisture.weight?.after;
+  const before = moisture.bottleWeight?.before;
+  const after = moisture.bottleWeight?.after;
   const tIn = moisture.gasMeterTemperature?.in;
   const tOut = moisture.gasMeterTemperature?.out;
   const volBefore = moisture.dryGasVolume?.before;

@@ -25,7 +25,7 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch
+    isLoading, error, refetch
   } = useClientTable({ onRowClick, onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -47,10 +47,10 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
             />
           </>
         }
-        footer={!loading && !error && <TableFooterBar table={table} />}
+        footer={!isLoading && !error && <TableFooterBar table={table} />}
       >
         <BasicTable
-          table={table} loading={loading} error={error} onRowClick={handleRowClick} mobileCard={clientCardConfig} />
+          table={table} loading={isLoading} error={error} onRowClick={handleRowClick} mobileCard={clientCardConfig} />
       </TablePanel>
 
       <UpdateClientForm

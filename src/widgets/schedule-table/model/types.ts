@@ -7,7 +7,6 @@ export type ScheduleTableRow = {
   referenceNumber: string;
   measurementField: string;   // 표시 라벨
   clientName: string;
-  workplaceName: string;
   stackName: string;
   teamName: string;
 };

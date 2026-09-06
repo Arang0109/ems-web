@@ -1,35 +1,15 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { documentApi } from "../api/api";
 import { toUpdateRequest } from "../api/mapper";
 import type { DocumentUpdate } from "./types";
 
 export const useUpdateDocumentAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const updateDocument = async (id: number, data: DocumentUpdate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (id: number, data: DocumentUpdate) => {
     const payload = toUpdateRequest(data);
 
-    try {
-      const result = await documentApi.updateDocument(id, payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await documentApi.updateDocument(id, payload));
+  });
 
-  return {
-    updateDocument,
-
-    isLoading, error,
-  };
+  return { updateDocument: run, isLoading, error };
 };

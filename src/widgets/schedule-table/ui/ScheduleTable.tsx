@@ -23,7 +23,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
     statusOptions,
     filter,
 
-    loading, error,
+    isLoading, error,
   } = useScheduleTable();
 
   return (
@@ -75,7 +75,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
         />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </div>

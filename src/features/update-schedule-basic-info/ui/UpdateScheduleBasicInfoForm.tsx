@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import type { BasicInfo, TenantSnapshot } from "@entities/schedule";
+import type { ScheduleDetail } from "@entities/schedule";
 import { FormDialog } from "@shared/ui/dialogs";
 import { DatePicker, FieldGroup, InputGroup, Select } from "@shared/ui/form";
 import { measurementTypeOptions } from "@shared/model";
@@ -9,10 +9,8 @@ import { useUpdateScheduleBasicInfo } from "../model/hooks/use-update-schedule-b
 
 interface Props {
   scheduleId: number;
-  /** 이 회차 문서의 기본정보 — 폼의 초기값 */
-  basicInfo: BasicInfo;
-  /** 조회된 고객사 스냅샷 — 서버가 덮어쓰지 못하도록 그대로 되돌려 보낸다 */
-  tenant: TenantSnapshot | null;
+  /** 이 회차의 계획 메타 — 폼의 초기값 */
+  schedule: ScheduleDetail;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -23,12 +21,11 @@ const toDate = (value: string): Date | undefined => (value ? new Date(value) : u
 const toDateValue = (date: Date | undefined): string => (date ? format(date, "yyyy-MM-dd") : "");
 
 export const UpdateScheduleBasicInfoForm = ({
-  scheduleId, basicInfo, tenant, open, onOpenChange, onSuccess,
+  scheduleId, schedule, open, onOpenChange, onSuccess,
 }: Props) => {
   const { form, fieldErrors, isLoading, handleChange, handleSubmit } = useUpdateScheduleBasicInfo({
     scheduleId,
-    basicInfo,
-    tenant,
+    schedule,
     onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
@@ -53,7 +50,7 @@ export const UpdateScheduleBasicInfoForm = ({
           placeholder="예) KGAR-26-01-001"
           value={form.referenceNumber}
           onChange={(value) => handleChange("referenceNumber", value)}
-          helperText="비워 두고 저장하면 기존 관리번호가 그대로 유지됩니다."
+          helperText="비워 두고 저장하면 기존 관리번호가 지워집니다."
         />
 
         <DatePicker

@@ -158,6 +158,34 @@ export const documentHandlers = [
     );
   }),
 
+  http.delete(`${BASE_URL}/admin/documents/:documentId/versions/:versionNo`, ({ params }) => {
+    const id = Number(params.documentId);
+    const versionNo = Number(params.versionNo);
+    const document = findDocument(id);
+    if (!document) return notFound('존재하지 않는 문서입니다.');
+
+    const versions = versionStore[id] ?? [];
+    // 서버와 동일하게 마지막 남은 한 개는 삭제를 막는다.
+    if (versions.length <= 1) {
+      return HttpResponse.json(
+        { status: false, message: '마지막 남은 버전은 삭제할 수 없습니다.', data: null },
+        { status: 409 },
+      );
+    }
+
+    const index = versions.findIndex((v) => v.versionNo === versionNo);
+    if (index < 0) return notFound('존재하지 않는 문서 버전입니다.');
+
+    versions.splice(index, 1);
+    // 최신 버전을 지운 경우에만 최신 번호를 남은 버전 중 최대값으로 내린다.
+    if (document.latestVersionNo === versionNo) {
+      document.latestVersionNo = Math.max(...versions.map((v) => v.versionNo));
+    }
+    document.modifiedAt = NOW;
+
+    return HttpResponse.json({ status: true, message: '문서 버전 삭제 성공', data: null });
+  }),
+
   http.get(`${BASE_URL}/admin/documents/:documentId/download`, ({ params }) => {
     const id = Number(params.documentId);
     const document = findDocument(id);

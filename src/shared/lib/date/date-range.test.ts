@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  fromDateKey,
   isSameDateRange,
   isWithinDateRange,
   matchDateRangePreset,
@@ -92,5 +93,43 @@ describe("matchDateRangePreset", () => {
     const custom = { from: new Date(2026, 7, 3), to: new Date(2026, 7, 7) };
 
     expect(matchDateRangePreset(custom, TODAY)).toBeNull();
+  });
+});
+
+describe("fromDateKey", () => {
+  it("toDateKey 의 역방향이다", () => {
+    const parsed = fromDateKey("2026-08-11");
+
+    expect(parsed).not.toBeNull();
+    expect(toDateKey(parsed!)).toBe("2026-08-11");
+  });
+
+  it("UTC 가 아니라 로컬 자정으로 읽는다", () => {
+    const parsed = fromDateKey("2026-08-11")!;
+
+    expect(parsed.getFullYear()).toBe(2026);
+    expect(parsed.getMonth()).toBe(7);
+    expect(parsed.getDate()).toBe(11);
+    expect(parsed.getHours()).toBe(0);
+  });
+
+  it("실재하지 않는 날짜는 null 이다 — 다음 달로 굴러가지 않는다", () => {
+    expect(fromDateKey("2026-02-31")).toBeNull();
+    expect(fromDateKey("2026-13-01")).toBeNull();
+  });
+
+  it("자릿수를 채우지 않은 표기는 null 이다", () => {
+    expect(fromDateKey("2026-8-1")).toBeNull();
+  });
+
+  it("날짜가 아닌 값은 null 이다", () => {
+    expect(fromDateKey("abc")).toBeNull();
+    expect(fromDateKey("")).toBeNull();
+    expect(fromDateKey(null)).toBeNull();
+    expect(fromDateKey(undefined)).toBeNull();
+  });
+
+  it("시각이 붙은 문자열은 날짜 키가 아니므로 null 이다", () => {
+    expect(fromDateKey("2026-08-11T09:00:00")).toBeNull();
   });
 });

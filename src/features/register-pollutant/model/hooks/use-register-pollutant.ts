@@ -24,7 +24,7 @@ interface Props {
  */
 export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
   const { registerPollutant, isLoading } = useRegisterPollutantAction();
-  const { data: candidates, loading: isCandidatesLoading, refetch: refetchCandidates } =
+  const { data: candidates, isLoading: isCandidatesLoading, refetch: refetchCandidates } =
     usePollutantCandidates({ enabled: open });
 
   const [form, setForm] = useState<PollutantRegisterForm>(getDefaultForm());

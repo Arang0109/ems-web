@@ -3,7 +3,6 @@ import type { ApiResponseMessage } from '@shared/model';
 import type {
   WorkplaceListResponse,
   WorkplaceResponse,
-  ContractOverviewResponse,
   WorkplaceRegisterRequest,
   WorkplaceUpdateRequest,
 } from './dto';
@@ -17,11 +16,6 @@ export const workplaceApi = {
   getWorkplaces: async (clientId: number | null = null): Promise<ApiResponseMessage<WorkplaceListResponse[]>> => {
     const params = clientId != null ? { clientId } : {};
     const res = await axiosPrivate.get('/workplaces', { params });
-    return res.data;
-  },
-
-  getContractOverview: async (): Promise<ApiResponseMessage<ContractOverviewResponse>> => {
-    const res = await axiosPrivate.get('/workplaces/contract-summary');
     return res.data;
   },
 

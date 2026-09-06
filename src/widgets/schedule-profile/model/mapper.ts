@@ -7,7 +7,7 @@ import {
 import { EQUIP_TYPE, MEASUREMENT_CYCLE } from "@shared/model";
 import type { EquipType, MeasurementCycle, Shape } from "@shared/model";
 
-import type { EquipmentSpecItem, PollutantChipItem, PollutantCycleGroup } from "./types";
+import type { EquipmentSpecItem, PollutantChipItem, PollutantCycleGroup, ReportItem } from "./types";
 
 export const value = (v?: string | number | null): string => {
   if (v === null || v === undefined) return "-";
@@ -143,3 +143,18 @@ export const groupPollutantsByCycle = (
     (group): group is PollutantCycleGroup => group !== undefined,
   );
 };
+
+// 성적서 탭용 측정항목 목록. 스냅샷 배열 순서가 곧 성적서의 표기 순서이므로 정렬하지 않고 그대로 옮긴다.
+// 측정주기로 묶지 않는 것도 같은 이유다 — 성적서 순서는 계획 전체에 대한 하나의 순서다.
+export const toReportItems = (
+  items: MeasurementItemSnapshot[],
+  standardOxygen: number | null,
+): ReportItem[] =>
+  items.map((item) => ({
+    // SortableList 가 id: number 를 요구한다. 측정계획 문서 안에서 측정물질은 유일하다.
+    id: item.pollutantId,
+    name: value(item.nameKr),
+    allowance: value(item.allowance),
+    standardOxygen: value(standardOxygen),
+    oxygenApplicable: item.oxygenApplicable,
+  }));

@@ -12,7 +12,7 @@ export const useClientManagement = () => {
 
       // WorkplaceTable
       workplaces: client.workplaces,
-      workplacesLoading: client.loading,
+      workplacesLoading: client.isLoading,
       workplacesError: client.error,
       selectedWorkplace: workplace.selectedWorkplace,
       onSelectWorkplace: workplace.handleSelectWorkplaceRow,
@@ -20,7 +20,7 @@ export const useClientManagement = () => {
 
       // StackTable
       stacks: workplace.stacks,
-      stacksLoading: workplace.loading,
+      stacksLoading: workplace.isLoading,
       stacksError: workplace.error,
       refetchStacks: workplace.refetchStacks,
     };

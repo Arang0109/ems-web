@@ -63,9 +63,8 @@ export const authHandlers = [
     return HttpResponse.json({
       status: true,
       message: '토큰 갱신 성공',
-      data: {
-        accessToken: 'mock-refreshed-token-xyz',
-      },
+      // 서버는 새 accessToken 문자열을 data에 그대로 담는다(객체로 감싸지 않는다).
+      data: 'mock-refreshed-token-xyz',
     });
   }),
 ];

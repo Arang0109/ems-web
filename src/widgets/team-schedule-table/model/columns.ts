@@ -14,12 +14,6 @@ export const defaultColumns = [
     enableGlobalFilter: false,
     enableSorting: false,
   }),
-  columnHelper.accessor('workplaceName', {
-    header: '측정대상 사업장',
-    cell: CustomCell,
-    enableGlobalFilter: false,
-    enableSorting: false,
-  }),
   columnHelper.accessor('stackName', {
     header: '측정시설',
     cell: CustomCell,

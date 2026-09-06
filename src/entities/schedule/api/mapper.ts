@@ -1,16 +1,18 @@
+import { measurementUnitText } from "@shared/model";
+
 import type {
   CreateScheduleRequest, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeStackSnapshotRequestBody,
   ChangeScheduleItemsRequest, UpdateScheduleItemRequest, UpdateBasicInfoRequest, UpdateScheduleRequest,
   PreviousSheetResponse,
   PreviousSheetCandidateResponse,
-  AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
+  AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from "./dto";
 import type {
   ScheduleCreate, ScheduleDetail, SheetSave, SheetRef,
   ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, BasicInfoUpdate, ScheduleMetaUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate, PreviousSheet, PreviousSheetCandidate,
-  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate,
+  AnalysisResult, SamplingTimesSave, AnalysisResultsSave,
 } from "../model/types";
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -41,13 +43,11 @@ export const toPreviousSheetCandidates = (
 ): PreviousSheetCandidate[] => dtos;
 
 // 장비 식별자는 서버 계약이 String이므로 숫자로 변환하지 않는다.
+// 전체 교체이므로 화면에 있는 장비 전부를 그대로 싣는다.
 export const toChangeEquipmentsRequest = (
   vo: ScheduleEquipmentsUpdate,
 ): ChangeScheduleEquipmentsRequest => ({
-  particleSamplerId: vo.particleSamplerId,
-  gasSamplerId: vo.gasSamplerId,
-  pitotTubeId: vo.pitotTubeId,
-  nozzleId: vo.nozzleId,
+  equipmentIds: vo.equipmentIds,
 });
 
 // 날짜·시각은 전 레이어 string이므로 재변환 없이 passthrough.
@@ -66,13 +66,11 @@ export const toUpdateBasicInfoRequest = (vo: BasicInfoUpdate): UpdateBasicInfoRe
 });
 
 // 날짜·문자열뿐이라 재변환 없이 passthrough.
-// measurementField 는 이 경로를 쓰는 화면이 다루지 않으므로 null(기존 값 유지)로 둔다.
+// 측정분야는 생성 시점에만 정하므로 이 요청에 담기지 않는다.
 export const toUpdateScheduleRequest = (vo: ScheduleMetaUpdate): UpdateScheduleRequest => ({
-  measurementField: null,
   sampledAt: vo.sampledAt,
   schedulePurpose: vo.schedulePurpose,
   referenceNumber: vo.referenceNumber,
-  tenant: vo.tenant,
 });
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -129,21 +127,32 @@ export const toUpdateItemRequest = (vo: ScheduleItemUpdate): UpdateScheduleItemR
 // 실험분석정보 — 응답은 키 구조가 같아 그대로 채택하고, 요청은 숫자 재변환 없이 passthrough.
 // ─────────────────────────────────────────────────────────────
 
-export const toAnalysisRecord = (dto: AnalysisRecordResponse): AnalysisRecord => dto;
+/**
+ * 측정단위를 서버에 보낼 표기로 맞춘다 — `MG_PER_SM3` 가 아니라 `mg/Sm³`, `PPM` 이 아니라 `ppm`.
+ *
+ * 단위 enum 은 Select 입력을 위한 화면 쪽 사정이고, 서버 계약의 `unit` 은 성적서에 그대로 찍히는
+ * 자유 문자열이다. 이미 표기로 들어온 값은 그대로 통과하며(멱등), enum 이 아닌 값은 손대지 않는다.
+ */
+const toUnitNotation = (unit: string | null): string | null => measurementUnitText(unit) || null;
 
-export const toAnalysisRecords = (dtos: AnalysisRecordResponse[]): AnalysisRecord[] => dtos;
+export const toAnalysisResult = (dto: AnalysisResultResponse): AnalysisResult => dto;
 
-export const toCreateAnalysisRequest = (vo: AnalysisRecordCreate): CreateAnalysisRecordRequest => ({
-  pollutantId: vo.pollutantId,
-  analysisValue: vo.analysisValue,
-  unit: vo.unit,
-  analysisMethod: vo.analysisMethod,
-  analysisEquipment: vo.analysisEquipment,
+export const toAnalysisResults = (dtos: AnalysisResultResponse[]): AnalysisResult[] => dtos;
+
+export const toSaveAnalysisResultsRequest = (vo: AnalysisResultsSave): SaveAnalysisResultsRequest => ({
+  items: vo.items.map((item) => ({
+    pollutantId: item.pollutantId,
+    analysisValue: item.analysisValue,
+    unit: toUnitNotation(item.unit),
+    analysisMethod: item.analysisMethod,
+    analysisEquipment: item.analysisEquipment,
+  })),
 });
 
-export const toUpdateAnalysisRequest = (vo: AnalysisRecordUpdate): UpdateAnalysisRecordRequest => ({
-  analysisValue: vo.analysisValue,
-  unit: vo.unit,
-  analysisMethod: vo.analysisMethod,
-  analysisEquipment: vo.analysisEquipment,
+export const toSaveSamplingTimesRequest = (vo: SamplingTimesSave): SaveSamplingTimesRequest => ({
+  items: vo.items.map((item) => ({
+    pollutantId: item.pollutantId,
+    samplingStartedAt: item.samplingStartedAt,
+    samplingEndedAt: item.samplingEndedAt,
+  })),
 });

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { unwrapMessage } from "@shared/api";
+import { useFetch } from "@shared/model";
 
 import { equipmentApi } from "../api/api";
 import type { InspectionRecord } from "./types";
@@ -7,30 +8,10 @@ interface Props {
   equipmentId: string | null;
 }
 
-export const useInspectionRecords = ({ equipmentId }: Props) => {
-  const [data, setData] = useState<InspectionRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [revision, setRevision] = useState(0);
-
-  const refetch = useCallback(() => {
-    setLoading(true);
-    setRevision((r) => r + 1);
-  }, []);
-
-  useEffect(() => {
-    if (equipmentId == null) return;
-    let cancelled = false;
-    equipmentApi.getInspectionRecords(equipmentId)
-      .then((res) => {
-        if (cancelled) return;
-        if (res.status) setData(res.data);
-        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
-      })
-      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [revision, equipmentId]);
-
-  return { data, loading, error, refetch };
-};
+/** 타입 A(자동 로드): 장비의 검사 이력. */
+export const useInspectionRecords = ({ equipmentId }: Props) =>
+  useFetch<InspectionRecord[]>(
+    async () => unwrapMessage(await equipmentApi.getInspectionRecords(equipmentId as string)),
+    [],
+    { deps: [equipmentId], enabled: equipmentId != null, resetOnChange: true },
+  );

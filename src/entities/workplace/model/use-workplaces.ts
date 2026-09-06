@@ -1,35 +1,16 @@
-import { useState, useCallback } from "react";
+import { useLazyFetch } from "@shared/model";
 
-import type { WorkplaceListItem } from "./types";
-import { toWorkplaceListItems } from "../api/mapper";
 import { workplaceApi } from "../api/api";
+import { toWorkplaceListItems } from "../api/mapper";
+import type { WorkplaceListItem } from "./types";
 
-import { ERROR_MESSAGE } from "@shared/config";
-
+/** 타입 B(수동 호출): 의뢰기관을 고르면 그 기관의 사업장 목록을 받아온다. */
 export const useWorkplaces = () => {
-  const [data, setData] = useState<WorkplaceListItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, fetch } = useLazyFetch(
+    async (clientId: number | null) => toWorkplaceListItems((await workplaceApi.getWorkplaces(clientId)).data),
+    [] as WorkplaceListItem[],
+    { resetOnFetch: true },
+  );
 
-  const fetchWorkplaces = useCallback(async (clientId: number | null) => {
-    setLoading(true);
-    setError(null);
-    setData([]);
-    try {
-      const res = await workplaceApi.getWorkplaces(clientId);
-      setData(toWorkplaceListItems(res.data));
-    } catch {
-      setError(ERROR_MESSAGE.FETCH);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return {
-    data,
-    loading,
-    error,
-
-    fetchWorkplaces,
-  }
-}
+  return { data, isLoading, error, fetchWorkplaces: fetch };
+};

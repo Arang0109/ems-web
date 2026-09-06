@@ -7,7 +7,7 @@ import { Panel } from '@shared/ui/cards';
 export const StackListTable = () => {
   const {
     table,
-    loading, error,
+    isLoading, error,
     globalFilter, setGlobalFilter,
   } = useStackListTable();
 
@@ -27,7 +27,7 @@ export const StackListTable = () => {
         <BasicTable table={table} error={error} />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </Panel>

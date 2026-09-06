@@ -28,7 +28,7 @@ export const usePollutantTable = ({ onSuccess }: Props = {}) => {
   const [field, setField] = useState<string>(ALL_FIELDS);
 
   // 채택한 물질만 오므로 목록이 길지 않지만, 분야 필터는 서버가 지원하니 조회 단계에서 좁힌다.
-  const { data, loading, error, refetch: pollutantRefetch } = usePollutants({
+  const { data, isLoading: loading, error, refetch: pollutantRefetch } = usePollutants({
     field: field === ALL_FIELDS ? undefined : (field as MeasurementField),
   });
 
@@ -74,6 +74,6 @@ export const usePollutantTable = ({ onSuccess }: Props = {}) => {
 
     refetch,
 
-    loading, error,
+    isLoading: loading, error,
   };
 };

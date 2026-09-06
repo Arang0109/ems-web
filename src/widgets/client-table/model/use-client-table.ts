@@ -21,7 +21,7 @@ export const useClientTable = ({ onRowClick, onSuccess }: Props) => {
   /** 상세 모달 대상 — 행 클릭으로 선택된 항목이 아니라 '상세보기' 를 누른 행이다. */
   const [detailClientId, setDetailClientId] = useState<number | null>(null);
 
-  const { data, loading, error, refetch: clientRefetch } = useClients();
+  const { data, isLoading: loading, error, refetch: clientRefetch } = useClients();
 
   const tableData = useMemo(() => data.map(toClientRows), [data]);
 
@@ -66,6 +66,6 @@ export const useClientTable = ({ onRowClick, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   }
 }

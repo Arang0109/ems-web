@@ -28,7 +28,7 @@ export const useTenantTable = ({ onSuccess }: Props) => {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.COMPACT });
-  const { data, loading, error, refetch: tenantRefetch } = useTenants();
+  const { data, isLoading: loading, error, refetch: tenantRefetch } = useTenants();
 
   const tableData = useMemo(
     () => data?.map(toTenantRows),
@@ -63,6 +63,6 @@ export const useTenantTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   }
 }

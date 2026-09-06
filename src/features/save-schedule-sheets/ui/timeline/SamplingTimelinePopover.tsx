@@ -10,7 +10,6 @@ import { SamplingTimelineView } from "./SamplingTimelineView";
 
 interface Props {
   timeline: SamplingTimeline;
-  isMobile: boolean;
 }
 
 /**
@@ -21,7 +20,7 @@ interface Props {
  *
  * 하단 고정 액션바에 놓이므로 위로 열린다 — 모바일에서 엄지 근처라 전체화면 모달보다 낫다.
  */
-export const SamplingTimelinePopover = ({ timeline, isMobile }: Props) => {
+export const SamplingTimelinePopover = ({ timeline }: Props) => {
   const [open, setOpen] = useState(false);
 
   const { issueCount, worstLevel } = timeline;
@@ -38,7 +37,7 @@ export const SamplingTimelinePopover = ({ timeline, isMobile }: Props) => {
       content={<SamplingTimelineView timeline={timeline} />}
     >
       <Button type="button" variant="soft" startIcon={Clock}>
-        {!isMobile ? "타임라인" : ""}
+        타임라인
         {issueCount > 0 && (
           <Badge tone={worstLevel === "danger" ? "danger" : "warning"}>{issueCount}</Badge>
         )}

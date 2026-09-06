@@ -22,11 +22,11 @@ export const gasVelocityRaw = (cp: number, pv: number, gasDensity: number): numb
 };
 
 // 원 단면적 π·d²/4 — 내부 나눗셈 scale이 스텝마다 다르다(Init 5, Particle 10).
-const circleArea = (diameter: number, innerScale: number): number =>
-  roundHalfUp(roundHalfUp((3.14 * diameter * diameter) / 4, innerScale), 3);
+const circleArea = (diameter: number): number =>
+  roundHalfUp((Math.PI * diameter * diameter) / 4, 3);
 
 // InitStep — 원형 굴뚝 단면적 (m²)
-export const stackCircleArea = (diameter: number): number => circleArea(diameter, 5);
+export const stackCircleArea = (diameter: number): number => circleArea(diameter);
 
 // ParticleStep — 노즐 단면적 An (cm²)
-export const nozzleArea = (nozzleSize: number): number => circleArea(nozzleSize, 10);
+export const nozzleArea = (nozzleSize: number): number => circleArea(nozzleSize);

@@ -1,21 +1,31 @@
 import { describe, expect, it } from "vitest";
 
-import type { ParticleSampling, SamplingPoint, SheetSave } from "../../model/types";
+import type { IsokineticSampling, SamplingPoint, SheetSave } from "../../model/types";
 import type { SheetCalcExternals } from "./types";
 import { calcSheetPreview } from "./run";
 
-// 서버 SheetCalculatorTest의 기대값을 프론트 계산 파리티 테스트로 이식한다.
-// 공식/상수/반올림이 서버와 어긋나면 여기서 실패한다(이중 소스 드리프트 방어).
+// 서버 SheetCalculatorTest 와 같은 입력으로 계산 파이프라인 전체를 검증한다.
+// 공식·상수·반올림이 어긋나면 여기서 실패한다.
+//
+// **기대값의 기준은 서버가 아니라 성적서 엑셀이다.** 현장이 쓰는 엑셀 서식이 내는 값과
+// 화면 값이 같아야 하므로, 두 곳이 갈리면 엑셀 쪽을 따른다.
+//
+// 알려진 차이 — 아래 둘은 서버가 프론트에 맞춰 고쳐야 하는 항목이다:
+//   - Xw: 프론트 round(100 × 비율, 2) = 11.82 / 서버 100 × round(비율, 5) = 11.818
+//   - gasDensity: 프론트는 round 2 된 표준밀도를 환산에 물려 쓴다(엑셀이 표의 값을 그대로
+//     다음 칸에 쓰기 때문) = 0.922 / 서버는 원시값을 써서 0.924
 
 const gasPoint = (Ts: number, Pv: number, Ps: number): SamplingPoint => ({
-  Ts, Pv, Ps, Vs: null, gasDensity: null, particle: null,
+  gasTemperature: Ts, dynamicPressure: Pv, staticPressure: Ps,
+  gasVelocity: null, gasDensity: null, isokineticSampling: null,
 });
 
-const particleSampling = (over: Partial<ParticleSampling> = {}): ParticleSampling => ({
-  equipmentTemperature: { inTm: null, outTm: null, avgTm: null },
-  equipmentVolume: { beforeVm: null, afterVm: null },
+const particleSampling = (over: Partial<IsokineticSampling> = {}): IsokineticSampling => ({
+  gasTemperature: { inlet: null, outlet: null, average: null },
+  gasMeterVolume: { before: null, after: null },
   samplingTime: null, vacuumGaugePressure: null, finalImpingerTemperature: null,
-  nozzleSize: null, Vm: null, Vlc: null, kFactor: null, orificeDp: null, isokineticRatio: null,
+  nozzleDiameter: null, sampledDryGasVolume: null, collectedWaterVolume: null,
+  kFactor: null, orificeDifferentialPressure: null, isokineticRatio: null,
   ...over,
 });
 
@@ -23,34 +33,36 @@ const makeSheet = (over: Partial<SheetSave> = {}): SheetSave => ({
   category: "GAS",
   version: null,
   weather: {
-    pressure: null, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: null, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: null, after: null },
+    bottleWeight: { before: null, after: null },
     gasMeterTemperature: { in: null, out: null },
     dryGasVolume: { before: null, after: null },
     suctionVelocity: null, gasMeterGaugePressure: null,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [], co2Concentration: [], coConcentration: [],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
-  quantity: null,
-  particle: null,
+  flowRate: null,
+  particulateSampling: null,
   samplingPoints: [],
-  samples: [],
-  samplingPointCnt: null,
-  avgTm: null,
+  gaseousSamplings: [],
+  samplingPointCount: null,
   ...over,
 });
 
 const makeExternals = (over: Partial<SheetCalcExternals> = {}): SheetCalcExternals => ({
-  standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
+  stackName: "", standardOxygen: null, shape: null, horizontalLength: null, verticalLength: null,
   pitotCoefficients: [], deltaH: null, nozzleDiameters: [],
   ...over,
 });
@@ -66,22 +78,25 @@ const serverExternals = () =>
 
 const serverInputs = (): Partial<SheetSave> => ({
   weather: {
-    pressure: 1013.25, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: 1013.25, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: 10, after: 15 },
+    bottleWeight: { before: 10, after: 15 },
     gasMeterTemperature: { in: 20, out: 22 },
     dryGasVolume: { before: 0, after: 50 },
     suctionVelocity: null, gasMeterGaugePressure: 0,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [10], co2Concentration: [8], coConcentration: [0],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
 });
 
@@ -96,8 +111,9 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
 
     // 대기압: 1013.25 hPa → 760.0 mmHg
     expect(result.weather.pa).toBeCloseTo(760.0, 5);
-    // 수분량 Xw = 100 × (6.2222 / 52.6507 → scale5) = 11.818
-    expect(result.moisture.xw).toBeCloseTo(11.818, 5);
+    // 수분량 Xw = round(100 × 6.2222 / 52.6507, 2) = 11.82
+    // 서버는 비율을 scale 5 로 먼저 반올림해 11.818 을 낸다 — 아래 주석의 '알려진 차이' 참고.
+    expect(result.moisture.xw).toBeCloseTo(11.82, 5);
     // 산소보정계수: (21-4)/(21-10) = 17/11 ≈ 1.54545
     expect(result.exhaustGas.o2CorrectionFactor).toBeCloseTo(1.54545, 5);
     // 규정상 요구 측정점 수: 원형 지름 1m ≤ 1 → 1 (배열 길이 2가 아님)
@@ -110,8 +126,8 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
     expect(result.quantity.avgPs).toBeCloseTo(-2.0, 5);
     expect(result.quantity.Cp).toBeCloseTo(0.84, 5);
     expect(result.exhaustGas.standardGasDensity).toBeCloseTo(1.26, 5);
-    expect(result.quantity.gasDensity).toBeCloseTo(0.924, 5);
-    expect(result.quantity.Vs).toBeCloseTo(8.655, 5);
+    expect(result.quantity.gasDensity).toBeCloseTo(0.922, 5);   // 서버는 0.924 (알려진 차이)
+    expect(result.quantity.Vs).toBeCloseTo(8.665, 5);    // 밀도 차이가 유속까지 이어진다 (서버 8.655)
     expect(result.quantity.quantity as number).toBeGreaterThan(0);
     expect(result.quantity.standardQuantity as number).toBeGreaterThan(0);
     // 표준상태 건조 유량은 보정계수(<1)를 곱하므로 현장 습윤 유량보다 작다
@@ -130,11 +146,11 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
       category: "DUST",
       samplingPoints: [{
         ...gasPoint(100, 5, -2),
-        particle: particleSampling({
-          nozzleSize: 0.6,
+        isokineticSampling: particleSampling({
+          nozzleDiameter: 0.6,
           samplingTime: 30,
-          equipmentTemperature: { inTm: 20, outTm: 22, avgTm: null },
-          equipmentVolume: { beforeVm: 0, afterVm: 1.5 },
+          gasTemperature: { inlet: 20, outlet: 22, average: null },
+          gasMeterVolume: { before: 0, after: 1.5 },
         }),
       }],
     });
@@ -206,12 +222,14 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
     const result = calcSheetPreview(
       makeSheet({
         moisture: {
-          weight: { before: 10, after: 15 },
+          bottleWeight: { before: 10, after: 15 },
           gasMeterTemperature: { in: null, out: null },
           dryGasVolume: { before: null, after: null },
           suctionVelocity: null, gasMeterGaugePressure: null,
           samplingStartTime: null, samplingEndTime: null,
-          pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+          gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+          averageGasMeterTemperature: null, sampledDryGasVolume: null,
+          absorbedMoistureMass: null, moistureRatio: null,
         },
       }),
       makeExternals(),
@@ -227,12 +245,14 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
     const result = calcSheetPreview(
       makeSheet({
         moisture: {
-          weight: { before: null, after: null },
+          bottleWeight: { before: null, after: null },
           gasMeterTemperature: { in: 20, out: 23 },
           dryGasVolume: { before: null, after: null },
           suctionVelocity: null, gasMeterGaugePressure: null,
           samplingStartTime: null, samplingEndTime: null,
-          pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+          gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+          averageGasMeterTemperature: null, sampledDryGasVolume: null,
+          absorbedMoistureMass: null, moistureRatio: null,
         },
       }),
       makeExternals(),

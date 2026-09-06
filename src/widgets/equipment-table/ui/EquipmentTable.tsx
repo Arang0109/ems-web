@@ -31,7 +31,7 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading, error, refetch,
   } = useEquipmentTable({ type, onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -61,7 +61,7 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
         <BasicTable table={table} error={error} onRowClick={handleRowClick} />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="bg-panel py-1" />
       )}
 

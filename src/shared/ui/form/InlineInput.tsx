@@ -1,6 +1,9 @@
 import React from "react";
 
 import { Input as InputPrimitive } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import type { FieldTone } from "@shared/model";
+import { toneFrameClass } from "./field-tone";
 import { NumericField } from "./NumericField";
 import { TimeField } from "./TimeField";
 
@@ -24,6 +27,12 @@ interface InlineInputProps {
   min?: number;
   max?: number;
   step?: number;
+
+  /**
+   * 칸의 상태 색. 의미는 호출부가 정한다 — shared 는 "왜 그 색인지" 모른다.
+   * (`UnitField` 와 같은 계약이다)
+   */
+  tone?: FieldTone;
 }
 
 export const InlineInput = ({
@@ -42,7 +51,11 @@ export const InlineInput = ({
   min,
   max,
   step,
+  tone = "default",
 }: InlineInputProps) => {
+  // 톤은 값을 고칠 수 있는 칸에서만 의미가 있다 — 읽기 전용 칸까지 물들이지 않는다.
+  const frameClass = toneFrameClass(readOnly ? "default" : tone);
+
   return (
     <span className="inline-flex items-center gap-1.5">
       {prefix && (
@@ -56,7 +69,7 @@ export const InlineInput = ({
           onChange={(v) => onChange?.(v)}
           label={typeof prefix === "string" ? prefix : undefined}
           disabled={disabled}
-          className={width}
+          className={cn(width, frameClass)}
         />
       ) : type === "number" && !readOnly ? (
         // 모바일 숫자 키패드에는 `-` 가 없다 — 부호는 ± 버튼이 맡는다
@@ -69,7 +82,7 @@ export const InlineInput = ({
           label={typeof prefix === "string" ? prefix : undefined}
           disabled={disabled}
           placeholder={placeholder}
-          className={width}
+          className={cn(width, frameClass)}
           inputClassName="text-center"
         />
       ) : (
@@ -86,7 +99,7 @@ export const InlineInput = ({
           min={min}
           max={max}
           step={step}
-          className={`${width} text-center`}
+          className={cn(width, "text-center", frameClass)}
         />
       )}
       {suffix && (

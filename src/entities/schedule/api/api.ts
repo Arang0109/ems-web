@@ -5,22 +5,20 @@ import type { ApiResponseMessage } from '@shared/model';
 import type {
   CreateScheduleRequest, ScheduleListResponse, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeScheduleItemsRequest,
-  UpdateScheduleItemRequest,
+  ReorderScheduleItemsRequest, UpdateScheduleItemRequest,
   UpdateBasicInfoRequest, UpdateScheduleRequest,
-  CancelScheduleRequest, ReopenScheduleRequest,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
-  AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
+  AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from './dto';
 import type { MeasurementCategory } from '@shared/model';
 
 export const scheduleApi = {
-  // 취소·삭제된 계획은 담기지 않는다 — 각각 getCanceledSchedules·getDeletedSchedules 로 조회한다.
+  // 취소된 계획은 담기지 않는다 — getCanceledSchedules 로 조회한다.
   getSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
     const res = await axiosPrivate.get('/schedules');
     return res.data;
   },
 
-  // 취소 시각·사유(canceledAt·cancelReason)가 이 응답에서만 채워진다.
   getCanceledSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
     const res = await axiosPrivate.get('/schedules/canceled');
     return res.data;
@@ -81,6 +79,15 @@ export const scheduleApi = {
     return res.data;
   },
 
+  // 성적서에 실릴 측정항목의 순서를 바꾼다. 항목 집합은 그대로 두고 배열 순서만 재배치하므로,
+  // 항목을 더하거나 빼는 changeItems 와 경로가 분리돼 있다.
+  reorderItems: async (
+    id: number, body: ReorderScheduleItemsRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.put(`/schedules/${id}/items/order`, body);
+    return res.data;
+  },
+
   // 이 회차 문서의 측정항목 하나만 정정한다. 측정시설 원장은 바뀌지 않으므로,
   // 원장까지 고쳐야 하면 stackPollutantApi.updateStackPollutant 를 따로 호출한다.
   updateItem: async (
@@ -96,7 +103,7 @@ export const scheduleApi = {
     return unwrap(res);
   },
 
-  // 메타(관리번호·채취일자·측정용도·측정분야)를 고치면 서버가 문서 스냅샷의 기본정보까지 함께 갱신한다.
+  // 계획 정의(채취일자·측정용도·관리번호)를 고친다. 측정분야는 생성 시점에만 정한다.
   // updateBasicInfo 와 달리 동시 편집 충돌을 구분할 필요가 없어 일반 에러 계약을 쓴다.
   updateSchedule: async (
     id: number, body: UpdateScheduleRequest,
@@ -113,35 +120,19 @@ export const scheduleApi = {
     return res.data;
   },
 
-  cancelSchedule: async (
-    id: number, body: CancelScheduleRequest,
-  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.post(`/schedules/${id}/cancellation`, body);
+  cancelSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/cancellation`);
     return res.data;
   },
 
-  // 잘못 등록된 계획을 감춘다(soft delete). 서버가 '측정예정'만 허용한다.
+  // 잘못 등록된 계획을 지운다(물리 삭제). 서버가 '측정예정'·'취소'만 허용하며 복구할 수 없다.
   deleteSchedule: async (id: number): Promise<ApiResponseMessage<void>> => {
     const res = await axiosPrivate.delete(`/schedules/${id}`);
     return res.data;
   },
 
-  // ── 관리자 전용 ───────────────────────────────────────────
-
-  reopenSchedule: async (
-    id: number, body: ReopenScheduleRequest,
-  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.post(`/schedules/${id}/reopen`, body);
-    return res.data;
-  },
-
-  getDeletedSchedules: async (): Promise<ApiResponseMessage<ScheduleListResponse[]>> => {
-    const res = await axiosPrivate.get('/schedules/deleted');
-    return res.data;
-  },
-
-  restoreSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
-    const res = await axiosPrivate.post(`/schedules/${id}/restore`);
+  reopenSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.post(`/schedules/${id}/reopen`);
     return res.data;
   },
 
@@ -159,32 +150,39 @@ export const scheduleApi = {
     });
   },
 
-  // ── 실험분석정보 ──────────────────────────────────────────
-  // 측정계획의 하위 리소스다. 항목당 문서 하나이며 measurement sheet 와 저장 경로가 분리돼 있다.
+  // 성적서 xlsx 내려받기. exportSamplingRecords 와 같은 계약이지만 결과가 ZIP이 아니라 파일 하나다.
+  exportReport: async (id: number, template: File): Promise<AxiosResponse<Blob>> => {
+    // 서버 계약상 파트는 'template' 하나뿐이다.
+    const formData = new FormData();
+    formData.append('template', template);
 
-  getAnalyses: async (scheduleId: number): Promise<ApiResponseMessage<AnalysisRecordResponse[]>> => {
+    // Content-Type을 직접 지정하면 multipart boundary가 빠져 서버가 파트를 파싱하지 못하므로 헤더는 건드리지 않는다.
+    // validateStatus도 건드리지 않는다 — 인터셉터를 우회하면 401 자동 refresh가 동작하지 않는다.
+    return axiosPrivate.post(`/schedules/${id}/report/export`, formData, {
+      responseType: 'blob',
+    });
+  },
+
+  // ── 실험분석정보 ──────────────────────────────────────────
+  // 측정계획 문서의 측정항목 안에 저장되므로 등록·삭제 경로가 없다 — 항목이 곧 행이고,
+  // 행을 더하고 빼는 일은 changeItems 가 맡는다. 저장은 소유가 갈린 두 경로뿐이다.
+
+  getAnalyses: async (scheduleId: number): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
     const res = await axiosPrivate.get(`/schedules/${scheduleId}/analyses`);
     return res.data;
   },
 
-  createAnalysis: async (
-    scheduleId: number, body: CreateAnalysisRecordRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
-    const res = await axiosPrivate.post(`/schedules/${scheduleId}/analyses`, body);
+  saveAnalysisResults: async (
+    scheduleId: number, body: SaveAnalysisResultsRequest,
+  ): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
+    const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/results`, body);
     return res.data;
   },
 
-  updateAnalysis: async (
-    scheduleId: number, analysisId: string, body: UpdateAnalysisRecordRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
-    const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/${analysisId}`, body);
-    return res.data;
-  },
-
-  deleteAnalysis: async (
-    scheduleId: number, analysisId: string,
-  ): Promise<ApiResponseMessage<void>> => {
-    const res = await axiosPrivate.delete(`/schedules/${scheduleId}/analyses/${analysisId}`);
+  saveSamplingTimes: async (
+    scheduleId: number, body: SaveSamplingTimesRequest,
+  ): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
+    const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/sampling-times`, body);
     return res.data;
   },
 };

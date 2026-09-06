@@ -19,7 +19,7 @@ export const TenantTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch
+    isLoading, error, refetch
   } = useTenantTable({ onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -49,7 +49,7 @@ export const TenantTable = ({ onSuccess }: Props) => {
         <BasicTable table={table} error={error} />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="border-t border-border px-5 py-3" />
       )}
     </Panel>

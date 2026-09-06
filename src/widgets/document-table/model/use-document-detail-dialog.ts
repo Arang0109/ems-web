@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 
 import { useDocumentVersions } from '@entities/document';
 import type { Document } from '@entities/document';
+import { useDeleteDocumentVersion } from '@features/delete-document-version';
 import { useDownloadDocument } from '@features/download-document';
 
 import { useDataTable } from '@shared/model';
@@ -24,11 +25,23 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
 
   const documentId = open && document ? document.id : null;
 
-  const { data, loading, error, refetch } = useDocumentVersions({ documentId });
+  const { data, isLoading: loading, error, refetch } = useDocumentVersions({ documentId });
   const { handleDownload } = useDownloadDocument();
 
+  // 버전 목록과 함께 문서 목록·상세(최신 버전 번호, 수정일)도 갱신한다.
+  const handleVersionChanged = () => {
+    refetch();
+    onSuccess?.();
+  };
+
+  const { handleDelete, isLoading: isDeleting } = useDeleteDocumentVersion({
+    documentId,
+    onSuccess: handleVersionChanged,
+  });
+
   const versionData = useMemo(
-    () => (document ? data.map((version) => toDocumentVersionRows(version, document.id)) : []),
+    // 마지막 남은 한 개는 서버가 삭제를 막으므로 목록이 둘 이상일 때만 삭제 가능하다.
+    () => (document ? data.map((version) => toDocumentVersionRows(version, document.id, data.length > 1)) : []),
     [data, document],
   );
 
@@ -44,15 +57,11 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
             versionNo: row.versionNo,
             fallbackFilename: row.originalFilename,
           }),
+        onDelete: (row: DocumentVersionTableRow) => handleDelete(row.versionNo),
+        isRowActionPending: isDeleting,
       },
     },
   });
-
-  // 버전 목록과 함께 문서 목록·상세(최신 버전 번호, 수정일)도 갱신한다.
-  const handleVersionUploaded = () => {
-    refetch();
-    onSuccess?.();
-  };
 
   return {
     table,
@@ -61,6 +70,6 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
     versionsError: error,
 
     uploadOpen, setUploadOpen,
-    handleVersionUploaded,
+    handleVersionChanged,
   };
 };

@@ -20,7 +20,7 @@ import { EquipmentPage } from "@pages/equipment";
 import { StaffPage } from "@pages/staff";
 import {
   SchedulePage, ScheduleRegisterPage, ScheduleDetailPage,
-  CanceledSchedulePage, DeletedSchedulePage,
+  CanceledSchedulePage,
 } from "@pages/schedule";
 
 /**
@@ -57,16 +57,8 @@ const router = createBrowserRouter(
         <Route path="/staff" element={<StaffPage />} />
         <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/schedule/register" element={<ScheduleRegisterPage />} />
-        {/* :scheduleId 보다 먼저 둬야 "canceled"·"deleted"가 id로 잡히지 않는다 */}
+        {/* :scheduleId 보다 먼저 둬야 "canceled"가 id로 잡히지 않는다 */}
         <Route path="/schedule/canceled" element={<CanceledSchedulePage />} />
-        <Route
-          path="/schedule/deleted"
-          element={
-            <AdminRoute>
-              <DeletedSchedulePage />
-            </AdminRoute>
-          }
-        />
         <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} />
 
         <Route

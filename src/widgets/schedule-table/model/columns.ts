@@ -12,7 +12,6 @@ export const defaultColumns = [
   columnHelper.accessor('referenceNumber', { header: '관리번호', cell: CustomCell }),
   columnHelper.accessor('measurementField', { header: '측정분야', cell: CustomCell, size: 70 }),
   columnHelper.accessor('clientName', { header: '의뢰기관', cell: CustomCell }),
-  columnHelper.accessor('workplaceName', { header: '사업장', cell: CustomCell }),
   columnHelper.accessor('stackName', { header: '배출구', cell: CustomCell }),
   columnHelper.accessor('teamName', { header: '팀', cell: CustomCell }),
 ];

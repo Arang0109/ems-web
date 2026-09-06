@@ -2,6 +2,9 @@ import type { NozzleRecommendation, SheetCalcPreview } from "@entities/schedule"
 import type { CalcResultItem } from "@shared/ui/form";
 
 import { PARTICLE_HINT, WEATHER_HINT } from "../../model/field-hints";
+import { formatNumber } from "@shared/lib";
+
+const hrToMin = (v: number | null | undefined): number => v == null || Number.isNaN(v) ? 0 : v/60;
 
 /**
  * 계산 결과 드로어가 그리는 묶음들.
@@ -33,7 +36,6 @@ export const flowItems = (preview: SheetCalcPreview | null): CalcResultItem[] =>
   const quantity = preview?.quantity ?? null;
 
   return [
-    { label: "연도 단면적", value: quantity?.area, unit: "m²" },
     {
       label: "규정 요구 측정점 수", value: preview?.samplingPointCnt,
       hint: PARTICLE_HINT.requiredPointCount, hintLabel: "규정 요구 측정점 수 설명",
@@ -42,10 +44,12 @@ export const flowItems = (preview: SheetCalcPreview | null): CalcResultItem[] =>
     { label: "피토우관 계수", value: quantity?.Cp, hint: PARTICLE_HINT.Cp },
     { label: "배출가스 밀도", value: quantity?.gasDensity, hint: PARTICLE_HINT.gasDensity },
     { label: "습윤 유량", value: quantity?.quantity, unit: "m³/hr", hint: PARTICLE_HINT.quantity },
+    { label: "습윤 유량", value: formatNumber(hrToMin(quantity?.quantity), {maxDecimals:1}), unit: "m³/min" },
     {
       label: "표준 유량", value: quantity?.standardQuantity,
       unit: "Sm³/hr", hint: PARTICLE_HINT.standardQuantity, hintLabel: "표준 유량 설명",
     },
+    { label: "표준 유량", value: formatNumber(hrToMin(quantity?.standardQuantity), {maxDecimals:1}), unit: "Sm³/min", },
   ];
 };
 

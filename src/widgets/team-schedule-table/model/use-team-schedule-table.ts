@@ -21,7 +21,7 @@ export const useTeamScheduleTable = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const { data, loading, error } = useSchedules();
+  const { data, isLoading: loading, error } = useSchedules();
 
   // 기준일은 마운트 시점에 고정한다 — 렌더마다 new Date() 를 만들면 범위가 흔들린다
   const [today] = useState(() => new Date());
@@ -52,6 +52,6 @@ export const useTeamScheduleTable = () => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error,
+    isLoading: loading, error,
   };
 };

@@ -24,6 +24,7 @@ const item = (nameKr: string, nameEn: string, code: string | null = null): Measu
   cycle: "QUARTERLY",
   allowance: null,
   oxygenApplicable: false,
+  analysis: null,
 });
 
 describe("getAssignedPollutants", () => {

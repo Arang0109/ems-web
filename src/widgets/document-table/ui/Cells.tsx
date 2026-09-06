@@ -1,5 +1,5 @@
 import type { CellContext } from "@tanstack/react-table";
-import { Download } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 
 import { Button } from "@shared/ui/buttons";
 
@@ -34,5 +34,18 @@ export const VersionDownloadCell = ({ row, table }: CellContext<DocumentVersionT
     startIcon={Download}
   >
     다운로드
+  </Button>
+);
+
+/** 버전 삭제. 마지막 남은 한 개는 서버가 삭제를 막으므로 비활성한다. */
+export const VersionDeleteCell = ({ row, table }: CellContext<DocumentVersionTableRow, unknown>) => (
+  <Button
+    type="button"
+    variant="outline"
+    disabled={!row.original.isDeletable || table.options.meta?.isRowActionPending}
+    onClick={() => table.options.meta?.onDelete?.(row.original)}
+    startIcon={Trash2}
+  >
+    삭제
   </Button>
 );

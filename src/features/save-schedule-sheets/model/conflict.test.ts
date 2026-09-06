@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementSheet } from "@entities/schedule";
+import type { SamplingSheet } from "@entities/schedule";
 import type { MeasurementCategory } from "@shared/model";
 
 import {
@@ -11,33 +11,35 @@ import { getDefaultSheetForm } from "./types";
 import type { SheetForm } from "./types";
 
 // 서버 시트는 대조에 쓰이는 category·version 만 의미가 있고, 나머지는 fromSheet 가 읽을 수 있으면 된다.
-const serverSheet = (category: MeasurementCategory, version: number | null): MeasurementSheet => ({
+const serverSheet = (category: MeasurementCategory, version: number | null): SamplingSheet => ({
   category,
   version,
   weather: {
-    pressure: null, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: null, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: null, after: null },
+    bottleWeight: { before: null, after: null },
     gasMeterTemperature: { in: null, out: null },
     dryGasVolume: { before: null, after: null },
     suctionVelocity: null, gasMeterGaugePressure: null,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [], co2Concentration: [], coConcentration: [],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
-  quantity: null,
-  particle: null,
+  flowRate: null,
+  particulateSampling: null,
   samplingPoints: [],
-  samples: [],
-  samplingPointCnt: null,
-  avgTm: null,
+  gaseousSamplings: [],
+  samplingPointCount: null,
 });
 
 // 내 입력이 살아남았는지 확인하려면 폼에 구분 가능한 값이 있어야 한다.

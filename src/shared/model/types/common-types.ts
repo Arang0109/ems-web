@@ -5,7 +5,7 @@ import {
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
   DOCUMENT_CATEGORY_LABEL, CONTRACT_AMOUNT_UNIT_LABEL,
-  MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
+  MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL, MEASUREMENT_UNIT_LABEL,
 } from "@shared/config";
 
 export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
@@ -15,6 +15,8 @@ export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
 export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
 export const MEASUREMENT_METHOD = ['DUST', 'HEAVY_METAL', 'MERCURY', 'FIELD_MEASUREMENT', 'ABSORPTION_SOLUTION', 'ADSORPTION_TUBE', 'TEDLAR_BAG', 'CARTRIDGE'] as const;
 export const POLLUTANT_PHASE = ['PARTICLE', 'GAS'] as const;
+// 측정 항목 농도의 단위
+export const MEASUREMENT_UNIT = ['PPM', 'MG_PER_SM3'] as const;
 export const MEASUREMENT_CYCLE = ['MONTHLY','TWICE_MONTHLY','BIMONTHLY','QUARTERLY','SEMI_ANNUAL','ANNUAL'] as const;
 
 // 측정계획(schedule) — 진행 상태 / 측정 용도
@@ -59,6 +61,7 @@ export type Shape = typeof SHAPE[number];
 export type MeasurementField = typeof MEASUREMENT_FIELD[number];
 export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
 export type PollutantPhase = typeof POLLUTANT_PHASE[number];
+export type MeasurementUnit = typeof MEASUREMENT_UNIT[number];
 export type MeasurementCycle = typeof MEASUREMENT_CYCLE[number];
 export type ScheduleStatus = typeof SCHEDULE_STATUS[number];
 export type MeasurementType = typeof MEASUREMENT_TYPE[number];
@@ -221,6 +224,31 @@ export const pollutantPhaseOptions = POLLUTANT_PHASE.map((phase) => ({
   value: phase,
   label: POLLUTANT_PHASE_LABEL[phase],
 }));
+
+export const measurementUnitOptions = MEASUREMENT_UNIT.map((unit) => ({
+  value: unit,
+  label: MEASUREMENT_UNIT_LABEL[unit],
+}));
+
+/**
+ * 서버의 측정단위는 자유 문자열이라 예전 기록에는 enum 값이 아니라 표기('ppm')가 그대로 들어 있다.
+ * Select 는 enum 값으로만 고르므로 읽어 올 때 표기를 enum 값으로 되돌린다.
+ * 둘 다 아닌 값(임의 표기)은 미선택으로 둔다 — 수정 요청은 미전달 필드를 기존 값으로 유지하므로 지워지지 않는다.
+ */
+export const toMeasurementUnit = (raw: string | null): MeasurementUnit | '' => {
+  if (!raw) return '';
+  const normalized = raw.trim();
+  return MEASUREMENT_UNIT.find(
+    (unit) => unit === normalized || MEASUREMENT_UNIT_LABEL[unit] === normalized,
+  ) ?? '';
+};
+
+/** 저장된 측정단위의 화면 표기. enum 값은 표기로 바꾸고, 그 밖의 값은 적힌 그대로 보여준다. */
+export const measurementUnitText = (raw: string | null): string => {
+  if (!raw) return '';
+  const unit = toMeasurementUnit(raw);
+  return unit ? MEASUREMENT_UNIT_LABEL[unit] : raw.trim();
+};
 
 export const documentCategoryOptions = DOCUMENT_CATEGORY.map((category) => ({
   value: category,

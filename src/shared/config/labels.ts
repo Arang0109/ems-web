@@ -1,6 +1,6 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
-  MeasurementMethod, PollutantPhase, MeasurementCycle,
+  MeasurementMethod, PollutantPhase, MeasurementUnit, MeasurementCycle,
   EquipType, EquipStatus, PitotTubeType, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
@@ -54,6 +54,12 @@ export const MEASUREMENT_METHOD_LABEL: Record<MeasurementMethod, string> = {
 export const POLLUTANT_PHASE_LABEL: Record<PollutantPhase, string> = {
   PARTICLE: '입자상',
   GAS: '가스상'
+};
+
+/** 측정 항목 농도의 단위 표기. 값이 곧 화면 표기라 라벨을 번역하지 않는다. */
+export const MEASUREMENT_UNIT_LABEL: Record<MeasurementUnit, string> = {
+  PPM: 'ppm',
+  MG_PER_SM3: 'mg/Sm³',
 };
 
 export const MEASUREMENT_CYCLE_LABEL: Record<MeasurementCycle, string> = {

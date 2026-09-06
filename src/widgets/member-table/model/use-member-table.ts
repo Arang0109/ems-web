@@ -20,7 +20,7 @@ export const useMemberTable = ({ onSuccess }: Props) => {
   /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailMemberId, setDetailMemberId] = useState<number | null>(null);
 
-  const { data, loading, error, refetch: memberRefetch } = useMembers();
+  const { data, isLoading: loading, error, refetch: memberRefetch } = useMembers();
 
   const tableData = useMemo(
     () => data.map(toMemberRows),
@@ -62,6 +62,6 @@ export const useMemberTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   }
 }

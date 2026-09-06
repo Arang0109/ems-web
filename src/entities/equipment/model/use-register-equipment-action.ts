@@ -1,35 +1,15 @@
-import { useState } from "react";
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { EquipmentCreate } from "./types";
 import { equipmentApi } from "../api/api";
 import { toRegisterRequest } from "../api/mapper";
 
 export const useRegisterEquipmentAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const registerEquipment = async (data: EquipmentCreate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (data: EquipmentCreate) => {
     const payload = toRegisterRequest(data);
 
-    try {
-      const result = await equipmentApi.registerEquipment(payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '서버 연결에 실패했습니다.';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await equipmentApi.registerEquipment(payload));
+  });
 
-  return {
-    registerEquipment,
-
-    isLoading, error,
-  }
-}
+  return { registerEquipment: run, isLoading, error };
+};

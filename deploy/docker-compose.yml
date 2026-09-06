@@ -31,8 +31,14 @@ services:
       MONGO_PORT: "27017"
       MONGO_DB: ems
       JWT_SECRET: ${JWT_SECRET}
-      AT_VALID: "3600000"
-      RT_VALID: "25200000"
+      # 토큰 수명은 .env 로 조절한다(기본 AT 1시간 / RT 7시간).
+      # 여기에 리터럴을 쓰면 .env 값이 무시되므로 반드시 ${...} 참조를 유지할 것.
+      AT_VALID: ${AT_VALID:-3600000}
+      RT_VALID: ${RT_VALID:-25200000}
+      # Refresh Token 쿠키 정책. 지금은 http://<EC2>로 접속하므로 secure 쿠키를 쓸 수 없다
+      # (브라우저가 저장하지 않아 재발급이 실패한다). HTTPS 도메인을 붙이면 true/None 으로 올린다.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Lax}
       # 운영자(PLATFORM_ADMIN) 최초 부트스트랩 — 서버의 PlatformAdminInitializer가 읽는다.
       # 서버의 .env는 .dockerignore 대상이라 컨테이너 안에 없다. 값은 반드시 여기로 주입된다.
       # 계정 생성을 확인한 뒤 .env에서 PLATFORM_BOOTSTRAP_ENABLED=false로 되돌린다.

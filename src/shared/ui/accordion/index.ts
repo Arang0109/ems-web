@@ -1,2 +1,2 @@
-export { SectionAccordion } from './SectionAccordion';
+export { SectionAccordion, type SectionHighlight } from './SectionAccordion';
 export { SubAccordion } from './SubAccordion';

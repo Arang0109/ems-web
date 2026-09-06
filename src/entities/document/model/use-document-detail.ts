@@ -1,36 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
+import { unwrapMessage } from "@shared/api";
+import { useFetch } from "@shared/model";
 
 import { documentApi } from "../api/api";
 import type { Document } from "./types";
 
 interface Props {
+  /** null 이면 조회하지 않는다. */
   id: number | null;
 }
 
-export const useDocumentDetail = ({ id }: Props) => {
-  const [data, setData] = useState<Document | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [revision, setRevision] = useState(0);
-
-  const refetch = useCallback(() => {
-    setLoading(true);
-    setRevision((r) => r + 1);
-  }, []);
-
-  useEffect(() => {
-    if (id == null) return;
-    let cancelled = false;
-    documentApi.getDocument(id)
-      .then((res) => {
-        if (cancelled) return;
-        if (res.status) setData(res.data);
-        else setError(res.message ?? '데이터를 불러오지 못했습니다.');
-      })
-      .catch(() => { if (!cancelled) setError('서버 연결에 실패했습니다.'); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [revision, id]);
-
-  return { data, loading, error, refetch };
-};
+/** 타입 A(자동 로드): 문서 상세. 대상이 바뀌면 이전 값을 즉시 버린다. */
+export const useDocumentDetail = ({ id }: Props) =>
+  useFetch<Document | null>(
+    async () => unwrapMessage(await documentApi.getDocument(id as number)),
+    null,
+    { deps: [id], enabled: id != null, resetOnChange: true },
+  );

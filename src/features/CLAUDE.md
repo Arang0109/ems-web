@@ -142,7 +142,7 @@ feature-name/
   `Select`·`DatePicker`·`Checkbox` 는 `input` 이벤트를 내지 않아 모달의 기본 판정이 놓친다.
 
 > **훅은 `model/hooks/` 에 둔다.** 슬라이스 루트 `hooks/` 를 쓰는 슬라이스가
-> `sign-in`·`sign-out`·`contract-overview` 3개 남아 있으나 규칙 위반이며 정리 대상이다.
+> `sign-in`·`sign-out` 2개 남아 있으나 규칙 위반이며 정리 대상이다.
 
 ---
 
@@ -317,8 +317,7 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `sign-in/hooks/`, `sign-out/hooks/`, `contract-overview/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
+| `sign-in/hooks/`, `sign-out/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
 | `sign-in/hooks/use-sign-in.ts` | `signInApi` 직접 호출 (`entities/auth` 에 액션 훅이 없음) | entity 액션 훅 신설 후 경유 |
 | `sign-in/model/mapper.ts` | Form → **Request DTO** 직접 변환 | 도메인 입력 모델을 거치도록 변경 |
 | `dashboard-summary/model/use-dashboard.ts` | `dashboardApi` 직접 호출, 훅이 `model/` 직하 | `entities/dashboard` 에 `model/` 신설 후 경유 |
-| `contract-overview/hooks/use-contract-overview.ts` | `workplaceApi` 직접 호출 | entity 페칭 훅 경유 |

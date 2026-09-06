@@ -1,0 +1,153 @@
+{
+  "pkg": "ems-web",
+  "globalName": "EmsUI",
+  "shape": "package",
+  "projectId": "69ff3e66-cd6f-4ac3-849d-b802d9080744",
+  "srcDir": "src/shared/ui",
+  "tsconfig": ".design-sync/tsconfig.paths.json",
+  "cssEntry": ".design-sync/.cache/ds-styles.css",
+  "extraFonts": [
+    "node_modules/pretendard/dist/web/variable/pretendardvariable.css"
+  ],
+  "extraEntries": [
+    "./.design-sync/preview-provider.tsx"
+  ],
+  "provider": {
+    "component": "DesignPreviewProvider"
+  },
+  "guidelinesGlob": [
+    "DESIGN-SYSTEM.md"
+  ],
+  "buildCmd": "npx vite build && cp dist/assets/index-*.css .design-sync/.cache/ds-styles.css",
+  "componentSrcMap": {
+    "AddressInput": "src/shared/ui/form/AddressInput.tsx",
+    "AppSidebar": "src/shared/ui/sidebar/AppSidebar.tsx",
+    "BackButton": "src/shared/ui/buttons/BackButton.tsx",
+    "Badge": "src/shared/ui/badges/Badge.tsx",
+    "BasicTable": "src/shared/ui/table/BasicTable.tsx",
+    "Button": "src/shared/ui/buttons/Button.tsx",
+    "CalcResultGrid": "src/shared/ui/form/CalcResultGrid.tsx",
+    "CalcResultRow": "src/shared/ui/form/CalcResultRow.tsx",
+    "Checkbox": "src/shared/ui/form/Checkbox.tsx",
+    "ChipNav": "src/shared/ui/nav/ChipNav.tsx",
+    "ConfirmProvider": "src/shared/ui/dialogs/ConfirmProvider.tsx",
+    "DatePicker": "src/shared/ui/form/DatePicker.tsx",
+    "DateRangePicker": "src/shared/ui/form/DateRangePicker.tsx",
+    "DesktopTable": "src/shared/ui/table/DesktopTable.tsx",
+    "DetailGrid": "src/shared/ui/form/DetailGrid.tsx",
+    "DetailRow": "src/shared/ui/form/DetailRow.tsx",
+    "DetailViewButton": "src/shared/ui/buttons/DetailViewButton.tsx",
+    "Divider": "src/shared/ui/borders/Divider.tsx",
+    "DocumentViewerDialog": "src/shared/ui/dialogs/DocumentViewerDialog.tsx",
+    "DragHandle": "src/shared/ui/sortable/DragHandle.tsx",
+    "Drawer": "src/shared/ui/drawer/Drawer.tsx",
+    "EmptyText": "src/shared/ui/feedback/EmptyText.tsx",
+    "FieldGroup": "src/shared/ui/form/FieldGroup.tsx",
+    "FileInput": "src/shared/ui/form/FileInput.tsx",
+    "FilterPopover": "src/shared/ui/form/FilterPopover.tsx",
+    "FilterSelect": "src/shared/ui/form/FilterSelect.tsx",
+    "FormDialog": "src/shared/ui/dialogs/FormDialog.tsx",
+    "HelpTip": "src/shared/ui/tooltip/HelpTip.tsx",
+    "HorizontalRadioGroup": "src/shared/ui/form/HorizontalRadioGroup.tsx",
+    "IconButton": "src/shared/ui/buttons/IconButton.tsx",
+    "InlineInput": "src/shared/ui/form/InlineInput.tsx",
+    "InputGroup": "src/shared/ui/form/InputGroup.tsx",
+    "InputTable": "src/shared/ui/table/InputTable.tsx",
+    "Link": "src/shared/ui/links/Link.tsx",
+    "MobileCardList": "src/shared/ui/table/MobileCardList.tsx",
+    "NumericField": "src/shared/ui/form/NumericField.tsx",
+    "PageLayout": "src/shared/ui/layout/PageLayout.tsx",
+    "PageTitle": "src/shared/ui/semantics/PageTitle.tsx",
+    "Pagination": "src/shared/ui/pagination/Pagination.tsx",
+    "Panel": "src/shared/ui/cards/Panel.tsx",
+    "Popover": "src/shared/ui/popover/Popover.tsx",
+    "RowActionCell": "src/shared/ui/table/RowActionCell.tsx",
+    "Search": "src/shared/ui/form/Search.tsx",
+    "SectionAccordion": "src/shared/ui/accordion/SectionAccordion.tsx",
+    "SectionTitle": "src/shared/ui/form/SectionTitle.tsx",
+    "Select": "src/shared/ui/form/Select.tsx",
+    "SidebarBrandHeader": "src/shared/ui/sidebar/SidebarBrandHeader.tsx",
+    "SidebarMobileBar": "src/shared/ui/sidebar/SidebarMobileBar.tsx",
+    "SidebarNav": "src/shared/ui/sidebar/SidebarNav.tsx",
+    "SidebarProvider": "src/components/ui/sidebar.tsx",
+    "SidebarTrigger": "src/components/ui/sidebar.tsx",
+    "SidebarUserFooter": "src/shared/ui/sidebar/SidebarUserFooter.tsx",
+    "Skeleton": "src/shared/ui/skeletons/Skeleton.tsx",
+    "SkeletonPanel": "src/shared/ui/skeletons/SkeletonPanel.tsx",
+    "SortableList": "src/shared/ui/sortable/SortableList.tsx",
+    "StatusDot": "src/shared/ui/badges/StatusDot.tsx",
+    "StepFormDialog": "src/shared/ui/dialogs/StepFormDialog.tsx",
+    "StepNav": "src/shared/ui/nav/StepNav.tsx",
+    "StickyActionBar": "src/shared/ui/layout/StickyActionBar.tsx",
+    "SubAccordion": "src/shared/ui/accordion/SubAccordion.tsx",
+    "SummaryCard": "src/shared/ui/cards/SummaryCard.tsx",
+    "SummaryCardGroup": "src/shared/ui/cards/SummaryCardGroup.tsx",
+    "TableEmptyState": "src/shared/ui/table/TableEmptyState.tsx",
+    "TableFooterBar": "src/shared/ui/table/TableFooterBar.tsx",
+    "TableInputCell": "src/shared/ui/table/TableInputCell.tsx",
+    "TableLabelCell": "src/shared/ui/table/TableLabelCell.tsx",
+    "TablePagination": "src/shared/ui/table/TablePagination.tsx",
+    "TablePanel": "src/shared/ui/table/TablePanel.tsx",
+    "TableResultCell": "src/shared/ui/table/TableResultCell.tsx",
+    "TableSelectCell": "src/shared/ui/table/TableSelectCell.tsx",
+    "Tabs": "src/shared/ui/tabs/Tabs.tsx",
+    "Textarea": "src/shared/ui/form/TextArea.tsx",
+    "ThemeToggle": "src/shared/ui/theme/ThemeToggle.tsx",
+    "TimeField": "src/shared/ui/form/TimeField.tsx",
+    "Toaster": "src/shared/ui/toasts/Toaster.tsx",
+    "Tooltip": "src/shared/ui/tooltip/Tooltip.tsx",
+    "UnitField": "src/shared/ui/form/UnitField.tsx"
+  },
+  "docsMap": {
+    "Drawer": ".design-sync/docs/Drawer.md",
+    "Pagination": ".design-sync/docs/Pagination.md",
+    "Popover": ".design-sync/docs/Popover.md",
+    "SidebarProvider": ".design-sync/docs/SidebarProvider.md",
+    "SidebarTrigger": ".design-sync/docs/SidebarTrigger.md",
+    "Tabs": ".design-sync/docs/Tabs.md",
+    "Tooltip": ".design-sync/docs/Tooltip.md"
+  },
+  "libOverrides": {
+    "dts.mjs": "소스 저장소(.d.ts 트리 없음) — .design-sync/entry.ts + src 소스로 props 추출"
+  },
+  "overrides": {
+    "BasicTable": {
+      "cardMode": "column"
+    },
+    "FormDialog": {
+      "cardMode": "single",
+      "primaryStory": "Open",
+      "viewport": "1000x760"
+    },
+    "Popover": {
+      "cardMode": "single",
+      "primaryStory": "Open",
+      "viewport": "720x420"
+    },
+    "TablePanel": {
+      "cardMode": "column"
+    },
+    "TableLabelCell": {
+      "cardMode": "column"
+    },
+    "TableResultCell": {
+      "cardMode": "column"
+    },
+    "TableInputCell": {
+      "cardMode": "column"
+    },
+    "TableSelectCell": {
+      "cardMode": "column"
+    },
+    "SummaryCardGroup": {
+      "cardMode": "column"
+    },
+    "StickyActionBar": {
+      "cardMode": "column"
+    },
+    "DetailGrid": {
+      "cardMode": "column"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

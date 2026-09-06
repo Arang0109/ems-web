@@ -30,7 +30,7 @@ export const TableLabelCell = ({
     rowSpan={rowSpan}
     style={width === undefined ? undefined : { width }}
     className={cn(
-      "bg-canvas border border-rule p-1 md:p-2",
+      "bg-rule-dark/20 border border-rule p-1 md:p-2",
       "text-label text-ink whitespace-nowrap",
       align === "left" ? "text-left" : "text-center",
     )}

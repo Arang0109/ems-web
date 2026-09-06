@@ -1,6 +1,7 @@
 import type { MeasurementRecord } from "@entities/measurement-record";
 import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
 import { formatNumber } from "@shared/lib";
+import { measurementUnitText } from "@shared/model";
 
 /** 연도 선택의 "전체 기간". 숫자 연도와 한 값으로 다루려고 상수로 둔다. */
 export const ALL_YEARS = "ALL";
@@ -68,11 +69,11 @@ export const toHistoryItems = (records: MeasurementRecord[]): HistoryItem[] => {
       byId.set(record.pollutantId, {
         pollutantId: record.pollutantId,
         nameKr: record.nameKr,
-        unit: record.unit ?? "",
+        unit: measurementUnitText(record.unit),
       });
       continue;
     }
-    if (!found.unit && record.unit) found.unit = record.unit;
+    if (!found.unit && record.unit) found.unit = measurementUnitText(record.unit);
   }
 
   return [...byId.values()].sort((a, b) => a.nameKr.localeCompare(b.nameKr, "ko"));
@@ -132,6 +133,7 @@ export const toHistoryRows = (records: MeasurementRecord[]): HistoryRow[] =>
     correctedConcentration: formatMeasure(record.correctedConcentration),
     emission: formatMeasure(record.emission),
     allowance: formatMeasure(record.allowance),
-    unit: record.unit ?? "",
+    // 저장된 값은 enum('PPM')일 수도, 예전 기록의 표기('ppm')일 수도 있다 — 표기로 통일해 보여준다
+    unit: measurementUnitText(record.unit),
     isExceeded: record.exceeded === true,
   }));

@@ -13,6 +13,8 @@ interface Params {
   scheduleId: number | null;
   activeSheet: SheetForm | null;
   updateActiveSheet: (updater: (sheet: SheetForm) => SheetForm) => void;
+  /** 화면에 채운 직후 — 어느 칸이 지난 회차 값인지 추적하도록 스냅샷을 넘긴다 */
+  onLoaded?: (loaded: SheetForm, sourceLabel: string) => void;
 }
 
 /** 다이얼로그에 실을 출처 표기 — 내부 식별 코드가 있으면 함께 보여 회차를 특정할 수 있게 한다. */
@@ -34,7 +36,9 @@ export const describePreviousSource = (candidate: PreviousSheetCandidate): strin
  * <p>확인 다이얼로그를 따로 두지 않는다 — 선택 목록 자체가 "어느 회차에서 가져오는지"를
  * 보여주고 경고 문구를 싣고 있어, 확인을 한 번 더 받으면 같은 결정을 두 번 묻는 꼴이 된다.
  */
-export const useLoadPreviousSheet = ({ scheduleId, activeSheet, updateActiveSheet }: Params) => {
+export const useLoadPreviousSheet = ({
+  scheduleId, activeSheet, updateActiveSheet, onLoaded,
+}: Params) => {
   const { fetchCandidates, isLoading: isLoadingCandidates } = usePreviousSheetCandidates();
   const { fetchPreviousSheet, isLoading: isLoadingSheet } = usePreviousSheet();
 
@@ -85,16 +89,21 @@ export const useLoadPreviousSheet = ({ scheduleId, activeSheet, updateActiveShee
       return;
     }
 
+    // 스냅샷은 화면에 실제로 들어간 값이어야 한다 — 카테고리만 현재 기록지 것으로 맞춘다
+    // (version 은 입력 칸이 아니라 강조 판정에 쓰이지 않는다).
+    const loaded: SheetForm = { ...fromSheet(previous.sheet), category: activeSheet.category };
+    const sourceLabel = describePreviousSource(previous);
+
     updateActiveSheet((current) => ({
-      ...fromSheet(previous.sheet),
+      ...loaded,
       category: current.category,
       version: current.version,
-      weather: current.weather,
     }));
+    onLoaded?.(loaded, sourceLabel);
     setLoadedKey((prev) => prev + 1);
     setPickerOpen(false);
 
-    toast.success(`${describePreviousSource(previous)} 기록을 불러왔습니다. 확인 후 저장하세요.`);
+    toast.success(`${sourceLabel} 기록을 불러왔습니다. 확인 후 저장하세요.`);
   };
 
   return {

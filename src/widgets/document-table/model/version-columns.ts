@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 
-import { VersionCustomCell, VersionDownloadCell } from "../ui/Cells";
+import { VersionCustomCell, VersionDeleteCell, VersionDownloadCell } from "../ui/Cells";
 import type { DocumentVersionTableRow } from "./types";
 
 const columnHelper = createColumnHelper<DocumentVersionTableRow>();
@@ -31,6 +31,11 @@ export const versionColumns = [
   columnHelper.display({
     id: 'download',
     cell: VersionDownloadCell,
+    size: 10,
+  }),
+  columnHelper.display({
+    id: 'delete',
+    cell: VersionDeleteCell,
     size: 10,
   }),
 ];

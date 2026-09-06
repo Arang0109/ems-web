@@ -1,8 +1,10 @@
 import React from "react";
-import { CircleCheck } from "lucide-react";
+import { CircleAlert, CircleCheck, History } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import type { FieldTone } from "@shared/model";
 import { HelpTip } from "@shared/ui/tooltip";
+import { toneFrameClass } from "./field-tone";
 import { NumericField } from "./NumericField";
 import { Select, type SelectOption } from "./Select";
 import { TimeField } from "./TimeField";
@@ -39,6 +41,17 @@ interface Props {
   /** 값 입력 여부를 알리는 우측 체크 아이콘. readOnly 필드에서는 끈다. */
   showComplete?: boolean;
 
+  /**
+   * 칸의 상태 색. 의미는 호출부가 정한다 — shared 는 "왜 그 색인지" 모른다.
+   * 우측 상태 아이콘도 함께 갈려서 **색 없이도 상태가 읽힌다**.
+   */
+  tone?: FieldTone;
+  /**
+   * 이 칸에 포커스가 들어왔을 때. 프레임 전체에 걸어 두므로 입력창·Select 트리거·
+   * ± 버튼·시계 버튼 어디로 들어와도 한 번 불린다.
+   */
+  onFocus?: () => void;
+
   id?: string;
   className?: string;
 }
@@ -70,6 +83,8 @@ export const UnitField = ({
   step,
   helper,
   showComplete = true,
+  tone = "default",
+  onFocus,
   id,
   className,
 }: Props) => {
@@ -77,8 +92,14 @@ export const UnitField = ({
   const fieldId = id ?? autoId;
   const complete = value.trim() !== "";
   const withCheck = showComplete && !readOnly;
+  // 톤은 값을 고칠 수 있는 칸에서만 의미가 있다 — 읽기 전용 결과 칸까지 물들이지 않는다.
+  const activeTone = readOnly ? "default" : tone;
 
-  const valueText = "text-body-2 max-md:text-[1.125rem]";
+  // 안내 톤은 "값은 있는데 확인이 필요하다"는 뜻이라 글자까지 물들여야 눈에 든다.
+  const valueText = cn(
+    "text-body-2 max-md:text-[1.125rem]",
+    activeTone === "info" && "text-info-ink",
+  );
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
@@ -97,10 +118,13 @@ export const UnitField = ({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* 포커스 감지는 프레임에 건다 — 입력창·Select 트리거·± 버튼 어디로 들어와도 한 번 잡힌다 */}
         <div
+          onFocusCapture={onFocus}
           className={cn(
             "flex h-12 min-w-0 flex-1 items-stretch overflow-hidden rounded-button border md:h-[38px]",
             readOnly ? "border-rule bg-canvas" : "border-rule-dark bg-surface",
+            toneFrameClass(activeTone),
             !readOnly && !disabled &&
               "focus-within:border-brand-primary focus-within:ring-3 focus-within:ring-brand-primary/12",
             disabled && "bg-rule/40",
@@ -151,6 +175,7 @@ export const UnitField = ({
               id={fieldId}
               type={type}
               value={value}
+              aria-invalid={activeTone === "danger" || undefined}
               placeholder={placeholder}
               disabled={disabled}
               readOnly={readOnly}
@@ -172,6 +197,8 @@ export const UnitField = ({
               className={cn(
                 "flex w-12 shrink-0 items-center justify-center border-l text-body-3 md:w-11",
                 readOnly ? "border-rule bg-rule/40" : "border-rule bg-canvas",
+                // 톤이 붙은 칸은 단위 박스도 면 색을 비워 프레임 한 덩이로 읽히게 한다
+                activeTone !== "default" && "bg-transparent",
                 "text-ink-soft",
               )}
             >
@@ -180,7 +207,14 @@ export const UnitField = ({
           )}
         </div>
 
-        {withCheck && (
+        {/* 상태는 색이 아니라 **아이콘 모양**으로도 구분된다 — 안내는 시계, 오류는 경고, 완료는 체크 */}
+        {withCheck && activeTone === "info" && (
+          <History size={19} aria-hidden className="shrink-0 text-info" />
+        )}
+        {withCheck && activeTone === "danger" && (
+          <CircleAlert size={19} aria-hidden className="shrink-0 text-danger" />
+        )}
+        {withCheck && activeTone === "default" && (
           <CircleCheck
             size={19}
             aria-hidden

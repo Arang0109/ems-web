@@ -9,7 +9,7 @@ import { Panel } from "@shared/ui/cards";
 
 export const ContractDetailPage = () => {
   const { contractId } = useParams<{ contractId: string }>();
-  const { data, loading, error, fetchContract } = useContractDetail();
+  const { data, isLoading: loading, error, fetchContract } = useContractDetail();
 
   useEffect(() => {
     if (contractId) fetchContract(Number(contractId));

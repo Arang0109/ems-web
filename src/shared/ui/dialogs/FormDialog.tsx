@@ -29,6 +29,13 @@ interface DialogProps {
    * 정확한 판정이 필요한 폼은 훅에서 계산한 값을 넘긴다.
    */
   isDirty?: boolean;
+  /**
+   * md 미만에서 화면 전체로 띄운다. 기본값은 기존 동작(중앙 모달) 유지.
+   *
+   * 좁은 화면에서 좌우 여백까지 빼앗기면 못 쓰게 되는 폼(입력 칸이 많거나 표를 품은 폼)에 켠다.
+   * `StepFormDialog` 는 스텝 폼이 늘 그런 부류라 기본값이 켜짐이다.
+   */
+  fullScreenOnMobile?: boolean;
 }
 
 /**
@@ -55,6 +62,7 @@ export function FormDialog({
   isLoading,
   size = "default",
   isDirty,
+  fullScreenOnMobile = false,
 }: DialogProps) {
   return (
     <FormDialogShell
@@ -67,6 +75,7 @@ export function FormDialog({
       disabled={disabled}
       isDirty={isDirty}
       size={size}
+      fullScreenOnMobile={fullScreenOnMobile}
       footer={
         <>
           {deleteLabel && (

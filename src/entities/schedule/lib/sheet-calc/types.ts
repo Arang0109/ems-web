@@ -6,6 +6,7 @@ export type PitotCoefficient = { coefficient: number; velocity: number };
 
 // 시트 밖(측정시설 원장·팀 장비 스냅샷)에서 가져오는 계산 입력
 export type SheetCalcExternals = {
+  stackName: string;
   standardOxygen: number | null;              // 기준산소농도 (측정시설 원장)
   shape: Shape | null;                        // 굴뚝 형상 (단면적·규정 측정점 수 계산)
   horizontalLength: number | null;            // 지름 또는 가로 (m)

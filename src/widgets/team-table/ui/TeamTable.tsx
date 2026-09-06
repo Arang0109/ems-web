@@ -24,7 +24,7 @@ export const TeamTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading, error, refetch,
   } = useTeamTable({ onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -46,11 +46,11 @@ export const TeamTable = ({ onSuccess }: Props) => {
             />
           </>
         }
-        footer={!loading && !error && <TableFooterBar table={table} />}
+        footer={!isLoading && !error && <TableFooterBar table={table} />}
       >
         <BasicTable
           table={table}
-          loading={loading}
+          loading={isLoading}
           error={error}
           onRowClick={handleRowClick}
           mobileCard={teamCardConfig}

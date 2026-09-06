@@ -169,7 +169,7 @@ export const collectRawRows = ({
       rawStart: moistureStart,
       rawEnd: null,
       durationMinutes: minutes,
-      endDerived: false,
+      endDerived: true,
       note: minutes === null ? "흡인유속·흡인량을 입력하면 종료시각이 산출됩니다." : undefined,
     });
   }
@@ -183,7 +183,7 @@ export const collectRawRows = ({
       rawStart: gasStart,
       rawEnd: null,
       durationMinutes: GAS_ANALYZER_DURATION_MINUTES,
-      endDerived: false,
+      endDerived: true,
     });
   }
 

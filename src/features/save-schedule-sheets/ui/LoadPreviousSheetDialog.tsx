@@ -48,7 +48,7 @@ export const LoadPreviousSheetDialog = ({
       title="이전 기록지 데이터 불러오기"
       description={
         "이전 기록지의 데이터를 현재 기록지에 적용합니다.\n" +
-        "기상 조건은 유지되며, 시료번호와 채취 시각은 새로 입력해야 합니다."
+        "대기압을 뺀 기상 조건과 시료번호·채취 시각은 새로 입력해야 합니다."
       }
       submitLabel="불러오기"
       loadingLabel="불러오는 중..."

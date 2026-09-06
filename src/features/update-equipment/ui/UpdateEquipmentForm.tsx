@@ -61,6 +61,9 @@ export const UpdateEquipmentForm = ({
     <FormDialog
       title="측정장비 상세"
       size="xl"
+      // 입력 칸이 20개 가까이 되고 검사 항목 표까지 품는 폼이라 좁은 화면에서는 좌우 여백을 내준다.
+      // (같은 장비를 등록하는 RegisterEquipmentForm 은 StepFormDialog 라 이미 기본값이 전체화면이다.)
+      fullScreenOnMobile
       open={open}
       onOpenChange={onOpenChange}
       deleteLabel="삭제"

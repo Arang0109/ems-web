@@ -6,10 +6,12 @@ import { useGridNavigation } from "@shared/model";
 import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
 
 import { POINT_HINT } from "../../../model/field-hints";
+import { fieldPath } from "../../../model/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { averageOf, display, type PointGroup } from "./point-results";
+import type { FieldStateProps } from "../shell-props";
 
-interface Props {
+interface Props extends FieldStateProps {
   points: SamplingPointForm[];
   preview: SheetCalcPreview | null;
   groups: PointGroup[];
@@ -31,6 +33,7 @@ const LABEL_WIDTH = 180;
  */
 export const PointTable = ({
   points, preview, groups, editable, onPointChange, onRemovePoint, onCopyPreviousPoint,
+  fieldTone, onFieldFocus,
 }: Props) => {
   const wide = points.length + 1;   // 지점 열 + 평균 열 (라벨 제외)
   // 열이 지점 수만큼 늘어나는 전치 표라 `InputTable` 로 조립하지 않는다 — 셀 간 이동만 공유한다
@@ -81,6 +84,8 @@ export const PointTable = ({
                   {points.map((p, i) => (
                     <TableInputCell key={i} type="number" value={p[f.field]} unit={f.unit}
                       min={f.min} step={f.step}
+                      tone={fieldTone(fieldPath.point(i, f.field))}
+                      onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
                       onChange={(v) => onPointChange(i, { [f.field]: v })} disabled={!editable} />
                   ))}
                   <TableResultCell value={display(averageOf(f.field, points, preview))} />

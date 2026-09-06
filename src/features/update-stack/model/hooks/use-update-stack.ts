@@ -52,8 +52,6 @@ export const useUpdateStack = ({ stack, onSuccess }: Props) => {
     }
 
     try {
-
-      console.log(form)
       await updateStack(stack.id, toStackUpdate(form));
 
       toast.success(`${stack.name}이(가) 수정되었습니다.`);

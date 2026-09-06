@@ -27,16 +27,9 @@ type MockSchedule = {
   schedulePurpose: 'SELF' | 'REFERENCE' | null;
   referenceNumber: string | null;
   clientName: string | null;
-  workplaceName: string | null;
   stackName: string | null;
   teamName: string | null;
   createdAt: string;
-  /** soft delete 시각. null이면 활성 상태다. */
-  deletedAt?: string | null;
-  deletedBy?: number | null;
-  /** 마지막 취소 시각·사유. 서버는 상태 변경 이력에서 뽑지만 목에서는 계획에 직접 붙인다. */
-  canceledAt?: string | null;
-  cancelReason?: string | null;
 };
 
 const now = '2026-07-14T09:00:00';
@@ -45,28 +38,27 @@ let schedules: MockSchedule[] = [
   {
     id: 1, stackId: 1, teamId: 1, measurementField: 'AIR', sampledAt: daysFromToday(0),
     status: 'SCHEDULED', schedulePurpose: 'SELF', referenceNumber: 'KGAR-26-01-001',
-    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 172', teamName: '대기측정 1팀', createdAt: now,
+    clientName: '현대자동차(주)', stackName: 'stack 172', teamName: '대기측정 1팀', createdAt: now,
   },
   {
     id: 2, stackId: 2, teamId: 2, measurementField: 'AIR', sampledAt: daysFromToday(0),
     status: 'MEASURING', schedulePurpose: 'REFERENCE', referenceNumber: 'KGAR-26-01-002',
-    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 173', teamName: '대기측정 2팀', createdAt: now,
+    clientName: '현대자동차(주)', stackName: 'stack 173', teamName: '대기측정 2팀', createdAt: now,
   },
   {
     id: 3, stackId: 3, teamId: 1, measurementField: 'AIR', sampledAt: daysFromToday(-1),
     status: 'ANALYZING', schedulePurpose: null, referenceNumber: 'KGAR-26-01-003',
-    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 174', teamName: '대기측정 1팀', createdAt: now,
+    clientName: '현대자동차(주)', stackName: 'stack 174', teamName: '대기측정 1팀', createdAt: now,
   },
   {
     id: 4, stackId: 4, teamId: 2, measurementField: 'AIR', sampledAt: daysFromToday(-5),
     status: 'REPORT_COMPLETED', schedulePurpose: 'SELF', referenceNumber: 'KGAR-26-01-004',
-    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 175', teamName: '대기측정 2팀', createdAt: now,
+    clientName: '현대자동차(주)', stackName: 'stack 175', teamName: '대기측정 2팀', createdAt: now,
   },
   {
     id: 5, stackId: 5, teamId: 1, measurementField: 'AIR', sampledAt: daysFromToday(-20),
     status: 'CANCELED', schedulePurpose: 'REFERENCE', referenceNumber: null,
-    workplaceName: '현대자동차(주) 울산공장', clientName: '현대자동차(주)', stackName: 'stack 176', teamName: '대기측정 1팀', createdAt: now,
-    canceledAt: `${daysFromToday(-18)}T10:00:00`, cancelReason: '의뢰기관 요청으로 측정 일정 취소',
+    clientName: '현대자동차(주)', stackName: 'stack 176', teamName: '대기측정 1팀', createdAt: now,
   },
 ];
 
@@ -78,6 +70,7 @@ const sheetStore: Record<number, unknown[]> = {};
 const BASIC_INFO_KEYS = [
   'facilityManager', 'samplingWitness', 'analyst', 'technicalManager',
   'receivedAt', 'analyzedAt', 'issuedAt', 'samplingStartedAt', 'samplingEndedAt',
+  'mentorName', 'menteeName',
 ] as const;
 
 type MockBasicInfo = Partial<Record<(typeof BASIC_INFO_KEYS)[number], string>>;
@@ -130,21 +123,23 @@ const avg = (arr: unknown[]): number | null => {
 interface LooseSheet {
   category?: MeasurementCategory;
   version?: number | null;
-  measurementPoints?: { Ts?: number; Pv?: number; Ps?: number }[];
-  weather?: { pressure?: { pressure?: number }; pa?: number | null };
+  samplingPoints?: { gasTemperature?: number; dynamicPressure?: number; staticPressure?: number }[];
+  weather?: { atmosphericPressure?: number; atmosphericPressureMmHg?: number | null };
+  flowRate?: Record<string, unknown> | null;
   exhaustGas?: { o2Concentration?: number[]; o2CorrectionFactor?: number | null };
   [key: string]: unknown;
 }
 
-// 서버 SheetCalculator의 핵심만 흉내낸다 (avgTg/avgPv/avgPs/pa/o2CorrectionFactor).
+// 서버 SheetCalculator의 핵심만 흉내낸다 (유량 집계·대기압·산소보정계수).
 const computeSheet = (sheet: LooseSheet): LooseSheet => {
-  const points = sheet.measurementPoints ?? [];
-  const avgTg = avg(points.map((p) => (typeof p.Ts === 'number' ? p.Ts + 273 : null)));
-  const avgPv = avg(points.map((p) => p.Pv));
-  const avgPs = avg(points.map((p) => p.Ps));
+  const points = sheet.samplingPoints ?? [];
+  const averageGasTemperatureKelvin = avg(
+    points.map((p) => (typeof p.gasTemperature === 'number' ? p.gasTemperature + 273 : null)));
+  const averageDynamicPressure = avg(points.map((p) => p.dynamicPressure));
+  const averageStaticPressure = avg(points.map((p) => p.staticPressure));
 
-  const hpa = sheet.weather?.pressure?.pressure;
-  const pa = typeof hpa === 'number' ? round((hpa * 760) / 1013.25, 2) : null;
+  const hpa = sheet.weather?.atmosphericPressure;
+  const atmosphericPressureMmHg = typeof hpa === 'number' ? round((hpa * 760) / 1013.25, 2) : null;
 
   const o2Avg = avg(sheet.exhaustGas?.o2Concentration ?? []);
   const o2CorrectionFactor =
@@ -152,27 +147,19 @@ const computeSheet = (sheet: LooseSheet): LooseSheet => {
 
   return {
     ...sheet,
-    avgTg, avgPv, avgPs, avgTm: null,
-    weather: { ...sheet.weather, pa },
+    weather: { ...sheet.weather, atmosphericPressureMmHg },
     exhaustGas: { ...sheet.exhaustGas, o2CorrectionFactor },
+    flowRate: {
+      ...sheet.flowRate,
+      averageGasTemperatureKelvin, averageDynamicPressure, averageStaticPressure,
+    },
   };
 };
 
 // 측정계획 상세 스냅샷 구성 (표시·계산 검증에 필요한 최소 트리).
+// 문서의 저장 메타(id·scheduleId·tenantId·status)는 서버 응답에 담기지 않는다 — 최상위 메타가 진실의 원천이다.
 const buildSnapshot = (schedule: MockSchedule) => ({
-  id: `snap-${schedule.id}`,
-  scheduleId: schedule.id,
-  tenantId: 1,
-  referenceNumber: schedule.referenceNumber,
-  status: schedule.status,
-  basicInfo: {
-    referenceNumber: schedule.referenceNumber,
-    sampledAt: schedule.sampledAt,
-    measurementField: schedule.measurementField,
-    schedulePurpose: schedule.schedulePurpose,
-    ...basicInfoStore[schedule.id],
-  },
-  // 측정 시점 고객사(대행업체) 스냅샷 — 성적서 발행이 읽는 값이라 응답에 반드시 담긴다.
+  // 측정 시점 고객사(대행업체) 스냅샷 — 성적서 서명란 담당자를 여기서 읽는다.
   tenant: {
     tenantId: 1,
     name: '(주)엔솔루션환경',
@@ -181,11 +168,14 @@ const buildSnapshot = (schedule: MockSchedule) => ({
     roadAddress: '경기도 성남시 분당구 판교로 255',
     detailAddress: '3층',
     zipcode: '13486',
+    analyst: basicInfoStore[schedule.id]?.analyst ?? '',
+    technicalManager: basicInfoStore[schedule.id]?.technicalManager ?? '',
   },
   team: {
     teamId: schedule.teamId, teamName: schedule.teamName ?? '측정팀',
-    mentorUserId: 1, mentorName: '김사수', menteeUserId: 2, menteeName: '이부사수',
-    particleSamplerId: 'eq-ps-1', gasSamplerId: 'eq-gs-1', pitotTubeId: 'eq-pt-1', nozzleId: 'eq-nz-1',
+    mentorName: basicInfoStore[schedule.id]?.mentorName ?? '김사수',
+    menteeName: basicInfoStore[schedule.id]?.menteeName ?? '이부사수',
+    equipments: EQUIPMENT_SNAPSHOTS,
   },
   client: {
     clientId: 1, name: schedule.clientName ?? '한국환경공단', bizNumber: '2208201234',
@@ -216,7 +206,28 @@ const buildSnapshot = (schedule: MockSchedule) => ({
       },
     },
   },
-  equipments: [
+  // 그 회차의 현장 채취 사실 — 채취 시각·현장 담당자·채취 기록지를 함께 담는다.
+  samplingData: {
+    samplingStartedAt: basicInfoStore[schedule.id]?.samplingStartedAt ?? null,
+    samplingEndedAt: basicInfoStore[schedule.id]?.samplingEndedAt ?? null,
+    facilityManager: basicInfoStore[schedule.id]?.facilityManager ?? null,
+    samplingWitness: basicInfoStore[schedule.id]?.samplingWitness ?? null,
+    sheets: sheetStore[schedule.id] ?? [],
+  },
+  items: ITEM_POOL
+    .filter((item) => selectedPollutantIds(schedule.id).includes(item.pollutantId))
+    // 정정된 조건이 있으면 그 값이 이 회차의 스냅샷이다(원장 ITEM_POOL 은 그대로 둔다).
+    .map((item) => ({
+      ...item,
+      field: schedule.measurementField,
+      ...(itemConditionStore[schedule.id]?.[item.pollutantId] ?? {}),
+      // 실험분석 결과는 항목 안에 있다. 아직 분석 전이면 null 이며 정상 상태다.
+      analysis: null,
+    })),
+});
+
+// 팀 스냅샷이 품는 이 회차의 장비. 서버가 유형별 슬롯 대신 목록 하나로 관리한다.
+const EQUIPMENT_SNAPSHOTS = [
     {
       equipmentId: 'eq-ps-1', type: 'PARTICLE_SAMPLER', managementNumber: 'PS-001', serialNumber: 'SN-PS-001',
       modelName: 'APEX-PS', equipmentName: '입자상 채취기', alias: 'PS1', manufacturer: 'Apex',
@@ -257,47 +268,27 @@ const buildSnapshot = (schedule: MockSchedule) => ({
       ],
       spec: { diameters: [{ diameter: 0.6 }, { diameter: 0.8 }, { diameter: 1.0 }] },
     },
-  ],
-  items: ITEM_POOL
-    .filter((item) => selectedPollutantIds(schedule.id).includes(item.pollutantId))
-    // 정정된 조건이 있으면 그 값이 이 회차의 스냅샷이다(원장 ITEM_POOL 은 그대로 둔다).
-    .map((item) => ({
-      ...item,
-      field: schedule.measurementField,
-      ...(itemConditionStore[schedule.id]?.[item.pollutantId] ?? {}),
-    })),
-  sheets: sheetStore[schedule.id] ?? [],
-});
+];
 
+// 성적서 기본정보는 전부 최상위에 있다 — 스냅샷에는 사본을 두지 않는다.
 const buildScheduleResponse = (schedule: MockSchedule) => ({
   id: schedule.id, tenantId: 1, stackId: schedule.stackId, teamId: schedule.teamId,
   measurementField: schedule.measurementField, sampledAt: schedule.sampledAt,
+  receivedAt: basicInfoStore[schedule.id]?.receivedAt ?? null,
+  analyzedAt: basicInfoStore[schedule.id]?.analyzedAt ?? null,
+  issuedAt: basicInfoStore[schedule.id]?.issuedAt ?? null,
   schedulePurpose: schedule.schedulePurpose, status: schedule.status,
   referenceNumber: schedule.referenceNumber, createdAt: schedule.createdAt, modifiedAt: schedule.createdAt,
   snapshot: buildSnapshot(schedule),
 });
 
-const buildScheduleListResponse = (schedule: MockSchedule) => ({
-  ...schedule,
-  deletedAt: schedule.deletedAt ?? null,
-  deletedBy: schedule.deletedBy ?? null,
-  // 서버와 같이 취소 목록에서만 채운다 — 값은 상태 변경 이력의 마지막 취소 건에서 온다.
-  canceledAt: null as string | null,
-  cancelReason: null as string | null,
-});
-
-
-const buildCanceledScheduleListResponse = (schedule: MockSchedule) => ({
-  ...buildScheduleListResponse(schedule),
-  canceledAt: schedule.canceledAt ?? null,
-  cancelReason: schedule.cancelReason ?? null,
-});
+const buildScheduleListResponse = (schedule: MockSchedule) => ({ ...schedule });
 
 export const scheduleHandlers = [
-  // 목록 조회 — 삭제(감춤)·취소된 계획은 제외한다.
+  // 목록 조회 — 취소된 계획은 제외한다.
   http.get(`${BASE_URL}/schedules`, () => {
     const active = schedules
-      .filter((s) => !s.deletedAt && s.status !== 'CANCELED')
+      .filter((s) => s.status !== 'CANCELED')
       .map(buildScheduleListResponse);
     return HttpResponse.json({ status: true, message: '측정계획 목록 조회 성공', data: active });
   }),
@@ -305,29 +296,22 @@ export const scheduleHandlers = [
   // 취소된 측정계획 목록 — `/schedules/:id` 보다 먼저 등록해야 "canceled"가 id로 잡히지 않는다.
   http.get(`${BASE_URL}/schedules/canceled`, () => {
     const canceled = schedules
-      .filter((s) => !s.deletedAt && s.status === 'CANCELED')
-      .map(buildCanceledScheduleListResponse);
+      .filter((s) => s.status === 'CANCELED')
+      .map(buildScheduleListResponse);
     return HttpResponse.json({ status: true, message: '취소된 측정계획 목록 조회 성공', data: canceled });
-  }),
-
-  // 삭제된 측정계획 목록 (ADMIN) — `/schedules/:id` 보다 먼저 등록해야 "deleted"가 id로 잡히지 않는다.
-  http.get(`${BASE_URL}/schedules/deleted`, () => {
-    const deleted = schedules.filter((s) => s.deletedAt).map(buildScheduleListResponse);
-    return HttpResponse.json({ status: true, message: '삭제된 측정계획 목록 조회 성공', data: deleted });
   }),
 
   // 상세 조회 (스냅샷 포함)
   http.get(`${BASE_URL}/schedules/:id`, ({ params }) => {
     const id = Number(params.id);
-    const schedule = schedules.find((s) => s.id === id && !s.deletedAt);
+    const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
     return HttpResponse.json({ status: true, message: '측정계획 상세 조회 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 메타 수정 — 관리번호·채취일자·측정용도·측정분야. 서버는 문서 스냅샷의 기본정보도 함께 맞추는데,
-  // 목은 buildSnapshot 이 계획 레코드에서 basicInfo 를 조립하므로 레코드만 고치면 같은 결과가 된다.
+  // 계획 정의 수정 — 채취일자·측정용도·관리번호. 측정분야와 측정 대상은 생성 시점에만 정한다.
   // (구체적 경로가 먼저 잡히도록 /schedules/:id/sheets 뒤에 둔다.)
   http.put(`${BASE_URL}/schedules/:id`, async ({ params, request }) => {
     const id = Number(params.id);
@@ -344,22 +328,26 @@ export const scheduleHandlers = [
 
     const body = (await request.json()) as Record<string, unknown>;
 
-    // null·빈 문자열은 "기존 값 유지" — 서버 Schedule.update 의 keep 규칙과 같다.
-    const text = (key: string): string | undefined => {
+    // 전달한 값을 그대로 채택한다 — 빈 값은 기존 값을 지운다(basic-info 의 부분 갱신과 규칙이 다르다).
+    const text = (key: string): string | null => {
       const value = body[key];
-      return typeof value === 'string' && value !== '' ? value : undefined;
+      return typeof value === 'string' && value !== '' ? value : null;
     };
 
-    schedule.referenceNumber = text('referenceNumber') ?? schedule.referenceNumber;
-    schedule.sampledAt = text('sampledAt') ?? schedule.sampledAt;
+    // 채취일자는 측정 건수 집계의 기준일이라 서버가 비우지 못하게 막는다.
+    const sampledAt = text('sampledAt');
+    if (!sampledAt) {
+      return HttpResponse.json(
+        { status: false, message: '채취일자는 필수 값입니다.', data: null },
+        { status: 400 },
+      );
+    }
+
+    schedule.sampledAt = sampledAt;
+    schedule.referenceNumber = text('referenceNumber');
 
     const purpose = text('schedulePurpose');
-    if (purpose === 'SELF' || purpose === 'REFERENCE') schedule.schedulePurpose = purpose;
-
-    const field = text('measurementField');
-    if (field === 'AIR' || field === 'WATER' || field === 'NOISE_VIBRATION' || field === 'ODOR') {
-      schedule.measurementField = field;
-    }
+    schedule.schedulePurpose = purpose === 'SELF' || purpose === 'REFERENCE' ? purpose : null;
 
     return HttpResponse.json({ status: true, message: '측정계획 수정 성공', data: buildScheduleResponse(schedule) });
   }),
@@ -567,21 +555,14 @@ export const scheduleHandlers = [
     return HttpResponse.json({ status: true, message: '측정계획 성적서 작성 완료 처리 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 취소 — 사유 필수. 취소된 계획은 목록에 남는다(삭제와 다르다).
-  http.post(`${BASE_URL}/schedules/:id/cancellation`, async ({ params, request }) => {
+  // 취소 — 취소된 계획은 목록에 남는다(삭제와 다르다).
+  http.post(`${BASE_URL}/schedules/:id/cancellation`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
 
-    const { reason } = (await request.json()) as { reason?: string };
-    if (!reason?.trim()) {
-      return HttpResponse.json(
-        { status: false, message: '취소 사유를 입력해 주세요.', data: null },
-        { status: 400 },
-      );
-    }
     if (!canTransitionScheduleStatus(schedule.status, 'CANCELED')) {
       return HttpResponse.json(
         { status: false, message: '허용되지 않는 상태 변경입니다.', data: null },
@@ -590,13 +571,11 @@ export const scheduleHandlers = [
     }
 
     schedule.status = 'CANCELED';
-    schedule.canceledAt = new Date().toISOString();
-    schedule.cancelReason = reason.trim();
 
     return HttpResponse.json({ status: true, message: '측정계획 취소 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 삭제(soft delete) — 실측 데이터가 없는 '측정예정'과 '취소'에서만 허용된다.
+  // 삭제(물리 삭제) — 실측 데이터가 없는 '측정예정'과 '취소'에서만 허용되며 되돌릴 수 없다.
   http.delete(`${BASE_URL}/schedules/:id`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
@@ -610,26 +589,21 @@ export const scheduleHandlers = [
         { status: 409 },
       );
     }
-    schedule.deletedAt = new Date().toISOString();
+    // 서버는 메타·세부 문서·실험분석정보를 함께 지운다. 목에서는 계획과 시트를 지운다.
+    schedules = schedules.filter((s) => s.id !== id);
+    delete sheetStore[id];
 
     return HttpResponse.json({ status: true, message: '측정계획 삭제 성공', data: null });
   }),
 
   // 재개방 — 완료·취소를 되돌린다. 돌아갈 단계는 저장된 데이터에서 재도출한다.
-  http.post(`${BASE_URL}/schedules/:id/reopen`, async ({ params, request }) => {
+  http.post(`${BASE_URL}/schedules/:id/reopen`, ({ params }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
       return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
     }
 
-    const { reason } = (await request.json()) as { reason?: string };
-    if (!reason?.trim()) {
-      return HttpResponse.json(
-        { status: false, message: '재개방 사유를 입력해 주세요.', data: null },
-        { status: 400 },
-      );
-    }
     if (!canReopenSchedule(schedule.status)) {
       return HttpResponse.json(
         { status: false, message: '완료되었거나 취소된 측정계획만 재개방할 수 있습니다.', data: null },
@@ -640,18 +614,6 @@ export const scheduleHandlers = [
     schedule.status = deriveProgress(schedule.id);
 
     return HttpResponse.json({ status: true, message: '측정계획 재개방 성공', data: buildScheduleResponse(schedule) });
-  }),
-
-  // 복구 (ADMIN)
-  http.post(`${BASE_URL}/schedules/:id/restore`, ({ params }) => {
-    const id = Number(params.id);
-    const schedule = schedules.find((s) => s.id === id);
-    if (!schedule?.deletedAt) {
-      return HttpResponse.json({ status: false, message: '삭제되지 않은 측정계획은 복구할 수 없습니다.', data: null }, { status: 409 });
-    }
-
-    schedule.deletedAt = null;
-    return HttpResponse.json({ status: true, message: '측정계획 복구 성공', data: buildScheduleResponse(schedule) });
   }),
 
   // 등록 (동일 시설·팀·측정일 중복 시 409)
@@ -679,7 +641,6 @@ export const scheduleHandlers = [
       status: 'SCHEDULED',
       schedulePurpose: body.schedulePurpose ?? null,
       referenceNumber: body.referenceNumber ?? null,
-      workplaceName: null,
       clientName: null,
       stackName: null,
       teamName: null,

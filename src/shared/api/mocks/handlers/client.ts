@@ -122,20 +122,6 @@ export const clientHandlers = [
     });
   }),
 
-  // 경로 구체성: /workplaces/contract-summary를 /workplaces/:workplaceId보다 먼저 등록
-  http.get(`${BASE_URL}/workplaces/contract-summary`, () => {
-    return HttpResponse.json({
-      status: true,
-      message: '계약 현황 요약 조회 성공',
-      data: {
-        recentContractCount: 6,
-        totalContractCount: 18,
-        expiringSoonContractCount: 3,
-        expiredContractCount: 2,
-      },
-    });
-  }),
-
   http.get(`${BASE_URL}/workplaces/:workplaceId`, ({ params }) => {
     const workplace = allWorkplaces().find(w => w.id === Number(params.workplaceId));
     if (!workplace) {

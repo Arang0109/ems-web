@@ -25,7 +25,7 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
   /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailEquipmentId, setDetailEquipmentId] = useState<string | null>(null);
 
-  const { data, loading, error, refetch: equipmentRefetch } = useEquipments(type);
+  const { data, isLoading: loading, error, refetch: equipmentRefetch } = useEquipments(type);
 
   const tableData = useMemo(
     () => data?.map(toEquipmentRows),
@@ -75,6 +75,6 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   };
 };

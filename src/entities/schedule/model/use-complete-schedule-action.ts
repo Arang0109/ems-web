@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { ScheduleDetail } from "./types";
 import { scheduleApi } from "../api/api";
 import { toScheduleDetail } from "../api/mapper";
@@ -9,26 +9,10 @@ import { toScheduleDetail } from "../api/mapper";
  * 분석중이 아닌 상태에서의 확정은 서버가 400으로 거부한다.
  */
 export const useCompleteScheduleAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number): Promise<ScheduleDetail> => {
+    const result = unwrapMessage(await scheduleApi.completeSchedule(id));
+    return toScheduleDetail(result);
+  });
 
-  const completeSchedule = async (id: number): Promise<ScheduleDetail> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await scheduleApi.completeSchedule(id);
-      if (!result.status) {
-        throw new Error(result.message ?? "서버 연결에 실패했습니다.");
-      }
-      return toScheduleDetail(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "서버 연결에 실패했습니다.");
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { completeSchedule, isLoading, error };
+  return { completeSchedule: run, isLoading, error };
 };
