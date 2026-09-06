@@ -5,7 +5,7 @@ import { Search } from '@shared/ui/form';
 import { Panel } from '@shared/ui/cards';
 
 export const ContractTable = () => {
-  const { table, loading, error, globalFilter, setGlobalFilter } = useContractTable();
+  const { table, isLoading, error, globalFilter, setGlobalFilter } = useContractTable();
 
   return (
     <Panel className="p-0 flex flex-col">
@@ -22,7 +22,7 @@ export const ContractTable = () => {
         <BasicTable table={table} />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </Panel>

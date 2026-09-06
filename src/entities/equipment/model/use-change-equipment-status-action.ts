@@ -1,35 +1,15 @@
-import { useState } from "react";
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { EquipmentStatusChange } from "./types";
 import { equipmentApi } from "../api/api";
 import { toStatusChangeRequest } from "../api/mapper";
 
 export const useChangeEquipmentStatusAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const changeEquipmentStatus = async (id: string, data: EquipmentStatusChange) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (id: string, data: EquipmentStatusChange) => {
     const payload = toStatusChangeRequest(data);
 
-    try {
-      const result = await equipmentApi.changeEquipmentStatus(id, payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '서버 연결에 실패했습니다.';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await equipmentApi.changeEquipmentStatus(id, payload));
+  });
 
-  return {
-    changeEquipmentStatus,
-
-    isLoading, error,
-  }
-}
+  return { changeEquipmentStatus: run, isLoading, error };
+};

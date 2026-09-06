@@ -25,7 +25,7 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
 
   const documentId = open && document ? document.id : null;
 
-  const { data, loading, error, refetch } = useDocumentVersions({ documentId });
+  const { data, isLoading: loading, error, refetch } = useDocumentVersions({ documentId });
   const { handleDownload } = useDownloadDocument();
 
   // 버전 목록과 함께 문서 목록·상세(최신 버전 번호, 수정일)도 갱신한다.

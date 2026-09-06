@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const useRecordInspection = ({ equipmentId, type, onSuccess }: Props) => {
-  const { data: records, loading, refetch } = useInspectionRecords({ equipmentId });
+  const { data: records, isLoading: isRecordsLoading, refetch } = useInspectionRecords({ equipmentId });
   const { recordInspection, isLoading } = useRecordInspectionAction();
 
   const [form, setForm] = useState<InspectionRecordForm>(getDefaultInspectionRecordForm(type));
@@ -57,7 +57,7 @@ export const useRecordInspection = ({ equipmentId, type, onSuccess }: Props) => 
   return {
     form,
     records: typeRecords,
-    loading,
+    isRecordsLoading,
     isLoading,
 
     fieldErrors,

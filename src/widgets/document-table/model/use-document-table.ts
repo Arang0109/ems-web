@@ -23,7 +23,7 @@ export const useDocumentTable = ({ category, onSuccess }: Props) => {
   /** 상세 모달 대상 겸 행 선택 강조 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailDocumentId, setDetailDocumentId] = useState<number | null>(null);
 
-  const { data, loading, error, refetch: documentRefetch } = useDocuments(category);
+  const { data, isLoading: loading, error, refetch: documentRefetch } = useDocuments(category);
   const { handleDownload } = useDownloadDocument();
 
   const tableData = useMemo(() => data.map(toDocumentRows), [data]);
@@ -69,6 +69,6 @@ export const useDocumentTable = ({ category, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   };
 };

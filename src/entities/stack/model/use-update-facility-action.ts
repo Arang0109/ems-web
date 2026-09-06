@@ -1,27 +1,13 @@
-import { useState } from 'react';
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { stackApi } from '../api/api';
 import { toUpdateFacilityRequest } from '../api/mapper';
 import type { FacilityUpdate } from './types';
 
 export const useUpdateFacilityAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (facilityId: number, data: FacilityUpdate) => {
+    unwrapMessage(await stackApi.updateFacility(facilityId, toUpdateFacilityRequest(data)));
+  });
 
-  const updateFacility = async (facilityId: number, data: FacilityUpdate) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await stackApi.updateFacility(facilityId, toUpdateFacilityRequest(data));
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { updateFacility, isLoading, error };
+  return { updateFacility: run, isLoading, error };
 };

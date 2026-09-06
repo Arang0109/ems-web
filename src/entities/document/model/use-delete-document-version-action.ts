@@ -1,31 +1,11 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { documentApi } from "../api/api";
 
 export const useDeleteDocumentVersionAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number, versionNo: number) => {
+    unwrapMessage(await documentApi.deleteDocumentVersion(id, versionNo));
+  });
 
-  const deleteDocumentVersion = async (id: number, versionNo: number) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await documentApi.deleteDocumentVersion(id, versionNo);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    deleteDocumentVersion,
-
-    isLoading, error,
-  };
+  return { deleteDocumentVersion: run, isLoading, error };
 };

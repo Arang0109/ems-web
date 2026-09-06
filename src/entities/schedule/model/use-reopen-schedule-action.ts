@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { ScheduleDetail } from "./types";
 import { scheduleApi } from "../api/api";
 import { toScheduleDetail } from "../api/mapper";
@@ -9,26 +9,10 @@ import { toScheduleDetail } from "../api/mapper";
  * 재개방하면 상태가 완료가 아니게 되므로 측정 건수 통계에서도 자동으로 빠진다.
  */
 export const useReopenScheduleAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number): Promise<ScheduleDetail> => {
+    const result = unwrapMessage(await scheduleApi.reopenSchedule(id));
+    return toScheduleDetail(result);
+  });
 
-  const reopenSchedule = async (id: number): Promise<ScheduleDetail> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await scheduleApi.reopenSchedule(id);
-      if (!result.status) {
-        throw new Error(result.message ?? "서버 연결에 실패했습니다.");
-      }
-      return toScheduleDetail(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "서버 연결에 실패했습니다.");
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { reopenSchedule, isLoading, error };
+  return { reopenSchedule: run, isLoading, error };
 };

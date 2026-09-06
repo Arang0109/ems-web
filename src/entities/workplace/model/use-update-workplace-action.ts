@@ -1,30 +1,15 @@
-import { useState } from 'react';
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { workplaceApi } from '../api/api';
 import { toUpdateRequest } from '../api/mapper';
 import type { WorkplaceUpdate } from './types';
 
 export const useUpdateWorkplaceAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const updateWorkplace = async (id: number, data: WorkplaceUpdate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (id: number, data: WorkplaceUpdate) => {
     const payload = toUpdateRequest(data);
 
-    try {
-      const result = await workplaceApi.updateWorkplace(id, payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await workplaceApi.updateWorkplace(id, payload));
+  });
 
-  return { updateWorkplace, isLoading, error };
+  return { updateWorkplace: run, isLoading, error };
 };

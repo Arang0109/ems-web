@@ -20,7 +20,7 @@ export const useTeamTable = ({ onSuccess }: Props) => {
   /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailTeamId, setDetailTeamId] = useState<number | null>(null);
 
-  const { data, loading, error, refetch: teamRefetch } = useTeams();
+  const { data, isLoading: loading, error, refetch: teamRefetch } = useTeams();
 
   const tableData = useMemo(
     () => data.map(toTeamRows),
@@ -62,6 +62,6 @@ export const useTeamTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading: loading, error, refetch,
   };
 };

@@ -26,7 +26,7 @@ interface Params {
 export const useReportTemplate = ({ enabled }: Params) => {
   const {
     data: documents,
-    loading: documentsLoading,
+    isLoading: documentsLoading,
     error: documentsError,
   } = useDocuments("SAMPLING_RECORD_TEMPLATE", { enabled });
 
@@ -36,7 +36,7 @@ export const useReportTemplate = ({ enabled }: Params) => {
 
   const {
     data: versions,
-    loading: versionsLoading,
+    isLoading: versionsLoading,
     error: versionsError,
   } = useDocumentVersions({ documentId: enabled ? documentId : null });
 

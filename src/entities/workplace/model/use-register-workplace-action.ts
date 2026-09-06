@@ -1,30 +1,15 @@
-import { useState } from 'react';
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { workplaceApi } from '../api/api';
 import { toRegisterRequest } from '../api/mapper';
 import type { WorkplaceCreate } from './types';
 
 export const useRegisterWorkplaceAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const registerWorkplace = async (data: WorkplaceCreate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (data: WorkplaceCreate) => {
     const payload = toRegisterRequest(data);
 
-    try {
-      const result = await workplaceApi.registerWorkplace(payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await workplaceApi.registerWorkplace(payload));
+  });
 
-  return { registerWorkplace, isLoading, error };
+  return { registerWorkplace: run, isLoading, error };
 };

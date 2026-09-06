@@ -27,7 +27,7 @@ export const PollutantCatalogTable = ({ onSuccess }: Props) => {
     globalFilter, setGlobalFilter,
     field, setField, fieldOptions,
 
-    loading, error, refetch,
+    isLoading, error, refetch,
   } = usePollutantCatalogTable({ onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -57,11 +57,11 @@ export const PollutantCatalogTable = ({ onSuccess }: Props) => {
             />
           </>
         }
-        footer={!loading && !error && <TableFooterBar table={table} />}
+        footer={!isLoading && !error && <TableFooterBar table={table} />}
       >
         <BasicTable
           table={table}
-          loading={loading}
+          loading={isLoading}
           error={error}
           onRowClick={handleRowClick}
           mobileCard={pollutantCatalogCardConfig}

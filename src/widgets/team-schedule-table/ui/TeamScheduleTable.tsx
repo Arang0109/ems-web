@@ -9,7 +9,7 @@ export const TeamScheduleTable = () => {
   const {
     table,
     teamName,
-    loading, error,
+    isLoading, error,
   } = useTeamScheduleTable();
 
   return (
@@ -40,7 +40,7 @@ export const TeamScheduleTable = () => {
       </div>
 
       {/* 푸터: 건수 + 페이지네이션 */}
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="bg-canvas py-1" />
       )}
     </Panel>

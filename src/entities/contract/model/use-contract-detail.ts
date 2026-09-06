@@ -1,33 +1,16 @@
-import { useState, useCallback } from 'react';
+import { unwrapMessage } from "@shared/api";
+import { useLazyFetch } from "@shared/model";
 
-import type { ContractDetail } from './types';
-import { contractApi } from '../api/api';
+import { contractApi } from "../api/api";
+import type { ContractDetail } from "./types";
 
+/** 타입 B(수동 호출): 계약 상세. */
 export const useContractDetail = () => {
-  const [data, setData] = useState<ContractDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, fetch } = useLazyFetch(
+    async (contractId: number) => unwrapMessage(await contractApi.getContract(contractId)),
+    null as ContractDetail | null,
+    { initialLoading: true, resetOnFetch: true, fallbackMessage: "계약 정보를 불러오지 못했습니다." },
+  );
 
-  const fetchContract = useCallback(async (contractId: number) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { status, data } = await contractApi.getContract(contractId);
-      setData(status ? data : null);
-    } catch (e) {
-      console.error(e);
-      setError('계약 정보를 불러오지 못했습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  return {
-    data,
-
-    fetchContract,
-    
-    loading,
-    error,
-  };
+  return { data, isLoading, error, fetchContract: fetch };
 };

@@ -1,34 +1,15 @@
-import { useState } from "react";
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { MemberUpdate } from "./types";
 import { memberApi } from "../api/api";
 import { toUpdateRequest } from "../api/mapper";
 
 export const useUpdateMemberAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const updateMember = async (id: number, data: MemberUpdate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (id: number, data: MemberUpdate) => {
     const payload = toUpdateRequest(data);
 
-    try {
-      const result = await memberApi.updateMember(id, payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await memberApi.updateMember(id, payload));
+  });
 
-  return {
-    updateMember,
-
-    isLoading, error,
-  }
-}
+  return { updateMember: run, isLoading, error };
+};

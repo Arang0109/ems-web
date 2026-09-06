@@ -1,37 +1,16 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { documentApi } from "../api/api";
 import { toRegisterRequest } from "../api/mapper";
 import type { DocumentCreate } from "./types";
 
 export const useRegisterDocumentAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  /** 생성된 documentId를 반환한다. */
-  const registerDocument = async (data: DocumentCreate): Promise<number> => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (data: DocumentCreate): Promise<number> => {
     const payload = toRegisterRequest(data);
 
-    try {
-      const result = await documentApi.registerDocument(payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-      return result.data;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const result = unwrapMessage(await documentApi.registerDocument(payload));
+    return result;
+  });
 
-  return {
-    registerDocument,
-
-    isLoading, error,
-  };
+  return { registerDocument: run, isLoading, error };
 };

@@ -27,7 +27,7 @@ export const usePollutantCatalogTable = ({ onSuccess }: Props = {}) => {
   const [field, setField] = useState<string>(ALL_FIELDS);
 
   // 운영 화면에서는 폐지된 항목도 보여야 한다 — 폐지 해제가 여기서만 가능하기 때문이다.
-  const { data, loading, error, refetch: catalogRefetch } = usePollutantCatalogs({
+  const { data, isLoading: loading, error, refetch: catalogRefetch } = usePollutantCatalogs({
     field: field === ALL_FIELDS ? undefined : (field as MeasurementField),
     includeInactive: true,
   });
@@ -73,6 +73,6 @@ export const usePollutantCatalogTable = ({ onSuccess }: Props = {}) => {
 
     refetch,
 
-    loading, error,
+    isLoading: loading, error,
   };
 };

@@ -15,7 +15,7 @@ export const useScheduleFormOptions = () => {
   const { data: teams } = useTeams();
   const {
     data: stackPollutants,
-    loading: stackPollutantsLoading,
+    isLoading: stackPollutantsLoading,
     fetchStackPollutants,
   } = useStackPollutants();
 

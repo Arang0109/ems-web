@@ -1,30 +1,16 @@
-import { useState } from "react";
+import { useLazyFetch } from "@shared/model";
 
-import type { StackListItem } from "./types";
-import { toStackListItems } from "../api/mapper";
 import { stackApi } from "../api/api";
+import { toStackListItems } from "../api/mapper";
+import type { StackListItem } from "./types";
 
-import { ERROR_MESSAGE } from "@shared/config";
-
+/** 타입 B(수동 호출): 사업장을 고르면 그 사업장의 측정시설 목록을 받아온다. */
 export const useStacks = () => {
-  const [data, setData] = useState<StackListItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, fetch } = useLazyFetch(
+    async (workplaceId: number | null) => toStackListItems((await stackApi.getStacks(workplaceId)).data),
+    [] as StackListItem[],
+    { resetOnFetch: true },
+  );
 
-  const fetchStacks = async (workplaceId: number | null) => {
-    setLoading(true);
-    setError(null);
-    setData([]);
-
-    try {
-      const res = await stackApi.getStacks(workplaceId);
-      setData(toStackListItems(res.data));
-    } catch {
-      setError(ERROR_MESSAGE.FETCH);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return { data, loading, error, fetchStacks };
-}
+  return { data, isLoading, error, fetchStacks: fetch };
+};

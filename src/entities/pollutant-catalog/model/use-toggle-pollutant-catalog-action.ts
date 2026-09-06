@@ -1,8 +1,6 @@
-import { useState } from 'react';
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { pollutantCatalogApi } from '../api/api';
-
-import { ERROR_MESSAGE } from '@shared/config';
 
 /**
  * 카탈로그 폐지/해제.
@@ -11,27 +9,11 @@ import { ERROR_MESSAGE } from '@shared/config';
  * 과거 측정계획 스냅샷이 있으므로, 지우는 대신 선택 목록에서만 감춘다.
  */
 export const useTogglePollutantCatalogAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number, active: boolean) => {
+    unwrapMessage(active
+      ? await pollutantCatalogApi.activatePollutantCatalog(id)
+      : await pollutantCatalogApi.deactivatePollutantCatalog(id));
+  });
 
-  const setPollutantCatalogActive = async (id: number, active: boolean) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = active
-        ? await pollutantCatalogApi.activatePollutantCatalog(id)
-        : await pollutantCatalogApi.deactivatePollutantCatalog(id);
-      if (!result.status) {
-        throw new Error(result.message ?? ERROR_MESSAGE.NETWORK);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : ERROR_MESSAGE.NETWORK);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { setPollutantCatalogActive, isLoading, error };
+  return { setPollutantCatalogActive: run, isLoading, error };
 };

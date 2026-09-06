@@ -22,7 +22,7 @@ export const InspectionHistoryDialog = ({
   open, onOpenChange, equipmentId, equipmentName, type, onSuccess,
 }: Props) => {
   const {
-    form, records, loading, isLoading, fieldErrors, handleChange, handleSubmit,
+    form, records, isLoading, fieldErrors, handleChange, handleSubmit,
   } = useRecordInspection({ equipmentId, type, onSuccess });
 
   if (!equipmentId) return null;
@@ -44,11 +44,11 @@ export const InspectionHistoryDialog = ({
         <Divider />
 
         <SectionTitle>수검 이력</SectionTitle>
-        {loading && <p className="text-body-2 text-muted-foreground">이력을 불러오는 중입니다...</p>}
-        {!loading && records.length === 0 && (
+        {isLoading && <p className="text-body-2 text-muted-foreground">이력을 불러오는 중입니다...</p>}
+        {!isLoading && records.length === 0 && (
           <p className="text-body-2 text-muted-foreground">등록된 수검 이력이 없습니다.</p>
         )}
-        {!loading && records.length > 0 && (
+        {!isLoading && records.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] border-collapse">
               <thead>

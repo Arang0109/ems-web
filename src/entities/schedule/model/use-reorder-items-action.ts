@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import type { ScheduleDetail } from "./types";
 import { scheduleApi } from "../api/api";
 import { toScheduleDetail } from "../api/mapper";
@@ -13,27 +13,10 @@ import { toScheduleDetail } from "../api/mapper";
  * 교체했다면) 서버가 저장을 거절한다.
  */
 export const useReorderItemsAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, isLoading, error } = useAsyncAction(async (id: number, orderedPollutantIds: number[]): Promise<ScheduleDetail> => {
+    const result = unwrapMessage(await scheduleApi.reorderItems(id, { orderedPollutantIds }));
+    return toScheduleDetail(result);
+  });
 
-  const reorderItems = async (id: number, orderedPollutantIds: number[]): Promise<ScheduleDetail> => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await scheduleApi.reorderItems(id, { orderedPollutantIds });
-      if (!result.status) {
-        throw new Error(result.message ?? "서버 연결에 실패했습니다.");
-      }
-      return toScheduleDetail(result.data);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "서버 연결에 실패했습니다.";
-      setError(message);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return { reorderItems, isLoading, error };
+  return { reorderItems: run, isLoading, error };
 };

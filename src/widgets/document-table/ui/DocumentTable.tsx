@@ -28,7 +28,7 @@ export const DocumentTable = ({ category, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    loading, error, refetch,
+    isLoading, error, refetch,
   } = useDocumentTable({ category, onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -59,14 +59,14 @@ export const DocumentTable = ({ category, onSuccess }: Props) => {
       <div className="py-5 flex-1 flex flex-col">
         <BasicTable
           table={table}
-          loading={loading}
+          loading={isLoading}
           error={error}
           onRowClick={handleRowClick}
           isRowSelected={(row) => row.id === detailDocumentId}
         />
       </div>
 
-      {!loading && !error && (
+      {!isLoading && !error && (
         <TableFooterBar table={table} className="border-t border-border pt-3" />
       )}
 

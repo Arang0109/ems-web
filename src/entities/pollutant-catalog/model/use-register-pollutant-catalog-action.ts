@@ -1,33 +1,15 @@
-import { useState } from 'react';
-
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { pollutantCatalogApi } from '../api/api';
 import { toRegisterRequest } from '../api/mapper';
 import type { PollutantCatalogCreate } from './types';
 
-import { ERROR_MESSAGE } from '@shared/config';
-
 export const useRegisterPollutantCatalogAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const registerPollutantCatalog = async (data: PollutantCatalogCreate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (data: PollutantCatalogCreate) => {
     const payload = toRegisterRequest(data);
 
-    try {
-      const result = await pollutantCatalogApi.registerPollutantCatalog(payload);
-      if (!result.status) {
-        throw new Error(result.message ?? ERROR_MESSAGE.NETWORK);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : ERROR_MESSAGE.NETWORK);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await pollutantCatalogApi.registerPollutantCatalog(payload));
+  });
 
-  return { registerPollutantCatalog, isLoading, error };
+  return { registerPollutantCatalog: run, isLoading, error };
 };

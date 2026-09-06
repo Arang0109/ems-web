@@ -1,30 +1,15 @@
-import { useState } from 'react';
+import { useAsyncAction } from "@shared/model";
+import { unwrapMessage } from "@shared/api";
 import { contractApi } from '../api/api';
 import { toUpdateRequest } from '../api/mapper';
 import type { ContractUpdate } from './types';
 
 export const useUpdateContractAction = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const updateContract = async (id: number, data: ContractUpdate) => {
-    setIsLoading(true);
-    setError(null);
-
+  const { run, isLoading, error } = useAsyncAction(async (id: number, data: ContractUpdate) => {
     const payload = toUpdateRequest(data);
 
-    try {
-      const result = await contractApi.updateContract(id, payload);
-      if (!result.status) {
-        throw new Error(result.message ?? '서버 연결에 실패했습니다.');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : '서버 연결에 실패했습니다.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    unwrapMessage(await contractApi.updateContract(id, payload));
+  });
 
-  return { updateContract, isLoading, error };
+  return { updateContract: run, isLoading, error };
 };
