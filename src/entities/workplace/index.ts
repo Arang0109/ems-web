@@ -1,4 +1,4 @@
-export type { Workplace, WorkplaceListItem, WorkplaceCreate, WorkplaceUpdate, ContractOverview } from './model/types';
+export type { Workplace, WorkplaceListItem, WorkplaceCreate, WorkplaceUpdate } from './model/types';
 
 export { workplaceApi } from './api/api';
 
