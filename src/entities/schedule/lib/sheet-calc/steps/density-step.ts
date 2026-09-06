@@ -32,6 +32,9 @@ export const densityStep: SheetCalcStep = (ctx) => {
   if (o2 == null || co2 == null || co == null || n2 == null || xw == null) return;
 
   const standardGasDensityRaw = calcStandardGasDensityRaw({ o2, co2, co, n2, xw });
+
+  // 저장·표시는 round 2 지만, 현장조건 환산에는 **반올림 전 원시값**을 넘긴다
+  // (서버 DensityStep 이 그렇게 한다). 반올림된 값을 넘기면 오차가 실려 유량까지 어긋난다.
   ctx.standardGasDensity = roundHalfUp(standardGasDensityRaw, 2);
-  ctx.gasDensity = calcGasDensity(ctx.standardGasDensity, ctx);
+  ctx.gasDensity = calcGasDensity(standardGasDensityRaw, ctx);
 };

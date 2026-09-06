@@ -26,9 +26,16 @@ export const fieldPath = {
   exhaustReading: (key: GasColumnPath, index: number): SheetFieldPath => `exhaustGas.${key}.${index}`,
   exhaustTime: (key: ExhaustTimePath): SheetFieldPath => `exhaustGas.${key}`,
   point: (index: number, key: keyof SamplingPointForm): SheetFieldPath => `points.${index}.${key}`,
-  sample: (index: number, key: keyof SampleForm): SheetFieldPath => `samples.${index}.${key}`,
+  sample: (index: number, key: SampleFieldKey): SheetFieldPath => `samples.${index}.${key}`,
   particle: (key: keyof ParticleForm): SheetFieldPath => `particle.${key}`,
 } as const;
+
+/**
+ * 시료 행에서 **경로로 가리킬 수 있는 칸**. `pollutantIds` 는 사용자가 입력하는 값이 아니라
+ * 행에 딸린 링크이므로 제외한다 — 여기서 막지 않으면 배열이 문자열로 읽혀
+ * {@link readField} 의 반환 계약이 깨지고 값 있는 칸으로 잡힌다.
+ */
+export type SampleFieldKey = Exclude<keyof SampleForm, "pollutantIds">;
 
 type GasColumnPath = "o2" | "co2" | "co" | "nox" | "sox";
 type ExhaustTimePath = "gasAnalyzerStartTime" | "thcAnalyzerStartTime";
@@ -51,7 +58,7 @@ export const readField = (sheet: SheetForm, path: SheetFieldPath): string => {
     case "points":
       return sheet.samplingPoints[Number(a)]?.[b as keyof SamplingPointForm] ?? "";
     case "samples":
-      return sheet.samples[Number(a)]?.[b as keyof SampleForm] ?? "";
+      return sheet.samples[Number(a)]?.[b as SampleFieldKey] ?? "";
     case "particle":
       return sheet.particle[a as keyof ParticleForm] ?? "";
     default:
@@ -116,7 +123,7 @@ const POINT_ISOKINETIC_REQUIRED: (keyof SamplingPointForm)[] = [
  * 가스상 채취 항목의 필수 칸. **`GaseousSection` 의 별표도 이 목록에서 파생시킨다** —
  * 바탕시료(`blankSampleNumber`)만 선택 입력이다(채취하지 않고 운반만 한 대조용).
  */
-export const REQUIRED_SAMPLE_FIELDS: (keyof SampleForm)[] = [
+export const REQUIRED_SAMPLE_FIELDS: SampleFieldKey[] = [
   "sampleName", "startTime", "endTime",
   "suctionQuantity", "gasMeterGaugePressure", "inTemperature", "outTemperature",
   "samplingVolume", "beforeVolume", "afterVolume", "sampleNumber",
@@ -148,6 +155,10 @@ export const getRequiredFields = (
 
     case "exhaust":
       return [
+        // 가스분석기 시작시각은 조건부가 아니다 — O₂·CO₂·CO 3성분은 늘 측정하므로 분석기를
+        // 항상 쓰고, 기록지·타임라인이 이 시각으로 15분 측정 구간을 그린다. 기본값도 없다.
+        // (THC 는 그 항목이 배정된 회차에만 측정하므로 조건부다.)
+        fieldPath.exhaustTime("gasAnalyzerStartTime"),
         ...(assigned.thc ? [fieldPath.exhaustTime("thcAnalyzerStartTime")] : []),
         ...BASE_GAS_COLUMNS.flatMap(readings),
         ...(assigned.nox ? readings("nox") : []),
@@ -227,7 +238,9 @@ export const collectFieldPaths = (sheet: SheetForm): SheetFieldPath[] => [
     (Object.keys(point) as (keyof SamplingPointForm)[]).map((key) => fieldPath.point(i, key)),
   ),
   ...sheet.samples.flatMap((sample, i) =>
-    (Object.keys(sample) as (keyof SampleForm)[]).map((key) => fieldPath.sample(i, key)),
+    (Object.keys(sample) as (keyof SampleForm)[])
+      .filter((key): key is SampleFieldKey => key !== "pollutantIds")
+      .map((key) => fieldPath.sample(i, key)),
   ),
   ...(Object.keys(sheet.particle) as (keyof ParticleForm)[])
     .filter((key) => key !== "samplingEndTime")

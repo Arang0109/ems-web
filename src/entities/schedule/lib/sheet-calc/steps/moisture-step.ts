@@ -17,8 +17,10 @@ const calcXw = (ctx: SheetCalcContext): number | null => {
   const denominator = waterVolStp + dryVolStp;
   if (denominator === 0) return null;
 
-  // 서버: 100 × (비율 scale 5) — 추가 반올림 없음(scale 2 정규화만)
-  return roundHalfUp(100 * waterVolStp / denominator, 2);
+  // 서버 MoistureStep.calcMoistureRatio 와 같은 순서다 —
+  // **비율을 scale 5 로 먼저 반올림하고 100을 곱한다.** 곱한 뒤 반올림하면 값이 갈린다
+  // (같은 입력에서 서버 11.818 vs 곱셈 후 scale 2 는 11.82). 부동소수 잔차만 정규화한다.
+  return roundHalfUp(100 * roundHalfUp(waterVolStp / denominator, 5), 10);
 };
 
 export const moistureStep: SheetCalcStep = (ctx, { sheet }) => {

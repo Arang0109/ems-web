@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // 빌드·동기화 산출물은 검사 대상이 아니다. 넣어 두면 전체 경고의 절반 이상이 이쪽에서 나와
+  // 정작 소스의 문제가 묻힌다. ds-bundle 은 .gitignore 대상이고 .design-sync 는 생성물이다.
+  globalIgnores(['dist', 'ds-bundle', '.design-sync', 'public/mockServiceWorker.js']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
