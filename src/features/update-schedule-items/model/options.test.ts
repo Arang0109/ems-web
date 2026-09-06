@@ -46,6 +46,7 @@ const snapshotItem = (
   cycle,
   allowance,
   oxygenApplicable,
+  analysis: null,
 });
 
 describe("toItemGroups", () => {

@@ -1,4 +1,4 @@
-import type { MeasurementSheet, SheetRef } from "@entities/schedule";
+import type { SamplingSheet, SheetRef } from "@entities/schedule";
 import type { MeasurementCategory } from "@shared/model";
 
 import type { BlockSnapshot, SheetBlock } from "./blocks";
@@ -7,6 +7,8 @@ import {
   toBlockSnapshot, toUpdatedSections,
 } from "./blocks";
 import type { SheetBaseline } from "./conflict";
+import type { GasSampleGroup } from "./gaseous-rows";
+import { hydrateSheets } from "./gaseous-rows";
 import { fromSheet } from "./mapper";
 import type { SheetSectionId } from "./section-progress";
 import type { SheetForm } from "./types";
@@ -64,11 +66,17 @@ const mergeBaselineBlocks = (
  * @param baseline 마지막으로 서버와 맞춘 블록 기준선
  * @param deleted  내가 삭제하려고 표시해 둔 시트
  * @param server   서버 최신 시트
+ * @param groups   측정항목에서 파생한 가스상 시료 행 — 빈 표를 채우는 데 쓴다
  */
 export const applyRemoteSheets = (
-  mine: SheetForm[], baseline: SheetBaseline, deleted: SheetRef[], server: MeasurementSheet[],
+  mine: SheetForm[], baseline: SheetBaseline, deleted: SheetRef[], server: SamplingSheet[],
+  groups: GasSampleGroup[],
 ): RemoteSyncResult => {
-  const serverByCategory = new Map(server.map((sheet) => [sheet.category, fromSheet(sheet)] as const));
+  // 서버 시트도 내 폼과 **같은 규칙으로** 가스상 행을 채운 뒤에 비교한다. 한쪽만 채우면 값이
+  // 같은데도 블록이 달라 보여 "동료가 갱신했다"는 헛된 알림이 뜬다. 규칙이 결정적이라
+  // 양쪽이 같은 행을 만들고, 그래서 자동 행은 병합에 아무 영향을 주지 않는다.
+  const hydratedServer = hydrateSheets(server.map(fromSheet), groups);
+  const serverByCategory = new Map(hydratedServer.map((sheet) => [sheet.category, sheet] as const));
   const nextBaseline: SheetBaseline = { ...baseline };
   const updatedSections: UpdatedSections = {};
   const touched: MeasurementCategory[] = [];
@@ -124,9 +132,8 @@ export const applyRemoteSheets = (
   const myCategories = new Set(mine.map((sheet) => sheet.category));
   const pendingDeletion = new Set(deleted.map((ref) => ref.category));
 
-  const added = server
-    .filter((sheet) => !myCategories.has(sheet.category) && !pendingDeletion.has(sheet.category))
-    .map(fromSheet);
+  const added = hydratedServer
+    .filter((sheet) => !myCategories.has(sheet.category) && !pendingDeletion.has(sheet.category));
 
   for (const sheet of added) {
     nextBaseline[sheet.category] = toBlockSnapshot(sheet);

@@ -16,13 +16,13 @@ import { ReportInfo } from "./children/ReportInfo";
 
 export const ScheduleProfile = () => {
   const { scheduleId } = useParams<{ scheduleId: string }>();
-  const { snapshot, stackPollutants, externals, status, editable, loading, error, refetch } =
+  const { detail, snapshot, stackPollutants, externals, status, editable, isLoading, error, refetch } =
     useScheduleProfile(scheduleId);
   const id = Number(scheduleId);
 
   // 최초 로드에서만 화면을 비운다. 저장 후 재조회(refetch)에서도 비우면 탭·스크롤·
   // 열어둔 섹션이 전부 초기화되어, 측정 데이터 탭에서 저장할 때마다 측정정보 탭으로 튕긴다.
-  if (loading && !snapshot) {
+  if (isLoading && !snapshot) {
     return <p className="py-12 text-center text-body-2 text-muted-ink">불러오는 중...</p>;
   }
   // 같은 이유로, 보여줄 스냅샷이 이미 있으면 재조회 실패로 화면을 갈아엎지 않는다
@@ -40,6 +40,7 @@ export const ScheduleProfile = () => {
       content: (
         <MeasurementInfo
           scheduleId={id}
+          schedule={detail}
           snapshot={snapshot}
           stackPollutants={stackPollutants}
           editable={editable}
@@ -53,7 +54,7 @@ export const ScheduleProfile = () => {
       // 본문이 섹션 카드들로 구성되므로 탭의 카드 셸은 끈다.
       panel: false,
       content: (
-        <SheetInput scheduleId={id} snapshot={snapshot} status={status} editable={editable} externals={externals} onSaved={refetch} />
+        <SheetInput scheduleId={id} schedule={detail} snapshot={snapshot} status={status} editable={editable} externals={externals} onSaved={refetch} />
       ),
     },
     {
@@ -64,6 +65,7 @@ export const ScheduleProfile = () => {
       content: (
         <AnalysisInput
           scheduleId={id}
+          schedule={detail}
           snapshot={snapshot}
           status={status}
           editable={editable}
@@ -89,7 +91,7 @@ export const ScheduleProfile = () => {
         <EquipmentInfo
           scheduleId={id}
           team={snapshot.team}
-          equipments={snapshot.equipments}
+          equipments={snapshot.team.equipments}
           editable={editable}
           onRefetch={refetch}
         />
@@ -102,7 +104,7 @@ export const ScheduleProfile = () => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-body-3 text-muted-ink">{externals.stackName} | </span>
-          <span className="text-body-4 text-ink">{value(snapshot.basicInfo?.referenceNumber)}</span>
+          <span className="text-body-4 text-ink">{value(detail?.referenceNumber)}</span>
           {status && (
             <StatusDot pill tone={SCHEDULE_STATUS_TONE[status]} label={SCHEDULE_STATUS_LABEL[status]} className="text-body-3" />
           )}

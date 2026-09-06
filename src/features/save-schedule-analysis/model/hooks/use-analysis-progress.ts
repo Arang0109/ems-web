@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import type { BasicInfo } from "@entities/schedule";
+import type { ScheduleDetail } from "@entities/schedule";
 import { useUpdateBasicInfoAction } from "@entities/schedule";
 
 import { toast } from "@shared/ui/toasts";
@@ -10,7 +10,8 @@ import type { AnalysisProgressForm } from "../types";
 
 interface Params {
   scheduleId: number | null;
-  basicInfo: BasicInfo | null;
+  /** 이 회차의 상세 — 일자 셋은 최상위, 서명란 담당자는 snapshot.tenant 에서 읽는다. */
+  schedule: ScheduleDetail | null;
   onSaved?: () => void;
 }
 
@@ -20,11 +21,11 @@ interface Params {
  * 시료접수일자가 처음 저장되면 서버가 계획을 <b>측정중 → 분석값입력중</b>으로 전진시킨다.
  * 성적서 작성 완료는 분석값입력중에서만 확정할 수 있으므로, 이 입력이 확정의 선행 조건이다.
  */
-export const useAnalysisProgress = ({ scheduleId, basicInfo, onSaved }: Params) => {
+export const useAnalysisProgress = ({ scheduleId, schedule, onSaved }: Params) => {
   const { updateBasicInfo, isLoading } = useUpdateBasicInfoAction();
 
-  const [form, setForm] = useState<AnalysisProgressForm>(() => fromBasicInfo(basicInfo));
-  const [baselineForm, setBaselineForm] = useState<AnalysisProgressForm>(() => fromBasicInfo(basicInfo));
+  const [form, setForm] = useState<AnalysisProgressForm>(() => fromBasicInfo(schedule));
+  const [baselineForm, setBaselineForm] = useState<AnalysisProgressForm>(() => fromBasicInfo(schedule));
 
   const isDirty = (Object.keys(form) as (keyof AnalysisProgressForm)[])
     .some((key) => form[key] !== baselineForm[key]);
@@ -37,7 +38,7 @@ export const useAnalysisProgress = ({ scheduleId, basicInfo, onSaved }: Params) 
 
     try {
       const detail = await updateBasicInfo(scheduleId, toBasicInfoUpdate(form));
-      const next = fromBasicInfo(detail.snapshot.basicInfo);
+      const next = fromBasicInfo(detail);
       setForm(next);
       setBaselineForm(next);
       toast.success("분석 진행 정보를 저장했습니다.");

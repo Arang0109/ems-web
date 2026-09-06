@@ -10,7 +10,6 @@ export const toScheduleRows = (item: ScheduleListItem): ScheduleTableRow => ({
   referenceNumber: item.referenceNumber ?? "-",
   measurementField: MEASUREMENT_FIELD_LABEL[item.measurementField],
   clientName: item.clientName ?? "-",
-  workplaceName: item.workplaceName ?? "-",
   stackName: item.stackName ?? "-",
   teamName: item.teamName ?? "-",
 });

@@ -21,7 +21,7 @@ const statusOptions = [
 export const useScheduleTable = () => {
   const filter = useScheduleFilter();
 
-  const { data, loading, error } = useSchedules();
+  const { data, isLoading: loading, error } = useSchedules();
   const { data: teams } = useTeams();
 
   const teamOptions = useMemo(
@@ -80,6 +80,6 @@ export const useScheduleTable = () => {
     statusOptions,
     filter,
 
-    loading, error,
+    isLoading: loading, error,
   };
 };

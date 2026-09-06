@@ -1,4 +1,4 @@
-import type { AnalysisRecord, MeasurementItemSnapshot } from "@entities/schedule";
+import type { AnalysisResult, MeasurementItemSnapshot } from "@entities/schedule";
 import { formatTime } from "@shared/lib";
 import { toMeasurementUnit, type MeasurementUnit } from "@shared/model";
 
@@ -17,11 +17,9 @@ import { toMeasurementUnit, type MeasurementUnit } from "@shared/model";
  */
 export type AnalysisRowForm = {
   pollutantId: number;
-  /** 서버에 등록된 분석 기록 id. 아직 등록 전이면 null이다. */
-  analysisId: string | null;
   /**
-   * 서버 기록에 <b>분석값이</b> 들어 있는지. `analysisId` 로 갈음할 수 없다 —
-   * 채취시각만 저장해도 문서는 생기므로, 그것으로 "저장된 값을 비웠다"를 판정하면
+   * 서버 기록에 <b>분석값이</b> 들어 있는지. "분석 결과가 있다"로 갈음할 수 없다 —
+   * 채취시각만 저장된 항목도 있으므로, 그것으로 "저장된 값을 비웠다"를 판정하면
    * 분석값을 한 번도 넣지 않은 행이 오류로 잡힌다.
    */
   hasSavedValue: boolean;
@@ -90,7 +88,6 @@ export const isSamplingTimeChanged = (
 /** 스냅샷 측정항목만으로 만든 빈 행(아직 분석 기록이 없는 항목). */
 export const toEmptyRow = (item: MeasurementItemSnapshot): AnalysisRowForm => ({
   pollutantId: item.pollutantId,
-  analysisId: null,
   hasSavedValue: false,
   pollutantName: item.nameKr,
   allowance: item.allowance,
@@ -105,17 +102,16 @@ export const toEmptyRow = (item: MeasurementItemSnapshot): AnalysisRowForm => ({
 });
 
 /** 서버 기록을 행으로 되돌린다(저장 직후 폼 동기화·재조회 공통). */
-export const toSavedRow = (row: AnalysisRowForm, record: AnalysisRecord): AnalysisRowForm => ({
+export const toSavedRow = (row: AnalysisRowForm, result: AnalysisResult): AnalysisRowForm => ({
   ...row,
-  analysisId: record.id,
-  hasSavedValue: record.analysisValue !== null,
-  allowance: record.allowance,
-  oxygenApplicable: record.oxygenApplicable,
-  samplingStartedAt: formatTime(record.samplingStartedAt),
-  samplingEndedAt: formatTime(record.samplingEndedAt),
-  analysisValue: record.analysisValue === null ? "" : String(record.analysisValue),
+  hasSavedValue: result.analysisValue !== null,
+  allowance: result.allowance,
+  oxygenApplicable: result.oxygenApplicable,
+  samplingStartedAt: formatTime(result.samplingStartedAt),
+  samplingEndedAt: formatTime(result.samplingEndedAt),
+  analysisValue: result.analysisValue === null ? "" : String(result.analysisValue),
   // 예전 기록에는 enum 값이 아니라 표기('ppm')가 들어 있어 Select 가 고를 수 있는 값으로 되돌린다
-  unit: toMeasurementUnit(record.unit),
-  analysisMethod: record.analysisMethod ?? "",
-  analysisEquipment: record.analysisEquipment ?? "",
+  unit: toMeasurementUnit(result.unit),
+  analysisMethod: result.analysisMethod ?? "",
+  analysisEquipment: result.analysisEquipment ?? "",
 });

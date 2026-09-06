@@ -3,7 +3,6 @@ export type CanceledScheduleTableRow = {
   measureDate: string;        // yyyy-MM-dd
   referenceNumber: string;
   clientName: string;
-  workplaceName: string;
   stackName: string;
   teamName: string;
 };

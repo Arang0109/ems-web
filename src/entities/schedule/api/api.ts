@@ -8,8 +8,7 @@ import type {
   ReorderScheduleItemsRequest, UpdateScheduleItemRequest,
   UpdateBasicInfoRequest, UpdateScheduleRequest,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
-  AnalysisRecordResponse, CreateAnalysisRecordRequest, UpdateAnalysisRecordRequest,
-  SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
+  AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from './dto';
 import type { MeasurementCategory } from '@shared/model';
 
@@ -104,7 +103,7 @@ export const scheduleApi = {
     return unwrap(res);
   },
 
-  // 메타(관리번호·채취일자·측정용도·측정분야)를 고치면 서버가 문서 스냅샷의 기본정보까지 함께 갱신한다.
+  // 계획 정의(채취일자·측정용도·관리번호)를 고친다. 측정분야는 생성 시점에만 정한다.
   // updateBasicInfo 와 달리 동시 편집 충돌을 구분할 필요가 없어 일반 에러 계약을 쓴다.
   updateSchedule: async (
     id: number, body: UpdateScheduleRequest,
@@ -165,47 +164,25 @@ export const scheduleApi = {
   },
 
   // ── 실험분석정보 ──────────────────────────────────────────
-  // 측정계획의 하위 리소스다. 항목당 문서 하나이며 measurement sheet 와 저장 경로가 분리돼 있다.
+  // 측정계획 문서의 측정항목 안에 저장되므로 등록·삭제 경로가 없다 — 항목이 곧 행이고,
+  // 행을 더하고 빼는 일은 changeItems 가 맡는다. 저장은 소유가 갈린 두 경로뿐이다.
 
-  getAnalyses: async (scheduleId: number): Promise<ApiResponseMessage<AnalysisRecordResponse[]>> => {
+  getAnalyses: async (scheduleId: number): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
     const res = await axiosPrivate.get(`/schedules/${scheduleId}/analyses`);
     return res.data;
   },
 
-  createAnalysis: async (
-    scheduleId: number, body: CreateAnalysisRecordRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
-    const res = await axiosPrivate.post(`/schedules/${scheduleId}/analyses`, body);
-    return res.data;
-  },
-
-  // 리터럴 경로라 서버에서 PUT /{analysisId} 보다 먼저 매칭된다.
   saveAnalysisResults: async (
     scheduleId: number, body: SaveAnalysisResultsRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse[]>> => {
+  ): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
     const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/results`, body);
     return res.data;
   },
 
-  // 리터럴 경로라 서버에서 PUT /{analysisId} 보다 먼저 매칭된다.
   saveSamplingTimes: async (
     scheduleId: number, body: SaveSamplingTimesRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse[]>> => {
+  ): Promise<ApiResponseMessage<AnalysisResultResponse[]>> => {
     const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/sampling-times`, body);
-    return res.data;
-  },
-
-  updateAnalysis: async (
-    scheduleId: number, analysisId: string, body: UpdateAnalysisRecordRequest,
-  ): Promise<ApiResponseMessage<AnalysisRecordResponse>> => {
-    const res = await axiosPrivate.put(`/schedules/${scheduleId}/analyses/${analysisId}`, body);
-    return res.data;
-  },
-
-  deleteAnalysis: async (
-    scheduleId: number, analysisId: string,
-  ): Promise<ApiResponseMessage<void>> => {
-    const res = await axiosPrivate.delete(`/schedules/${scheduleId}/analyses/${analysisId}`);
     return res.data;
   },
 };

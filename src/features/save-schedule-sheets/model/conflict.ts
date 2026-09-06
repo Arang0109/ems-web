@@ -1,4 +1,4 @@
-import type { MeasurementSheet, SheetRef } from "@entities/schedule";
+import type { SamplingSheet, SheetRef } from "@entities/schedule";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import type { MeasurementCategory } from "@shared/model";
 
@@ -51,7 +51,7 @@ export const getChangedSheets = (sheets: SheetForm[], baseline: SheetBaseline): 
  * 요청이 들고 있는 version 이 서버 보관본과 어긋나는지 판정한다.
  * 서버에 없는 카테고리(신규·이미 삭제됨)와 버전 도입 전에 저장된 시트는 판정 대상이 아니다.
  */
-const isStale = (latest: MeasurementSheet | undefined, myVersion: number | null): boolean => {
+const isStale = (latest: SamplingSheet | undefined, myVersion: number | null): boolean => {
   if (!latest || latest.version === null) return false;
   return latest.version !== myVersion;
 };
@@ -69,7 +69,7 @@ const isStale = (latest: MeasurementSheet | undefined, myVersion: number | null)
  * 잃는 것이 다르므로 안내 문구가 달라야 한다.
  */
 export const diffSheetVersions = (
-  mine: SheetForm[], server: MeasurementSheet[],
+  mine: SheetForm[], server: SamplingSheet[],
   deleted: SheetRef[] = [], edited: MeasurementCategory[] = [],
 ): SheetDiff => {
   const serverByCategory = new Map(server.map((sheet) => [sheet.category, sheet]));
@@ -104,7 +104,7 @@ export const diffSheetVersions = (
  * 충돌을 푼 뒤 곧바로 다시 저장할 수 있는 상태로 만드는 것이 목적이다.
  */
 export const resolveWithServer = (
-  mine: SheetForm[], server: MeasurementSheet[], categories: MeasurementCategory[],
+  mine: SheetForm[], server: SamplingSheet[], categories: MeasurementCategory[],
 ): SheetForm[] => {
   const target = new Set(categories);
   const serverByCategory = new Map(server.map((sheet) => [sheet.category, sheet]));

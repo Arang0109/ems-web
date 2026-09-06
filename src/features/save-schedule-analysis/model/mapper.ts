@@ -1,6 +1,6 @@
 import type {
-  AnalysisRecord, AnalysisResultsSave, SamplingTimesSave,
-  BasicInfo, BasicInfoUpdate, MeasurementItemSnapshot,
+  AnalysisResult, AnalysisResultsSave, SamplingTimesSave,
+  BasicInfoUpdate, MeasurementItemSnapshot, ScheduleDetail,
 } from "@entities/schedule";
 import { toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
 
@@ -15,20 +15,20 @@ import {
  */
 export const toAnalysisRows = (
   items: MeasurementItemSnapshot[],
-  records: AnalysisRecord[],
+  results: AnalysisResult[],
 ): AnalysisRowForm[] => {
-  const recordByPollutantId = new Map(records.map((record) => [record.pollutantId, record]));
+  const resultByPollutantId = new Map(results.map((result) => [result.pollutantId, result]));
 
   return items.map((item) => {
     const empty = toEmptyRow(item);
-    const record = recordByPollutantId.get(item.pollutantId);
-    return record ? toSavedRow(empty, record) : empty;
+    const result = resultByPollutantId.get(item.pollutantId);
+    return result ? toSavedRow(empty, result) : empty;
   });
 };
 
 /**
  * 실험실 입력값의 저장 요청으로 바꾼다. 측정물질을 키로 upsert 하므로
- * <b>문서 id를 담지 않는다</b> — 신규·기존을 가릴 필요가 없다.
+ * 신규·기존을 가릴 필요가 없다.
  *
  * 비운 칸은 null 로 보내며 서버는 이를 "지웠다"로 읽는다. 빈 문자열을 그대로 저장하면
  * "입력했는데 공백"이 되어 미입력과 구분되지 않는다.
@@ -63,14 +63,18 @@ export const toSamplingTimesSave = (rows: AnalysisRowForm[]): SamplingTimesSave 
   })),
 });
 
-export const fromBasicInfo = (basicInfo: BasicInfo | null): AnalysisProgressForm => {
-  if (!basicInfo) return getDefaultAnalysisProgressForm();
+/**
+ * 진행 정보의 출처가 둘로 갈린다 — 일자 셋은 계획 메타(응답 최상위)가, 서명란 담당자 둘은
+ * 고객사 스냅샷(snapshot.tenant)이 갖는다. 한 폼이지만 저장은 basic-info 한 경로로 나간다.
+ */
+export const fromBasicInfo = (schedule: ScheduleDetail | null): AnalysisProgressForm => {
+  if (!schedule) return getDefaultAnalysisProgressForm();
   return {
-    receivedAt: basicInfo.receivedAt ?? "",
-    analyzedAt: basicInfo.analyzedAt ?? "",
-    issuedAt: basicInfo.issuedAt ?? "",
-    analyst: basicInfo.analyst ?? "",
-    technicalManager: basicInfo.technicalManager ?? "",
+    receivedAt: schedule.receivedAt ?? "",
+    analyzedAt: schedule.analyzedAt ?? "",
+    issuedAt: schedule.issuedAt ?? "",
+    analyst: schedule.snapshot?.tenant?.analyst ?? "",
+    technicalManager: schedule.snapshot?.tenant?.technicalManager ?? "",
   };
 };
 

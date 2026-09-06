@@ -26,6 +26,8 @@ import {
   DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate,
 } from "../model/nozzle-estimate";
 import { calcParticleSamplingMinutes } from "../model/derived-times";
+import type { GasSampleGroup } from "../model/gaseous-rows";
+import { toSampleForm } from "../model/gaseous-rows";
 import { checkMoistureWeightGain } from "../model/validator";
 import type { SheetFieldState } from "./sheet-field-state";
 import { WeatherSection } from "./sections/WeatherSection";
@@ -45,6 +47,13 @@ interface Props {
   /** 칸 단위 강조(불러온 값·미입력 필수) — 판정 규칙은 SheetsEditor 가 소유한다 */
   fieldState: SheetFieldState;
   editable: boolean;
+  /**
+   * 아직 어느 기록지에도 적히지 않은 가스상 항목. 판정이 기록지 전체를 가로지르므로
+   * 이 기록지가 아니라 **측정계획 단위**의 목록이다.
+   */
+  unassignedGroups: GasSampleGroup[];
+  /** 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목 — 수동 추가를 안내한다 */
+  unresolvedItemNames: string[];
   /** 다른 사용자의 저장으로 방금 갱신된 섹션 — 어디가 바뀌었는지 짚어준다 */
   updatedSections?: SheetSectionId[];
   /** 계산값 드로어의 열림 상태 — 입구가 액션 바에 있어 SheetsEditor 가 소유한다 */
@@ -70,7 +79,8 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 });
 
 export const SheetFormView = ({
-  sheet, previewCalc, externals, assignedPollutants, fieldState, editable, updatedSections,
+  sheet, previewCalc, externals, assignedPollutants, unassignedGroups, unresolvedItemNames,
+  fieldState, editable, updatedSections,
   calcDrawerOpen, onCalcDrawerOpenChange, onChange,
 }: Props) => {
   // 차압 범위 슬라이더는 열릴 때마다 초기 상태로 되돌린다 (희망 흡입량은 아래에서 유지한다)
@@ -228,8 +238,29 @@ export const SheetFormView = ({
     }));
 
   const addSample = () => onChange((s) => ({ ...s, samples: [...s.samples, getDefaultSampleForm()] }));
+
+  // 미배정 항목을 이 기록지에 적는다. 이미 있는 행은 건드리지 않고 뒤에 덧붙이기만 한다 —
+  // 사용자가 정해 둔 구성을 자동 채움이 되돌려서는 안 된다.
+  const addUnassignedSamples = () =>
+    onChange((s) => ({ ...s, samples: [...s.samples, ...unassignedGroups.map(toSampleForm)] }));
   const removeSample = (index: number) =>
     onChange((s) => ({ ...s, samples: s.samples.filter((_, i) => i !== index) }));
+
+  /**
+   * 시료 행 순서 바꾸기.
+   *
+   * 자동 채움은 측정항목 순서(= 성적서 표기 순서)대로 넣지만, 현장에서 실제로 채취한 순서는
+   * 다를 수 있고 기록지는 그 순서대로 적는다. 그래서 표 순서는 사용자가 정한다.
+   */
+  const moveSample = (from: number, to: number) =>
+    onChange((s) => {
+      if (to < 0 || to >= s.samples.length || from === to) return s;
+
+      const samples = [...s.samples];
+      const [moved] = samples.splice(from, 1);
+      samples.splice(to, 0, moved);
+      return { ...s, samples };
+    });
 
   const patchParticle = (patch: Partial<ParticleForm>) =>
     onChange((s) => {
@@ -297,10 +328,14 @@ export const SheetFormView = ({
       {/* 가스상 물질은 카테고리와 무관하게 모든 기록지가 작성한다. */}
       <GaseousSection {...fieldProps} {...shellProps("gaseous")}
         samples={sheet.samples}
+        unassignedGroups={unassignedGroups}
+        unresolvedItemNames={unresolvedItemNames}
         editable={editable}
         onSampleChange={patchSample}
         onAddSample={addSample}
+        onAddUnassignedSamples={addUnassignedSamples}
         onRemoveSample={removeSample}
+        onMoveSample={moveSample}
       />
 
 

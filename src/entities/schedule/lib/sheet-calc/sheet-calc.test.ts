@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ParticleSampling, SamplingPoint, SheetSave } from "../../model/types";
+import type { IsokineticSampling, SamplingPoint, SheetSave } from "../../model/types";
 import type { SheetCalcExternals } from "./types";
 import { calcSheetPreview } from "./run";
 
@@ -8,14 +8,16 @@ import { calcSheetPreview } from "./run";
 // 공식/상수/반올림이 서버와 어긋나면 여기서 실패한다(이중 소스 드리프트 방어).
 
 const gasPoint = (Ts: number, Pv: number, Ps: number): SamplingPoint => ({
-  Ts, Pv, Ps, Vs: null, gasDensity: null, particle: null,
+  gasTemperature: Ts, dynamicPressure: Pv, staticPressure: Ps,
+  gasVelocity: null, gasDensity: null, isokineticSampling: null,
 });
 
-const particleSampling = (over: Partial<ParticleSampling> = {}): ParticleSampling => ({
-  equipmentTemperature: { inTm: null, outTm: null, avgTm: null },
-  equipmentVolume: { beforeVm: null, afterVm: null },
+const particleSampling = (over: Partial<IsokineticSampling> = {}): IsokineticSampling => ({
+  gasTemperature: { inlet: null, outlet: null, average: null },
+  gasMeterVolume: { before: null, after: null },
   samplingTime: null, vacuumGaugePressure: null, finalImpingerTemperature: null,
-  nozzleSize: null, Vm: null, Vlc: null, kFactor: null, orificeDp: null, isokineticRatio: null,
+  nozzleDiameter: null, sampledDryGasVolume: null, collectedWaterVolume: null,
+  kFactor: null, orificeDifferentialPressure: null, isokineticRatio: null,
   ...over,
 });
 
@@ -23,29 +25,31 @@ const makeSheet = (over: Partial<SheetSave> = {}): SheetSave => ({
   category: "GAS",
   version: null,
   weather: {
-    pressure: null, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: null, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: null, after: null },
+    bottleWeight: { before: null, after: null },
     gasMeterTemperature: { in: null, out: null },
     dryGasVolume: { before: null, after: null },
     suctionVelocity: null, gasMeterGaugePressure: null,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [], co2Concentration: [], coConcentration: [],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
-  quantity: null,
-  particle: null,
+  flowRate: null,
+  particulateSampling: null,
   samplingPoints: [],
-  samples: [],
-  samplingPointCnt: null,
-  avgTm: null,
+  gaseousSamplings: [],
+  samplingPointCount: null,
   ...over,
 });
 
@@ -66,22 +70,25 @@ const serverExternals = () =>
 
 const serverInputs = (): Partial<SheetSave> => ({
   weather: {
-    pressure: 1013.25, weatherCondition: null, temperature: null, humidity: null,
-    windDirection: null, windSpeed: null, pa: null,
+    atmosphericPressure: 1013.25, weatherCondition: null, temperature: null, humidity: null,
+    windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
   },
   moisture: {
-    weight: { before: 10, after: 15 },
+    bottleWeight: { before: 10, after: 15 },
     gasMeterTemperature: { in: 20, out: 22 },
     dryGasVolume: { before: 0, after: 50 },
     suctionVelocity: null, gasMeterGaugePressure: 0,
     samplingStartTime: null, samplingEndTime: null,
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [10], co2Concentration: [8], coConcentration: [0],
     noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: null, thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
 });
 
@@ -130,11 +137,11 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
       category: "DUST",
       samplingPoints: [{
         ...gasPoint(100, 5, -2),
-        particle: particleSampling({
-          nozzleSize: 0.6,
+        isokineticSampling: particleSampling({
+          nozzleDiameter: 0.6,
           samplingTime: 30,
-          equipmentTemperature: { inTm: 20, outTm: 22, avgTm: null },
-          equipmentVolume: { beforeVm: 0, afterVm: 1.5 },
+          gasTemperature: { inlet: 20, outlet: 22, average: null },
+          gasMeterVolume: { before: 0, after: 1.5 },
         }),
       }],
     });
@@ -206,12 +213,14 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
     const result = calcSheetPreview(
       makeSheet({
         moisture: {
-          weight: { before: 10, after: 15 },
+          bottleWeight: { before: 10, after: 15 },
           gasMeterTemperature: { in: null, out: null },
           dryGasVolume: { before: null, after: null },
           suctionVelocity: null, gasMeterGaugePressure: null,
           samplingStartTime: null, samplingEndTime: null,
-          pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+          gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+          averageGasMeterTemperature: null, sampledDryGasVolume: null,
+          absorbedMoistureMass: null, moistureRatio: null,
         },
       }),
       makeExternals(),
@@ -227,12 +236,14 @@ describe("calcSheetPreview — 서버 파이프라인 파리티", () => {
     const result = calcSheetPreview(
       makeSheet({
         moisture: {
-          weight: { before: null, after: null },
+          bottleWeight: { before: null, after: null },
           gasMeterTemperature: { in: 20, out: 23 },
           dryGasVolume: { before: null, after: null },
           suctionVelocity: null, gasMeterGaugePressure: null,
           samplingStartTime: null, samplingEndTime: null,
-          pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+          gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+          averageGasMeterTemperature: null, sampledDryGasVolume: null,
+          absorbedMoistureMass: null, moistureRatio: null,
         },
       }),
       makeExternals(),

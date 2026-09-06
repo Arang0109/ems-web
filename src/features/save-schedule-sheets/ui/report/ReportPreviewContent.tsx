@@ -1,4 +1,6 @@
-import type { ParticleSamplerSpec, ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
+import type {
+  ParticleSamplerSpec, ScheduleDetail, ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview,
+} from "@entities/schedule";
 import { toNumberOrNull, formatNumber, toNumber, formatDateDot } from "@shared/lib";
 import {
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
@@ -28,6 +30,8 @@ export const REPORT_DOCUMENT_WIDTH = 800;
 interface Props {
   sheet: SheetForm;
   preview: SheetCalcPreview | null;
+  /** 계획 메타(관리번호·채취일자) — 스냅샷에는 사본이 없어 응답 최상위에서 받는다. */
+  schedule: ScheduleDetail | null;
   snapshot: ScheduleSnapshot;
   basicInfoForm: ScheduleBasicInfoForm;  // 저장 전 입력값을 반영하려 스냅샷 대신 폼 값을 쓴다
   externals: SheetCalcExternals;
@@ -60,8 +64,10 @@ const avgOf = (values: string[]): number | null => {
 
 const GAS_ROW_COUNT = 8;
 
-export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, externals }: Props) => {
-  const { basicInfo, client, items } = snapshot;
+export const ReportPreviewContent = ({
+  sheet, preview, schedule, snapshot, basicInfoForm, externals,
+}: Props) => {
+  const { client } = snapshot;
   const stack = client.workplace.stack;
   const preventionName = stack.preventions?.[0]?.name ?? "방지시설 설치의무 면제";
   const preventionCapacity = stack.preventions?.[0]?.capacity ?? "-";
@@ -71,7 +77,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
   const quantity = preview?.quantity ?? null;
   const particleCalc = preview?.particle ?? null;
 
-  const samplerSpec = snapshot.equipments?.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as
+  const samplerSpec = snapshot.team?.equipments?.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as
     | ParticleSamplerSpec | null | undefined;
 
   // 연도 직경·벽면거리 — 벽면거리 행과 단면 도형이 같은 값을 쓴다
@@ -118,10 +124,11 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
   const moistureVolume = preview?.moisture.vm_g ?? null;
   const moistureSamplingTime = calcMoistureSamplingMinutes(sheet.moisture, preview);
 
-  // 가스상 8행 (시료 + 측정항목 순서 매칭)
+  // 가스상 8행 — 종이 서식의 칸 수에 맞춘 고정 행이다. 시료가 없으면 빈 칸으로 남는다.
+  // 측정항목과 짝지어 두었던 코드가 있었으나 인덱스로 맞춘 것이라 통칭 행(VOCs 1행 ↔ 항목 N건)에서
+  // 애초에 어긋났고 쓰이지도 않아 걷어냈다. 필요해지면 sample.pollutantIds 로 되짚어야 한다.
   const gasRows = Array.from({ length: GAS_ROW_COUNT }, (_, i) => ({
     sample: sheet.samples[i] ?? null,
-    item: items[i] ?? null,
   }));
 
   const weatherLabel = sheet.weather.weatherCondition
@@ -153,7 +160,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
             <tr>
               <TableLabelCell colSpan={15}> </TableLabelCell>
               <TableLabelCell colSpan={3}>접수번호</TableLabelCell>
-              <VCell colSpan={3}>{basicInfo.referenceNumber ?? "-"}</VCell>
+              <VCell colSpan={3}>{schedule?.referenceNumber ?? "-"}</VCell>
               <VCell colSpan={2}>{MEASUREMENT_CATEGORY_LABEL[sheet.category]}</VCell>
             </tr>
 
@@ -196,7 +203,7 @@ export const ReportPreviewContent = ({ sheet, preview, snapshot, basicInfoForm, 
             </tr>
             <tr>
               <TableLabelCell colSpan={4}>측 정 일</TableLabelCell>
-              <VCell colSpan={5}>{formatDateDot(basicInfo.sampledAt)}</VCell>
+              <VCell colSpan={5}>{formatDateDot(schedule?.sampledAt)}</VCell>
               <TableLabelCell colSpan={5}>측정공 위치의 기압</TableLabelCell>
               <VCell colSpan={3}>{fmt(preview?.weather.pa, 1) || "-"} <i>mmHg</i></VCell>
             </tr>

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { AnalysisRecord, MeasurementItemSnapshot } from "@entities/schedule";
+import type {
+  AnalysisResult, MeasurementItemSnapshot, SamplingSheet,
+} from "@entities/schedule";
 import {
   useScheduleAnalyses, useSaveAnalysisResultsAction, useSaveSamplingTimesAction,
-  useDeleteAnalysisAction,
 } from "@entities/schedule";
 
 import { useConfirm } from "@shared/ui/dialogs";
@@ -15,10 +16,15 @@ import {
   type AnalysisRowForm,
 } from "../types";
 import { validateAnalysisRows } from "../validator";
+import {
+  applySamplingTimes, collectSamplingTimes, countAmbiguousPollutants, countSamplingTimeChanges,
+} from "../sampling-times";
 
 interface Params {
   scheduleId: number | null;
   items: MeasurementItemSnapshot[];
+  /** 현장 기록지 — 통칭 시료 행의 채취시각을 항목별로 펴 오는 데 쓴다 */
+  sheets: SamplingSheet[];
   /** 저장 후 상위(측정계획 상세)를 재조회해 상태 배지·완료 버튼을 갱신한다. */
   onSaved?: () => void;
 }
@@ -26,7 +32,7 @@ interface Params {
 /**
  * 항목별 실험분석정보 입력 — 채취시각과 실험실 입력값을 한 표에서 함께 다룬다.
  *
- * 행은 계획의 측정항목에서 만들고 저장된 기록을 덮어 채운다. 저장은 한 번의 호출로 여러 행을
+ * 행은 계획의 측정항목에서 만들고 저장된 분석 결과를 덮어 채운다. 저장은 한 번의 호출로 여러 행을
  * 보내며, 서버가 측정물질을 키로 upsert 한다.
  *
  * <b>분석 결과는 바뀐 행만 보낸다.</b> 빈 행에도 측정항목 원장의 분석방법·장비가 초기값으로
@@ -34,24 +40,21 @@ interface Params {
  * 이전 회차와 똑같은 값이 저장돼 있는 것처럼 보이게 된다.
  * 채취시각은 초기값이 없어 표 전체를 보내도 서버가 빈 행을 건너뛴다.
  *
- * 예전에는 행마다 `analysisId ? PUT : POST` 로 갈랐는데, 채취시간이 먼저 문서를 만들어도
- * 이 화면은 그 사실을 모른 채 등록을 시도해 409 로 막혔다. 실제 불변식은
- * "한 계획의 한 측정항목 = 문서 하나"이므로 측정물질을 키로 쓰면 무엇이 먼저 저장됐든 충돌하지 않는다.
+ * 행을 더하거나 지우는 조작은 없다. 분석 결과가 계획 문서의 측정항목 안에 저장되므로
+ * 행 목록이 곧 측정항목 목록이고, 항목을 더하고 빼는 일은 측정정보 탭이 맡는다.
+ * 잘못 넣은 결과는 칸을 비우고 저장해 지운다 — 서버가 빈 값을 "지웠다"로 읽는다.
  *
  * <b>한 행이지만 저장 경로는 둘이다.</b> 서버가 채취시각과 실험실 입력값의 소유를
  * `PUT .../sampling-times` 와 `PUT .../results` 로 나눠 두었다(서로의 필드를 덮어쓰지 않는다).
  * 그래서 기준선과 대조해 <b>실제로 바뀐 경로만</b> 호출한다 — 손대지 않은 쪽까지 보내면
  * 그 요청의 실패가 사용자가 하지도 않은 변경 탓으로 보인다.
  *
- * 삭제는 저장과 섞지 않고 행별 조작으로 둔다. "값을 지우고 저장 = 삭제"로 만들면
- * 실수로 지운 것과 아직 안 넣은 것이 구분되지 않는다.
  */
-export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
+export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Params) => {
   const confirm = useConfirm();
   const { fetchAnalyses, isLoading: isFetching, error } = useScheduleAnalyses();
   const { saveAnalysisResults, isLoading: isSaving } = useSaveAnalysisResultsAction();
   const { saveSamplingTimes, isLoading: isSavingTimes } = useSaveSamplingTimesAction();
-  const { deleteAnalysis, isLoading: isDeleting } = useDeleteAnalysisAction();
 
   const [rows, setRows] = useState<AnalysisRowForm[]>([]);
   const [baselineRows, setBaselineRows] = useState<AnalysisRowForm[]>([]);
@@ -70,9 +73,9 @@ export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
     itemsRef.current = items;
   }, [items]);
 
-  // 서버 기록을 폼과 기준선에 동시에 앉힌다. 기준선이 있어야 "바뀐 행만 저장"이 성립한다.
-  const applyRecords = useCallback((records: AnalysisRecord[]) => {
-    const next = toAnalysisRows(itemsRef.current, records);
+  // 서버 값을 폼과 기준선에 동시에 앉힌다. 기준선이 있어야 "바뀐 행만 저장"이 성립한다.
+  const applyResults = useCallback((results: AnalysisResult[]) => {
+    const next = toAnalysisRows(itemsRef.current, results);
     setRows(next);
     setBaselineRows(next);
     setFieldErrors({});
@@ -84,8 +87,9 @@ export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
   // 저장·삭제 뒤 서버 값으로 되맞추는 경로. 화면 갱신을 기다려야 하므로 await 가능한 형태로 둔다.
   const load = useCallback(async () => {
     if (scheduleId == null) return;
-    applyRecords(await fetchAnalyses(scheduleId));
-  }, [scheduleId, fetchAnalyses, applyRecords]);
+    const results = await fetchAnalyses(scheduleId);
+    if (results) applyResults(results);
+  }, [scheduleId, fetchAnalyses, applyResults]);
 
   // 최초 로드. 응답 콜백에서만 상태를 바꾼다 — 이펙트 본문에서 동기적으로 setState 하면
   // cascading render 가 된다. 응답이 늦게 도착한 이전 계획의 결과는 버린다.
@@ -93,11 +97,11 @@ export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
     if (scheduleId == null) return;
 
     let isStale = false;
-    void fetchAnalyses(scheduleId).then((records) => {
-      if (!isStale) applyRecords(records);
+    void fetchAnalyses(scheduleId).then((results) => {
+      if (!isStale && results) applyResults(results);
     });
     return () => { isStale = true; };
-  }, [scheduleId, fetchAnalyses, applyRecords]);
+  }, [scheduleId, fetchAnalyses, applyResults]);
 
   // 검증 대상은 실험실 입력값이 바뀐 행뿐이다 — 채취시각만 고친 행까지 넘기면
   // 분석값을 아직 넣지 않았다는 이유로 시각 저장이 막힌다.
@@ -105,10 +109,50 @@ export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
   const isTimeDirty = rows.some((row, index) => isSamplingTimeChanged(row, baselineRows[index]));
   const isDirty = resultDirtyRows.length > 0 || isTimeDirty;
 
-  // 진행도는 "분석값이 들어온 항목 수"다. `analysisId` 로 세면 채취시각만 적은 항목까지
+  // 진행도는 "분석값이 들어온 항목 수"다. 분석 결과 유무로 세면 채취시각만 적은 항목까지
   // 완료로 잡혀, 실험실 입력이 하나도 없는 계획이 100% 로 보인다.
   const filledCount = rows.filter(hasAnalysisInput).length;
   const timeFilledCount = rows.filter(hasSamplingTime).length;
+
+  /**
+   * 현장 기록지의 채취시각을 표로 가져온다.
+   *
+   * 통칭 시료 한 행이 여러 항목으로 펴진다 — `VOCs` 09:00~10:00 은 포름알데히드·아세트알데히드
+   * 두 행에 같은 시각으로 들어간다. 근거는 시료 행의 `pollutantIds` 이며, 그것이 없는
+   * 옛 기록지·수동 행은 가져올 것이 없다.
+   *
+   * 덮어쓰기이므로 무엇이 바뀌는지 먼저 밝히고 확인받는다.
+   */
+  const importSamplingTimes = async () => {
+    const times = collectSamplingTimes(sheets);
+    const changes = countSamplingTimeChanges(rows, times);
+
+    if (changes === 0) {
+      toast.info(
+        times.size === 0
+          ? "기록지에서 가져올 채취시각이 없습니다. 가스상 물질 표에 채취시각을 먼저 입력하세요."
+          : "기록지의 채취시각이 이미 표에 반영돼 있습니다.",
+      );
+      return;
+    }
+
+    const ambiguous = countAmbiguousPollutants(sheets);
+    const isConfirmed = await confirm({
+      title: "기록지의 채취시각을 가져올까요?",
+      description: `${changes}개 항목의 채취시각이 기록지 값으로 바뀝니다.`
+        + (ambiguous > 0
+          ? `
+
+${ambiguous}개 항목은 여러 기록지에 서로 다른 시각으로 적혀 있어 먼저 적힌 기록지의 값을 씁니다.`
+          : ""),
+      confirmLabel: "가져오기",
+      cancelLabel: "취소",
+    });
+    if (!isConfirmed) return;
+
+    setRows((prev) => applySamplingTimes(prev, times));
+    toast.success(`${changes}개 항목의 채취시각을 가져왔습니다. 저장해야 반영됩니다.`);
+  };
 
   const handleChange = (pollutantId: number, patch: Partial<AnalysisRowForm>) => {
     setRows((prev) =>
@@ -155,37 +199,16 @@ export const useScheduleAnalysis = ({ scheduleId, items, onSaved }: Params) => {
     }
   };
 
-  const handleRemove = async (row: AnalysisRowForm) => {
-    if (scheduleId == null || !row.analysisId) return;
-
-    const isConfirmed = await confirm({
-      title: "분석 결과 삭제",
-      description: `${row.pollutantName} 항목의 분석 결과를 삭제합니다.\n삭제 후 같은 항목으로 다시 입력할 수 있습니다.`,
-      confirmLabel: "삭제",
-      tone: "danger",
-    });
-    if (!isConfirmed) return;
-
-    try {
-      await deleteAnalysis(scheduleId, row.analysisId);
-      toast.success("분석 결과를 삭제했습니다.");
-      await load();
-      onSaved?.();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "삭제에 실패했습니다.");
-    }
-  };
-
   return {
     rows,
     fieldErrors,
     isDirty,
     filledCount,
     timeFilledCount,
-    isLoading: isFetching || isSaving || isSavingTimes || isDeleting,
+    isLoading: isFetching || isSaving || isSavingTimes,
     error,
     handleChange,
     handleSave,
-    handleRemove,
+    importSamplingTimes,
   };
 };

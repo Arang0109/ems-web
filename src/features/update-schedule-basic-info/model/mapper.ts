@@ -1,20 +1,17 @@
-import type { ScheduleMetaUpdate, TenantSnapshot } from "@entities/schedule";
+import type { ScheduleMetaUpdate } from "@entities/schedule";
 import { trimValue } from "@shared/lib";
 
 import type { ScheduleBasicInfoUpdateForm } from "./types";
 
 /**
- * 사전 정보 폼 → 메타 수정 입력.
- * 이 화면이 다루지 않는 측정분야는 entity mapper 가 null(기존 값 유지)로 채운다.
+ * 사전 정보 폼 → 계획 정의 수정 입력.
+ * 측정분야와 측정 대상(측정시설·측정팀)은 생성 시점에만 정하므로 이 경로에 담기지 않는다.
+ * 채취일자는 서버 필수값이라 validator 가 빈 값을 먼저 막는다.
  */
 export const toScheduleMetaUpdate = (
   form: ScheduleBasicInfoUpdateForm,
-  tenant: TenantSnapshot | null,
 ): ScheduleMetaUpdate => ({
-  sampledAt: form.measureDate || null,
+  sampledAt: form.measureDate,
   schedulePurpose: form.measurementType || null,
   referenceNumber: trimValue(form.referenceNumber) || null,
-  // 서버가 tenant 만 "null = 덮어쓰기"로 처리한다 — 조회한 값을 되돌려 보내지 않으면
-  // 고객사 스냅샷이 지워져 성적서 발행이 깨진다.
-  tenant,
 });

@@ -96,7 +96,7 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
       {canEdit && (
         // 열 때마다, 그리고 배정이 바뀌면 key가 바뀌어 폼이 새 값으로 리마운트된다.
         <UpdateScheduleEquipmentsForm
-          key={`${editFormKey}-${team.particleSamplerId}-${team.gasSamplerId}-${team.pitotTubeId}-${team.nozzleId}`}
+          key={`${editFormKey}-${equipments.map((equip) => equip.equipmentId).join(",")}`}
           scheduleId={scheduleId}
           team={team}
           open={editOpen}

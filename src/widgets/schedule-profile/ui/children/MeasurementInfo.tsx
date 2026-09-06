@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { SquarePen } from "lucide-react";
 
-import type { ScheduleSnapshot } from "@entities/schedule";
+import type { ScheduleDetail, ScheduleSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { UpdateScheduleClientForm } from "@features/update-schedule-client";
 import { UpdateScheduleStackForm } from "@features/update-schedule-stack";
@@ -19,10 +19,18 @@ import {
   value, fieldLabel, gradeLabel, shapeLabel, orientationLabel, describeDimension,
   groupPollutantsByCycle,
 } from "../../model/mapper";
+
+// 서버 계약은 자유 문자열이라 레이블맵에 없는 값이 올 수 있다 — 그때는 원문을 그대로 보인다.
+const purposeLabel = (purpose: string | null): string => {
+  if (!purpose) return "-";
+  return MEASUREMENT_TYPE_LABEL[purpose as keyof typeof MEASUREMENT_TYPE_LABEL] ?? purpose;
+};
 import { MeasurementItems } from "./MeasurementItems";
 
 interface Props {
   scheduleId: number | null;
+  /** 계획 메타(관리번호·채취일자·측정분야·측정용도) — 스냅샷이 아니라 응답 최상위가 진실의 원천이다. */
+  schedule: ScheduleDetail | null;
   snapshot: ScheduleSnapshot | null;
   stackPollutants: StackPollutantListItem[];
   editable: boolean;
@@ -30,7 +38,7 @@ interface Props {
 }
 
 export const MeasurementInfo = ({
-  scheduleId, snapshot, stackPollutants, editable, onRefetch,
+  scheduleId, schedule, snapshot, stackPollutants, editable, onRefetch,
 }: Props) => {
   // 카드마다 고치는 대상이 다르므로(측정항목·측정시설·의뢰기관) 수정 진입점도 카드별로 둔다.
   // 서버의 스냅샷 병합이 전달하지 않은 필드를 유지하므로 세 폼이 서로를 덮어쓰지 않는다.
@@ -61,10 +69,10 @@ export const MeasurementInfo = ({
     return <p className="py-8 text-center text-body-2 text-muted-ink">측정정보가 없습니다.</p>;
   }
 
-  const { basicInfo, team, client } = snapshot;
+  const { samplingData, team, client } = snapshot;
   const workplace = client.workplace;
   const stack = workplace.stack;
-  const canEdit = editable && scheduleId !== null;
+  const canEdit = editable && scheduleId !== null && schedule !== null;
 
   const editAction = (label: string, onClick: () => void) =>
     canEdit ? (
@@ -91,15 +99,13 @@ export const MeasurementInfo = ({
         defaultOpen={true}
       >
         <DetailGrid>
-          <DetailRow label="관리번호" value={value(basicInfo.referenceNumber)} />
+          <DetailRow label="관리번호" value={value(schedule?.referenceNumber)} />
           {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
-          <DetailRow label="측정일자" value={value(basicInfo.sampledAt)} />
-          <DetailRow label="측정분야" value={fieldLabel(basicInfo.measurementField)} />
+          <DetailRow label="측정일자" value={value(schedule?.sampledAt)} />
+          <DetailRow label="측정분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
           <DetailRow
             label="측정용도"
-            value={basicInfo.schedulePurpose
-              ? (MEASUREMENT_TYPE_LABEL[basicInfo.schedulePurpose] ?? basicInfo.schedulePurpose)
-              : "-"}
+            value={purposeLabel(schedule?.schedulePurpose ?? null)}
           />
           <DetailRow label="측정팀" value={value(team.teamName)} />
         </DetailGrid>
@@ -153,10 +159,10 @@ export const MeasurementInfo = ({
             span="full"
             value={value(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
           />
-          {/* 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 basicInfo가 보유한다.
+          {/* 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 채취 스냅샷이 보유한다.
               수정도 이 폼이 아니라 기본정보(PATCH /basic-info) 소관이다. */}
-          <DetailRow label="배출시설 관리자" value={value(basicInfo.facilityManager)} />
-          <DetailRow label="시료채취 입회자" value={value(basicInfo.samplingWitness)} />
+          <DetailRow label="배출시설 관리자" value={value(samplingData?.facilityManager)} />
+          <DetailRow label="시료채취 입회자" value={value(samplingData?.samplingWitness)} />
           <DetailRow label="업종" value={value(workplace.businessCategory)} />
           <DetailRow label="사업장 종별" value={gradeLabel(workplace.grade)} />
         </DetailGrid>
@@ -166,10 +172,9 @@ export const MeasurementInfo = ({
       {canEdit && (
         <>
           <UpdateScheduleBasicInfoForm
-            key={`basic-${basicInfoEditFormKey}-${basicInfo.referenceNumber}-${basicInfo.sampledAt}-${basicInfo.schedulePurpose}`}
+            key={`basic-${basicInfoEditFormKey}-${schedule.referenceNumber}-${schedule.sampledAt}-${schedule.schedulePurpose}`}
             scheduleId={scheduleId}
-            basicInfo={basicInfo}
-            tenant={snapshot.tenant ?? null}
+            schedule={schedule}
             open={basicInfoEditOpen}
             onOpenChange={setBasicInfoEditOpen}
             onSuccess={onRefetch}

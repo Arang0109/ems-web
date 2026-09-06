@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Calculator, FileCheck, History, Plus, Save, X } from "lucide-react";
 
-import type { ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
+import type { ScheduleDetail, ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
 import { measurementCategoryOptions } from "@shared/model";
 import type { FieldTone, MeasurementCategory, ScheduleStatus } from "@shared/model";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
@@ -28,6 +28,7 @@ import { ExportSamplingRecordsModal } from "./ExportSamplingRecordsModal";
 
 interface Props {
   scheduleId: number | null;
+  schedule: ScheduleDetail | null;      // 기록지 미리보기용 계획 메타 (관리번호·채취일자)
   snapshot: ScheduleSnapshot | null;    // 기록지 미리보기용 (업체·시설·팀 정보)
   // 저장 전후 상태 비교용. 응답 최상위(메타)의 상태이며, 스냅샷의 사본을 쓰지 않는다.
   status: ScheduleStatus | null;
@@ -36,7 +37,9 @@ interface Props {
   onSaved?: () => void;
 }
 
-export const SheetsEditor = ({ scheduleId, snapshot, status, editable, externals, onSaved }: Props) => {
+export const SheetsEditor = ({
+  scheduleId, schedule, snapshot, status, editable, externals, onSaved,
+}: Props) => {
   const {
     sheets, addSheet, removeSheet, previewCalc,
     activeSheet, updateActiveSheet, activeIndex, setActiveIndex,
@@ -44,7 +47,7 @@ export const SheetsEditor = ({ scheduleId, snapshot, status, editable, externals
     handleSave, isDirty,
     isExportDialogOpen, samplingRecordTemplate, isExporting,
     setExportDialogOpen, handleExport,
-    isLoading, updatedSections, assignedPollutants, showMissing,
+    isLoading, updatedSections, assignedPollutants, unassignedGroups, unresolvedItems, showMissing,
   } = useSaveSheets({ scheduleId, snapshot, status, externals, onSaved, });
 
   const borrowed = useBorrowedFields(activeSheet);
@@ -227,6 +230,8 @@ export const SheetsEditor = ({ scheduleId, snapshot, status, editable, externals
             previewCalc={previewCalc}
             externals={externals}
             assignedPollutants={assignedPollutants}
+            unassignedGroups={unassignedGroups}
+            unresolvedItemNames={unresolvedItems.map((item) => item.nameKr)}
             fieldState={fieldState}
             editable={editable}
             updatedSections={updatedSections[activeSheet.category]}
@@ -300,6 +305,7 @@ export const SheetsEditor = ({ scheduleId, snapshot, status, editable, externals
         activeIndex={activeIndex}
         onActiveIndexChange={setActiveIndex}
         preview={previewCalc}
+        schedule={schedule}
         snapshot={snapshot}
         basicInfoForm={basicInfoForm}
         externals={externals}

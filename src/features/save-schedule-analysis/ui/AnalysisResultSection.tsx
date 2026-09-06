@@ -1,9 +1,9 @@
-import { Save, Trash2 } from "lucide-react";
+import { ClipboardList, Save } from "lucide-react";
 
 import { measurementUnitOptions, toMeasurementUnit } from "@shared/model";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Badge } from "@shared/ui/badges";
-import { Button, IconButton } from "@shared/ui/buttons";
+import { Button } from "@shared/ui/buttons";
 import { InputGroup, Select, UnitField } from "@shared/ui/form";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
@@ -19,7 +19,8 @@ interface Props {
   timeFilledCount: number;
   onChange: (pollutantId: number, patch: Partial<AnalysisRowForm>) => void;
   onSave: () => void;
-  onRemove: (row: AnalysisRowForm) => void;
+  /** 현장 기록지의 통칭 시료 행에서 항목별 채취시각을 펴 온다 */
+  onImportSamplingTimes: () => void;
 }
 
 /** 입력을 받는 필드 — 나머지 행 정보는 읽기 전용이다 */
@@ -52,7 +53,6 @@ const NAME_WIDTH = 150;
 const ALLOWANCE_WIDTH = 120;
 const OXYGEN_WIDTH = 90;
 const TIME_WIDTH = 140;
-const ACTION_WIDTH = 44;
 
 const allowanceText = (row: AnalysisRowForm): string =>
   row.allowance === null ? "-" : String(row.allowance);
@@ -77,7 +77,7 @@ const oxygenText = (row: AnalysisRowForm): string =>
  */
 export const AnalysisResultSection = ({
   rows, fieldErrors, editable, isDirty, isLoading, filledCount, timeFilledCount,
-  onChange, onSave, onRemove,
+  onChange, onSave, onImportSamplingTimes,
 }: Props) => {
   const columns: InputTableColumn<AnalysisRowForm>[] = [
     {
@@ -120,17 +120,6 @@ export const AnalysisResultSection = ({
             onChange: (row, v) => onChange(row.pollutantId, { [f.field]: v }),
           },
     ),
-
-    {
-      kind: "action", header: "삭제", width: ACTION_WIDTH,
-      render: (row) => row.analysisId ? (
-        <IconButton
-          variant="ghost" size="icon-sm" label={row.pollutantName + " 분석 결과 삭제"}
-          icon={<Trash2 size={16} />}
-          onClick={() => onRemove(row)}
-        />
-      ) : null,
-    },
   ];
 
   return (
@@ -180,14 +169,6 @@ export const AnalysisResultSection = ({
                       </Badge>
                     </div>
                   </div>
-
-                  {editable && row.analysisId && (
-                    <IconButton
-                      variant="ghost" size="icon-sm" label={row.pollutantName + " 분석 결과 삭제"}
-                      icon={<Trash2 size={16} />}
-                      onClick={() => onRemove(row)}
-                    />
-                  )}
                 </div>
 
                 {/* 시각 필드는 시계 버튼을 달고 있어 한 줄에 하나씩 세운다. */}
@@ -241,9 +222,21 @@ export const AnalysisResultSection = ({
                 것이라 그대로 두면 기록되지 않습니다. 채취시각은 비운 칸도 저장 시 지워집니다 —
                 자정을 넘겨 채취한 경우 종료가 시작보다 이른 시각이어도 됩니다.
               </span>
-              <Button size="sm" startIcon={Save} onClick={onSave} disabled={!isDirty || isLoading}>
-                {isLoading ? "저장 중..." : "저장"}
-              </Button>
+              <div className="flex items-center gap-2">
+                {/*
+                  기록지는 알데히드류를 VOCs 한 행으로 적지만 여기는 항목마다 한 줄이다.
+                  가져오면 그 한 행의 시각이 해당 항목들로 펴진다.
+                */}
+                <Button
+                  size="sm" variant="outline" startIcon={ClipboardList}
+                  onClick={onImportSamplingTimes} disabled={isLoading}
+                >
+                  기록지 채취시각 가져오기
+                </Button>
+                <Button size="sm" startIcon={Save} onClick={onSave} disabled={!isDirty || isLoading}>
+                  {isLoading ? "저장 중..." : "저장"}
+                </Button>
+              </div>
             </div>
           )}
         </>

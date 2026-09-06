@@ -35,7 +35,8 @@ export const initStep: SheetCalcStep = (ctx, { sheet, ext }) => {
   const points = sheet.samplingPoints ?? [];
   if (points.length === 0) return;
 
-  ctx.avgTg = averageTreatNullAsZero(points.map((p) => (p.Ts == null ? null : toKelvin(p.Ts))), 1);
-  ctx.avgPv = averageTreatNullAsZero(points.map((p) => p.Pv), 1);
-  ctx.avgPs = averageTreatNullAsZero(points.map((p) => p.Ps), 1);
+  ctx.avgTg = averageTreatNullAsZero(
+    points.map((p) => (p.gasTemperature == null ? null : toKelvin(p.gasTemperature))), 1);
+  ctx.avgPv = averageTreatNullAsZero(points.map((p) => p.dynamicPressure), 1);
+  ctx.avgPs = averageTreatNullAsZero(points.map((p) => p.staticPressure), 1);
 };

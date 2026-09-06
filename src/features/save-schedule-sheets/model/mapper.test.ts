@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementSheet } from "@entities/schedule";
+import type { SamplingSheet } from "@entities/schedule";
 
 import { fromSheet, toSheetSave } from "./mapper";
 import {
@@ -8,52 +8,58 @@ import {
 } from "./types";
 
 // 서버가 실제로 내려주는 형태의 시트. 블록이 비어 오는 경우를 재현하려고 override 를 받는다.
-const serverSheet = (over: Partial<MeasurementSheet> = {}): MeasurementSheet => ({
+const serverSheet = (over: Partial<SamplingSheet> = {}): SamplingSheet => ({
   category: "DUST",
   version: 3,
   weather: {
-    pressure: 1013, weatherCondition: "CLEAR", temperature: 21.5, humidity: 40,
-    windDirection: "NW", windSpeed: 1.2, pa: 760,
+    atmosphericPressure: 1013, weatherCondition: "CLEAR", temperature: 21.5, humidity: 40,
+    windDirection: "NW", windSpeed: 1.2, atmosphericPressureMmHg: 760,
   },
   moisture: {
-    weight: { before: 100, after: 105 },
+    bottleWeight: { before: 100, after: 105 },
     gasMeterTemperature: { in: 20, out: 22 },
     dryGasVolume: { before: 0, after: 30 },
     suctionVelocity: 10, gasMeterGaugePressure: 5,
     samplingStartTime: "09:00:00", samplingEndTime: "10:00:00",
-    pm_g: null, tm_g: null, vm_g: null, ma: null, xw: null,
+    gasMeterGaugePressureMmHg: null, gasMeterGaugePressureInH2O: null,
+    averageGasMeterTemperature: null, sampledDryGasVolume: null,
+    absorbedMoistureMass: null, moistureRatio: null,
   },
   exhaustGas: {
     o2Concentration: [18.1, 18.3, 18.2], co2Concentration: [2, 2, 2],
     coConcentration: [0, 0, 0], noxConcentration: [], soxConcentration: [],
     gasAnalyzerStartTime: "09:10:00", thcAnalyzerStartTime: null,
     standardGasDensity: null, o2CorrectionFactor: null,
+    avgO2: null, avgCo2: null, avgCo: null, avgNox: null, avgSox: null,
   },
-  quantity: null,
-  particle: {
-    avgKFactor: null, avgOrificeDp: null, avgIsokineticRatio: null,
-    totalVm: null, totalSamplingTime: null,
-    samplingStartTime: "09:00:00", samplingEndTime: "10:00:00",
+  flowRate: null,
+  particulateSampling: {
+    averageKFactor: null, averageOrificeDifferentialPressure: null, averageIsokineticRatio: null,
+    appliedNozzleDiameter: null, nozzleArea: null, averageGasMeterTemperature: null,
+    totalDryGasVolume: null, totalSamplingTime: null,
+    samplingStartedAt: "09:00:00", samplingEndedAt: "10:00:00",
     thimbleFilter: "T-1", bgThimbleFilter: "B-1",
   },
   samplingPoints: [{
-    Ts: 120, Pv: 3.5, Ps: -2, Vs: null, gasDensity: null,
-    particle: {
-      equipmentTemperature: { inTm: 20, outTm: 22, avgTm: null },
-      equipmentVolume: { beforeVm: 0, afterVm: 30 },
+    gasTemperature: 120, dynamicPressure: 3.5, staticPressure: -2,
+    gasVelocity: null, gasDensity: null,
+    isokineticSampling: {
+      gasTemperature: { inlet: 20, outlet: 22, average: null },
+      gasMeterVolume: { before: 0, after: 30 },
       samplingTime: 30, vacuumGaugePressure: 50, finalImpingerTemperature: 15,
-      nozzleSize: 0.6,
-      Vm: null, Vlc: null, kFactor: null, orificeDp: null, isokineticRatio: null,
+      nozzleDiameter: 0.6,
+      sampledDryGasVolume: null, collectedWaterVolume: null,
+      kFactor: null, orificeDifferentialPressure: null, isokineticRatio: null,
     },
   }],
-  samples: [{
-    sampleName: "시료1", startTime: "09:00:00", endTime: "10:00:00",
+  gaseousSamplings: [{
+    pollutantIds: [11, 12],
+    sampleName: "시료1", samplingStartedAt: "09:00:00", samplingEndedAt: "10:00:00",
     suctionQuantity: 1, gasMeterGaugePressure: 2, inTemperature: 20, outTemperature: 22,
     beforeVolume: 0, afterVolume: 30, blankSampleNumber: "B-1", sampleNumber: "S-1",
     samplingVolume: 30,
   }],
-  samplingPointCnt: 1,
-  avgTm: null,
+  samplingPointCount: 1,
   ...over,
 });
 
@@ -71,8 +77,8 @@ describe("fromSheet — 서버가 블록을 비워 보낼 때", () => {
   it("대기압만 남은 기상 블록은 대기압만 채우고 나머지는 빈 값으로 둔다", () => {
     const form = fromSheet(serverSheet({
       weather: {
-        pressure: 1013, weatherCondition: null, temperature: null,
-        humidity: null, windDirection: null, windSpeed: null, pa: null,
+        atmosphericPressure: 1013, weatherCondition: null, temperature: null,
+        humidity: null, windDirection: null, windSpeed: null, atmosphericPressureMmHg: null,
       },
     }));
 
@@ -90,7 +96,7 @@ describe("fromSheet — 서버가 블록을 비워 보낼 때", () => {
   });
 
   it("측정점·시료 목록이 null 이어도 빈 배열이 된다", () => {
-    const form = fromSheet(serverSheet({ samplingPoints: null, samples: null }));
+    const form = fromSheet(serverSheet({ samplingPoints: null, gaseousSamplings: null }));
 
     expect(form.samplingPoints).toEqual([]);
     expect(form.samples).toEqual([]);
@@ -99,7 +105,7 @@ describe("fromSheet — 서버가 블록을 비워 보낼 때", () => {
   it("모든 블록이 비어도 던지지 않는다", () => {
     expect(() => fromSheet(serverSheet({
       weather: null, moisture: null, exhaustGas: null,
-      particle: null, samplingPoints: null, samples: null,
+      particulateSampling: null, samplingPoints: null, gaseousSamplings: null,
     }))).not.toThrow();
   });
 });
@@ -120,19 +126,19 @@ describe("fromSheet — 정상 시트", () => {
   it("toSheetSave 로 되돌리면 입력값이 보존된다", () => {
     const saved = toSheetSave(fromSheet(serverSheet()));
 
-    expect(saved.weather.pressure).toBe(1013);
-    expect(saved.moisture.weight).toEqual({ before: 100, after: 105 });
-    expect(saved.samplingPoints[0].Ts).toBe(120);
-    expect(saved.samples[0].sampleNumber).toBe("S-1");
+    expect(saved.weather.atmosphericPressure).toBe(1013);
+    expect(saved.moisture.bottleWeight).toEqual({ before: 100, after: 105 });
+    expect(saved.samplingPoints[0].gasTemperature).toBe(120);
+    expect(saved.gaseousSamplings[0].sampleNumber).toBe("S-1");
     // 계산결과는 서버 소유이므로 되돌려 보내지 않는다.
-    expect(saved.weather.pa).toBeNull();
-    expect(saved.quantity).toBeNull();
+    expect(saved.weather.atmosphericPressureMmHg).toBeNull();
+    expect(saved.flowRate).toBeNull();
   });
 
   it("빈 블록을 거쳐도 저장 요청은 블록을 채워 보낸다", () => {
     const saved = toSheetSave(fromSheet(serverSheet({ weather: null })));
 
-    expect(saved.weather.pressure).toBeNull();
+    expect(saved.weather.atmosphericPressure).toBeNull();
     expect(saved.weather.weatherCondition).toBeNull();
   });
 });

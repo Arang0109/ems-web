@@ -7,7 +7,6 @@ export const toCanceledScheduleRows = (item: ScheduleListItem): CanceledSchedule
   measureDate: item.sampledAt ? item.sampledAt.slice(0, 10) : "-",
   referenceNumber: item.referenceNumber ?? "-",
   clientName: item.clientName ?? "-",
-  workplaceName: item.workplaceName ?? "-",
   stackName: item.stackName ?? "-",
   teamName: item.teamName ?? "-",
 });

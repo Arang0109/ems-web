@@ -4,16 +4,18 @@ export type { SheetsSavedEvent } from './api/stream';
 
 export type {
   ScheduleListItem, ScheduleCreate,
-  ScheduleDetail, ScheduleSnapshot, BasicInfo, TeamSnapshot, TenantSnapshot,
+  ScheduleDetail, ScheduleSnapshot, SamplingSnapshot, TeamSnapshot, TenantSnapshot,
   ClientSnapshot, WorkplaceSnapshot, StackSnapshot,
   FacilitySnapshot, PreventionSnapshot,
-  EquipmentSnapshot, EquipmentSpec, ParticleSamplerSpec, MeasurementItemSnapshot,
-  MeasurementSheet, WeatherData, MoistureData, ExhaustGasData,
-  QuantityData, ParticleData, SamplingPoint, ParticleSampling, Sample, SheetSave, SheetRef,
+  EquipmentSnapshot, EquipmentSpec, ParticleSamplerSpec,
+  MeasurementItemSnapshot, ItemAnalysisResult,
+  SamplingSheet, WeatherData, MoistureData, ExhaustGasData,
+  FlowRateData, ParticulateSampling, SamplingPoint, IsokineticSampling, GaseousSampling,
+  SheetSave, SheetRef,
   ClientSnapshotUpdate, WorkplaceSnapshotUpdate, StackSnapshotUpdate, ScheduleEquipmentsUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate,
   BasicInfoUpdate, ScheduleMetaUpdate, SamplingRecordsExport, ReportExport, PreviousSheet, PreviousSheetCandidate,
-  AnalysisRecord, AnalysisRecordCreate, AnalysisRecordUpdate,
+  AnalysisResult,
   SamplingTimesSave, SamplingTimeEntry, AnalysisResultsSave, AnalysisResultEntry,
 } from './model/types';
 
@@ -39,9 +41,6 @@ export { useExportSamplingRecordsAction } from './model/use-export-sampling-reco
 export { useExportReportAction } from './model/use-export-report-action';
 
 export { useScheduleAnalyses } from './model/use-schedule-analyses';
-export { useCreateAnalysisAction } from './model/use-create-analysis-action';
-export { useUpdateAnalysisAction } from './model/use-update-analysis-action';
-export { useDeleteAnalysisAction } from './model/use-delete-analysis-action';
 export { useSaveSamplingTimesAction } from './model/use-save-sampling-times-action';
 export { useSaveAnalysisResultsAction } from './model/use-save-analysis-results-action';
 

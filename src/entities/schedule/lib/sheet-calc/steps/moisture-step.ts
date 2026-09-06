@@ -25,8 +25,8 @@ export const moistureStep: SheetCalcStep = (ctx, { sheet }) => {
   const moisture = sheet.moisture;
   if (!moisture) return;
 
-  const before = moisture.weight?.before;
-  const after = moisture.weight?.after;
+  const before = moisture.bottleWeight?.before;
+  const after = moisture.bottleWeight?.after;
   const tIn = moisture.gasMeterTemperature?.in;
   const tOut = moisture.gasMeterTemperature?.out;
   const volBefore = moisture.dryGasVolume?.before;

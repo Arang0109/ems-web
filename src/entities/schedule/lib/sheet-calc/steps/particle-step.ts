@@ -29,25 +29,26 @@ type PointCalc = {
 };
 
 const readPointEnv = (point: SamplingPoint, ctx: SheetCalcContext): PointEnv | null => {
-  const particle = point.particle;
-  if (particle == null) return null;
+  const isokinetic = point.isokineticSampling;
+  if (isokinetic == null) return null;
 
-  const inTm = particle.equipmentTemperature?.inTm;
-  const outTm = particle.equipmentTemperature?.outTm;
+  const inTm = isokinetic.gasTemperature?.inlet;
+  const outTm = isokinetic.gasTemperature?.outlet;
   const tmRaw = inTm != null && outTm != null ? roundHalfUp((inTm + outTm) / 2, 10) : null;
 
-  const beforeVm = particle.equipmentVolume?.beforeVm;
-  const afterVm = particle.equipmentVolume?.afterVm;
+  const beforeVm = isokinetic.gasMeterVolume?.before;
+  const afterVm = isokinetic.gasMeterVolume?.after;
+  const { gasTemperature: ts, staticPressure: ps, dynamicPressure: pv } = point;
 
   return {
     tmRaw,
     tm: tmRaw == null ? null : toKelvin(tmRaw),
-    tg: point.Ts == null ? null : toKelvin(point.Ts),
-    pg: ctx.pa != null && point.Ps != null ? ctx.pa + convertMmH2OToMmHg(point.Ps, 10) : null,
-    pv: point.Pv,
-    nozzleSize: particle.nozzleSize,
+    tg: ts == null ? null : toKelvin(ts),
+    pg: ctx.pa != null && ps != null ? ctx.pa + convertMmH2OToMmHg(ps, 10) : null,
+    pv,
+    nozzleSize: isokinetic.nozzleDiameter,
     vm: beforeVm != null && afterVm != null ? roundHalfUp(afterVm - beforeVm, 5) : null,
-    samplingTime: particle.samplingTime,
+    samplingTime: isokinetic.samplingTime,
   };
 };
 
@@ -132,7 +133,7 @@ const calcPoint = (point: SamplingPoint, ctx: SheetCalcContext, deltaH: number):
 
 export const particleStep: SheetCalcStep = (ctx, { sheet, ext }) => {
   const points = sheet.samplingPoints ?? [];
-  if (points.length === 0 || !points.some((p) => p.particle != null)) return;
+  if (points.length === 0 || !points.some((p) => p.isokineticSampling != null)) return;
 
   const deltaH = ext.deltaH ?? DEFAULT_DELTA_H;
   const results = points.map((p) => calcPoint(p, ctx, deltaH));

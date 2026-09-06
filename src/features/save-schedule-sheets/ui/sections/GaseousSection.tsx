@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
@@ -8,20 +8,32 @@ import { UnitField } from "@shared/ui/form";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
 import { GAS_SAMPLE_HINT } from "../../model/field-hints";
+import type { GasSampleGroup } from "../../model/gaseous-rows";
+import type { SampleFieldKey } from "../../model/required-fields";
 import { REQUIRED_SAMPLE_FIELDS, fieldPath } from "../../model/required-fields";
 import type { SampleForm } from "../../model/types";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 
 interface Props extends SectionShellProps, FieldStateProps {
   samples: SampleForm[];
+  /**
+   * 아직 어느 기록지에도 적히지 않은 측정항목. 판정이 기록지 전체를 가로지르므로
+   * 이 표에 없다는 뜻이 아니라 **어디에도 없다**는 뜻이다.
+   */
+  unassignedGroups: GasSampleGroup[];
+  /** 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목명 */
+  unresolvedItemNames: string[];
   editable: boolean;
   onSampleChange: (index: number, patch: Partial<SampleForm>) => void;
   onAddSample: () => void;
+  onAddUnassignedSamples: () => void;
   onRemoveSample: (index: number) => void;
+  /** 행 순서 바꾸기 — 기록지는 실제 채취 순서대로 적으므로 측정항목 순서와 다를 수 있다 */
+  onMoveSample: (from: number, to: number) => void;
 }
 
 interface GasField {
-  field: keyof SampleForm;
+  field: SampleFieldKey;
   label: string;
   unit?: string;
   type: "text" | "time" | "number";
@@ -34,7 +46,7 @@ interface GasField {
 }
 
 /** 필수 별표는 손으로 적지 않는다 — 저장 검증·진행도 배지와 같은 목록에서 파생시킨다 */
-const isRequired = (field: keyof SampleForm): boolean => REQUIRED_SAMPLE_FIELDS.includes(field);
+const isRequired = (field: SampleFieldKey): boolean => REQUIRED_SAMPLE_FIELDS.includes(field);
 
 /**
  * 입력 순서 = 현장 기록지의 기입 순서.
@@ -77,7 +89,8 @@ const GAS_FIELDS: GasField[] = [
 ];
 
 const ROW_LABEL_WIDTH = 48;
-const ACTION_WIDTH = 44;
+// 위·아래·삭제 세 버튼이 들어간다
+const ACTION_WIDTH = 116;
 
 const titleOf = (sample: SampleForm, index: number): string =>
   sample.sampleName.trim() || `항목 #${index + 1}`;
@@ -90,6 +103,34 @@ const subtitleOf = (sample: SampleForm): string => {
 };
 
 /**
+ * 행 순서 조작 — 데스크탑 표와 모바일 카드가 같은 것을 쓴다.
+ *
+ * 드래그 대신 버튼인 이유는 데스크탑 표가 12열 가로 스크롤이라 끌어 옮길 자리가 없기 때문이다.
+ * `@shared/ui/sortable` 도 드래그와 함께 같은 모양의 위·아래 버튼을 함께 제공한다.
+ */
+const MoveButtons = ({ title, index, total, onMove }: {
+  title: string;
+  index: number;
+  total: number;
+  onMove: (from: number, to: number) => void;
+}) => (
+  <>
+    <IconButton
+      variant="ghost" size="icon-sm" label={`${title} 위로 이동`}
+      icon={<ArrowUp size={16} />}
+      disabled={index === 0}
+      onClick={() => onMove(index, index - 1)}
+    />
+    <IconButton
+      variant="ghost" size="icon-sm" label={`${title} 아래로 이동`}
+      icon={<ArrowDown size={16} />}
+      disabled={index === total - 1}
+      onClick={() => onMove(index, index + 1)}
+    />
+  </>
+);
+
+/**
  * 가스상 물질 채취 정보.
  *
  * 기록지(시트)마다 존재하며 입자상·가스상 카테고리를 가리지 않는다.
@@ -97,7 +138,8 @@ const subtitleOf = (sample: SampleForm): string => {
  * 모바일은 제목만 보이는 카드를 눌러 모달에서 고친다(칸이 12개라 카드에 펼치면 읽히지 않는다).
  */
 export const GaseousSection = ({
-  samples, editable, onSampleChange, onAddSample, onRemoveSample,
+  samples, unassignedGroups, unresolvedItemNames, editable,
+  onSampleChange, onAddSample, onAddUnassignedSamples, onRemoveSample, onMoveSample,
   fieldTone, onFieldFocus, ...shell
 }: Props) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -128,13 +170,21 @@ export const GaseousSection = ({
     })),
 
     {
-      kind: "action", header: "삭제", width: ACTION_WIDTH,
+      kind: "action", header: "순서 · 삭제", width: ACTION_WIDTH,
       render: (sample, index) => (
-        <IconButton
-          variant="ghost" size="icon-sm" label={`${titleOf(sample, index)} 삭제`}
-          icon={<Trash2 size={16} />}
-          onClick={() => onRemoveSample(index)}
-        />
+        <div className="flex items-center justify-center">
+          <MoveButtons
+            title={titleOf(sample, index)}
+            index={index}
+            total={samples.length}
+            onMove={onMoveSample}
+          />
+          <IconButton
+            variant="ghost" size="icon-sm" label={`${titleOf(sample, index)} 삭제`}
+            icon={<Trash2 size={16} />}
+            onClick={() => onRemoveSample(index)}
+          />
+        </div>
       ),
     },
   ];
@@ -143,6 +193,36 @@ export const GaseousSection = ({
     <Button type="button" variant="outline" size="sm" onClick={onAddSample}>
       <Plus size={14} />항목 추가
     </Button>
+  ) : null;
+
+  /**
+   * 어느 기록지에도 적히지 않은 항목 안내.
+   *
+   * "이 표에 없다"가 아니라 **어디에도 없다**는 뜻이다 — 기록지를 옮겨 적는 흐름을 지원하려고
+   * 판정을 전체로 넓혔기 때문이다. 첫 기록지에서 행을 지우면 여기에 다시 나타난다.
+   */
+  const unassignedBanner = unassignedGroups.length > 0 && editable ? (
+    <div
+      className="flex flex-wrap items-center justify-between gap-2 rounded-panel border border-info/30
+        bg-info-soft px-3 py-2"
+    >
+      <span className="text-body-3 text-info-ink">
+        측정항목 {unassignedGroups.length}건이 어느 기록지에도 등록되지 않았습니다. —{" "}
+        {unassignedGroups.map((group) => group.sampleName).join(", ")}
+      </span>
+      <Button type="button" variant="outline" size="sm" onClick={onAddUnassignedSamples}>
+        <Plus size={14} />이 기록지에 추가
+      </Button>
+    </div>
+  ) : null;
+
+  // 카탈로그 투영값이 없어(구 스냅샷·고객사 자체 물질) 입자상인지조차 알 수 없는 항목.
+  // 자동으로 만들면 엉뚱한 행이 생기므로 만들지 않고 존재만 알린다.
+  const unresolvedNotice = unresolvedItemNames.length > 0 ? (
+    <p className="text-caption text-muted-ink">
+      채취 방법이 등록되지 않은 항목 {unresolvedItemNames.length}건
+      ({unresolvedItemNames.join(", ")})은 자동으로 만들 수 없습니다. 필요하면 직접 추가하세요.
+    </p>
   ) : null;
 
   return (
@@ -156,8 +236,15 @@ export const GaseousSection = ({
         {addButton}
       </div>
 
+      {unassignedBanner}
+      {unresolvedNotice}
+
       {samples.length === 0 ? (
-        <p className="text-body-3 text-muted-ink">등록된 채취 항목이 없습니다.</p>
+        <p className="text-body-3 text-muted-ink">
+          {unassignedGroups.length > 0
+            ? "위 안내에서 측정항목을 이 기록지로 가져오거나 직접 추가하세요."
+            : "등록된 채취 항목이 없습니다."}
+        </p>
       ) : (
         <>
           {/* 모바일 — 제목만 보이는 카드. 누르면 모달에서 편집한다. */}
@@ -179,13 +266,27 @@ export const GaseousSection = ({
                   focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-primary/25"
               >
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <span className="truncate text-h3 text-ink">{titleOf(sample, index)}</span>
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <span className="truncate text-h3 text-ink">{titleOf(sample, index)}</span>
+                  </span>
                   <span className="truncate text-caption text-ink-soft">{subtitleOf(sample)}</span>
                 </div>
 
                 {editable && (
-                  // 삭제 탭이 카드 전체 탭으로 번지지 않게 차단한다
-                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                  // 조작 탭이 카드 전체 탭(편집 모달 열기)으로 번지지 않게 차단한다.
+                  // 키보드도 함께 막아야 한다 — 버튼에서 Enter 를 누르면 카드의 onKeyDown 까지
+                  // 올라가 순서만 바꾸려던 조작이 편집 모달을 함께 연다.
+                  <div
+                    className="flex shrink-0 items-center"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <MoveButtons
+                      title={titleOf(sample, index)}
+                      index={index}
+                      total={samples.length}
+                      onMove={onMoveSample}
+                    />
                     <IconButton
                       variant="ghost" size="icon-sm" label={`${titleOf(sample, index)} 삭제`}
                       icon={<Trash2 size={16} />}

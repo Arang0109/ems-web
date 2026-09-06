@@ -55,6 +55,14 @@ export type SamplingPointForm = {
 };
 
 export type SampleForm = {
+  /**
+   * 이 시료 행이 담은 측정항목(pollutantId). **폼의 모든 값은 string 이라는 규칙의 의도적 예외**다 —
+   * 사용자가 타이핑하는 칸이 아니라 행에 딸린 링크이므로 입력 표현이 필요 없다.
+   *
+   * 빈 배열은 사용자가 직접 추가한 행이라는 뜻이다. 측정항목에서 만들어진 행과 구분되며,
+   * 이 구분이 "이 항목이 이미 어느 기록지에 적혔는가" 판정의 근거가 된다.
+   */
+  pollutantIds: number[];
   sampleName: string;
   startTime: string;                // "HH:mm"
   endTime: string;
@@ -123,6 +131,7 @@ export const getDefaultSamplingPointForm = (): SamplingPointForm => ({
 });
 
 export const getDefaultSampleForm = (): SampleForm => ({
+  pollutantIds: [],
   sampleName: "", startTime: "", endTime: "", suctionQuantity: "", gasMeterGaugePressure: "",
   inTemperature: "", outTemperature: "", beforeVolume: "", afterVolume: "",
   blankSampleNumber: "", sampleNumber: "", samplingVolume: "",

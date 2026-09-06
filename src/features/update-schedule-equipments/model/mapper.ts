@@ -3,15 +3,22 @@ import { trimValue } from "@shared/lib";
 
 import type { ScheduleEquipmentsUpdateForm } from "./types";
 
-// 빈 슬롯은 null로 보낸다. 서버는 null/blank를 "기존 장비 유지"로 해석하므로
-// 배정을 해제하는 수단은 아니다.
+// 서버는 전달한 목록으로 장비를 전체 교체한다 — 빈 슬롯은 목록에서 빠지고, 그것이 곧 배정 해제다.
 const toId = (value: string): string | null => trimValue(value) || null;
 
+/**
+ * @param keepIds 이 폼이 다루지 않는 유형(가스분석기·기타)의 장비 id.
+ *   전체 교체 계약이므로 함께 실어 보내지 않으면 폼 밖에서 배정된 장비가 조용히 사라진다.
+ *   관리 유형 목록은 `MANAGED_EQUIP_TYPES`(./types) 가 소유한다.
+ */
 export const toScheduleEquipmentsUpdate = (
   form: ScheduleEquipmentsUpdateForm,
+  keepIds: string[] = [],
 ): ScheduleEquipmentsUpdate => ({
-  particleSamplerId: toId(form.particleSamplerId),
-  gasSamplerId: toId(form.gasSamplerId),
-  pitotTubeId: toId(form.pitotTubeId),
-  nozzleId: toId(form.nozzleId),
+  equipmentIds: [
+    ...[form.particleSamplerId, form.gasSamplerId, form.pitotTubeId, form.nozzleId]
+      .map(toId)
+      .filter((id): id is string => id !== null),
+    ...keepIds,
+  ],
 });

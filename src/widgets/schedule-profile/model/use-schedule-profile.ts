@@ -8,7 +8,7 @@ import { useStackPollutants } from "@entities/stack-pollutant";
 
 // 측정계획 상세를 로드하고, 편집 가능 여부(종단 상태 제외)를 계산한다.
 export const useScheduleProfile = (scheduleId: string | undefined) => {
-  const { data, loading, error, fetchSchedule } = useScheduleDetail();
+  const { data, isLoading: loading, error, fetchSchedule } = useScheduleDetail();
 
   useEffect(() => {
     if (!scheduleId) return;
@@ -50,7 +50,7 @@ export const useScheduleProfile = (scheduleId: string | undefined) => {
     externals,
     status,
     editable,
-    loading,
+    isLoading: loading,
     error,
     refetch: () => {
       if (!scheduleId) return;

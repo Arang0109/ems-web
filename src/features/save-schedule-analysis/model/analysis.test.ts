@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { AnalysisRecord, MeasurementItemSnapshot } from "@entities/schedule";
+import type { AnalysisResult, MeasurementItemSnapshot } from "@entities/schedule";
 
 import {
   toAnalysisResultsSave, toAnalysisRows, toBasicInfoUpdate, toSamplingTimesSave,
@@ -25,14 +25,13 @@ const item = (pollutantId: number, nameKr: string): MeasurementItemSnapshot => (
   cycle: "QUARTERLY",
   allowance: 150,
   oxygenApplicable: true,
+  analysis: null,
 });
 
 const record = (
   pollutantId: number, value: number | null,
   times: { startedAt?: string | null; endedAt?: string | null } = {},
-): AnalysisRecord => ({
-  id: "analysis-" + pollutantId,
-  scheduleId: 1,
+): AnalysisResult => ({
   stackPollutantId: pollutantId + 900,
   pollutantId,
   pollutantName: "질소산화물",
@@ -42,16 +41,13 @@ const record = (
   unit: "ppm",
   analysisMethod: "자외선형광법",
   analysisEquipment: "NOx 분석기",
-  // 같은 문서의 칸이지만 저장 경로가 갈라진다 — 표는 함께 그리고 요청만 나눈다
+  // 같은 항목의 칸이지만 저장 경로가 갈라진다 — 표는 함께 그리고 요청만 나눈다
   samplingStartedAt: times.startedAt ?? null,
   samplingEndedAt: times.endedAt ?? null,
-  createdAt: "2026-08-18T09:00:00",
-  modifiedAt: "2026-08-18T09:00:00",
 });
 
 const row = (patch: Partial<AnalysisRowForm> = {}): AnalysisRowForm => ({
   pollutantId: 2,
-  analysisId: null,
   hasSavedValue: false,
   pollutantName: "질소산화물",
   allowance: 150,
@@ -66,11 +62,11 @@ const row = (patch: Partial<AnalysisRowForm> = {}): AnalysisRowForm => ({
 });
 
 describe("toAnalysisRows", () => {
-  it("행은 계획의 측정항목 전체다 — 기록이 없는 항목도 빈 행으로 남는다", () => {
+  it("행은 계획의 측정항목 전체다 — 분석 결과가 없는 항목도 빈 행으로 남는다", () => {
     const rows = toAnalysisRows([item(1, "먼지"), item(2, "질소산화물")], []);
 
     expect(rows).toHaveLength(2);
-    expect(rows.map((r) => r.analysisId)).toEqual([null, null]);
+    expect(rows.map((r) => r.hasSavedValue)).toEqual([false, false]);
     expect(rows[0].pollutantName).toBe("먼지");
   });
 
@@ -81,10 +77,10 @@ describe("toAnalysisRows", () => {
     expect(first.analysisEquipment).toBe("자동가스분석기");
   });
 
-  it("저장된 기록이 있으면 그 값으로 덮는다", () => {
+  it("저장된 분석 결과가 있으면 그 값으로 덮는다", () => {
     const [, second] = toAnalysisRows([item(1, "먼지"), item(2, "질소산화물")], [record(2, 120.5)]);
 
-    expect(second.analysisId).toBe("analysis-2");
+    expect(second.hasSavedValue).toBe(true);
     expect(second.analysisValue).toBe("120.5");
     // 서버는 단위를 자유 문자열로 들고 있어 예전 기록에는 표기가 그대로다 — Select 값으로 되돌린다
     expect(second.unit).toBe("PPM");
@@ -107,11 +103,10 @@ describe("toAnalysisRows", () => {
     expect(first.samplingEndedAt).toBe("10:00");
   });
 
-  it("채취시각만 저장된 문서는 분석값을 넣은 적이 없는 행이다", () => {
-    // `analysisId` 로 갈음하면 이 행이 "저장된 값을 비웠다"로 잡혀 검증에서 막힌다
+  it("채취시각만 저장된 항목은 분석값을 넣은 적이 없는 행이다", () => {
     const [first] = toAnalysisRows([item(1, "먼지")], [record(1, null, { startedAt: "09:30:00" })]);
 
-    expect(first.analysisId).not.toBeNull();
+    expect(first.samplingStartedAt).toBe("09:30");
     expect(first.hasSavedValue).toBe(false);
   });
 });
@@ -129,11 +124,13 @@ describe("toAnalysisResultsSave", () => {
     }]);
   });
 
-  it("문서 id를 담지 않는다 — 측정물질을 키로 upsert 하므로 신규·기존을 가릴 필요가 없다", () => {
-    // 성적서 탭이 채취시간을 먼저 저장해 문서를 만들어 두어도 이 화면은 그 사실을 몰라도 된다
-    const save = toAnalysisResultsSave([row({ analysisId: "analysis-2", analysisValue: "120.5" })]);
+  it("측정물질을 키로 upsert 하므로 신규·기존을 가릴 필요가 없다", () => {
+    // 성적서 탭이 채취시간을 먼저 채워 둔 항목이어도 이 화면은 그 사실을 몰라도 된다
+    const save = toAnalysisResultsSave([row({ hasSavedValue: true, analysisValue: "120.5" })]);
 
-    expect(save.items[0]).not.toHaveProperty("analysisId");
+    expect(Object.keys(save.items[0])).toEqual([
+      "pollutantId", "analysisValue", "unit", "analysisMethod", "analysisEquipment",
+    ]);
     expect(save.items[0].pollutantId).toBe(2);
   });
 
@@ -223,17 +220,17 @@ describe("validateAnalysisRows", () => {
     expect(errors[2]).toBe("측정분석값을 입력해주세요.");
   });
 
-  it("저장된 값을 비우면 삭제로 안내한다 — 서버는 null을 기존 값 유지로 읽는다", () => {
+  it("저장된 값을 통째로 비운 행은 통과시킨다 — 서버가 빈 값을 '지웠다'로 읽는다", () => {
     const errors = validateAnalysisRows([
-      row({ analysisId: "analysis-2", hasSavedValue: true, analysisValue: "" }),
+      row({ hasSavedValue: true, analysisValue: "" }),
     ]);
 
-    expect(errors[2]).toContain("삭제");
+    expect(errors).toEqual({});
   });
 
   it("채취시각만 저장된 행의 빈 분석값은 막지 않는다 — 아직 넣은 적 없는 값이다", () => {
     const errors = validateAnalysisRows([
-      row({ analysisId: "analysis-2", hasSavedValue: false, samplingStartedAt: "09:30" }),
+      row({ hasSavedValue: false, samplingStartedAt: "09:30" }),
     ]);
 
     expect(errors).toEqual({});

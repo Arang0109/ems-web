@@ -8,7 +8,7 @@ import type { SheetCalcExternals } from "./types";
 
 export const getSheetCalcExternals = (snapshot: ScheduleSnapshot): SheetCalcExternals => {
   const stack = snapshot.client?.workplace?.stack;
-  const equipments = snapshot.equipments ?? [];
+  const equipments = snapshot.team?.equipments ?? [];
 
   const pitotSpec = equipments.find((e) => e.type === "PITOT_TUBE")?.spec as PitotTubeSpecDto | null | undefined;
   const samplerSpec = equipments.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as ParticleSamplerSpecDto | null | undefined;

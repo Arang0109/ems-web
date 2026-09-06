@@ -13,7 +13,6 @@ export const defaultColumns = [
   columnHelper.accessor('measureDate', { header: '측정일', cell: TextCell, size: 70 }),
   columnHelper.accessor('referenceNumber', { header: '관리번호', cell: TextCell }),
   columnHelper.accessor('clientName', { header: '의뢰기관', cell: TextCell }),
-  columnHelper.accessor('workplaceName', { header: '사업장', cell: TextCell }),
   columnHelper.accessor('stackName', { header: '배출구', cell: TextCell }),
   columnHelper.accessor('teamName', { header: '팀', cell: TextCell }),
   columnHelper.display({ id: 'actions', header: '', cell: DeleteCell, size: 80 }),
