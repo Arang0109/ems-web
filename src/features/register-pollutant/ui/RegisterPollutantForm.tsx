@@ -56,6 +56,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
         <SectionTitle>측정물질 선택</SectionTitle>
         <Select
           id="catalogId"
+          searchable
           label="측정물질"
           placeholder={
             isCandidatesLoading ? "불러오는 중…"

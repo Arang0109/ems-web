@@ -18,6 +18,7 @@ export const TableSelectCell = ({
   value,
   onChange,
   options,
+  searchable,
   placeholder,
   colSpan,
   disabled = false,
@@ -27,6 +28,8 @@ export const TableSelectCell = ({
   value: string;
   onChange: (v: string) => void;
   options: SelectOption[];
+  /** 서버에서 온 긴 목록이면 켠다 — 팝업 안에 검색 입력이 붙는다 */
+  searchable?: boolean;
   placeholder?: string;
   colSpan?: number;
   disabled?: boolean;
@@ -34,23 +37,31 @@ export const TableSelectCell = ({
   tone?: FieldTone;
   /** 이 칸에 포커스가 들어왔을 때 */
   onFocus?: () => void;
-}) => (
-  <td
-    colSpan={colSpan}
-    onFocusCapture={onFocus}
-    className={cn("border border-rule", tone !== "default" && TONE_CELL[tone])}
-  >
-    <Select
-      options={options}
-      value={value}
-      onValueChange={(next) => onChange(next ?? "")}
-      placeholder={placeholder}
-      disabled={disabled}
-      className={cn(
-        `rounded-none border-0 bg-transparent px-2 shadow-none sm:px-3
-          focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-primary`,
-        tone === "info" && "text-info-ink",
+}) => {
+  // `searchable` 은 Select 에서 판별 유니온이라(groups 와 동시 사용 금지) 여기서 분기해 넘긴다.
+  const common = {
+    value,
+    onValueChange: (next: string | null) => onChange(next ?? ""),
+    placeholder,
+    disabled,
+    className: cn(
+      `rounded-none border-0 bg-transparent px-2 shadow-none sm:px-3
+        focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-primary`,
+      tone === "info" && "text-info-ink",
+    ),
+  };
+
+  return (
+    <td
+      colSpan={colSpan}
+      onFocusCapture={onFocus}
+      className={cn("border border-rule", tone !== "default" && TONE_CELL[tone])}
+    >
+      {searchable ? (
+        <Select searchable options={options} {...common} />
+      ) : (
+        <Select options={options} {...common} />
       )}
-    />
-  </td>
-);
+    </td>
+  );
+};

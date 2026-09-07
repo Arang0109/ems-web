@@ -45,6 +45,7 @@ export const ExportReportModal = ({
       <div className="space-y-3">
         <Select
           id="report-template-document"
+          searchable
           label="채취기록부 양식"
           required
           options={documentOptions}

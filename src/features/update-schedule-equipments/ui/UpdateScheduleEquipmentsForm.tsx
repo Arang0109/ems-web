@@ -41,6 +41,7 @@ export const UpdateScheduleEquipmentsForm = ({
         <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="particleSamplerId"
+            searchable
             label={EQUIP_TYPE_LABEL.PARTICLE_SAMPLER}
             placeholder="장비 선택"
             options={options.particleSampler}
@@ -50,6 +51,7 @@ export const UpdateScheduleEquipmentsForm = ({
           />
           <Select
             id="gasSamplerId"
+            searchable
             label={EQUIP_TYPE_LABEL.GAS_SAMPLER}
             placeholder="장비 선택"
             options={options.gasSampler}
@@ -59,6 +61,7 @@ export const UpdateScheduleEquipmentsForm = ({
           />
           <Select
             id="pitotTubeId"
+            searchable
             label={EQUIP_TYPE_LABEL.PITOT_TUBE}
             placeholder="장비 선택"
             options={options.pitotTube}
@@ -68,6 +71,7 @@ export const UpdateScheduleEquipmentsForm = ({
           />
           <Select
             id="nozzleId"
+            searchable
             label={EQUIP_TYPE_LABEL.NOZZLE}
             placeholder="장비 선택"
             options={options.nozzle}

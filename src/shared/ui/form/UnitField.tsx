@@ -21,6 +21,8 @@ interface Props {
 
   /** 있으면 Select 모드로 렌더링한다(입력창과 동일한 프레임 유지). */
   options?: SelectOption[];
+  /** Select 모드에서 서버에서 온 긴 목록이면 켠다 — 팝업 안에 검색 입력이 붙는다 */
+  searchable?: boolean;
   type?: React.HTMLInputTypeAttribute;
 
   /** 입력창 우측 단위 박스. 없으면 박스 자체를 그리지 않는다. */
@@ -72,6 +74,7 @@ export const UnitField = ({
   hint,
   hintLabel,
   options,
+  searchable,
   type = "text",
   unit,
   placeholder,
@@ -131,20 +134,28 @@ export const UnitField = ({
           )}
         >
           {options ? (
-            <Select
-              id={fieldId}
-              value={value}
-              options={options}
-              placeholder={placeholder}
-              disabled={disabled}
-              onValueChange={(v) => onChange?.(v ?? "")}
-              className={cn(
-                "h-full rounded-none border-0 bg-transparent px-3 shadow-none",
-                "data-[size=default]:h-full focus-visible:border-0 focus-visible:ring-0",
-                "text-ink data-placeholder:text-muted-ink",
-                valueText,
-              )}
-            />
+            // `searchable` 은 Select 에서 판별 유니온이라(groups 와 동시 사용 금지) 분기해 넘긴다.
+            (() => {
+              const selectProps = {
+                id: fieldId,
+                value,
+                placeholder,
+                disabled,
+                onValueChange: (v: string | null) => onChange?.(v ?? ""),
+                className: cn(
+                  "h-full rounded-none border-0 bg-transparent px-3 shadow-none",
+                  "data-[size=default]:h-full focus-visible:border-0 focus-visible:ring-0",
+                  "text-ink data-placeholder:text-muted-ink",
+                  valueText,
+                ),
+              };
+
+              return searchable ? (
+                <Select searchable options={options} {...selectProps} />
+              ) : (
+                <Select options={options} {...selectProps} />
+              );
+            })()
           ) : type === "time" && !readOnly ? (
             /* 네이티브 시각 위젯은 브라우저마다 폭·모양이 달라 프레임과 어긋난다 */
             <TimeField
