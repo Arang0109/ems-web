@@ -6,7 +6,7 @@ export { SIZE_STYLES } from './types/style-types';
 export {
   CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, MEASUREMENT_METHOD,
   POLLUTANT_PHASE, MEASUREMENT_UNIT, MEASUREMENT_CYCLE,
-  EQUIP_TYPE, EQUIP_STATUS, CHANGEABLE_EQUIP_STATUS, PITOT_TUBE_TYPE,
+  EQUIP_TYPE, EQUIP_STATUS, CHANGEABLE_EQUIP_STATUS, PITOT_TUBE_TYPE, EQUIP_SPEC_FIELD,
   INSPECTION_TYPE, INSPECTION_RESULT,
   SCHEDULE_STATUS, MEASUREMENT_TYPE,
   MEASUREMENT_CATEGORY, WEATHER_CONDITION, WIND_DIRECTION,
@@ -26,7 +26,8 @@ export {
 export type {
   ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod,
   PollutantPhase, MeasurementUnit, MeasurementCycle,
-  EquipType, EquipStatus, ChangeableEquipStatus, PitotTubeType, InspectionType, InspectionResult,
+  EquipType, EquipStatus, ChangeableEquipStatus, PitotTubeType, EquipSpecField,
+  InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,

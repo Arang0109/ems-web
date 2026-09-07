@@ -1,7 +1,7 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
   MeasurementMethod, PollutantPhase, MeasurementUnit, MeasurementCycle,
-  EquipType, EquipStatus, PitotTubeType, InspectionType, InspectionResult,
+  EquipType, EquipStatus, PitotTubeType, EquipSpecField, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
@@ -136,6 +136,25 @@ export const PITOT_TUBE_TYPE_LABEL: Record<PitotTubeType, string> = {
   DUST: '먼지',
   FINE_DUST: '미세먼지',
   MERCURY: '수은',
+};
+
+/**
+ * 측정장비 사양(spec) 항목의 표시 이름 — 등록 폼이 기준이다.
+ *
+ * 등록 폼(`SpecStep`)·수정 폼(`SpecFields`)·측정계획 장비 카드가 각자 문구를 들고 있다가
+ * 같은 값에 다른 이름이 붙었다 — `적산량`/`총유량`, `오리피스관 보정계수 (ΔH@)`/`오리피스 ΔP`.
+ * 단위·기호까지 이름에 포함해 검증 메시지도 화면에 보이는 그대로 부르게 한다.
+ */
+export const EQUIP_SPEC_FIELD_LABEL: Record<EquipSpecField, string> = {
+  totalVolume: '적산량 (m³)',
+  orificeDp: '오리피스관 보정계수 (ΔH@)',
+  yd: '가스미터 보정계수 (Yd)',
+  pitotTubeType: '피토우관 종류',
+  coefficients: '계수 목록',
+  coefficient: '계수',
+  velocity: '유속',
+  diameters: '직경 목록 (cm)',
+  diameter: '직경',
 };
 
 // 측정장비 검사(inspection) — 세 종류는 배타적이지 않으며 장비는 항상 3종 전부를 보유한다.

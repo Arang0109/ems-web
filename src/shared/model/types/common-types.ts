@@ -30,6 +30,15 @@ export const EQUIP_STATUS = ['ACTIVE', 'INACTIVE', 'MAINTENANCE', 'DELETED'] as 
 export const CHANGEABLE_EQUIP_STATUS = ['ACTIVE', 'INACTIVE', 'MAINTENANCE'] as const;
 export const PITOT_TUBE_TYPE = ['DUST', 'FINE_DUST', 'MERCURY'] as const;
 
+// 측정장비 사양(spec) 입력 항목 — 등록 폼·수정 폼·측정계획 장비 카드가 같은 이름을 써야 한다.
+// 세 곳이 각자 문구를 들고 있다가 갈라졌던 자리다(적산량/총유량, ΔH@/ΔP). 라벨은
+// EQUIP_SPEC_FIELD_LABEL 한 곳에서만 나온다. 사양 항목이 늘면 라벨 결정도 함께 강제된다.
+export const EQUIP_SPEC_FIELD = [
+  'totalVolume', 'orificeDp', 'yd',
+  'pitotTubeType', 'coefficients', 'coefficient', 'velocity',
+  'diameters', 'diameter',
+] as const;
+
 // 측정장비 검사(inspection) — 종류/판정. 장비는 종류 3종을 항상 전부 보유하고 대상 여부는 플래그로 표현한다.
 export const INSPECTION_TYPE = ['PRECISION_INSPECTION', 'CALIBRATION', 'GENERAL_TEST'] as const;
 export const INSPECTION_RESULT = ['PASS', 'FAIL'] as const;
@@ -70,6 +79,7 @@ export type EquipStatus = typeof EQUIP_STATUS[number];
 /** 사용자가 Select 로 고를 수 있는 상태. `DELETED` 는 삭제 액션으로만 도달하므로 제외된다. */
 export type ChangeableEquipStatus = typeof CHANGEABLE_EQUIP_STATUS[number];
 export type PitotTubeType = typeof PITOT_TUBE_TYPE[number];
+export type EquipSpecField = typeof EQUIP_SPEC_FIELD[number];
 export type InspectionType = typeof INSPECTION_TYPE[number];
 export type InspectionResult = typeof INSPECTION_RESULT[number];
 export type MeasurementCategory = typeof MEASUREMENT_CATEGORY[number];
