@@ -21,6 +21,7 @@ interface DatePickerProps {
   disabled?: boolean;
   required?: boolean;
   helperText?: string;
+  errorMessage?: string;
   className?: string;
 }
 
@@ -33,6 +34,7 @@ export const DatePicker = ({
   disabled = false,
   required,
   helperText,
+  errorMessage,
   className,
 }: DatePickerProps) => {
   const [open, setOpen] = React.useState(false);
@@ -77,6 +79,9 @@ export const DatePicker = ({
       <FieldLabel htmlFor={id}>
         {label}
         {required && <span className="ml-1 text-destructive">*</span>}
+        {errorMessage && (
+          <span className="text-caption text-destructive">{errorMessage}</span>
+        )}
       </FieldLabel>
       {picker}
       {helperText && <FieldDescription>{helperText}</FieldDescription>}

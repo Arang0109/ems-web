@@ -103,7 +103,7 @@ export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
   SELF: '자가측정용',
-  REFERENCE: '기타참고용',
+  REFERENCE: '참고용',
 };
 
 export const EQUIP_TYPE_LABEL: Record<EquipType, string> = {

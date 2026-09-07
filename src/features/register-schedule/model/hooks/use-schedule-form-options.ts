@@ -1,7 +1,7 @@
 import { useClients } from "@entities/client";
 import { useWorkplaces } from "@entities/workplace";
 import { useStacks } from "@entities/stack";
-import { useTeams } from "@entities/team";
+import { useTeams, useTeamDetail } from "@entities/team";
 import { useStackPollutants } from "@entities/stack-pollutant";
 import type { SelectOption } from "@shared/ui/form";
 
@@ -10,6 +10,7 @@ interface Props {
   clientId: string;
   workplaceId: string;
   stackId: string;
+  teamId: string;
 }
 
 const toId = (value: string): number | null => (value ? Number(value) : null);
@@ -22,10 +23,11 @@ const toId = (value: string): number | null => (value ? Number(value) : null);
  * 상위를 고르지 않았으면 `enabled: false` 로 조회 자체를 막는다(전체 목록을 받아오면
  * 고르지도 않은 거래처의 사업장이 선택지에 뜬다).
  */
-export const useScheduleFormOptions = ({ clientId, workplaceId, stackId }: Props) => {
+export const useScheduleFormOptions = ({ clientId, workplaceId, stackId, teamId }: Props) => {
   const selectedClientId = toId(clientId);
   const selectedWorkplaceId = toId(workplaceId);
   const selectedStackId = toId(stackId);
+  const selectedTeamId = toId(teamId);
 
   const { data: clients } = useClients();
   const { data: teams } = useTeams();
@@ -61,11 +63,17 @@ export const useScheduleFormOptions = ({ clientId, workplaceId, stackId }: Props
     label: t.name,
   }));
 
+  const { data: teamDetail } = useTeamDetail({
+    id: selectedTeamId,
+  });
+
   return {
     clientOptions,
     workplaceOptions,
     stackOptions,
     teamOptions,
+
+    teamDetail,
 
     stackPollutants,
     stackPollutantsLoading,

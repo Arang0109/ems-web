@@ -21,12 +21,13 @@ export const useRegisterSchedule = () => {
 
   // 하위 목록은 선택값을 따라온다 — 핸들러가 조회를 직접 부르지 않는다.
   const {
-    clientOptions, workplaceOptions, stackOptions, teamOptions,
+    clientOptions, workplaceOptions, stackOptions, teamOptions, teamDetail,
     stackPollutants, stackPollutantsLoading,
   } = useScheduleFormOptions({
     clientId: form.clientId,
     workplaceId: form.workplaceId,
     stackId: form.stackId,
+    teamId: form.teamId,
   });
 
   const handleChange = (name: keyof ScheduleRegisterForm, value: string) => {
@@ -51,6 +52,13 @@ export const useRegisterSchedule = () => {
   const handleStackChange = (value: string) => {
     setForm((prev) => ({ ...prev, stackId: value, pollutantIds: [] }));
     setFieldErrors((prev) => ({ ...prev, stackId: undefined }));
+  };
+
+  // 팀 변경 → 담당자·보조자는 다시 팀 기본값을 따른다(null).
+  // teamDetail 은 form.teamId 를 따라오므로 여기서 읽으면 직전 팀의 값이다 — 읽지 않는다.
+  const handleTeamChange = (value: string) => {
+    setForm((prev) => ({ ...prev, teamId: value, mentorName: null, menteeName: null }));
+    setFieldErrors((prev) => ({ ...prev, teamId: undefined }));
   };
 
   // 측정항목 토글 (다중선택)
@@ -84,8 +92,14 @@ export const useRegisterSchedule = () => {
     }
   };
 
+  // 표시값은 팀 기본값 위에 사용자의 직접 입력이 덮이는 파생값이다 — 상태로 복제하지 않는다.
+  const mentorName = form.mentorName ?? teamDetail?.mentorName ?? "";
+  const menteeName = form.menteeName ?? teamDetail?.menteeName ?? "";
+
   return {
     form,
+    mentorName,
+    menteeName,
     fieldErrors,
     isLoading,
 
@@ -93,6 +107,7 @@ export const useRegisterSchedule = () => {
     handleClientChange,
     handleWorkplaceChange,
     handleStackChange,
+    handleTeamChange,
     handleTogglePollutant,
     handleSubmit,
 

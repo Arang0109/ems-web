@@ -1,3 +1,3 @@
-export function formatAddress(roadAddress: string, address: string): string {
-  return `${roadAddress} ${address}`;
+export function formatAddress(roadAddress: string, detailAddress: string): string {
+  return `${roadAddress} ${detailAddress}`;
 }

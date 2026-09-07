@@ -14,7 +14,7 @@ export const useClientSelection = ({ onChange }: Props) => {
   const { data: workplaces, isLoading, error, refetch: refetchWorkplaces } =
     useWorkplaces(selectedClientId, { enabled: selectedClientId != null });
 
-  const { data: selectedClient } = useClientDetail({ id: selectedClientId });
+  const { data: selectedClient } = useClientDetail(selectedClientId);
 
   const handleSelectClientRow = (clientId: number) => {
     setSelectedClientId(clientId);

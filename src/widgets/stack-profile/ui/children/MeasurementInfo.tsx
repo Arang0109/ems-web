@@ -42,7 +42,7 @@ const MeasurementChip = ({
       <p className="text-caption text-brand-dark">
         허용기준 : {item.allowance}
         {item.oxygenApplicable && standardOxygen !== null && (
-          <span className="text-brand-dark">({standardOxygen}%)</span>
+          <span className="text-brand-dark"> ({standardOxygen}%)</span>
         )}
       </p>
     </div>
