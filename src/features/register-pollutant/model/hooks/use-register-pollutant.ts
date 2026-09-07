@@ -24,7 +24,7 @@ interface Props {
  */
 export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
   const { registerPollutant, isLoading } = useRegisterPollutantAction();
-  const { data: candidates, isLoading: isCandidatesLoading, refetch: refetchCandidates } =
+  const { data: candidates, isLoading: isCandidatesLoading } =
     usePollutantCandidates({ enabled: open });
 
   const [form, setForm] = useState<PollutantRegisterForm>(getDefaultForm());
@@ -65,8 +65,8 @@ export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
       await registerPollutant(toPollutantCreate(form));
       toast.success(`${name} 측정물질이 등록되었습니다.`);
       setForm(getDefaultForm());
-      // 방금 채택한 항목을 후보에서 빼둔다 — 모달을 다시 열었을 때 중복 선택을 막는다.
-      refetchCandidates();
+      // 채택 목록과 후보는 같은 pollutantKeys 아래라, 등록 mutation 이 둘을 함께 갱신한다
+      // — 방금 채택한 항목은 다음에 모달을 열 때 후보에서 빠져 있다.
       onSuccess();
     } catch(err) {
       const message = err instanceof Error ? err.message : '등록에 실패했습니다.';

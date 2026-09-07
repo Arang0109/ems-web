@@ -1,4 +1,4 @@
-import { useAsyncAction } from "@shared/model";
+import { useEntityMutation } from "@shared/model";
 import { readBlobErrorMessage, ApiResponseError } from "@shared/api";
 import { parseAttachmentFilename } from "@shared/lib";
 import type { ReportExport } from "./types";
@@ -14,7 +14,7 @@ const FALLBACK_MESSAGE: Record<number, string> = {
 // 엑셀 템플릿을 올려 측정 데이터가 채워진 성적서 xlsx를 받아온다.
 // 다운로드 트리거(DOM 조작)는 UI 후처리이므로 여기서 하지 않고 Blob과 파일명만 반환한다.
 export const useExportReportAction = () => {
-  const { run, isLoading, error } = useAsyncAction(async (id: number, template: File): Promise<ReportExport> => {
+  const { run, isLoading, error } = useEntityMutation(async (id: number, template: File): Promise<ReportExport> => {
     const res = await scheduleApi.exportReport(id, template);
 
     // 성공 응답이 xlsx 바이너리라 ApiResponseMessage.status로 성공 여부를 볼 수 없고,
@@ -34,7 +34,7 @@ export const useExportReportAction = () => {
         parseAttachmentFilename(typeof disposition === "string" ? disposition : undefined)
         ?? `성적서-${id}.xlsx`,
     };
-  }, "성적서 생성에 실패했습니다.");
+  }, { fallbackMessage: "성적서 생성에 실패했습니다." });
 
   return { exportReport: run, isLoading, error };
 };

@@ -21,7 +21,7 @@ export const ClientManagementPage = () => {
     refetchWorkplaces,
 
     // StackTable
-    stacks, stacksLoading, stacksError, refetchStacks,
+    stacks, stacksLoading, stacksError,
   } = useClientManagement();
 
   return (
@@ -29,6 +29,8 @@ export const ClientManagementPage = () => {
       title="거래처 관리"
       description="측정대행 의뢰기관, 측정대상 사업장, 측정지점(굴뚝) 목록이 표시됩니다."
     >
+      {/* 의뢰기관 변경은 사업장 목록에 영향을 준다 — 슬라이스가 달라 mutation 이 스스로
+          무효화할 수 없으므로, 조합하는 페이지가 콜백으로 잇는다. */}
       <ClientTable
         onRowClick={onSelectClient}
         onSuccess={refetchWorkplaces}
@@ -40,14 +42,12 @@ export const ClientManagementPage = () => {
         selectedClient={selectedClient}
         selectedWorkplace={selectedWorkplace}
         onRowClick={onSelectWorkplace}
-        onSuccess={refetchWorkplaces}
       />
       <StackTable
         stacks={stacks}
         loading={stacksLoading}
         error={stacksError}
-        selectedWorkplace={selectedWorkplace}
-        onSuccess={refetchStacks} />
+        selectedWorkplace={selectedWorkplace} />
     </PageLayout>
   );
 }

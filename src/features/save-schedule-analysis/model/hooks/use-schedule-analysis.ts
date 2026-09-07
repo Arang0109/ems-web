@@ -4,7 +4,8 @@ import type {
   AnalysisResult, MeasurementItemSnapshot, SamplingSheet,
 } from "@entities/schedule";
 import {
-  useScheduleAnalyses, useSaveAnalysisResultsAction, useSaveSamplingTimesAction,
+  useScheduleAnalyses, useFetchScheduleAnalyses,
+  useSaveAnalysisResultsAction, useSaveSamplingTimesAction,
 } from "@entities/schedule";
 
 import { useConfirm } from "@shared/ui/dialogs";
@@ -52,7 +53,10 @@ interface Params {
  */
 export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Params) => {
   const confirm = useConfirm();
-  const { fetchAnalyses, isLoading: isFetching, error } = useScheduleAnalyses();
+  // 로딩·에러는 구독형 쿼리에서, 저장 직후의 즉시 반영은 명령형 조회에서 온다.
+  // 둘은 같은 캐시를 보므로 요청이 중복되지 않는다.
+  const { data: analyses, isLoading: isFetching, error } = useScheduleAnalyses(scheduleId);
+  const fetchAnalyses = useFetchScheduleAnalyses();
   const { saveAnalysisResults, isLoading: isSaving } = useSaveAnalysisResultsAction();
   const { saveSamplingTimes, isLoading: isSavingTimes } = useSaveSamplingTimesAction();
 
@@ -85,23 +89,17 @@ export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Para
   }, [itemsKey]);
 
   // 저장·삭제 뒤 서버 값으로 되맞추는 경로. 화면 갱신을 기다려야 하므로 await 가능한 형태로 둔다.
+  // 조회가 캐시를 갱신하면 아래 이펙트가 폼과 기준선에 앉힌다.
   const load = useCallback(async () => {
     if (scheduleId == null) return;
-    const results = await fetchAnalyses(scheduleId);
-    if (results) applyResults(results);
-  }, [scheduleId, fetchAnalyses, applyResults]);
+    await fetchAnalyses(scheduleId);
+  }, [scheduleId, fetchAnalyses]);
 
-  // 최초 로드. 응답 콜백에서만 상태를 바꾼다 — 이펙트 본문에서 동기적으로 setState 하면
-  // cascading render 가 된다. 응답이 늦게 도착한 이전 계획의 결과는 버린다.
+  // 서버 값이 도착하거나 갱신되면 폼에 반영한다. 늦게 도착한 이전 계획의 응답을 버리는 일은
+  // 쿼리 캐시가 맡는다 — `analyses` 는 언제나 현재 `scheduleId` 의 값이다.
   useEffect(() => {
-    if (scheduleId == null) return;
-
-    let isStale = false;
-    void fetchAnalyses(scheduleId).then((results) => {
-      if (!isStale && results) applyResults(results);
-    });
-    return () => { isStale = true; };
-  }, [scheduleId, fetchAnalyses, applyResults]);
+    applyResults(analyses);
+  }, [analyses, applyResults]);
 
   // 검증 대상은 실험실 입력값이 바뀐 행뿐이다 — 채취시각만 고친 행까지 넘기면
   // 분석값을 아직 넣지 않았다는 이유로 시각 저장이 막힌다.

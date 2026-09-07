@@ -1,8 +1,9 @@
-import { useAsyncAction } from "@shared/model";
+import { useEntityMutation } from "@shared/model";
 import { unwrapMessage } from "@shared/api";
 import type { AnalysisResult, SamplingTimesSave } from "./types";
 import { scheduleApi } from "../api/api";
 import { toAnalysisResults, toSaveSamplingTimesRequest } from "../api/mapper";
+import { scheduleKeys } from "./query-keys";
 
 /**
  * 성적서 항목별 채취시간을 일괄 저장한다.
@@ -12,12 +13,12 @@ import { toAnalysisResults, toSaveSamplingTimesRequest } from "../api/mapper";
  * 응답은 이 계획의 측정항목 전체를 성적서 표기 순서로 담는다.
  */
 export const useSaveSamplingTimesAction = () => {
-  const { run, isLoading, error } = useAsyncAction(async (scheduleId: number, times: SamplingTimesSave,): Promise<AnalysisResult[]> => {
+  const { run, isLoading, error } = useEntityMutation(async (scheduleId: number, times: SamplingTimesSave,): Promise<AnalysisResult[]> => {
     const result = unwrapMessage(await scheduleApi.saveSamplingTimes(
       scheduleId, toSaveSamplingTimesRequest(times),
     ));
     return toAnalysisResults(result);
-  });
+  }, { invalidateKeys: [scheduleKeys.all] });
 
   return { saveSamplingTimes: run, isLoading, error };
 };

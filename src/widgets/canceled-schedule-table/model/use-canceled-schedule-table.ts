@@ -11,8 +11,8 @@ import { toCanceledScheduleRows } from './mapper';
 import type { CanceledScheduleTableRow } from './types';
 
 export const useCanceledScheduleTable = () => {
-  const { data, isLoading, error, refetch } = useCanceledSchedules();
-  const { handleDelete, isLoading: isDeleting } = useDeleteSchedule({ onSuccess: refetch });
+  const { data, isLoading, error } = useCanceledSchedules();
+  const { handleDelete, isLoading: isDeleting } = useDeleteSchedule();
 
   const tableData = useMemo(() => data.map(toCanceledScheduleRows), [data]);
 

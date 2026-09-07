@@ -103,33 +103,43 @@ slice-name/
 
 ## 데이터 흐름 패턴
 
+> **서버 상태는 `@tanstack/react-query` 가 소유한다.** 조회 결과는 쿼리 캐시에 담기고,
+> 갱신은 mutation 의 키 무효화로 전파된다. 규약은
+> [src/entities/CLAUDE.md](./src/entities/CLAUDE.md) 의 "훅 패턴" 참조.
+
 ### 데이터 조회 (테이블 표시)
 
 ```
-shared/api (axios)
+shared/api (axios) + shared/api/query-client (캐시·재시도 정책)
   → entities/*/api (도메인 API 호출)
-  → entities/*/model (useXxx 훅 — 데이터 페칭)
+  → entities/*/model/query-keys (쿼리 키)
+  → entities/*/model (useXxx 훅 — useEntityQuery 어댑터)
   → widgets/*/model/mapper (Entity → TableRow 변환)
   → widgets/*/ui (테이블 렌더링)
 ```
 
-### 데이터 등록 (폼 제출)
+같은 키를 여러 슬라이스에서 구독해도 **요청은 한 번만** 나간다(중복 요청 합치기).
+
+### 데이터 등록·수정·삭제 (폼 제출)
 
 ```
 features/*/ui (폼 입력)
-  → features/*/model (폼 상태, 검증, 제출 로직)
-  → features/*/model/mapper 또는 features/*/lib/mapper (Form → Request DTO 변환)
-  → entities/*/api (API 호출)
-```
-
-### 데이터 수정/삭제 (폼 제출)
-
-```
-features/*/ui (수정/삭제 폼 입력)
-  → features/*/model (폼 상태, 제출·삭제 로직)
-  → features/*/model/mapper (Form → UpdateDTO 변환)
-  → entities/*/model (useXxxAction 훅 — isLoading/error 관리)
+  → features/*/model (폼 상태, 검증, 제출 로직, toast·모달 닫기)
+  → features/*/model/mapper (Form → 도메인 입력 모델 변환)
+  → entities/*/model (useXxxAction 훅 — useEntityMutation 어댑터)
   → entities/*/api (도메인 API 호출)
+  → 성공 시 자기 도메인 키 무효화 → 그 키를 구독하는 화면이 저절로 갱신된다
+```
+
+**feature 는 목록을 다시 읽지 않는다.** 예전의 `onSuccess={refetch}` 배선은 없어졌다.
+슬라이스를 넘는 갱신(의뢰기관 → 사업장)만 page 가 콜백으로 잇는다.
+
+### 저장 결과를 그 자리에서 대조해야 할 때
+
+```
+features/save-schedule-sheets (409 충돌 복구)
+  → entities/schedule (useFetchScheduleDetail — queryClient.fetchQuery)
+  → 선언형 훅과 같은 쿼리 정의를 공유하므로 같은 캐시를 본다
 ```
 
 ### 상수/레이블 사용

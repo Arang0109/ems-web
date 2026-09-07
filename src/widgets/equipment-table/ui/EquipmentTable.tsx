@@ -13,10 +13,9 @@ import { Panel } from '@shared/ui/cards';
 
 interface Props {
   type: EquipType;
-  onSuccess?: () => void;
 }
 
-export const EquipmentTable = ({ type, onSuccess }: Props) => {
+export const EquipmentTable = ({ type }: Props) => {
   const {
     table,
 
@@ -31,8 +30,8 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading, error, refetch,
-  } = useEquipmentTable({ type, onSuccess });
+    isLoading, error,
+  } = useEquipmentTable({ type });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const registerFormKey = useRemountKey(registerModalOpen);
@@ -52,7 +51,6 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
             defaultType={type}
-            onSuccess={refetch}
           />
         </div>
       </header>
@@ -71,7 +69,6 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         equipment={detailEquipment}
-        onSuccess={refetch}
         onOpenInspectionHistory={handleOpenInspectionHistory}
       />
 
@@ -83,7 +80,6 @@ export const EquipmentTable = ({ type, onSuccess }: Props) => {
           equipmentId={detailEquipment?.id ?? null}
           equipmentName={detailEquipment?.equipmentName ?? ''}
           type={inspectionType}
-          onSuccess={refetch}
         />
       )}
     </Panel>

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useParams } from "react-router";
 
 import { useContractDetail } from "@entities/contract";
@@ -9,11 +8,9 @@ import { Panel } from "@shared/ui/cards";
 
 export const ContractDetailPage = () => {
   const { contractId } = useParams<{ contractId: string }>();
-  const { data, isLoading: loading, error, fetchContract } = useContractDetail();
-
-  useEffect(() => {
-    if (contractId) fetchContract(Number(contractId));
-  }, [contractId, fetchContract]);
+  const { data, isLoading: loading, error } = useContractDetail(
+    contractId ? Number(contractId) : null,
+  );
 
   return (
     <PageLayout

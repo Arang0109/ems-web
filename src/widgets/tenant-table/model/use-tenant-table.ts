@@ -17,28 +17,20 @@ import { useTableState } from '@shared/model';
 
 import { TABLE_PAGE_SIZE } from "@shared/config";
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-export const useTenantTable = ({ onSuccess }: Props) => {
+export const useTenantTable = () => {
   const [provisionModalOpen, setProvisionModalOpen] = useState(false);
 
   const {
     sorting, setSorting,
     globalFilter, setGlobalFilter,
     pagination, setPagination } = useTableState({ pageSize: TABLE_PAGE_SIZE.COMPACT });
-  const { data, isLoading: loading, error, refetch: tenantRefetch } = useTenants();
+  const { data, isLoading: loading, error } = useTenants();
 
   const tableData = useMemo(
     () => data?.map(toTenantRows),
     [data]
   );
 
-  const refetch = () => {
-    tenantRefetch();
-    onSuccess?.();
-  }
 
   const table = useReactTable({
     columns: defaultColumns,
@@ -63,6 +55,6 @@ export const useTenantTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading: loading, error, refetch,
+    isLoading: loading, error,
   }
 }

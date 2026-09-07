@@ -1,25 +1,23 @@
-import { useEffect } from 'react';
-
 import { useStackDetail } from '@entities/stack';
 import { useStackPollutants } from '@entities/stack-pollutant';
 
 import { toStackProfile, toMeasurementProfiles } from './mapper';
 
 export const useStackProfile = (stackId: string | undefined) => {
-  const { data, isLoading: loading, error, fetchStack } = useStackDetail();
-  const { data: measurements, isLoading: measurementsLoading, fetchStackPollutants } = useStackPollutants();
-  const { stack, preventions, facilities } = data ?? {};
+  const id = stackId ? Number(stackId) : null;
 
-  useEffect(() => {
-    if (!stackId) return;
-    const id = Number(stackId);
-    fetchStack(id);
-    fetchStackPollutants(id);
-  }, [stackId, fetchStack, fetchStackPollutants]);
+  const { data, isLoading: loading, error, refetch: refetchStack } = useStackDetail(id);
+  const {
+    data: measurements,
+    isLoading: measurementsLoading,
+    refetch: refetchStackPollutants,
+  } = useStackPollutants(id, { enabled: id != null });
+
+  const { stack, preventions, facilities } = data ?? {};
 
   return {
     stack: stack ?? null,
-    stackId: stackId ? Number(stackId) : null,
+    stackId: id,
     stackProfile: toStackProfile(stack as NonNullable<typeof stack>),
     facilities: facilities ?? [],
     preventions: preventions ?? [],
@@ -28,11 +26,10 @@ export const useStackProfile = (stackId: string | undefined) => {
     stackPollutants: measurements,
     isLoading: loading || measurementsLoading,
     error,
+    // 상세와 측정항목은 같은 측정지점을 두 쿼리로 나눠 보므로 함께 무효화한다.
     refetch: () => {
-      if (!stackId) return;
-      const id = Number(stackId);
-      fetchStack(id);
-      fetchStackPollutants(id);
+      refetchStack();
+      refetchStackPollutants();
     },
   };
 }

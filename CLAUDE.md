@@ -20,6 +20,7 @@
 | 영역 | 라이브러리 |
 |------|-----------|
 | 라우팅 | `react-router` / `react-router-dom` 7 |
+| 서버 상태 | `@tanstack/react-query` 5 (+ `@tanstack/react-query-devtools`) |
 | 테이블 | `@tanstack/react-table` 8 |
 | 차트 | `recharts` 3 (+ `@recharts/devtools`) |
 | UI 동작 레이어 | `@base-ui/react` (shadcn/ui 컴포넌트의 기반) |
@@ -33,9 +34,14 @@
 | HTTP | `axios` |
 | 테스트 | `vitest` |
 
-> **상태관리·폼 라이브러리를 쓰지 않는 것이 의도된 결정이다.**
-> redux/zustand/react-query/react-hook-form/zod 를 도입하지 않는다.
-> 전역 상태는 `entities/auth` 의 Context 하나뿐이고, 폼은 `useState` + 슬라이스별
+> **서버 상태는 react-query 가, 클라이언트 상태는 직접 관리한다.**
+>
+> 서버에서 온 데이터(목록·상세·CRUD)는 `@tanstack/react-query` 가 소유한다 —
+> 캐시·중복 요청 합치기·무효화를 손으로 짜지 않는다. 자세한 규약은
+> [src/entities/CLAUDE.md](./src/entities/CLAUDE.md) 의 "훅 패턴" 참조.
+>
+> 그 밖에는 여전히 라이브러리를 쓰지 않는다 — **redux/zustand/react-hook-form/zod 를 도입하지 않는다.**
+> 클라이언트 전역 상태는 `entities/auth` 의 Context 하나뿐이고, 폼은 `useState` + 슬라이스별
 > `model/validator.ts` 로 처리한다. 새 라이브러리 도입은 별도 합의 사항이다.
 
 ---

@@ -15,40 +15,42 @@ export const useRegisterSchedule = () => {
   const navigate = useNavigate();
   const { registerSchedule, isLoading } = useRegisterScheduleAction();
 
-  const {
-    clientOptions, workplaceOptions, stackOptions, teamOptions,
-    stackPollutants, stackPollutantsLoading,
-    fetchWorkplaces, fetchStacks, fetchStackPollutants,
-  } = useScheduleFormOptions();
-
   const [form, setForm] = useState<ScheduleRegisterForm>(getDefaultScheduleRegisterForm());
   const [fieldErrors, setFieldErrors] =
     useState<Partial<Record<keyof ScheduleRegisterForm, string>>>();
+
+  // 하위 목록은 선택값을 따라온다 — 핸들러가 조회를 직접 부르지 않는다.
+  const {
+    clientOptions, workplaceOptions, stackOptions, teamOptions,
+    stackPollutants, stackPollutantsLoading,
+  } = useScheduleFormOptions({
+    clientId: form.clientId,
+    workplaceId: form.workplaceId,
+    stackId: form.stackId,
+  });
 
   const handleChange = (name: keyof ScheduleRegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  // 거래처 변경 → 사업장 목록 재조회, 하위(사업장·측정시설·측정항목) 선택 초기화
+  // 거래처 변경 → 하위(사업장·측정시설·측정항목) 선택 초기화.
+  // 사업장 목록은 form.clientId 를 따라 저절로 갱신된다.
   const handleClientChange = (value: string) => {
     setForm((prev) => ({ ...prev, clientId: value, workplaceId: "", stackId: "", pollutantIds: [] }));
     setFieldErrors((prev) => ({ ...prev, clientId: undefined, workplaceId: undefined, stackId: undefined }));
-    fetchWorkplaces(value ? Number(value) : null);
   };
 
-  // 사업장 변경 → 측정시설 목록 재조회, 측정시설·측정항목 선택 초기화
+  // 사업장 변경 → 측정시설·측정항목 선택 초기화
   const handleWorkplaceChange = (value: string) => {
     setForm((prev) => ({ ...prev, workplaceId: value, stackId: "", pollutantIds: [] }));
     setFieldErrors((prev) => ({ ...prev, workplaceId: undefined, stackId: undefined }));
-    fetchStacks(value ? Number(value) : null);
   };
 
-  // 측정시설 변경 → 해당 시설의 측정항목 목록 재조회, 측정항목 선택 초기화
+  // 측정시설 변경 → 측정항목 선택 초기화
   const handleStackChange = (value: string) => {
     setForm((prev) => ({ ...prev, stackId: value, pollutantIds: [] }));
     setFieldErrors((prev) => ({ ...prev, stackId: undefined }));
-    fetchStackPollutants(value ? Number(value) : null);
   };
 
   // 측정항목 토글 (다중선택)

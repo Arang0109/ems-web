@@ -202,7 +202,8 @@ export const validateClientFields = (form: ClientRegisterForm) => {
 - Form 유효성 검증을 수행한다.
 - Form → Entity 도메인 입력 모델로 변환한다.
 - Entity action hook을 호출한다.
-- 성공 시 form reset, modal close, refetch, toast, navigate 등을 처리한다.
+- 성공 시 form reset, modal close, toast, navigate 등을 처리한다.
+  **목록 재조회는 하지 않는다** — 엔티티 액션 훅의 무효화가 담당한다.
 - API DTO를 직접 생성하지 않는다.
 
 #### fieldErrors 패턴
@@ -306,9 +307,8 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 |--------|------|
 | `selectedXxx` | 현재 선택된 항목 |
 | `relatedData` | 선택에 연동되어 페칭된 하위 데이터 |
-| `handleSelectXxxRow(item)` | 선택 핸들러, 연쇄 페칭 포함 |
+| `handleSelectXxxRow(item)` | 선택 핸들러. **선택 state 만 바꾼다** — 하위 목록은 선택값을 인자로 받는 조회 훅이 따라온다 |
 | `clearXxxSelection()` | 선택 초기화 (필요 시) |
-| `refetchRelated()` | 연동 데이터 재조회 |
 | `loading`, `error` | 페칭 상태 |
 
 ---

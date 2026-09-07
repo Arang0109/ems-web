@@ -25,7 +25,7 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading, error, refetch
+    isLoading, error, onSuccess: handleSuccess
   } = useClientTable({ onRowClick, onSuccess });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
@@ -43,7 +43,7 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
               key={registerFormKey}
               open={registerModalOpen}
               onOpenChange={setRegisterModalOpen}
-              onSuccess={refetch}
+              onSuccess={handleSuccess}
             />
           </>
         }
@@ -58,7 +58,7 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         client={detailClient}
-        onSuccess={refetch}
+        onSuccess={handleSuccess}
       />
     </>
   );

@@ -373,7 +373,9 @@ model/
     ├── use-numeric-input.ts # 숫자 입력 동작 계층 (NumericField·InputGroup 이 공유)
     ├── use-grid-navigation.ts # 입력 표의 셀 간 키보드 이동 (InputTable·전치 표가 공유)
     ├── use-table-state.ts  # 정렬·필터·페이지네이션 state
-    └── use-data-table.ts   # useTableState + useReactTable 배선 (테이블 위젯 표준)
+    ├── use-data-table.ts   # useTableState + useReactTable 배선 (테이블 위젯 표준)
+    ├── use-entity-query.ts    # useQuery 어댑터 — 엔티티 조회 훅의 공통 배선
+    └── use-entity-mutation.ts # useMutation 어댑터 — 엔티티 액션 훅의 공통 배선
 ```
 
 ---
@@ -504,6 +506,7 @@ export const contractStatusOptions =
 api/
 ├── axios-public.ts   # 인증 불필요 요청용 (로그인 등)
 ├── axios-private.ts  # 인증 토큰 필요 요청용 (자동 헤더 추가)
+├── query-client.ts   # QueryClient 인스턴스 + 기본 옵션(재시도 정책이 핵심)
 ├── blob-error.ts     # blob 응답의 에러 본문 읽기 (readBlobErrorMessage)
 ├── api-error.ts      # 상태 코드를 보존하는 ApiError + unwrap (409 구분이 필요한 엔드포인트 전용)
 ├── index.ts

@@ -6,7 +6,7 @@ import type {
 } from "@entities/schedule";
 import {
   calcSheetPreview, calcRequiredPointCount, subscribeScheduleStream,
-  useSaveSheetsAction, useScheduleDetail,
+  useSaveSheetsAction, useFetchScheduleDetail,
 } from "@entities/schedule";
 import { useAuth } from "@entities/auth";
 import { ApiError } from "@shared/api";
@@ -70,9 +70,10 @@ export const useSaveSheets = ({
       team: snapshot?.team ?? null,
     });
 
-  // 충돌 복구 전용 재조회. 화면 트리를 소유한 위젯의 조회와 인스턴스를 나눠야
-  // 재조회 로딩이 입력 중인 폼을 건드리지 않는다.
-  const { fetchSchedule } = useScheduleDetail();
+  // 충돌 복구·원격 저장 동기화용 재조회. 값을 그 자리에서 대조해야 하므로 명령형이다.
+  // 위젯의 조회와 같은 캐시를 쓰지만 구독이 아니라 1회 조회라, 재조회 로딩이
+  // 입력 중인 폼의 isLoading 을 건드리지 않는다.
+  const fetchSchedule = useFetchScheduleDetail();
   const confirm = useConfirm();
   // 내 저장이 알림으로 되돌아온 메아리를 걸러내는 데 쓴다.
   const { user } = useAuth();

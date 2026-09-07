@@ -1,4 +1,4 @@
-import { useAsyncAction } from "@shared/model";
+import { useEntityMutation } from "@shared/model";
 import { readBlobErrorMessage, ApiResponseError } from "@shared/api";
 import { parseAttachmentFilename } from "@shared/lib";
 import { documentApi } from "../api/api";
@@ -21,7 +21,7 @@ interface DownloadParams {
 // 최신본/버전별 다운로드는 응답 처리가 완전히 동일해 한 훅에서 versionNo로 분기한다.
 // 다운로드 트리거(DOM 조작)는 UI 후처리이므로 여기서 하지 않고 Blob과 파일명만 반환한다.
 export const useDownloadDocumentAction = () => {
-  const { run, isLoading, error } = useAsyncAction(async ({
+  const { run, isLoading, error } = useEntityMutation(async ({
     documentId,
     versionNo,
     fallbackFilename,
@@ -47,7 +47,7 @@ export const useDownloadDocumentAction = () => {
         ?? fallbackFilename
         ?? `문서-${documentId}`,
     };
-  }, "문서 다운로드에 실패했습니다.");
+  }, { fallbackMessage: "문서 다운로드에 실패했습니다." });
 
   return { downloadDocument: run, isLoading, error };
 };

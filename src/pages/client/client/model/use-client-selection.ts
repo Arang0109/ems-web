@@ -9,20 +9,16 @@ interface Props {
 
 export const useClientSelection = ({ onChange }: Props) => {
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
-  const { data: workplaces, fetchWorkplaces, isLoading: loading, error} = useWorkplaces();
 
-  const { data: selectedClient } = useClientDetail({
-    id: selectedClientId,
-  });
+  // 선택된 의뢰기관이 바뀌면 사업장 목록이 따라온다 — 명시적 트리거가 필요 없다.
+  const { data: workplaces, isLoading, error, refetch: refetchWorkplaces } =
+    useWorkplaces(selectedClientId, { enabled: selectedClientId != null });
+
+  const { data: selectedClient } = useClientDetail({ id: selectedClientId });
 
   const handleSelectClientRow = (clientId: number) => {
     setSelectedClientId(clientId);
     onChange?.();
-    fetchWorkplaces(clientId);
-  };
-
-  const refetchWorkplaces = () => {
-    fetchWorkplaces(selectedClientId);
   };
 
   return {
@@ -31,6 +27,6 @@ export const useClientSelection = ({ onChange }: Props) => {
     handleSelectClientRow,
     refetchWorkplaces,
 
-    isLoading: loading, error,
+    isLoading, error,
   };
 };

@@ -1,16 +1,24 @@
-import { useLazyFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 
 import { workplaceApi } from "../api/api";
 import { toWorkplaceListItems } from "../api/mapper";
+import { workplaceKeys } from "./query-keys";
 import type { WorkplaceListItem } from "./types";
 
-/** 타입 B(수동 호출): 의뢰기관을 고르면 그 기관의 사업장 목록을 받아온다. */
-export const useWorkplaces = () => {
-  const { data, isLoading, error, fetch } = useLazyFetch(
-    async (clientId: number | null) => toWorkplaceListItems((await workplaceApi.getWorkplaces(clientId)).data),
-    [] as WorkplaceListItem[],
-    { resetOnFetch: true },
-  );
+interface Options {
+  /**
+   * false 면 조회하지 않는다. **`clientId: null` 과 혼동하지 말 것** —
+   * null 은 "필터 없이 전체", `enabled: false` 는 "아직 고르지 않아 조회할 때가 아님"이다.
+   */
+  enabled?: boolean;
+}
 
-  return { data, isLoading, error, fetchWorkplaces: fetch };
-};
+/** 사업장 목록. `clientId` 를 주면 그 의뢰기관의 것만, null 이면 전체를 받는다. */
+export const useWorkplaces = (clientId: number | null, options?: Options) =>
+  useEntityQuery<WorkplaceListItem[]>({
+    queryKey: workplaceKeys.list(clientId),
+    queryFn: async () => toWorkplaceListItems((await workplaceApi.getWorkplaces(clientId)).data),
+    initialData: [],
+    enabled: options?.enabled ?? true,
+    invalidateKey: workplaceKeys.lists(),
+  });

@@ -27,3 +27,5 @@ export { useDeleteEquipmentAction } from './model/use-delete-equipment-action';
 export { useChangeEquipmentStatusAction } from './model/use-change-equipment-status-action';
 export { useInspectionRecords } from './model/use-inspection-records';
 export { useRecordInspectionAction } from './model/use-record-inspection-action';
+
+export { equipmentKeys } from "./model/query-keys";

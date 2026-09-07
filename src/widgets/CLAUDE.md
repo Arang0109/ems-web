@@ -116,7 +116,7 @@ export const useClientTable = ({ onRowClick }: Props) => {
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const [detailClient, setDetailClient] = useState<Client | null>(null);
 
-  const { data, loading, error, refetch } = useClients();
+  const { data, isLoading, error } = useClients();
   const tableData = useMemo(() => data?.map(toClientRows), [data]);
 
   const { table, globalFilter, setGlobalFilter } = useDataTable({
@@ -126,7 +126,7 @@ export const useClientTable = ({ onRowClick }: Props) => {
     onViewDetail: (row) => { /* 모달 열기 또는 navigate */ },
   });
 
-  return { table, loading, error, refetch, globalFilter, setGlobalFilter, ... };
+  return { table, isLoading, error, globalFilter, setGlobalFilter, ... };
 };
 ```
 
@@ -145,7 +145,7 @@ export const useClientTable = ({ onRowClick }: Props) => {
 // ❌ 인자를 버리고 외부 선택 상태에 의존
 onViewDetail: () => setUpdateModalOpen(true)
 
-// ✅ 행의 id 를 보관하고 목록 원본에서 파생 (refetch 후에도 최신 값을 따른다)
+// ✅ 행의 id 를 보관하고 목록 원본에서 파생 (목록 캐시가 갱신된 뒤에도 최신 값을 따른다)
 const [detailId, setDetailId] = useState<number | null>(null);
 const detail = useMemo(() => data.find((x) => x.id === detailId) ?? null, [data, detailId]);
 onViewDetail: (row) => { setDetailId(row.id); setUpdateModalOpen(true); }
@@ -251,21 +251,38 @@ Widget은 "무엇을 해야 하는지" 알아서는 안 되며, 부모(page)가 
 <ClientTable onSuccess={refetchWorkplaces} />
 ```
 
-### 성공 콜백은 `onSuccess`로 통일
+> 이 prop 은 **슬라이스를 넘는 갱신에만** 쓴다 — 아래 "갱신 배선을 두지 않는다" 참조.
 
-CRUD 폼 다이얼로그를 포함하는 테이블 Widget의 성공 콜백 prop은 `onSuccess?: () => void`로 통일한다.
+### 갱신 배선을 두지 않는다 — 무효화는 mutation 이 한다
+
+**등록·수정·삭제 후 목록을 다시 읽는 배선을 Widget 에 만들지 않는다.** 엔티티 액션 훅이
+성공 시 자기 도메인 키를 무효화하므로, 같은 키를 구독하는 표는 저절로 갱신된다.
+예전의 `onSuccess={refetch}` 프롭 드릴링과 `const refetch = () => { dataRefetch(); onSuccess?.(); }`
+재정의는 **전부 사라졌다.**
 
 ```tsx
-interface Props {
-  onSuccess?: () => void; // 등록/수정/삭제 성공 시 부모가 원하는 동작 주입
-}
+// ❌ 예전 배선 — mutation 이 이미 무효화한다
+<RegisterClientForm onSuccess={refetch} />
+
+// ✅ 모달 닫기는 폼이 소유하고, 목록 갱신은 아무도 배선하지 않는다
+<RegisterClientForm open={open} onOpenChange={setOpen} />
 ```
 
-Widget 내부의 `refetch`에서 `onSuccess`를 함께 호출한다.
+#### 예외 — 슬라이스를 넘는 갱신만 `onSuccess` 로 잇는다
 
-```ts
-const refetch = () => {
-  dataRefetch();
-  onSuccess?.();
-};
+엔티티는 다른 슬라이스의 키를 무효화할 수 없다(같은 레이어 cross-import 금지).
+슬라이스를 넘는 갱신은 **조합하는 page** 가 콜백으로 잇는다.
+
+```tsx
+// 의뢰기관 변경이 사업장 목록에 영향을 준다 — client 는 workplace 키를 모른다
+<ClientTable onRowClick={onSelectClient} onSuccess={refetchWorkplaces} />
 ```
+
+현재 이 예외는 `ClientManagementPage` 의 의뢰기관 → 사업장 하나뿐이다.
+`onSuccess` prop 은 그 필요가 있는 Widget 에만 둔다 — 습관적으로 달지 않는다.
+
+#### 상세 화면의 `onRefetch` 는 남는다
+
+`stack-profile`·`schedule-profile` 이 자식에게 내려보내는 `onRefetch` 는 유지한다.
+순서 변경(`useReorderFacilities` 등)이 **서버에 거절됐을 때** 실제 순서를 다시 받는 경로이며,
+그 mutation 들은 의도적으로 무효화하지 않기 때문이다(재조회가 아코디언을 닫는다).

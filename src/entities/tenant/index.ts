@@ -8,3 +8,5 @@ export type {
 
 export { useTenants } from './model/use-tenants';
 export { useProvisionTenantAction } from './model/use-provision-tenant-action';
+
+export { tenantKeys } from "./model/query-keys";

@@ -10,11 +10,7 @@ import { BasicTable, TableFooterBar, TablePanel } from '@shared/ui/table';
 import { FilterSelect, Search } from '@shared/ui/form';
 import { useRemountKey } from '@shared/model';
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-export const PollutantCatalogTable = ({ onSuccess }: Props) => {
+export const PollutantCatalogTable = () => {
   const {
     table,
 
@@ -27,8 +23,8 @@ export const PollutantCatalogTable = ({ onSuccess }: Props) => {
     globalFilter, setGlobalFilter,
     field, setField, fieldOptions,
 
-    isLoading, error, refetch,
-  } = usePollutantCatalogTable({ onSuccess });
+    isLoading, error,
+  } = usePollutantCatalogTable();
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const registerFormKey = useRemountKey(registerModalOpen);
@@ -53,7 +49,6 @@ export const PollutantCatalogTable = ({ onSuccess }: Props) => {
               key={registerFormKey}
               open={registerModalOpen}
               onOpenChange={setRegisterModalOpen}
-              onSuccess={refetch}
             />
           </>
         }
@@ -73,7 +68,6 @@ export const PollutantCatalogTable = ({ onSuccess }: Props) => {
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         catalog={detailCatalog}
-        onSuccess={refetch}
       />
     </>
   );

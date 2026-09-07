@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useStacks } from '@entities/stack';
@@ -12,12 +12,8 @@ import { TABLE_PAGE_SIZE } from "@shared/config";
 
 export const useStackListTable = () => {
   const navigate = useNavigate();
-  const { data, isLoading, error, fetchStacks } = useStacks();
-
-  // fetchStacks 는 참조가 고정돼 있어(useLazyFetch) 의존성에 넣어도 재조회 루프가 생기지 않는다.
-  useEffect(() => {
-    fetchStacks(null);
-  }, [fetchStacks]);
+  // null 은 필터 없는 전체 목록이다.
+  const { data, isLoading, error } = useStacks(null);
 
   const tableData = useMemo(() => data.map(toStackRows), [data]);
 

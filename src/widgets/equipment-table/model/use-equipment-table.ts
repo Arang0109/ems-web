@@ -13,10 +13,9 @@ import { TABLE_PAGE_SIZE } from "@shared/config";
 
 interface Props {
   type: EquipType;
-  onSuccess?: () => void;
 }
 
-export const useEquipmentTable = ({ type, onSuccess }: Props) => {
+export const useEquipmentTable = ({ type }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   // 검사 이력은 상세 모달의 검사 행에서 열리며, 어느 검사 종류인지가 함께 필요하다.
@@ -25,7 +24,7 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
   /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailEquipmentId, setDetailEquipmentId] = useState<string | null>(null);
 
-  const { data, isLoading: loading, error, refetch: equipmentRefetch } = useEquipments(type);
+  const { data, isLoading: loading, error } = useEquipments(type);
 
   const tableData = useMemo(
     () => data?.map(toEquipmentRows),
@@ -33,7 +32,7 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
   );
 
   // Row 는 표시용 포맷 값이라 폼 초기값으로 쓸 수 없다. 목록 원본에서 같은 id 를 찾는다.
-  // id 만 보관하고 파생시켜야 검사 이력 등록 등으로 refetch 된 뒤에도 최신 값을 따른다.
+  // id 만 보관하고 파생시켜야 검사 이력 등록 등으로 목록 캐시가 갱신된 뒤에도 최신 값을 따른다.
   const detailEquipment = useMemo(
     () => data.find((equipment) => equipment.id === detailEquipmentId) ?? null,
     [data, detailEquipmentId],
@@ -49,10 +48,7 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
     setInspectionModalOpen(true);
   };
 
-  const refetch = () => {
-    equipmentRefetch();
-    onSuccess?.();
-  };
+;
 
   const { table, globalFilter, setGlobalFilter } = useDataTable<EquipmentTableRow>({
     data: tableData,
@@ -75,6 +71,6 @@ export const useEquipmentTable = ({ type, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading: loading, error, refetch,
+    isLoading: loading, error,
   };
 };
