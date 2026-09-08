@@ -18,6 +18,8 @@ export type ScheduleListItem = ScheduleListResponse;
 export type ScheduleCreate = {
   stackId: number;
   teamId: number;
+  mentorId: number | null;
+  menteeId: number | null;
   measurementField: MeasurementField;
   sampledAt: string;              // 서버 LocalDate ("yyyy-MM-dd")
   schedulePurpose: string | null;

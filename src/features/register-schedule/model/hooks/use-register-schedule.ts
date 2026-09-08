@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { ScheduleRegisterForm } from "../types";
@@ -19,16 +19,35 @@ export const useRegisterSchedule = () => {
   const [fieldErrors, setFieldErrors] =
     useState<Partial<Record<keyof ScheduleRegisterForm, string>>>();
 
+  /** 팀 상세로 사수·부사수를 이미 채운 팀. 같은 팀을 두 번 덮어쓰지 않기 위한 표식이다. */
+  const appliedTeamIdRef = useRef("");
+
   // 하위 목록은 선택값을 따라온다 — 핸들러가 조회를 직접 부르지 않는다.
   const {
-    clientOptions, workplaceOptions, stackOptions, teamOptions, teamDetail,
-    stackPollutants, stackPollutantsLoading,
+    clientOptions, workplaceOptions, stackOptions, teamOptions, userOptions,
+    teamDetail, pollutantGroups, stackPollutantsLoading,
   } = useScheduleFormOptions({
     clientId: form.clientId,
     workplaceId: form.workplaceId,
     stackId: form.stackId,
     teamId: form.teamId,
   });
+
+  // 팀 상세는 조회가 끝난 뒤에야 도착하므로 핸들러에서 바로 넣을 수 없다 —
+  // 도착한 상세가 **지금 고른 팀**의 것일 때 한 번만 채우고, 그 뒤 사용자가 고친 값은
+  // 배경 갱신이 다시 덮어쓰지 않게 적용한 팀을 기억해 둔다.
+  useEffect(() => {
+    if (!teamDetail || String(teamDetail.id) !== form.teamId) return;
+    if (appliedTeamIdRef.current === form.teamId) return;
+
+    appliedTeamIdRef.current = form.teamId;
+    setForm((prev) => ({
+      ...prev,
+      mentorId: String(teamDetail.mentorUserId),
+      menteeId: String(teamDetail.menteeUserId),
+    }));
+    setFieldErrors((prev) => ({ ...prev, mentorId: undefined, menteeId: undefined }));
+  }, [teamDetail, form.teamId]);
 
   const handleChange = (name: keyof ScheduleRegisterForm, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -54,22 +73,17 @@ export const useRegisterSchedule = () => {
     setFieldErrors((prev) => ({ ...prev, stackId: undefined }));
   };
 
-  // 팀 변경 → 담당자·보조자는 다시 팀 기본값을 따른다(null).
-  // teamDetail 은 form.teamId 를 따라오므로 여기서 읽으면 직전 팀의 값이다 — 읽지 않는다.
+  // 측정 팀 변경 → 사수·부사수 선택 초기화.
+  // 팀에 등록된 사수·부사수는 상세 조회가 끝난 뒤 아래 effect 가 채운다.
   const handleTeamChange = (value: string) => {
-    setForm((prev) => ({ ...prev, teamId: value, mentorName: null, menteeName: null }));
+    appliedTeamIdRef.current = "";
+    setForm((prev) => ({ ...prev, teamId: value, mentorId: "", menteeId: "" }));
     setFieldErrors((prev) => ({ ...prev, teamId: undefined }));
   };
 
-  // 측정항목 토글 (다중선택)
-  const handleTogglePollutant = (pollutantId: number) => {
-    const key = String(pollutantId);
-    setForm((prev) => ({
-      ...prev,
-      pollutantIds: prev.pollutantIds.includes(key)
-        ? prev.pollutantIds.filter((id) => id !== key)
-        : [...prev.pollutantIds, key],
-    }));
+  // 측정항목(다중선택) — MultiSelect 가 선택 결과 배열을 통째로 준다.
+  const handlePollutantsChange = (pollutantIds: string[]) => {
+    setForm((prev) => ({ ...prev, pollutantIds }));
     setFieldErrors((prev) => ({ ...prev, pollutantIds: undefined }));
   };
 
@@ -92,14 +106,8 @@ export const useRegisterSchedule = () => {
     }
   };
 
-  // 표시값은 팀 기본값 위에 사용자의 직접 입력이 덮이는 파생값이다 — 상태로 복제하지 않는다.
-  const mentorName = form.mentorName ?? teamDetail?.mentorName ?? "";
-  const menteeName = form.menteeName ?? teamDetail?.menteeName ?? "";
-
   return {
     form,
-    mentorName,
-    menteeName,
     fieldErrors,
     isLoading,
 
@@ -108,15 +116,16 @@ export const useRegisterSchedule = () => {
     handleWorkplaceChange,
     handleStackChange,
     handleTeamChange,
-    handleTogglePollutant,
+    handlePollutantsChange,
     handleSubmit,
 
     clientOptions,
     workplaceOptions,
     stackOptions,
     teamOptions,
+    userOptions,
 
-    stackPollutants,
+    pollutantGroups,
     stackPollutantsLoading,
   };
 };

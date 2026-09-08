@@ -5,6 +5,7 @@ export { Checkbox } from "./Checkbox";
 export { Textarea } from "./TextArea";
 export { HorizontalRadioGroup } from "./HorizontalRadioGroup";
 export { Select } from "./Select";
+export { MultiSelect } from "./MultiSelect";
 export { FilterSelect } from "./FilterSelect";
 export { FilterPopover } from "./FilterPopover";
 export { UnitField } from "./UnitField";

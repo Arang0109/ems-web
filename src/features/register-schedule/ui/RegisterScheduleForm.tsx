@@ -2,17 +2,14 @@ import { format } from "date-fns";
 
 import { useRegisterSchedule } from "../model/hooks/use-register-schedule";
 
-import { SectionTitle, DatePicker, InputGroup, Select, Checkbox, FieldGroup } from "@shared/ui/form";
+import { SectionTitle, DatePicker, InputGroup, Select, MultiSelect, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
 import { measurementFieldOptions, measurementTypeOptions } from "@shared/model";
-import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
 import { Send } from "lucide-react";
 
 export const RegisterScheduleForm = () => {
   const {
     form,
-    mentorName,
-    menteeName,
     fieldErrors,
     isLoading,
 
@@ -21,7 +18,7 @@ export const RegisterScheduleForm = () => {
     handleWorkplaceChange,
     handleStackChange,
     handleTeamChange,
-    handleTogglePollutant,
+    handlePollutantsChange,
     handleSubmit,
 
     clientOptions,
@@ -29,8 +26,9 @@ export const RegisterScheduleForm = () => {
     stackOptions,
     teamOptions,
 
-    stackPollutants,
+    pollutantGroups,
     stackPollutantsLoading,
+    userOptions,
   } = useRegisterSchedule();
 
   return (
@@ -79,34 +77,20 @@ export const RegisterScheduleForm = () => {
           />
         </div>
 
-        {form.stackId && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <SectionTitle>측정항목</SectionTitle>
-              <span className="text-destructive">*</span>
-              {fieldErrors?.pollutantIds && (
-                <span className="text-caption text-destructive">{fieldErrors.pollutantIds}</span>
-              )}
-            </div>
-            {stackPollutantsLoading ? (
-              <p className="text-body-2 text-muted-foreground">측정항목을 불러오는 중...</p>
-            ) : stackPollutants.length === 0 ? (
-              <p className="text-body-2 text-muted-foreground">등록된 측정항목이 없습니다.</p>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1 rounded-nav border border-border p-4">
-                {stackPollutants.map((item) => (
-                  <Checkbox
-                    key={item.id}
-                    id={`pollutant-${item.id}`}
-                    checked={form.pollutantIds.includes(String(item.pollutant.id))}
-                    onChange={() => handleTogglePollutant(item.pollutant.id)}
-                    label={`${item.pollutant.nameKr} · ${MEASUREMENT_CYCLE_LABEL[item.pollutant.cycle]}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+        {/* 위 세 Select 와 같은 규약으로 둔다 — 조건부 마운트 대신 disabled 로 잠가
+            측정시설을 고를 때 폼 높이가 출렁이지 않게 한다. */}
+        <MultiSelect
+          id="pollutantIds"
+          label="측정항목"
+          placeholder={stackPollutantsLoading ? "측정항목을 불러오는 중..." : "측정항목 선택"}
+          emptyText="등록된 측정항목이 없습니다."
+          value={form.pollutantIds}
+          groups={pollutantGroups}
+          onValueChange={handlePollutantsChange}
+          errorMessage={fieldErrors?.pollutantIds}
+          disabled={!form.stackId || stackPollutantsLoading}
+          required
+        />
 
         <SectionTitle>측정 정보</SectionTitle>
 
@@ -160,19 +144,27 @@ export const RegisterScheduleForm = () => {
             errorMessage={fieldErrors?.teamId}
             required
           />
-          <InputGroup
-            id="mentorName"
+          <Select
+            id="mentorId"
+            searchable
             label="측정 사수"
-            placeholder="측정 사수"
-            value={mentorName}
-            onChange={(value) => handleChange("mentorName", value)}
+            placeholder="측정 사수 선택"
+            value={form.mentorId}
+            options={userOptions}
+            onValueChange={(value) => handleChange("mentorId", value ?? "")}
+            errorMessage={fieldErrors?.mentorId}
+            required
           />
-          <InputGroup
-            id="menteeName"
+          <Select
+            id="menteeId"
+            searchable
             label="측정 부사수"
-            placeholder="측정 부사수"
-            value={menteeName}
-            onChange={(value) => handleChange("menteeName", value)}
+            placeholder="측정 부사수 선택"
+            value={form.menteeId}
+            options={userOptions}
+            onValueChange={(value) => handleChange("menteeId", value ?? "")}
+            errorMessage={fieldErrors?.menteeId}
+            required
           />
         </div>
       </FieldGroup>
