@@ -7,11 +7,12 @@ const getStoredUser = (): AuthUser | null => {
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
-    // 팀 정보가 추가되기 전에 저장된 값에는 teamId/teamName 이 없다. 타입 단언이
+    // 나중에 추가된 필드(teamId/teamName, userId)는 옛 저장값에 없다. 타입 단언이
     // 거짓말하지 않도록 여기서 null 로 좁힌다 (재로그인하면 실제 값이 채워진다).
     const parsed = JSON.parse(raw) as Partial<AuthUser>;
     return {
       ...parsed,
+      userId: parsed.userId ?? null,
       teamId: parsed.teamId ?? null,
       teamName: parsed.teamName ?? null,
     } as AuthUser;

@@ -177,10 +177,26 @@ sub-domain/
 | `schedule` | `/schedule/register` | ScheduleRegisterPage | ProtectedRoute |
 | `schedule` | `/schedule/canceled` | CanceledSchedulePage | ProtectedRoute |
 | `schedule` | `/schedule/:scheduleId` | ScheduleDetailPage | ProtectedRoute |
+| `chat` | `/chat` | ChatPage | ProtectedRoute |
+| `chat` | `/chat/:roomId` | ChatPage | ProtectedRoute |
 | `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
 | `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
 | `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
 | `platform/pollutant-catalog` | `/platform/pollutant-catalog` | PlatformPollutantCatalogPage | **PlatformRoute** |
 
-> 단일 페이지 도메인(`equipment`, `staff`, `schedule`)은 sub-domain 폴더 없이
+> 단일 페이지 도메인(`equipment`, `staff`, `schedule`, `chat`)은 sub-domain 폴더 없이
 > 그룹 폴더 직하에 페이지를 두는 평면 배치를 허용한다. 페이지가 늘어나면 분리한다.
+
+### 화면 높이에 맞춰야 하는 페이지 — 라우트 `handle`
+
+채팅처럼 **스크롤이 페이지 안쪽에만 있어야 하는** 화면은 `MainLayout` 의 기본 규격
+(`min-h-screen` + 넉넉한 상하 여백)과 맞지 않는다. 그렇다고 페이지가 여백을 되돌리면
+"여백의 주인은 레이아웃"이라는 규칙이 깨지므로, **라우트가 규격을 선언하고 레이아웃이 읽는다.**
+
+```tsx
+<Route path="/chat" element={<ChatPage />} handle={CHAT_ROUTE_HANDLE} />  // { fill: true }
+```
+
+레이아웃 인스턴스는 하나로 둔다 — 별도 레이아웃 라우트를 만들면 사이드바가 새 트리로
+리마운트되어 펼쳐 둔 메뉴가 접히고 전환이 깜빡인다. 타입은
+`widgets/layouts/route-handle.ts` 의 `MainRouteHandle` 이다.

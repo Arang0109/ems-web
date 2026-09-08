@@ -43,7 +43,7 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `dialogs/` | `FormDialog`(폼 제출 모달), `StepFormDialog`(스텝 위저드 모달), `ConfirmProvider` + `useConfirm`(확인 다이얼로그), `useUnsavedChangesGuard`(미저장 이탈 방지). 앞의 둘은 비공개 `FormDialogShell` 위에 얹힌다. `DocumentViewerDialog`(고정폭 문서 뷰어)는 셸을 쓰지 않는다 — 아래 참조 |
 | `drawer/` | `Drawer` — 화면 가장자리에서 밀려 들어오는 오버레이(모바일 하단 바텀시트 / 데스크탑 사이드). 폼 제출 표면이 아니다 — 아래 참조 |
 | `feedback/` | EmptyText — 패널 안 한 줄 빈 상태·안내 문구 |
-| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`, `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(라벨+단위+완료체크), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
+| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`(단일 선택)+`MultiSelect`(칩형 다중 선택 — 아래 참조), `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(라벨+단위+완료체크), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
 | `layout/` | PageLayout(페이지 셸 — 뒤로가기+제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
 | `nav/` | `ChipNav`(가로 스크롤 pill 칩 — 섹션 바로가기), `StepNav`(스텝 위저드 인디케이터 — 번호·연결선·완료 상태) |
 | `links/` | Link |
@@ -159,6 +159,7 @@ const handleDelete = async () => {
 |------|-------|
 | 제출이 있는 폼 | `FormDialog` / `StepFormDialog` — 실수 방지 장치 3종이 필요하다 |
 | 뒤쪽 맥락을 남긴 채 고르거나 참조하는 표면 | `Drawer` |
+| 이미지 확대 | `ImageViewerDialog` — 화면 맞춤 ↔ 원본 크기 |
 | 고정폭 문서 뷰어 | `DocumentViewerDialog` |
 | 트리거에 붙는 짧은 부유 패널 | `Popover` |
 
@@ -236,6 +237,27 @@ const handleDelete = async () => {
 > `min >= 0` 이면 버튼이 빠지고 `-` 입력도 받지 않는다.
 > **음수가 성립하지 않는 항목(무게·부피·유량·농도·시간·율)에는 호출부에서 `min={0}` 을 명시할 것.**
 > 안 그러면 의미 없는 ± 버튼이 붙는다. `max` 는 표시용일 뿐 값을 제한하지 않는다(범위 검증은 validator 몫).
+
+### 다중 선택은 `Select` 가 아니라 `MultiSelect` 다
+
+값 계약이 갈라지기 때문에 한 컴포넌트로 합치지 않는다 — `Select` 의 미선택은 `""`,
+`MultiSelect` 의 미선택은 **빈 배열**이다. `Select` 의 `searchable`/`groups` 판별 유니온에
+`multiple` 을 더하면 `UnitField`·`TableSelectCell` 의 JSX 분기가 조합 폭발한다.
+
+| 무엇 | 쓸 것 |
+|------|-------|
+| 하나만 고른다 | `Select` (긴 서버 목록이면 `searchable`) |
+| 여럿 고른다 | `MultiSelect` — 고른 값이 트리거 안에 칩으로 쌓이고 각 칩의 ✕ 로 해제 |
+| 전부 훑어보며 켜고 끈다 (그룹·배지·전체선택이 필요한 목록) | `Checkbox` 목록을 호출부가 조립 |
+
+- **`options`(평면 목록)와 `groups`(머리글 있는 묶음) 중 하나를 반드시 고른다** — 판별 유니온이다.
+  `groups` 를 쓰면 **항목 라벨에서 그룹 축을 뺀다**(주기별로 묶었으면 라벨은 물질명만).
+  머리글이 이미 말하는 것을 항목마다 반복하면 칩까지 길어진다.
+- 검색 입력은 **없다.** 필요해지면 `SearchableSelectControl` 처럼 Base UI `combobox` 의
+  `multiple` + `chips` 파트로 별도 컨트롤을 만든다.
+- 트리거는 `<div>` 로 렌더된다(`nativeButton={false}`) — 칩의 ✕ 가 `<button>` 이라
+  네이티브 버튼 안에 넣을 수 없다. 그래서 `:disabled` 대신 `data-[disabled]` 로 잠금을 그린다.
+- 칩 생김새는 피그마 "오염물질 칩"(Soft 면 · 브랜드 테두리)을 따른다.
 
 ### 읽기 전용 값에 `readOnly` 입력창을 쓰지 않는다
 

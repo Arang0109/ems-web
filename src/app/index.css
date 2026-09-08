@@ -194,6 +194,9 @@
   --radius-icon-tile: 10px;
   --radius-panel: 11px;
   --radius-dialog: 13px;
+  /* 채팅 말풍선. 피그마 스펙 밖의 확장이다 — 대화 목록에 말풍선이 겹겹이
+     쌓이면 panel(11px)은 각져 보이고 full 은 글자를 파먹는다. */
+  --radius-bubble: 14px;
 
   /* ─── 피그마 카드 그림자 (영속) ────────────────────────────────
      예) shadow-panel — 섹션 카드·패널의 기본 입체감 */

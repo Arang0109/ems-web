@@ -63,7 +63,8 @@ API·React 에 의존하지 않는 **순수 도메인 계산**만 담는다.
 이 경계가 없으면 `lib/` 는 곧 잡동사니 폴더가 된다. 계산이 아니면 `model/` 이나
 `shared/lib`(도메인 무관 유틸) 중 맞는 쪽으로 보낸다.
 
-현재 사용 슬라이스: `entities/schedule/lib/` (`sheet-calc/`, `nozzle-recommend.ts`)
+현재 사용 슬라이스: `entities/schedule/lib/` (`sheet-calc/`, `nozzle-recommend.ts`),
+`entities/chat/lib/` (`message-page.ts`, `message-timeline.ts`, `room-list.ts`)
 
 계산 로직이 여러 스텝으로 커지면 파일 하나가 아니라 **디렉토리 + `index.ts`** 로 쪼갠다.
 `sheet-calc/` 가 그 표준이다 — 유틸(`math`·`convert`·`formula`)·상수·타입·스텝(`steps/*-step.ts`)·
@@ -225,6 +226,8 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | 파일 다운로드 | `useDownloadDocumentAction`, `useExportReportAction`, `useExportSamplingRecordsAction` | 무효화 대상이 아니다. `res.status` 를 직접 판별하고(`ApiResponseMessage.status` 가 바이너리 응답엔 없다) `{ blob, filename }` 만 반환한다 — **엔티티는 DOM 을 만지지 않는다** |
 | 순서 변경 | `useReorderFacilitiesAction`, `useReorderPreventionsAction`, `useReorderItemsAction` | **무효화하지 않고 캐시를 직접 고쳐 넣는다.** 낙관적 반영·롤백은 이미 feature 가 소유하고, 여기서 재조회를 걸면 목록이 깜빡이고 아코디언이 닫힌다 |
 | 낙관적 토글 | `useTogglePollutantCatalogAction` | 스위치가 응답을 기다리는 동안 꺼진 채로 남으면 눌리지 않은 것으로 읽힌다. `onMutate` 로 먼저 반영하고 `onError` 로 되돌린다 |
+| 낙관적 전송 | `useSendChatMessageAction` | 말풍선을 먼저 띄운다. **실패해도 되돌리지 않는다** — 스냅샷을 복원하면 사용자가 쓴 내용이 사라져 다시 보낼 대상이 없어진다. 실패 표시만 얹고 재시도 버튼을 붙인다. 무효화도 하지 않는다(스크롤이 튄다) |
+| 읽음 보고 | `useMarkChatRoomReadAction` | 무효화하면 방을 볼 때마다 대화가 다시 로드된다. 바뀌는 값(내 커서·안읽음 0)이 정해져 있어 캐시를 직접 고친다 |
 
 #### 409 충돌은 상태 코드를 보존해야 한다
 
@@ -276,6 +279,7 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `team` | `useTeams`, `useTeamDetail` | `useRegisterTeamAction`, `useUpdateTeamAction`, `useDeleteTeamAction` |
 | `schedule` | `useSchedules`, `useCanceledSchedules`, `useScheduleDetail`, `useScheduleAnalyses`, `useFetchScheduleDetail`(명령형), `useFetchScheduleAnalyses`(명령형) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateBasicInfoAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
 | `tenant` | `useTenants` | `useProvisionTenantAction` |
+| `chat` | `useChatRooms`, `useChatRoomDetail`, `useChatContacts`, `useChatUnreadCount`, `useChatMessages`(무한), `useChatAttachment`(blob) | `useSendChatMessageAction`(낙관), `useMarkChatRoomReadAction`, `useOpenChatRoomAction`, `useHideChatRoomAction`, `useDownloadChatAttachmentAction`, `useChatRealtime`(STOMP 구독) |
 | `auth` | — | `useAuth`(Context 훅). API: `signInApi`, `signOutApi` |
 | `dashboard` | — (model 훅 없음) | — (API: `dashboardApi` 만 존재) |
 
@@ -290,6 +294,8 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `schedule/model/use-export-report-action.ts` | 위와 동일 |
 | `schedule/model/use-export-sampling-records-action.ts` | 위와 동일 |
 | `schedule/model/use-previous-sheet.ts`, `use-previous-sheet-candidates.ts` | 반환이 `{ 값, errorMessage }` 복합이라 "없음(정상)"과 "실패"를 구분해야 한다. 단일 값 계약으로 표현할 수 없어 손으로 배선한다 |
+| `chat/model/use-chat-messages.ts` | 커서 페이징이라 `useInfiniteQuery` 가 필요한데 `useEntityQuery` 는 `data: T` 단일 값 계약이다. 호출부가 하나뿐이라 `shared/model` 에 무한 조회 어댑터를 세우지 않고 여기서 직접 조립한다 |
+| `chat/model/use-chat-attachment.ts` | 응답이 `Blob` 이고 화면에 쓰려면 object URL 로 감싸야 한다. URL 수명(생성·해제)이 컴포넌트에 매여 있어 단일 값 계약 밖이다 |
 
 파일 다운로드 경로는 `shared/api/blob-error.ts`(`readBlobErrorMessage`) 로 blob 응답의
 에러 본문을 읽고, `shared/lib/file/` 의 `downloadBlob`·`parseAttachmentFilename` 으로
@@ -323,6 +329,7 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `team` | `Team`, `TeamCreate`, `TeamUpdate` |
 | `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
 | `tenant` | `Tenant`, `TenantProvision`, `TenantAdminCreate` |
+| `chat` | `ChatRoom`, `ChatRoomListItem`, `ChatMessage`, `ChatMessagePage`, `ChatPeer`, `ChatContact`, `ChatAttachment`, `ChatAttachmentDownload`, `ChatDelivery`, `ChatMessageType` |
 
 > **공용 enum·레이블은 entity 에 두지 않는다.** `MeasurementField`, `Grade`, `DocumentCategory`,
 > `ContractAmountUnit`, `TenantStatus`, `SubscriptionPlan`, `UserRole` 등은

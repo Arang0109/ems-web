@@ -54,6 +54,7 @@ export const useSignIn = () => {
       toast.success('로그인에 성공했습니다.');
       login({
         accessToken: res.data.accessToken,
+        userId: res.data.userId,
         tenant: res.data.tenant,
         username: res.data.username,
         name: res.data.name,

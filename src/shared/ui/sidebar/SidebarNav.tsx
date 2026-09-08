@@ -15,8 +15,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { Badge } from "@shared/ui/badges";
 
 import type { SidebarNavGroup, SidebarNavItem, SidebarNavSubItem } from "./types";
+
+/** 세 자리를 넘으면 폭이 메뉴 라벨을 밀어낸다 */
+const NavBadge = ({ count }: { count: number }) => (
+  <Badge tone="brand" className="ml-auto min-w-5 justify-center tabular-nums">
+    {count > 99 ? "99+" : count}
+  </Badge>
+);
 
 interface Props {
   groups: SidebarNavGroup[];
@@ -61,9 +69,12 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
                     >
                       <item.icon />
                       <span>{item.label}</span>
+                      {!!item.badge && <NavBadge count={item.badge} />}
                       <ChevronDown
                         className={cn(
-                          "ml-auto h-4 w-4 shrink-0 transition-transform duration-200",
+                          "h-4 w-4 shrink-0 transition-transform duration-200",
+                          // ml-auto 는 한 형제만 가져야 한다 — 배지가 그 자리를 맡으면 비켜 준다
+                          item.badge ? "ml-1" : "ml-auto",
                           isOpen(item) && "rotate-180"
                         )}
                       />
@@ -97,6 +108,7 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
                     >
                       <item.icon />
                       <span>{item.label}</span>
+                      {!!item.badge && <NavBadge count={item.badge} />}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )

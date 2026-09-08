@@ -61,10 +61,10 @@ app → pages → widgets → features → entities → shared
 
 | 레이어 | 개수 | 슬라이스 |
 |--------|------|---------|
-| pages | 8 그룹 / 라우트 19개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`), `equipment`, `schedule`, `staff`, `admin`(하위 `member`·`document`), `platform`(하위 `tenant`·`pollutant-catalog`) |
-| widgets | 22 | `sign-in`, `layouts`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `pollutant-catalog-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `canceled-schedule-table`, `schedule-profile`, `tenant-table` |
-| features | 45 | `sign-in`, `sign-out`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `download-document`, `add-document-version`, `delete-document-version`, `export-schedule-report`, `manage-schedule-lifecycle`, `save-schedule-sheets`, `save-schedule-analysis`, `register-*`(client·workplace·stack·contract·pollutant·pollutant-catalog·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·stack-pollutant·facility·prevention·document·equipment·member·pollutant·pollutant-catalog·team·schedule-basic-info·schedule-client·schedule-equipments·schedule-item·schedule-items·schedule-stack) |
-| entities | 16 | `auth`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `pollutant-catalog`, `document`, `equipment`, `measurement-record`, `member`, `schedule`, `team`, `tenant` |
+| pages | 9 그룹 / 라우트 21개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`), `equipment`, `schedule`, `staff`, `chat`, `admin`(하위 `member`·`document`), `platform`(하위 `tenant`·`pollutant-catalog`) |
+| widgets | 24 | `sign-in`, `layouts`, `chat-room-list`, `chat-room`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `pollutant-catalog-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `canceled-schedule-table`, `schedule-profile`, `tenant-table` |
+| features | 49 | `sign-in`, `sign-out`, `send-chat-message`, `open-chat-room`, `hide-chat-room`, `download-chat-attachment`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `download-document`, `add-document-version`, `delete-document-version`, `export-schedule-report`, `manage-schedule-lifecycle`, `save-schedule-sheets`, `save-schedule-analysis`, `register-*`(client·workplace·stack·contract·pollutant·pollutant-catalog·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·stack-pollutant·facility·prevention·document·equipment·member·pollutant·pollutant-catalog·team·schedule-basic-info·schedule-client·schedule-equipments·schedule-item·schedule-items·schedule-stack) |
+| entities | 17 | `auth`, `chat`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `pollutant-catalog`, `document`, `equipment`, `measurement-record`, `member`, `schedule`, `team`, `tenant` |
 | shared | — | `api`, `config`, `lib`, `model`, `ui` |
 
 > 슬라이스가 추가·삭제되면 이 표를 갱신한다. 개수는 `ls -1 src/<레이어> | grep -v CLAUDE.md | wc -l` 로 실측한다.
@@ -133,6 +133,19 @@ features/*/ui (폼 입력)
 
 **feature 는 목록을 다시 읽지 않는다.** 예전의 `onSuccess={refetch}` 배선은 없어졌다.
 슬라이스를 넘는 갱신(의뢰기관 → 사업장)만 page 가 콜백으로 잇는다.
+
+### 실시간 수신 (채팅)
+
+```
+app/providers/chat-realtime-provider (앱당 1개)
+  → entities/chat/api/stomp-client (STOMP 구독 — 수신 전용, 쓰기는 REST)
+  → entities/chat/model/chat-cache (이벤트 → 쿼리 캐시 직접 갱신)
+  → 그 키를 구독하는 화면(대화 목록·대화방·사이드바 배지)이 저절로 따라온다
+```
+
+**이벤트를 Context 로 뿌리지 않는다.** 소비자가 전부 react-query 캐시를 읽으므로 한 곳에서
+캐시에 쓰고 나머지는 평소처럼 구독한다. 메시지는 무효화하지 않고 `setQueryData` 로 넣는다 —
+무효화하면 `InfiniteData` 페이지가 통째로 다시 만들어져 스크롤이 튄다.
 
 ### 저장 결과를 그 자리에서 대조해야 할 때
 

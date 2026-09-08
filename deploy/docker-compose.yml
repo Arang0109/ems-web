@@ -39,6 +39,12 @@ services:
       # (브라우저가 저장하지 않아 재발급이 실패한다). HTTPS 도메인을 붙이면 true/None 으로 올린다.
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       COOKIE_SAME_SITE: ${COOKIE_SAME_SITE:-Lax}
+      # 브라우저 허용 오리진(CORS + WebSocket 핸드셰이크). 쉼표 구분, 프로토콜·포트까지 정확히.
+      # 배포 호스트를 반드시 포함한다 — 빠뜨리면 REST 는 멀쩡한데 채팅만 붙지 않는다.
+      # REST 는 nginx 동일 오리진이라 프리플라이트가 없지만, WebSocket 핸드셰이크는 동일
+      # 오리진이어도 Origin 을 검사하기 때문이다. 증상이 프록시 문제로 오인되기 쉽다.
+      # 기본값을 비워 두면 안 된다 — 빈 문자열이 서버 기본값을 덮어써 모든 오리진이 차단된다.
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://13.236.208.223,https://env-bridge.co.kr,https://www.env-bridge.co.kr}
       # 운영자(PLATFORM_ADMIN) 최초 부트스트랩 — 서버의 PlatformAdminInitializer가 읽는다.
       # 서버의 .env는 .dockerignore 대상이라 컨테이너 안에 없다. 값은 반드시 여기로 주입된다.
       # 계정 생성을 확인한 뒤 .env에서 PLATFORM_BOOTSTRAP_ENABLED=false로 되돌린다.

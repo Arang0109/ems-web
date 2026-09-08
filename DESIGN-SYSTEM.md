@@ -214,7 +214,13 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 | `rounded-icon-tile` | 10px | 아이콘 타일 · 소형 카드 |
 | `rounded-panel` | 11px | 패널 · 카드 |
 | `rounded-dialog` | 13px | 다이얼로그 |
+| `rounded-bubble` | 14px | 채팅 말풍선 *(피그마 스펙 밖의 확장)* |
 | `rounded-full` | — | count 뱃지 · 아바타 |
+
+> ⚠️ **커스텀 `rounded-*` 는 호출부의 `className` 으로 덮어쓸 수 없다.** tailwind-merge 가
+> Tailwind v4 의 CSS 테마 토큰을 읽지 못해 충돌로 인식하지 않고 두 클래스를 모두 남긴다.
+> 그래서 `ChatMessageBubble` 은 `rounded-bubble` 을 **자기가 소유하고 radius 를 prop 으로
+> 받지 않는다.** 다른 코너가 필요하면 컴포넌트에 variant 를 추가한다.
 
 `--radius: 11px`(panel)로 두면 shadcn 내부 계산식이 저절로 맞는다:
 `calc(var(--radius) - 5px)` → 6px(button), `min(var(--radius-md), 8px)` → 6px(button).
@@ -238,11 +244,13 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `Button` | `shared/ui/buttons/Button.tsx` | 순수 `<button>` + cva. 7개 상태 |
 | `IconButton`, `DetailViewButton` | `shared/ui/buttons/` | 위 Button 조합 |
 | `Badge` | `shared/ui/badges/Badge.tsx` | pill. 5개 톤 |
+| `Avatar` | `shared/ui/avatar/Avatar.tsx` | 이니셜 원형 + (선택) 접속 상태 점. `online` 을 주면 `statusLabel` 이 **타입으로 필수**가 된다 — `StatusDot` 과 같은 근거 |
 | `StatusDot` | `shared/ui/badges/StatusDot.tsx` | 운영 상태 — 점 + 텍스트 |
 | `Toaster` | `shared/ui/toasts/Toaster.tsx` | sonner 래퍼 |
 | `ConfirmDialog` | `shared/ui/dialogs/ConfirmDialog.tsx` | 확인 다이얼로그. Base UI `alert-dialog` 직접 사용 (shadcn 래퍼 미경유). 호출은 `useConfirm` |
 | `FormDialogShell` | `shared/ui/dialogs/FormDialogShell.tsx` | 폼 모달의 공통 셸 — 아래 "모달 셸" 참조. 배럴에 노출하지 않는다 |
 | `StepFormDialog` | `shared/ui/dialogs/StepFormDialog.tsx` | 스텝 위저드 모달 — `StepNav` + 좌우 슬라이드 뷰포트. md 미만 전체화면 |
+| `ImageViewerDialog` | `shared/ui/dialogs/ImageViewerDialog.tsx` | 이미지 확대 뷰어. **화면 맞춤 ↔ 원본 크기 두 상태만** 둔다 — 사진에 필요한 것은 "전체 보기"와 "자세히 보기" 둘뿐이다. 폭 맞춤이 기본인 `DocumentViewerDialog` 와 갈래가 다르다(세로로 긴 사진이 잘린다) |
 | `DocumentViewerDialog` | `shared/ui/dialogs/DocumentViewerDialog.tsx` | 고정폭 문서(기록지·양식) 뷰어. md 미만 전체화면 / 데스크탑 96vw. 얇은 헤더(제목 + `toolbar` 슬롯 + ✕) + 푸터 없음 + 떠 있는 배율 컨트롤(폭 맞춤·±·핀치). 폼 셸을 쓰지 않는다 |
 | `Drawer` | `shared/ui/drawer/Drawer.tsx` | 화면 가장자리 오버레이 — 모바일 하단 바텀시트 / 데스크탑 사이드. Base UI `dialog` 직접 사용 (shadcn 래퍼 미경유). 폼 셸을 쓰지 않는다 — 닫아서 잃을 값이 없는 표면 전용. side 별 위치·슬라이드는 `drawer-size.ts` |
 | `Tabs` | `shared/ui/tabs/Tabs.tsx` | 언더라인형. Base UI `tabs` 직접 사용 (shadcn 래퍼 미경유) |
@@ -564,7 +572,9 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 ### 4순위 — 정리
 
 - ~~**`src/app/App.css` 삭제**~~ — **완료.** import 0건이던 Vite 스캐폴딩 잔재 제거
-- **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다
+- **전역 `* { user-select: none }`** (`index.css`) 재검토 — 테이블 값 복사가 전부 막혀 있다.
+  채팅 말풍선은 `select-text` 를 명시해 예외로 두었다(메시지를 복사할 수 없으면 못 쓴다).
+  같은 이유로 예외가 늘어나면 전역 규칙 쪽을 뒤집는 편이 낫다
 - **`index.html` 에 `viewport-fit=cover`** — 없어서 `env(safe-area-inset-*)` 가 iOS 에서 0 으로
   계산된다. 모달 전체화면 푸터가 `pb-[max(0.75rem,env(safe-area-inset-bottom))]` 로 미리 대비해
   뒀으므로 켜는 순간 홈 인디케이터를 피한다. 다만 사이드바·`MainLayout` 이 노치 영역까지

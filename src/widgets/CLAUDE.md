@@ -43,7 +43,7 @@ widget-name/
     └── Cells.tsx           # 커스텀 셀 컴포넌트
 ```
 
-### 패턴 C — 프로파일/상세 위젯 (stack-profile, schedule-profile)
+### 패턴 C — 프로파일/상세 위젯 (stack-profile, schedule-profile, chat-room, chat-room-list)
 
 탭 또는 여러 상세 섹션으로 하나의 도메인 객체를 보여주는 위젯. 탭·섹션별 하위 컴포넌트를 `ui/children/`에 분리한다.
 

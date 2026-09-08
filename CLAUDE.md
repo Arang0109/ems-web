@@ -32,6 +32,7 @@
 | 폰트 | `pretendard` |
 | 주소 검색 | `@clroot/react-kakao-postcode` |
 | HTTP | `axios` |
+| 실시간 | `@stomp/stompjs` (채팅 STOMP 수신 전용. `sockjs-client` 는 쓰지 않는다 — 서버가 폴백을 켜지 않는다) |
 | 테스트 | `vitest` |
 
 > **서버 상태는 react-query 가, 클라이언트 상태는 직접 관리한다.**
@@ -63,6 +64,7 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
   - `CLAUDE.md` — 서버 개발 규칙
   - `ARCHITECTURE.md` — 아키텍처 상세
   - `docs/DATABASE.md` — DB 스키마
+  - `docs/chat-websocket-protocol.md` — **채팅 REST·STOMP 계약** (프론트용으로 작성돼 있다)
   - Swagger UI `/swagger-ui.html`, OpenAPI JSON `/v3/api-docs` (서버 실행 시, 기본 8080)
 - **컨트롤러/DTO 위치:** `src/main/java/com/ensolution/ems/{모듈}/presentation/.../controller`
   (요청/응답 DTO는 같은 모듈의 `request/`·`response/`)

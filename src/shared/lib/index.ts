@@ -12,7 +12,15 @@ export {
   toggleNumericSign,
   normalizeNumericInput,
 } from "./format/numeric-input";
-export { formatDate, formatDateDot, formatDateTime, formatMonthDay } from "./format/date";
+export {
+  formatDate,
+  formatDateDot,
+  formatDateTime,
+  formatMonthDay,
+  formatClockTime,
+  formatDayLabel,
+  formatRelativeTime,
+} from "./format/date";
 export {
   formatTime,
   unformatTime,

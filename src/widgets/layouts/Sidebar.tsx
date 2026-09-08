@@ -6,6 +6,7 @@ import {
   Building2,
   FileText,
   Gauge,
+  MessageCircle,
   Wrench,
   Award,
 } from "lucide-react";
@@ -21,6 +22,7 @@ import {
 } from "@shared/ui/sidebar";
 import { useSignOut } from "@features/sign-out";
 import { useAuth, isAdmin } from "@entities/auth";
+import { useChatUnreadCount } from "@entities/chat";
 import type { UserRole } from "@shared/model";
 import { APP_BRAND } from "./brand";
 
@@ -57,6 +59,8 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
       { label: '측정 계획', path: '/schedule' },
     ],
   },
+  // 하위 경로(/chat/12)에서도 활성으로 보여야 한다 — 대화방을 열면 URL 이 바뀐다
+  { icon: MessageCircle, label: '채팅', path: '/chat', matchPrefix: true },
   {
     icon: Wrench,
     label: '회사 자원',
@@ -92,6 +96,10 @@ const filterMenuByRole = (items: MenuItem[], role?: string | null) =>
 /** 현재 pathname이 해당 경로와 정확히 일치하는지 확인 */
 const matchPath = (pathname: string, path: string) => pathname === path;
 
+/** 해당 경로이거나 그 하위 경로인지 — `matchPrefix` 항목에만 쓴다 */
+const matchSection = (pathname: string, path: string) =>
+  pathname === path || pathname.startsWith(`${path}/`);
+
 /** 서브메뉴 중 하나라도 현재 경로와 일치하면 true */
 const hasActiveChild = (pathname: string, item: SidebarNavItem) =>
   item.subItems?.some((sub) => matchPath(pathname, sub.path)) ?? false;
@@ -110,7 +118,13 @@ export const Sidebar = () => {
   const { logout } = useSignOut();
   const { user } = useAuth();
 
-  const mainMenu = filterMenuByRole(MAIN_MENU_ITEMS, user?.role);
+  // 사용자 id 를 모르면(이 필드가 생기기 전에 로그인해 둔 경우) 배지를 감춘다 —
+  // 실시간 갱신이 없어 값이 멈춰 있으므로, 없는 것이 틀린 숫자보다 낫다.
+  const { data: unreadCount } = useChatUnreadCount({ enabled: user?.userId != null });
+
+  const mainMenu = filterMenuByRole(MAIN_MENU_ITEMS, user?.role).map((item) =>
+    item.path === "/chat" ? { ...item, badge: unreadCount } : item,
+  );
   const adminMenu = filterMenuByRole(ADMIN_MENU_ITEMS, user?.role);
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => ({
@@ -163,7 +177,9 @@ export const Sidebar = () => {
         groups={groups}
         isActive={(item) =>
           item.path
-            ? matchPath(location.pathname, item.path)
+            ? item.matchPrefix
+              ? matchSection(location.pathname, item.path)
+              : matchPath(location.pathname, item.path)
             : hasActiveChild(location.pathname, item)
         }
         isSubActive={(sub: SidebarNavSubItem) => matchPath(location.pathname, sub.path)}

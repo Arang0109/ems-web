@@ -1,6 +1,14 @@
 import { createContext } from "react";
 
 export interface AuthUser {
+  /**
+   * 사용자 PK — 채팅이 내 메시지를 가려내는 기준이다.
+   *
+   * `null` 인 경우가 있다: 이 필드가 추가되기 전에 로그인해 둔 사용자의 저장값에는
+   * 값이 없다. 그 상태에서도 앱은 정상 동작해야 하므로 채팅만 기능을 낮춘다
+   * (소켓을 열지 않고 안읽음 배지를 감춘다).
+   */
+  userId: number | null;
   tenant: string;
   username: string;
   name: string;

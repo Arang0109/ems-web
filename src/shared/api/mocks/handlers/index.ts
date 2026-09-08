@@ -1,4 +1,4 @@
-import { authHandlers } from './auth';
+import { authHandlers, userHandlers } from './auth';
 import { tenantHandlers } from './tenant';
 import { dashboardHandlers } from './dashboard';
 import { clientHandlers } from './client';
@@ -12,6 +12,7 @@ import { documentHandlers } from './document';
 import { equipmentHandlers } from './equipment';
 import { teamHandlers } from './team';
 import { scheduleHandlers } from './schedule';
+import { chatHandlers } from './chat';
 
 /**
  * 도메인별 목 핸들러 등록부.
@@ -22,6 +23,7 @@ import { scheduleHandlers } from './schedule';
  */
 const REGISTRY = {
   auth: authHandlers,
+  user: userHandlers,
   dashboard: dashboardHandlers,
   tenant: tenantHandlers,
   client: clientHandlers,
@@ -36,6 +38,7 @@ const REGISTRY = {
   equipment: equipmentHandlers,
   team: teamHandlers,
   schedule: scheduleHandlers,
+  chat: chatHandlers,
 } as const;
 
 /**
@@ -47,6 +50,7 @@ const REGISTRY = {
  */
 const ENABLED: (keyof typeof REGISTRY)[] = [
   'auth',
+  'user',
   'dashboard',
   'tenant',
   'client',
@@ -61,6 +65,10 @@ const ENABLED: (keyof typeof REGISTRY)[] = [
   'equipment',
   'team',
   'schedule',
+  // 채팅 — 목록·페이징·전송·첨부까지는 목으로 확인된다. 다만 **실시간은 재현되지 않는다** —
+  // MSW 가 이 설정으로 WebSocket 을 가로채지 않기 때문이다. 상대방발 메시지·읽음·접속 상태를
+  // 확인할 때는 이 줄을 빼고 `VITE_ENABLE_MSW=false` 로 실서버에 붙는다.
+  'chat',
 ];
 
 export const handlers = ENABLED.flatMap((domain) => REGISTRY[domain]);
