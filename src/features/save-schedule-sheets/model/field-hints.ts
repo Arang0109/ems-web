@@ -12,32 +12,20 @@ import type { SamplingPointForm } from "./types";
 
 export const WEATHER_HINT = {
   pressure:
-    "현장 기압계로 읽은 대기압입니다.\nPa = P×760÷1013.25 로 mmHg 환산되어 배출가스 절대압력·수분량·등속흡인계수 계산의 기준이 됩니다.\n소수점 첫째 자리까지 입력합니다.",
-  temperature:
-    "측정 현장의 외기 온도입니다.\n굴뚝 안 배출가스온도(Ts)와는 다른 값입니다.\n소수점 첫째 자리까지 입력합니다.",
-  humidity:
-    "측정 현장의 외기 상대습도입니다.\n소수점 첫째 자리까지 입력합니다.",
+    "현장 기압계로 측정한 대기압입니다.\n소수점 첫째 자리까지 입력하세요.",
   windDirection:
     "측정 현장의 풍향입니다.\n풍속이 0.5m/s 미만인 경우 '정온'을 선택합니다.",
-  windSpeed:
-    "측정 현장의 풍속입니다.",
-  weatherCondition:
-    "측정 현장의 기상 상태입니다.\n현장에서 확인할 날씨를 맑음·흐림·비·눈 중 하나로 선택합니다.",
 } as const;
 
 export const MOISTURE_HINT = {
-  weight: "채취 전 흡습병 무게입니다.\n채취 후 무게에서 이 값을 뺀 차이가 흡습된 수분질량(ma)이 됩니다.",
-  gasMeterTemp:
-    "건식가스미터(DGM)의 입구·출구 온도입니다.\n두 값의 평균이 가스미터 온도(Tm)가 되어 표준상태 환산에 쓰입니다.",
-  dryGasVolume: "건식가스미터의 적산 흡인량입니다.\n(후 − 전) 이 흡입 건조가스량(Vm)입니다.",
   gaugePressure:
-    "가스미터 게이지압입니다.\nPg = P÷13.6 으로 mmHg 로 환산한 뒤 대기압과 합하면 가스미터 절대압력(Pm)이 됩니다.\nPm = Pb+Pg",
+    "가스미터의 게이지압입니다.\n절대압력 (Pm) = Pb+Pg",
   suctionVelocity:
-    "수분 채취 중의 흡인 유속입니다.",
+    "수분 채취 중 가스미터의 흡인 유속입니다.",
 } as const;
 
 export const EXHAUST_GAS_HINT = {
-  gasAnalyzer: "측정 시작시간을 입력하면 종료시간이 15분 후로 자동 설정됩니다.",
+  gasAnalyzer: "측정 시간은 15분으로 설정됩니다.",
   standardOxygen:
     "측정시설에 등록된 표준산소농도입니다.",
   o2CorrectionFactor:
@@ -74,7 +62,7 @@ export const PARTICLE_HINT = {
   nozzleSize:
     "실제로 장착한 노즐의 지름입니다.\n [적정 노즐사이즈 산정] 의 추천 목록에서 고르면 이 값이 채워집니다.",
   samplingStartTime:
-    "입자상 물질의 채취를 시작한 시각입니다.\n종료시간은 시작시간 + 전 지점 채취시간 합계로 자동 계산됩니다.",
+    "입자상 물질 채취를 시작한 시각입니다.\n종료 시각은 시작 시각에 전 지점 채취 시간 합계를 더해 자동 계산됩니다.",
   estimatedOrificeDp:
     "K-Factor × 평균 동압으로 구하며, 지점별 실제 차압은 아래 지점 표에서 확인합니다.",
   estimatedSamplingTime:

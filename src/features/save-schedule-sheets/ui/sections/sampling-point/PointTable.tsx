@@ -89,6 +89,7 @@ export const PointTable = ({
                     {points.map((p, i) => (
                       <TableInputCell key={i} type="number" value={p[f.field]} unit={f.unit}
                         min={f.min} step={f.step}
+                        maxIntDigits={f.maxIntDigits} maxDecimals={f.maxDecimals}
                         tone={fieldTone(fieldPath.point(i, f.field))}
                         onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
                         onChange={(v) => onPointChange(i, { [f.field]: v })} disabled={!editable} />

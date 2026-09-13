@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from './code';
+import {
+  BUSINESS_NUMBER_DIGITS, PHONE_NUMBER_DIGITS,
+  formatBusinessNumber, formatPhoneNumber, maskCodeInput, unformatNumber,
+} from './code';
 
 describe('unformatNumber — 자릿수 코드 정규화', () => {
   it('숫자 외 문자를 모두 제거한다', () => {
@@ -17,6 +20,37 @@ describe('unformatNumber — 자릿수 코드 정규화', () => {
     expect(unformatNumber('')).toBe('');
     expect(unformatNumber(null)).toBe('');
     expect(unformatNumber(undefined)).toBe('');
+  });
+});
+
+describe('maskCodeInput — 입력 중인 코드 정규화', () => {
+  it('자릿수 상수는 표시 묶음의 합이다', () => {
+    expect(BUSINESS_NUMBER_DIGITS).toBe(10);
+    expect(PHONE_NUMBER_DIGITS).toBe(11);
+  });
+
+  it('숫자만 남기고 상한에서 자른다', () => {
+    expect(maskCodeInput('238-32-48234-999', BUSINESS_NUMBER_DIGITS)).toBe('2383248234');
+    expect(maskCodeInput('010 1234 5678', PHONE_NUMBER_DIGITS)).toBe('01012345678');
+  });
+
+  it('상한을 채운 뒤 더 붙여도 늘어나지 않는다', () => {
+    expect(maskCodeInput('23832482349', BUSINESS_NUMBER_DIGITS)).toBe('2383248234');
+  });
+
+  it('부호·소수점은 지운다 — 숫자 "값" 마스킹과 다른 줄기다', () => {
+    expect(maskCodeInput('-12.5', BUSINESS_NUMBER_DIGITS)).toBe('125');
+  });
+
+  it('빈값은 빈 문자열', () => {
+    expect(maskCodeInput('', BUSINESS_NUMBER_DIGITS)).toBe('');
+    expect(maskCodeInput(null, PHONE_NUMBER_DIGITS)).toBe('');
+    expect(maskCodeInput(undefined, PHONE_NUMBER_DIGITS)).toBe('');
+  });
+
+  it('정규화한 값을 표시 포맷으로 되돌릴 수 있다', () => {
+    expect(formatBusinessNumber(maskCodeInput('2383248234567', BUSINESS_NUMBER_DIGITS)))
+      .toBe('238-32-48234');
   });
 });
 

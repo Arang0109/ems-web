@@ -151,6 +151,9 @@ export const SheetCalcDrawer = ({
           value={targetVolume}
           min={0}
           step={0.1}
+          // 희망 흡입량은 통상 1 Sm³ 안팎이다 — 세 자리면 이미 이상값이다
+          maxIntDigits={3}
+          maxDecimals={1}
           onChange={onTargetVolumeChange}
         />
 

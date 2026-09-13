@@ -51,6 +51,15 @@ interface InputColumn<T> extends ColumnBase {
   min?: number;
   max?: number;
   step?: number;
+  /**
+   * 정수부·소수부 최대 자릿수. 넘기면 **타이핑이 들어가지 않는다**.
+   * `max` 와 갈래가 다르다 — `max` 는 표시용이고 범위 검증은 validator 몫이다.
+   *
+   * 열 단위 단일 값이다. 행마다 자릿수가 갈리는 표가 아직 없어서인데, 필요해지면
+   * `tone`·`disabled` 처럼 `(row) => number` 로 넓힌다.
+   */
+  maxIntDigits?: number;
+  maxDecimals?: number;
   /** 행별 비활성. 표 전체의 `editable` 과 합쳐진다 */
   disabled?: (row: T) => boolean;
   /** 셀별 상태 색. 의미는 호출부가 정한다 — 셀 단위로 갈리므로 행이 아니라 여기서 받는다 */
@@ -157,6 +166,8 @@ const renderCell = <T,>(
           min={column.min}
           max={column.max}
           step={column.step}
+          maxIntDigits={column.maxIntDigits}
+          maxDecimals={column.maxDecimals}
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}

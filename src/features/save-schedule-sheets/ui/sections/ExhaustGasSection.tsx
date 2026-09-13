@@ -59,6 +59,11 @@ export const ExhaustGasSection = ({
       type: "number",
       min: 0,
       step: 0.1,
+      // 행마다 단위가 갈린다(O₂·CO₂ 는 %, CO·NOx·SOx 는 ppm). 열 선언은 행을 모르므로
+      // ppm 쪽(수만)에 맞춰 넉넉히 잡는다 — 행별로 조이려면 `InputColumn` 이
+      // `tone` 처럼 `(row) => number` 를 받아야 하고, 그 필요가 확인되기 전까지는 과설계다.
+      maxIntDigits: 5,
+      maxDecimals: 1,
       value: (row) => exhaustGas[row.key][i] ?? "",
       tone: (row) => fieldTone(fieldPath.exhaustReading(row.key, i)),
       onFocus: (row) => onFieldFocus(fieldPath.exhaustReading(row.key, i)),
@@ -74,7 +79,7 @@ export const ExhaustGasSection = ({
     >
       <div className="grid grid-cols-1 gap-x-5 gap-y-3 md:grid-cols-4">
         <UnitField
-          label="가스분석기 측정 시작시간" type="time"
+          label="가스분석기 측정 시작시각" type="time"
           hint={EXHAUST_GAS_HINT.gasAnalyzer}
           value={exhaustGas.gasAnalyzerStartTime} disabled={!editable}
           tone={fieldTone(fieldPath.exhaustTime("gasAnalyzerStartTime"))}
@@ -83,7 +88,7 @@ export const ExhaustGasSection = ({
         />
         {visiblePollutants.thc && (
           <UnitField
-            label="THC 측정 시작시간" required type="time"
+            label="THC 측정 시작시각" required type="time"
             value={exhaustGas.thcAnalyzerStartTime} disabled={!editable}
             tone={fieldTone(fieldPath.exhaustTime("thcAnalyzerStartTime"))}
             onFocus={() => onFieldFocus(fieldPath.exhaustTime("thcAnalyzerStartTime"))}

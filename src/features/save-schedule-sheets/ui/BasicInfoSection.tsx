@@ -1,12 +1,11 @@
 import type { FieldTone } from "@shared/model";
 import type { SectionHighlight } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
-import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
+import { SectionAccordion } from "@shared/ui/accordion";
 
 import { REQUIRED_BASIC_INFO_FIELDS, getMissingBasicInfoFields } from "../model/required-fields";
 import { getProgressTone } from "../model/section-progress";
 import type { ScheduleBasicInfoForm } from "../model/types";
-import { FIELD_GRID } from "./sections/shell-props";
 
 interface Props {
   basicInfoForm: ScheduleBasicInfoForm;
@@ -68,33 +67,30 @@ export const BasicInfoSection = ({
     >
       <div className="flex items-center gap-1">
         <UnitField
-          label="측정 시작시간" type="time" className="flex-1"
+          label="측정 시작시각" type="time" className="flex-1"
           value={basicInfoForm.samplingStartedAt} disabled={!editable}
           tone={tone("samplingStartedAt")}
           onChange={(v) => onChange("samplingStartedAt", v)}
         />
         <span className="text-muted-ink">~</span>
         <UnitField
-          label="측정 종료시간" type="time" className="flex-1"
+          label="측정 종료시각" type="time" className="flex-1"
           value={basicInfoForm.samplingEndedAt} disabled={!editable}
           tone={tone("samplingEndedAt")}
           onChange={(v) => onChange("samplingEndedAt", v)}
         />
       </div>
-      <SubAccordion title="담당자">
-        {/* 담당자는 필수가 아니라 완료 면색을 끈다 — 비워 둔 칸이 "덜 채웠다"로 읽히면 안 된다. */}
-        <div className={FIELD_GRID}>
-          {PERSON_FIELDS.map(({ name, label }) => (
-            <UnitField
-              key={name}
-              label={label}
-              showComplete={false}
-              value={basicInfoForm[name]} disabled={!editable}
-              onChange={(v) => onChange(name, v)}
-            />
-          ))}
-        </div>
-      </SubAccordion>
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-6">
+        {PERSON_FIELDS.map(({ name, label }) => (
+          <UnitField
+            key={name}
+            label={label}
+            showComplete={false}
+            value={basicInfoForm[name]} disabled={!editable}
+            onChange={(v) => onChange(name, v)}
+          />
+        ))}
+      </div>
     </SectionAccordion>
   );
 };

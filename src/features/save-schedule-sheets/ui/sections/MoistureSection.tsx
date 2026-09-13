@@ -23,6 +23,16 @@ interface Props extends SectionShellProps, FieldStateProps {
 
 const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
+/*
+ * 칸별 자릿수 근거 (`maxIntDigits`/`maxDecimals`) — 계측기의 표시 범위에서 따온다.
+ *
+ * - 흡습병 무게 4/2 : 저울 용량은 수 kg, 눈금은 0.01g
+ * - DGM 온도    3/1 : 외기~수백 °C. 부호는 자릿수에 세지 않는다
+ * - 흡인량      6/3 : 가스미터 적산계가 6자리, 눈금 0.001L
+ * - 게이지압    3/1 : 굴뚝 게이지압은 수십 mmH₂O
+ * - 흡인 유속   3/1 : 채취 펌프 유량은 수 L/min
+ */
+
 // "전/후를 입력하면 차이·환산·수분량이 계산된다"는 흐름을 그대로 두 그룹으로 나눈다.
 // 온도는 도메인상 건식가스미터 입구/출구 온도라 기록지 용어를 유지한다.
 export const MoistureSection = ({
@@ -44,7 +54,7 @@ export const MoistureSection = ({
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <UnitField
           label="흡습병 무게 - 전" unit="g" type="number" min={0} step={0.01}
-          hint={MOISTURE_HINT.weight}
+          maxIntDigits={4} maxDecimals={2}
           value={moisture.weightBefore} disabled={!editable}
           tone={weightIssue ? "danger" : fieldTone(fieldPath.moisture("weightBefore"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("weightBefore"))}
@@ -52,6 +62,7 @@ export const MoistureSection = ({
         />
         <UnitField
           label="흡습병 무게 - 후" unit="g" type="number" min={0} step={0.01}
+          maxIntDigits={4} maxDecimals={2}
           value={moisture.weightAfter} disabled={!editable}
           onFocus={() => onFieldFocus(fieldPath.moisture("weightAfter"))}
           onChange={(v) => onChange({ weightAfter: v })}
@@ -86,7 +97,7 @@ export const MoistureSection = ({
         />)}
         <UnitField
           label="온도 - 입구" unit="°C" type="number" step={0.1}
-          hint={MOISTURE_HINT.gasMeterTemp}
+          maxIntDigits={3} maxDecimals={1}
           value={moisture.gasMeterTempIn} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("gasMeterTempIn"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("gasMeterTempIn"))}
@@ -94,6 +105,7 @@ export const MoistureSection = ({
         />
         <UnitField
           label="온도 - 출구" unit="°C" type="number" step={0.1}
+          maxIntDigits={3} maxDecimals={1}
           value={moisture.gasMeterTempOut} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("gasMeterTempOut"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("gasMeterTempOut"))}
@@ -129,7 +141,7 @@ export const MoistureSection = ({
 
         <UnitField
           label="흡인량 - 전" unit="L" type="number" min={0} step={0.001}
-          hint={MOISTURE_HINT.dryGasVolume}
+          maxIntDigits={6} maxDecimals={3}
           value={moisture.dryGasVolumeBefore} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("dryGasVolumeBefore"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("dryGasVolumeBefore"))}
@@ -137,6 +149,7 @@ export const MoistureSection = ({
         />
         <UnitField
           label="흡인량 - 후" unit="L" type="number" min={0} step={0.001}
+          maxIntDigits={6} maxDecimals={3}
           value={moisture.dryGasVolumeAfter} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("dryGasVolumeAfter"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("dryGasVolumeAfter"))}
@@ -174,6 +187,7 @@ export const MoistureSection = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <UnitField
           label="게이지압" unit="mmH₂O" type="number" min={0}
+          maxIntDigits={3} maxDecimals={1}
           hint={MOISTURE_HINT.gaugePressure}
           value={moisture.gasMeterGaugePressure} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("gasMeterGaugePressure"))}
@@ -185,7 +199,8 @@ export const MoistureSection = ({
           <CalcResultRow label="Pg(inchH₂O)" value={display(calc?.pmGInchH2O)} unit="inchH₂O" />
         </div>
         <UnitField
-          label="흡인유속" unit="L/min" type="number" min={0} step={0.1}
+          label="흡인 유속" unit="L/min" type="number" min={0} step={0.1}
+          maxIntDigits={3} maxDecimals={1}
           hint={MOISTURE_HINT.suctionVelocity}
           value={moisture.suctionVelocity} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("suctionVelocity"))}

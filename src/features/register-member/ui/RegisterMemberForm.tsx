@@ -5,9 +5,6 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, Select } from "@shared/ui/form";
 
-// Format
-import { formatPhoneNumber, unformatNumber } from '@shared/lib';
-
 // Icon
 import { MailIcon, User2Icon, Phone, KeyRound, Building2, Plus } from "lucide-react";
 
@@ -99,8 +96,9 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
           <InputGroup
             id="tel"
             placeholder="전화번호"
-            value={formatPhoneNumber(form.tel)}
-            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
+            code="phone"
+            value={form.tel}
+            onChange={(value) => handleChange("tel", value)}
             startIcon={<Phone />}
           />
           <InputGroup

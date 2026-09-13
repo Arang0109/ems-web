@@ -12,6 +12,11 @@ interface Props {
   /** ↑/↓ 증감 폭 */
   step?: number;
 
+  /** 정수부 최대 자릿수. 넘기면 타이핑이 들어가지 않는다 (부호·선행 0 은 세지 않는다) */
+  maxIntDigits?: number;
+  /** 소수부 최대 자릿수. `0` 이면 소수점 자체를 받지 않는다 (후행 0 은 센다) */
+  maxDecimals?: number;
+
   /** 테두리를 직접 그릴지 — 호스트(`UnitField`·표 셀)가 프레임을 소유하면 `"none"` */
   frame?: "bordered" | "none";
   /** 어떤 항목의 값인지 — 입력창과 부호 버튼의 접근성 이름이 된다 */
@@ -38,6 +43,8 @@ interface Props {
  *
  * - `allowNegative` 가 꺼지면 ± 버튼을 그리지 않고 `-` 입력도 받지 않는다
  * - ↑/↓ 로 `step` 만큼 증감한다. 네이티브와 달리 **휠 스크롤로는 값이 바뀌지 않는다**
+ * - `maxIntDigits`·`maxDecimals` 를 넘기는 타이핑은 들어가지 않고, ↑/↓ 증감도 멈춘다.
+ *   단 **바깥에서 들어온 `value` 는 자르지 않는다** — 저장된 기록을 화면이 몰래 줄이지 않는다
  * - `value`/`onChange` 는 확정된 숫자 문자열과 `""` — 미완성 값은 내부에만 있다
  */
 export const NumericField = ({
@@ -46,6 +53,8 @@ export const NumericField = ({
   onChange,
   allowNegative = true,
   step = 1,
+  maxIntDigits,
+  maxDecimals,
   frame = "bordered",
   label,
   placeholder,
@@ -59,6 +68,8 @@ export const NumericField = ({
     onChange,
     allowNegative,
     step,
+    maxIntDigits,
+    maxDecimals,
     disabled: disabled || readOnly,
   });
 

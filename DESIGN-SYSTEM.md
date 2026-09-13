@@ -259,6 +259,7 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `SubAccordion` | `shared/ui/accordion/SubAccordion.tsx` | 섹션 안의 중첩 그룹 (`bg-canvas`) |
 | `UnitField` | `shared/ui/form/UnitField.tsx` | 라벨 + 입력(+단위 박스) + 완료 체크 + 보조 행. Select·시각 모드 지원 |
 | `TimeField` | `shared/ui/form/TimeField.tsx` | 시각 입력 — 숫자 타이핑 마스킹(`1430` → `14:30`) + 시·분 팝오버. 네이티브 `type="time"` 위젯이 브라우저마다 폭·모양이 달라 대체했다. `UnitField`·`InlineInput`·`TableInputCell` 이 `type="time"` 일 때 자동으로 이 컴포넌트를 쓴다 |
+| `NumericField` | `shared/ui/form/NumericField.tsx` | 숫자 입력 — 마스킹 + ± 버튼 + ↑/↓ 증감 + 자릿수 제한(`maxIntDigits`·`maxDecimals`). 네이티브 `type="number"` 는 모바일 숫자 키패드에 `-` 키가 없고 미완성 입력(`"12."`)을 지워서 대체했다. `UnitField`·`InlineInput`·`TableInputCell`·`InputGroup` 이 `type="number"` 일 때 자동으로 이 컴포넌트(또는 `useNumericInput` 훅)를 쓴다 |
 | `CalcResultRow` | `shared/ui/form/CalcResultRow.tsx` | 자동계산 결과 **행** (좌 라벨 / 우 값+단위). 입력 필드의 `helper` 슬롯에 딸리는 파생값 1개 |
 | `CalcResultGrid` | `shared/ui/form/CalcResultGrid.tsx` | 자동계산 결과 **묶음** (라벨 위 / 값 아래, 프레임 없음). 입력과 독립된 결과 N개. 값 18px·라벨 12px muted, 전부 비면 `emptyText` 한 줄로 축약 |
 | `DetailRow` | `shared/ui/form/DetailRow.tsx` | 읽기 전용 상세 행. MO 좌 라벨 / 우 값(48px, 하단 구분선) → 데스크탑 고정폭 라벨 열(7rem) + 값 가로 정렬(구분선 없음, ~32px). `span` 으로 긴 값에 열 확장 |

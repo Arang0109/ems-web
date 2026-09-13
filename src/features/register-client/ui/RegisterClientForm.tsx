@@ -7,7 +7,6 @@ import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, SectionTitle, AddressInput } from "@shared/ui/form";
 
 // Format
-import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
 
 // Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash, Plus } from "lucide-react";
@@ -54,8 +53,9 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
             id="bizNumber"
             label="사업자등록번호"
             placeholder="사업자등록번호"
-            value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
+            code="business"
+            value={form.bizNumber}
+            onChange={(value) => handleChange("bizNumber", value)}
             startIcon={<Hash />}
             invalid={!!fieldErrors?.bizNumber}
             error={fieldErrors?.bizNumber}
@@ -91,8 +91,9 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
           <InputGroup
             id="tel"
             placeholder="전화번호"
-            value={formatPhoneNumber(form.tel)}
-            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
+            code="phone"
+            value={form.tel}
+            onChange={(value) => handleChange("tel", value)}
             startIcon={<Phone />}
           />
           <InputGroup

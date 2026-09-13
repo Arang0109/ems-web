@@ -193,6 +193,8 @@ export const validateClientFields = (form: ClientRegisterForm) => {
 - `@shared/lib`의 유틸 활용:
   - `trimValue(s)` — 앞뒤 공백 제거
   - `unformatNumber(s)` — 자릿수 코드 정규화 (숫자만 추출, 결과 `string`)
+    (mapper 에서만 쓴다 — **입력 칸에서는 직접 부르지 않는다.** 사업자번호·전화번호 칸은
+    `InputGroup` 의 `code` 모드가 표시·자릿수 제한을 함께 맡는다)
   - `toNumber(s)` / `toNumberOrNull(s)` — Form 문자열을 `number` / `number | null`로 변환
 - UI 전용 필드는 변환 시 제외
 

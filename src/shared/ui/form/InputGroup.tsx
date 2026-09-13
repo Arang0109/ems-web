@@ -7,6 +7,10 @@ import {
   InputGroupButton
 } from "@shared/ui/primitives";
 import { useNumericInput } from "@shared/model";
+import {
+  BUSINESS_NUMBER_DIGITS, PHONE_NUMBER_DIGITS,
+  formatBusinessNumber, formatPhoneNumber, maskCodeInput,
+} from "@shared/lib";
 import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 import { InFieldLabel } from "./InFieldLabel";
@@ -15,6 +19,25 @@ import {
   IN_FIELD_VALUE_CLASS,
   inFieldPlaceholder,
 } from "./in-field";
+
+/** 자릿수 코드의 갈래 — 표시 형식과 자릿수 상한이 함께 정해진다 */
+export type CodeKind = "business" | "phone";
+
+const CODE_SPEC = {
+  business: {
+    format: formatBusinessNumber,
+    digits: BUSINESS_NUMBER_DIGITS,
+    inputMode: "numeric",
+  },
+  phone: {
+    format: formatPhoneNumber,
+    digits: PHONE_NUMBER_DIGITS,
+    inputMode: "tel",
+  },
+} as const satisfies Record<
+  CodeKind,
+  { format: (v: string) => string; digits: number; inputMode: "numeric" | "tel" }
+>;
 
 interface InputGroupProps<T = string> {
   id?: string;
@@ -33,6 +56,24 @@ interface InputGroupProps<T = string> {
   min?: number;
   max?: number;
   step?: number;
+
+  /**
+   * 정수부·소수부 최대 자릿수 — `type="number"` 에서만 쓰인다.
+   * 넘기면 타이핑이 들어가지 않는다. 자릿수 **코드**(사업자번호·전화번호)는 `code` 를 쓴다.
+   */
+  maxIntDigits?: number;
+  maxDecimals?: number;
+
+  /**
+   * 자릿수 코드 모드 — 화면에는 `238-32-48234` 로 끊어 보여주고,
+   * `value`/`onChange` 는 **숫자만 남은 문자열**로 주고받는다.
+   * 자릿수를 넘기면 타이핑이 들어가지 않는다.
+   *
+   * 숫자 **값** 입력(`type="number"`)과 갈래가 다르다 — 이쪽은 산술을 하지 않는 코드라
+   * 부호·소수점 개념이 없고, `"12."` 같은 미완성 값도 없다. 그래서 타이핑 버퍼를 두지 않고
+   * 매 키 입력이 곧바로 확정값이다. `code` 가 있으면 `type` 은 무시된다.
+   */
+  code?: CodeKind;
 
   invalid?: boolean;
   error?: string;
@@ -57,6 +98,8 @@ const NumericGroupInput = ({
   onChange,
   allowNegative,
   step,
+  maxIntDigits,
+  maxDecimals,
   disabled,
   ...rest
 }: {
@@ -64,9 +107,13 @@ const NumericGroupInput = ({
   onChange: (value: string) => void;
   allowNegative: boolean;
   step?: number;
+  maxIntDigits?: number;
+  maxDecimals?: number;
   disabled?: boolean;
 } & Pick<React.ComponentProps<typeof InputGroupInput>, "id" | "placeholder" | "aria-invalid" | "className">) => {
-  const { inputProps, toggleSign } = useNumericInput({ value, onChange, allowNegative, step, disabled });
+  const { inputProps, toggleSign } = useNumericInput({
+    value, onChange, allowNegative, step, maxIntDigits, maxDecimals, disabled,
+  });
 
   return (
     <>
@@ -102,6 +149,9 @@ export const InputGroup = <T extends string | number>({
   min,
   max,
   step,
+  maxIntDigits,
+  maxDecimals,
+  code,
   invalid,
   error,
   startIcon,
@@ -131,13 +181,32 @@ export const InputGroup = <T extends string | number>({
         <InputGroupAddon
           className={error? 'text-destructive' : ""}
         >{startIcon}</InputGroupAddon>}
-      {type === "number" && !readOnly ? (
+      {code && !readOnly ? (
+        /*
+          자릿수 코드 — 표시는 끊어 보여주고 상태는 숫자만 남긴다.
+          미완성 값이 없어 버퍼가 필요 없으므로 `useNumericInput` 을 쓰지 않는다.
+        */
+        <InputGroupInput
+          id={id}
+          type="text"
+          inputMode={CODE_SPEC[code].inputMode}
+          autoComplete="off"
+          value={CODE_SPEC[code].format(String(value))}
+          onChange={(e) => onChange?.(maskCodeInput(e.target.value, CODE_SPEC[code].digits) as T)}
+          placeholder={effectivePlaceholder}
+          disabled={disabled}
+          aria-invalid={invalid}
+          className={cn(hasLabel && LABELED_CONTROL_CLASS)}
+        />
+      ) : type === "number" && !readOnly ? (
         <NumericGroupInput
           id={id}
           value={String(value)}
           onChange={(v) => onChange?.(v as T)}
           allowNegative={min === undefined || min < 0}
           step={step}
+          maxIntDigits={maxIntDigits}
+          maxDecimals={maxDecimals}
           placeholder={effectivePlaceholder}
           disabled={disabled}
           aria-invalid={invalid}

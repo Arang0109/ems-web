@@ -228,6 +228,8 @@ const handleDelete = async () => {
 | 타이핑 | 숫자·`-`·`.` 외는 버린다. 미완성 값(`"-"`·`"12."`)은 유지하고, 포커스를 벗어나면 확정된다 (`".5"` → `"0.5"`) |
 | 키보드 | ↑/↓ 로 `step` 만큼 증감. 네이티브와 달리 **휠 스크롤로는 값이 바뀌지 않는다**. `Alt`·`Ctrl` 이 얹히면 증감하지 않고 표의 셀 이동에 넘긴다 |
 | 값 계약 | `value`/`onChange` 는 확정된 숫자 문자열과 `""` — 미완성 값은 내부에만 있다. `toNumber`/`toNumberOrNull` 이 그대로 읽는다 |
+| 자릿수 | `maxIntDigits`·`maxDecimals` 를 넘기면 **타이핑이 들어가지 않는다**(초과분을 버린다). 붙여넣기는 앞자리를 남기고 자른다. ↑/↓ 증감은 제한 밖으로 **아예 움직이지 않는다** — 잘라 붙이면 의도와 다른 값이 된다(`9999+1` → `"1000"`) |
+| 자릿수 계수 | 부호와 **선행 0 은 세지 않고**(`"007"` 은 1 자리 — 0 부터 치는 입력이 막히면 안 된다), 소수의 **후행 0 은 센다**(`"1.50"` 은 2 자리 — 유효숫자 정보다) |
 
 **`type="number"` 를 넘기면 `UnitField`·`InlineInput`·`TableInputCell`·`InputGroup` 이 알아서 `NumericField` 로 렌더한다.**
 호출부는 바꿀 것이 없다. 입력 요소를 직접 조립하는 호스트(`InputGroup`)는 컴포넌트 대신
@@ -237,6 +239,42 @@ const handleDelete = async () => {
 > `min >= 0` 이면 버튼이 빠지고 `-` 입력도 받지 않는다.
 > **음수가 성립하지 않는 항목(무게·부피·유량·농도·시간·율)에는 호출부에서 `min={0}` 을 명시할 것.**
 > 안 그러면 의미 없는 ± 버튼이 붙는다. `max` 는 표시용일 뿐 값을 제한하지 않는다(범위 검증은 validator 몫).
+
+> **세 prop 은 갈래가 다르다.** `min` 은 **부호**를, `maxIntDigits`/`maxDecimals` 는
+> **입력 자릿수**를, `max` 는 **표시**만 정한다.
+> `max`·`step` 에서 자릿수를 유도하지 않는다 — `max` 는 값을 제한하지 않는다는 계약이 이미 서 있고,
+> `step={0.1}` 인 칸에 소수 둘째 자리를 적어야 하는 경우가 있다. **자릿수는 따로 선언한다.**
+>
+> **바깥에서 들어온 `value` 는 자르지 않는다.** 자릿수는 *타이핑* 제약이지 *값* 제약이 아니다 —
+> 서버에서 온 기록을 화면이 몰래 자르면 데이터 손실이다.
+> `min` 이 ± 버튼만 정하고 로드된 음수를 건드리지 않는 것과 같은 자세다.
+>
+> **자릿수 코드(사업자번호·전화번호)는 이 줄기가 아니다** — `InputGroup` 의 `code` 모드를 쓴다.
+
+### 자릿수 코드는 `InputGroup` 의 `code` 모드로 받는다
+
+사업자등록번호·전화번호는 숫자처럼 보이지만 **코드**다 — 산술을 하지 않고, 부호·소수점이 없고,
+`"12."` 같은 미완성 값도 없다. 그래서 `NumericField` 줄기를 타지 않는다.
+
+```tsx
+<InputGroup id="bizNumber" label="사업자등록번호" code="business"
+  value={form.bizNumber} onChange={(v) => handleChange("bizNumber", v)} />
+```
+
+| 갈래 | 표시 | 자릿수 |
+|------|------|--------|
+| `code="business"` | `238-32-48234` | 10 |
+| `code="phone"` | `010-1234-5678` | 11 |
+
+- **화면에는 끊어 보여주고, `value`/`onChange` 는 숫자만 남은 문자열**로 주고받는다.
+  폼 상태에 하이픈이 끼지 않으므로 validator 의 `/^\d{10}$/` 가 그대로 통한다.
+- 자릿수를 넘기면 타이핑이 들어가지 않는다. 호출부에서 `unformatNumber(v).slice(0, 10)` 을
+  손으로 쓰지 않는다 — **빠뜨리면 화면과 폼 상태가 어긋난 채로 서버까지 간다.**
+- 매 키 입력이 곧바로 확정값이라 타이핑 버퍼(`useNumericInput` 의 이중 상태)를 두지 않는다.
+- `code` 가 있으면 `type` 은 무시된다.
+
+> **표시 전용 자리에는 `formatBusinessNumber`·`formatPhoneNumber` 를 그대로 쓴다** —
+> 위젯의 표·상세 화면이 그 경우다. 입력 칸에서만 `code` 를 쓴다.
 
 ### 폼 컨트롤의 라벨은 칸 안에 있다
 
@@ -574,10 +612,11 @@ export const contractStatusOptions =
 | `formatTime(s)`, `unformatTime(s)` | `format/time` | 서버 `"HH:mm:ss"` ↔ 폼 값 `"HH:mm"` |
 | `addMinutes(t, m)` | `format/time` | `"HH:mm"` + 분 (자정 순환). 파싱 불가 시 `null` |
 | `maskTimeInput(s)`, `normalizeTime(s)` | `format/time` | 시각 타이핑 마스킹(`"1430"` → `"14:30"`) · 미완성 값 확정(`"9"` → `"09:00"`). `TimeField` 전용 |
-| `maskNumericInput(s, o)`, `normalizeNumericInput(s)`, `toggleNumericSign(s)` | `format/numeric-input` | 숫자 타이핑 마스킹 · 미완성 값 확정(`".5"` → `"0.5"`) · 부호 뒤집기. `NumericField` 전용 (`unformatNumber` 는 부호·소수점을 지우므로 쓰지 말 것) |
+| `maskNumericInput(s, o)`, `normalizeNumericInput(s)`, `toggleNumericSign(s)`, `exceedsDigitLimits(s, o)` | `format/numeric-input` | 숫자 타이핑 마스킹 · 미완성 값 확정(`".5"` → `"0.5"`) · 부호 뒤집기 · 자릿수 초과 판정(↑/↓ 증감 가드). 마스킹의 `maxIntDigits`·`maxDecimals` 가 **입력 자릿수**를 제한한다. `NumericField` 전용 (`unformatNumber` 는 부호·소수점을 지우므로 쓰지 말 것) |
 | `formatFileSize(n)` | `file/file-size` | 바이트 → 표시 문자열 |
 | `moveItem(list, from, to)` | `array/move-item` | 항목을 다른 위치로 옮긴 **새 배열**. 범위 밖 인덱스·제자리 이동은 순서를 유지 |
 | `unformatNumber(s)` | `format/code` | `'010-1234-5678'` → `'01012345678'` (자릿수 코드 정규화, 결과 `string`) |
+| `maskCodeInput(s, n)`, `BUSINESS_NUMBER_DIGITS`, `PHONE_NUMBER_DIGITS` | `format/code` | 자릿수 코드 **입력** 정규화 — 숫자만 남기고 상한에서 자른다. 상수는 표시 묶음(`[3,2,5]`·`[3,4,4]`)의 합에서 파생한다. 폼에서 직접 부르지 않는다 — `InputGroup` 의 `code` 모드가 쓴다 |
 | `toNumber(s)`, `toNumberOrNull(s)` | `format/number` | Form 문자열 → `number`/`number \| null` 변환 |
 | `toFormValue(n)` | `format/number` | 위 둘의 **역방향** — Domain(`number \| null`) → Form `string` |
 | `toDateKey(d)` | `date/date-range` | `Date` → `'yyyy-MM-dd'` (구간 비교의 기준 표현) |

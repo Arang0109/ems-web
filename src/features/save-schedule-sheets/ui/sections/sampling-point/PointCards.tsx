@@ -54,6 +54,7 @@ export const PointCards = ({
     <UnitField
       key={String(f.field)}
       label={f.label} unit={f.unit} type="number" min={f.min} step={f.step}
+      maxIntDigits={f.maxIntDigits} maxDecimals={f.maxDecimals}
       hint={POINT_HINT[f.field]}
       hintLabel={`${f.name} 설명`}
       value={points[i][f.field]} disabled={!editable}

@@ -54,24 +54,55 @@ const perPoint = (
  * 지점별 실측 결과(오리피스차압·등속흡입계수)는 이 아래 `자동계산 데이터` 가 따로 그린다.
  */
 export const NozzleBasisNote = ({ basis, className }: Props) => (
-  <div className={cn("rounded-nav bg-canvas px-3 py-2 text-label text-ink-soft", className)}>
+  <div className={cn("rounded-nav bg-canvas py-2 text-label text-ink-soft", className)}>
     {basis.size === "" ? (
       <span className="text-muted-ink">
         계산값 · 노즐 산정에서 노즐을 고르면 예상 채취시간·채취량이 표시됩니다.
       </span>
     ) : (
-      <p className="">
-        <span>노즐 직경 : <span className="text-body-4 text-primary">{basis.size} cm</span>  <HelpTip content={PARTICLE_HINT.estimatedSamplingTime} label="예상 채취시간 설명" /></span> <br/>
-        <span>
-          채취 시간 : <span className="text-body-4 text-primary">{display(basis.estimate?.samplingTime)}</span> 분 이상,
-          지점 당 <span className="text-body-4 text-primary">{display(perPoint(basis.estimate?.samplingTime, basis.pointCount, 1))}</span> 분 이상 <br/>
-        </span>
-        <span className="text-muted-ink">· 희망 흡입량 {basis.targetVolume || "-"} Sm³ 기준 (사용자 입력값)</span> <br/>
-        <span>
-          실제 채취량 : <span className="text-body-4 text-primary">{display(basis.estimate?.Vm)}</span> m³ <br/>
-        </span>
-        <span>측정 지점 당 약 <span className="text-body-4 text-primary">{display(perPoint(basis.estimate?.Vm, basis.pointCount, 5))}</span> m³</span>
-      </p>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-1">
+          노즐 직경 :{" "}
+          <span className="text-body-4 text-primary">{basis.size} cm</span>
+          <HelpTip
+            content={PARTICLE_HINT.estimatedSamplingTime}
+            label="예상 채취시간 설명"
+            className="items-center"
+          />
+        </div>
+
+        <div>
+          채취 시간 :{" "}
+          <span className="text-body-4 text-primary">
+            {display(basis.estimate?.samplingTime)}
+          </span>{" "}
+          분 이상, 지점 당{" "}
+          <span className="text-body-4 text-primary">
+            {display(perPoint(basis.estimate?.samplingTime, basis.pointCount, 1))}
+          </span>{" "}
+          분 이상
+        </div>
+
+        <div className="text-muted-ink">
+          · 희망 흡입량 {basis.targetVolume || "-"} Sm³ 기준 (사용자 입력값)
+        </div>
+
+        <div>
+          실제 채취량 :{" "}
+          <span className="text-body-4 text-primary">
+            {display(basis.estimate?.Vm)}
+          </span>{" "}
+          m³
+        </div>
+
+        <div>
+          측정 지점 당 약{" "}
+          <span className="text-body-4 text-primary">
+            {display(perPoint(basis.estimate?.Vm, basis.pointCount, 5))}
+          </span>{" "}
+          m³
+        </div>
+      </div>
     )}
   </div>
 );

@@ -3,7 +3,6 @@ import { Hash, Building2, User2Icon } from "lucide-react";
 import type { ClientSnapshot } from "@entities/schedule";
 import { gradeOptions } from "@shared/model";
 import type { Grade } from "@shared/model";
-import { formatBusinessNumber, unformatNumber } from "@shared/lib";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, Select, AddressInput } from "@shared/ui/form";
@@ -61,8 +60,9 @@ export const UpdateScheduleClientForm = ({
             id="bizNumber"
             label="사업자등록번호"
             placeholder="사업자등록번호"
-            value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
+            code="business"
+            value={form.bizNumber}
+            onChange={(value) => handleChange("bizNumber", value)}
             invalid={!!fieldErrors?.bizNumber}
             error={fieldErrors?.bizNumber}
             startIcon={<Hash />}
@@ -104,9 +104,9 @@ export const UpdateScheduleClientForm = ({
             id="workplaceBizNumber"
             label="사업자등록번호"
             placeholder="사업자등록번호"
-            value={formatBusinessNumber(form.workplaceBizNumber)}
-            onChange={(value) =>
-              handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
+            code="business"
+            value={form.workplaceBizNumber}
+            onChange={(value) => handleChange("workplaceBizNumber", value)}
             invalid={!!fieldErrors?.workplaceBizNumber}
             error={fieldErrors?.workplaceBizNumber}
             startIcon={<Hash />}

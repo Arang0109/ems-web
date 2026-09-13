@@ -3,7 +3,6 @@ import type { Client } from "@entities/client";
 
 import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select, Checkbox } from "@shared/ui/form";
 import { FormDialog } from "@shared/ui/dialogs";
-import { formatBusinessNumber, unformatNumber } from '@shared/lib';
 import type { Grade } from "@shared/model";
 import { gradeOptions } from "@shared/model";
 
@@ -94,8 +93,9 @@ export const RegisterWorkplaceForm = ({
           id="workplaceBizNumber"
           label="사업장 사업자등록번호"
           placeholder="사업자등록번호"
-          value={formatBusinessNumber(form.workplaceBizNumber)}
-          onChange={(value) => handleChange("workplaceBizNumber", unformatNumber(value).slice(0, 10))}
+          code="business"
+          value={form.workplaceBizNumber}
+          onChange={(value) => handleChange("workplaceBizNumber", value)}
           startIcon={<Hash />}
         />
         <div className="grid md:grid-cols-2 gap-4">

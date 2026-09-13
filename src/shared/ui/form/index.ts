@@ -1,5 +1,6 @@
 export { InlineInput } from "./InlineInput";
 export { InputGroup } from "./InputGroup";
+export type { CodeKind } from "./InputGroup";
 export { Search } from "./Search";
 export { Checkbox } from "./Checkbox";
 export { Textarea } from "./TextArea";

@@ -19,6 +19,8 @@ export const TableInputCell = ({
   min,
   max,
   step,
+  maxIntDigits,
+  maxDecimals,
   tone = "default",
   showComplete = true,
   onFocus,
@@ -33,6 +35,9 @@ export const TableInputCell = ({
   min?: number;
   max?: number;
   step?: number;
+  /** 정수부·소수부 최대 자릿수 — `type="number"` 에서만. 넘기면 타이핑이 들어가지 않는다 */
+  maxIntDigits?: number;
+  maxDecimals?: number;
   /** 칸의 상태 색. 의미는 호출부가 정한다 (`UnitField` 와 같은 계약) */
   tone?: FieldTone;
   /** 값이 들어차면 면을 연초록으로 물들인다. 완료 개념이 없는 칸에서는 끈다. */
@@ -69,6 +74,8 @@ export const TableInputCell = ({
             onChange={onChange}
             allowNegative={min === undefined || min < 0}
             step={step}
+            maxIntDigits={maxIntDigits}
+            maxDecimals={maxDecimals}
             frame="none"
             disabled={disabled}
             placeholder={placeholder}

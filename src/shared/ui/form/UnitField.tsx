@@ -40,6 +40,14 @@ interface Props {
   max?: number;
   step?: number;
 
+  /**
+   * 정수부·소수부 최대 자릿수 — `type="number"` 에서만 쓰인다.
+   * 넘기면 **타이핑이 들어가지 않는다**. `max` 와 갈래가 다르다 — `max` 는 표시용이고
+   * 값의 범위 검증은 validator 몫이다.
+   */
+  maxIntDigits?: number;
+  maxDecimals?: number;
+
   /** 입력창 아래 보조 영역 — 자동환산 행(CalcResultRow) 등 */
   helper?: React.ReactNode;
   /** 값이 들어차면 면을 연초록으로 물들인다. 완료 개념이 없는 칸에서는 끈다. */
@@ -100,6 +108,8 @@ export const UnitField = ({
   min,
   max,
   step,
+  maxIntDigits,
+  maxDecimals,
   helper,
   showComplete = true,
   tone = "default",
@@ -213,6 +223,8 @@ export const UnitField = ({
               onChange={(v) => onChange?.(v)}
               allowNegative={min === undefined || min < 0}
               step={step}
+              maxIntDigits={maxIntDigits}
+              maxDecimals={maxDecimals}
               frame="none"
               disabled={disabled}
               placeholder={placeholder}

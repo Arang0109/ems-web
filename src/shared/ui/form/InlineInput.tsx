@@ -32,6 +32,13 @@ interface InlineInputProps {
   step?: number;
 
   /**
+   * 정수부·소수부 최대 자릿수 — `type="number"` 에서만 쓰인다.
+   * 넘기면 타이핑이 들어가지 않는다. 좁은 인라인 칸에서 값이 프레임을 넘지 않게 하는 장치다.
+   */
+  maxIntDigits?: number;
+  maxDecimals?: number;
+
+  /**
    * 칸의 상태 색. 의미는 호출부가 정한다 — shared 는 "왜 그 색인지" 모른다.
    * (`UnitField` 와 같은 계약이다)
    */
@@ -55,6 +62,8 @@ export const InlineInput = ({
   min,
   max,
   step,
+  maxIntDigits,
+  maxDecimals,
   tone = "default",
 }: InlineInputProps) => {
   // 톤은 값을 고칠 수 있는 칸에서만 의미가 있다 — 읽기 전용 칸까지 물들이지 않는다.
@@ -83,6 +92,8 @@ export const InlineInput = ({
           onChange={(v) => onChange?.(v)}
           allowNegative={min === undefined || min < 0}
           step={step}
+          maxIntDigits={maxIntDigits}
+          maxDecimals={maxDecimals}
           label={typeof prefix === "string" ? prefix : undefined}
           disabled={disabled}
           placeholder={placeholder}

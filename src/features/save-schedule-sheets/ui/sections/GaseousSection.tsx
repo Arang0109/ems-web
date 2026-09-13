@@ -32,18 +32,42 @@ interface Props extends SectionShellProps, FieldStateProps {
   onMoveSample: (from: number, to: number) => void;
 }
 
-interface GasField {
+interface GasFieldBase {
   field: SampleFieldKey;
   label: string;
   unit?: string;
-  type: "text" | "time" | "number";
-  step?: number;
-  /** 음수가 성립하지 않는 항목(무게·부피·유량)에만 준다 — `NumericField` 의 ± 버튼이 빠진다 */
-  min?: number;
   /** 데스크탑 표의 열 폭 (px) — 표는 가로 스크롤이므로 항목별로 다르게 준다 */
   width: number;
   hint?: string;
 }
+
+/**
+ * 숫자 칸 — 입력 스펙을 여기서만 선언한다.
+ *
+ * 자릿수를 **필수 키로 둔 이유는 `point-fields.tsx` 의 `min` 과 같다** — 선택 속성이면
+ * "이 항목이 몇 자리까지 나오는가" 를 아무도 판단하지 않은 채 무제한이 된다.
+ */
+interface GasNumberField extends GasFieldBase {
+  type: "number";
+  step?: number;
+  /** 음수가 성립하지 않는 항목(무게·부피·유량)에만 준다 — `NumericField` 의 ± 버튼이 빠진다 */
+  min?: number;
+  maxIntDigits: number;
+  maxDecimals: number;
+}
+
+/** 숫자가 아닌 칸 — `min`·`step`·자릿수는 의미가 없어 아예 받지 않는다 */
+interface GasPlainField extends GasFieldBase {
+  type: "text" | "time";
+}
+
+type GasField = GasNumberField | GasPlainField;
+
+/** 숫자 칸에만 붙는 입력 스펙 — 데스크탑 표와 모바일 모달이 같은 것을 쓴다 */
+const numericSpec = (f: GasField) =>
+  f.type === "number"
+    ? { min: f.min, step: f.step, maxIntDigits: f.maxIntDigits, maxDecimals: f.maxDecimals }
+    : {};
 
 /** 필수 별표는 손으로 적지 않는다 — 저장 검증·진행도 배지와 같은 목록에서 파생시킨다 */
 const isRequired = (field: SampleFieldKey): boolean => REQUIRED_SAMPLE_FIELDS.includes(field);
@@ -58,30 +82,37 @@ const GAS_FIELDS: GasField[] = [
   { field: "endTime", label: "채취 종료", type: "time", width: 110 },
   {
     field: "suctionQuantity", label: "흡인유량", unit: "L/min", type: "number", min: 0, step: 0.1,
+    maxIntDigits: 3, maxDecimals: 1,   // 채취 펌프 유량은 수 L/min — 세 자리면 이미 이상값이다
     width: 110, hint: GAS_SAMPLE_HINT.suctionQuantity,
   },
   {
     field: "gasMeterGaugePressure", label: "가스미터압", unit: "mmH₂O", type: "number", step: 0.1,
+    maxIntDigits: 3, maxDecimals: 1,   // 부호는 자릿수에 세지 않는다
     width: 120, hint: GAS_SAMPLE_HINT.gasMeterGaugePressure,
   },
   {
     field: "inTemperature", label: "가스미터온도 (입구)", unit: "°C", type: "number", step: 0.1,
+    maxIntDigits: 3, maxDecimals: 1,   // 외기~수백 °C
     width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature,
   },
   {
     field: "outTemperature", label: "가스미터온도 (출구)", unit: "°C", type: "number", step: 0.1,
+    maxIntDigits: 3, maxDecimals: 1,
     width: 130, hint: GAS_SAMPLE_HINT.gasMeterTemperature,
   },
   {
     field: "samplingVolume", label: "시료채취량", unit: "L", type: "number", min: 0, step: 0.1,
+    maxIntDigits: 5, maxDecimals: 1,   // 수십~수천 L
     width: 120, hint: GAS_SAMPLE_HINT.samplingVolume,
   },
   {
     field: "beforeVolume", label: "채취 전 적산값", unit: "L", type: "number", min: 0, step: 0.01,
+    maxIntDigits: 6, maxDecimals: 2,   // 적산계가 6자리다
     width: 130, hint: GAS_SAMPLE_HINT.volume,
   },
   {
     field: "afterVolume", label: "채취 후 적산값", unit: "L", type: "number", min: 0, step: 0.01,
+    maxIntDigits: 6, maxDecimals: 2,
     width: 130, hint: GAS_SAMPLE_HINT.volume,
   },
   { field: "sampleNumber", label: "본시료", type: "text", width: 120, hint: GAS_SAMPLE_HINT.sampleNumber },
@@ -161,8 +192,7 @@ export const GaseousSection = ({
       hint: f.hint,
       width: f.width,
       type: f.type,
-      min: f.min,
-      step: f.step,
+      ...numericSpec(f),
       value: (sample) => sample[f.field],
       tone: (_, index) => fieldTone(fieldPath.sample(index, f.field)),
       onFocus: (_, index) => onFieldFocus(fieldPath.sample(index, f.field)),
@@ -331,8 +361,7 @@ export const GaseousSection = ({
                 hint={f.hint}
                 unit={f.unit}
                 type={f.type}
-                min={f.min}
-                step={f.step}
+                {...numericSpec(f)}
                 value={editingSample[f.field]}
                 disabled={!editable}
                 tone={fieldTone(fieldPath.sample(editingIndex, f.field))}
