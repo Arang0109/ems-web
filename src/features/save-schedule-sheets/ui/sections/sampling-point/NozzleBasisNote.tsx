@@ -62,13 +62,16 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
     ) : (
       <div className="flex flex-col gap-2">
         <div className="flex gap-1">
-          노즐 직경 :{" "}
-          <span className="text-body-4 text-primary">{basis.size} cm</span>
+          <span>· 희망 흡입량 {basis.targetVolume || "-"} Sm³ 기준</span>
           <HelpTip
-            content={PARTICLE_HINT.estimatedSamplingTime}
-            label="예상 채취시간 설명"
+            content={PARTICLE_HINT.recommendationHelp}
             className="items-center"
           />
+        </div>
+
+        <div className="flex gap-1">
+          노즐 직경 :{" "}
+          <span className="text-body-4 text-primary">{basis.size} cm</span>
         </div>
 
         <div>
@@ -83,12 +86,8 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
           분 이상
         </div>
 
-        <div className="text-muted-ink">
-          · 희망 흡입량 {basis.targetVolume || "-"} Sm³ 기준 (사용자 입력값)
-        </div>
-
         <div>
-          실제 채취량 :{" "}
+          실제 예상 채취량 :{" "}
           <span className="text-body-4 text-primary">
             {display(basis.estimate?.Vm)}
           </span>{" "}

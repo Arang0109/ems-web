@@ -18,6 +18,14 @@ export const cellFaceClass = (tone: FieldTone, filled: boolean): string =>
   cn(filled && "bg-brand-soft", tone !== "default" && TONE_CELL[tone]);
 
 /**
+ * 가로 스크롤 표에서 왼쪽에 고정되는 셀의 공통 클래스 — 배경은 셀마다 다르므로 여기서 칠하지 않는다.
+ *
+ * 경계선은 따로 긋지 않는다. `border-collapse` 표의 셀 테두리가 sticky 셀을 그대로 따라오므로,
+ * `after:` 로 선을 하나 더 얹으면 항목명·다음 열 사이가 두 줄로 두꺼워진다.
+ */
+export const STICKY_CELL_CLASS = "sticky z-10";
+
+/**
  * 완료로 칠할 것인가 — 사람이 채울 수 있는 칸에 값이 있을 때만.
  * 비활성 칸은 이제 손댈 수 없는 값이라 완료의 대상이 아니다.
  */

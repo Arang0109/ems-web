@@ -1,5 +1,6 @@
 import { Calendar } from 'lucide-react';
 
+import { TeamScheduleCardConfig } from '../model/mobile-card';
 import { BasicTable, TableEmptyState, TableFooterBar } from '@shared/ui/table';
 import { Panel } from '@shared/ui/cards';
 
@@ -25,6 +26,7 @@ export const TeamScheduleTable = () => {
         <BasicTable
           table={table}
           error={error}
+          mobileCard={TeamScheduleCardConfig}
           emptyState={
             <TableEmptyState
               icon={<Calendar size={22} className="text-muted-foreground" />}

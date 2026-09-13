@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { ArrowDownToLine, X } from "lucide-react";
+import { ArrowDownToLine } from "lucide-react";
 
 import type { SheetCalcPreview } from "@entities/schedule";
 import { useGridNavigation } from "@shared/model";
@@ -21,7 +21,6 @@ interface Props extends FieldStateProps {
   nozzleBasis: NozzleBasis;
   editable: boolean;
   onPointChange: (index: number, patch: Partial<SamplingPointForm>) => void;
-  onRemovePoint: (index: number) => void;
   onCopyPreviousPoint: (index: number) => void;
 }
 
@@ -30,13 +29,15 @@ const COLUMN_WIDTH = 90;
 const LABEL_WIDTH = 180;
 
 /**
- * 데스크탑 표현 — 행=항목, 열=지점인 전치 표.
+ * 데스크탑 표현 — 행=항목, 열=지점인 전치 표. **등속흡인 정보만** 그린다(입자상 전용).
+ * 온도·동정압은 `PointFlowTable` 이 행=지점인 표로 따로 그린다.
  *
  * 다열 그리드로 펴지 않는 이유는 "지점 간 값 비교" 가 이 표의 목적이기 때문이다.
  * 항목별 입력 스펙(단위·하한·증감폭)은 `PointCards` 와 같은 `PointField` 를 읽는다.
+ * 지점 삭제 버튼은 두지 않는다 — 지점 목록의 주인은 `PointFlowTable` 이다.
  */
 export const PointTable = ({
-  points, preview, groups, nozzleBasis, editable, onPointChange, onRemovePoint, onCopyPreviousPoint,
+  points, preview, groups, nozzleBasis, editable, onPointChange, onCopyPreviousPoint,
   fieldTone, onFieldFocus,
 }: Props) => {
   const wide = points.length + 1;   // 지점 열 + 평균 열 (라벨 제외)
@@ -53,16 +54,11 @@ export const PointTable = ({
               <TableLabelCell key={i} scope="col">
                 <span className="inline-flex items-center gap-1">
                   {i + 1} 지점
+                  {/* 등속흡인 값만 복사한다 — 위 표의 온도·동정압은 건드리지 않는다 (`point-chain`) */}
                   {editable && i > 0 && (
                     <button type="button" onClick={() => onCopyPreviousPoint(i)}
                       className="text-muted-ink hover:text-brand-primary" aria-label={`${i + 1}지점에 전 지점 값 불러오기`}>
                       <ArrowDownToLine size={12} />
-                    </button>
-                  )}
-                  {editable && points.length > 1 && (
-                    <button type="button" onClick={() => onRemovePoint(i)}
-                      className="text-muted-ink hover:text-danger" aria-label={`${i + 1}지점 삭제`}>
-                      <X size={12} />
                     </button>
                   )}
                 </span>

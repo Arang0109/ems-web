@@ -4,7 +4,7 @@ import { UnitField } from "@shared/ui/form";
 import { THIMBLE_HINT } from "../../model/field-hints";
 import { fieldPath } from "../../model/required-fields";
 import type { ParticleForm } from "../../model/types";
-import { FIELD_GRID, type FieldStateProps, type SectionShellProps } from "./shell-props";
+import type { FieldStateProps, SectionShellProps } from "./shell-props";
 
 interface Props extends SectionShellProps, FieldStateProps {
   particle: ParticleForm;
@@ -22,9 +22,9 @@ export const ThimbleSection = ({
     title="여지"
     subtitle="채취에 사용한 원통여지 정보를 입력합니다."
   >
-    <div className={FIELD_GRID}>
+    <div className="grid gap-x-5 gap-y-3 grid-cols-2 xl:grid-cols-6">
       <UnitField
-        label="측정여지번호" required
+        label="측정 여지번호" required
         hint={THIMBLE_HINT.thimbleFilter}
         value={particle.thimbleFilter} disabled={!editable}
         tone={fieldTone(fieldPath.particle("thimbleFilter"))}
@@ -32,8 +32,7 @@ export const ThimbleSection = ({
         onChange={(v) => onParticleChange({ thimbleFilter: v })}
       />
       <UnitField
-        label="바탕여지번호" required
-        hint={THIMBLE_HINT.bgThimbleFilter}
+        label="바탕 여지번호" required
         value={particle.bgThimbleFilter} disabled={!editable}
         tone={fieldTone(fieldPath.particle("bgThimbleFilter"))}
         onFocus={() => onFieldFocus(fieldPath.particle("bgThimbleFilter"))}

@@ -18,6 +18,15 @@ interface ColumnBase {
    * `fit` 을 켜면 고정 폭이 아니라 열 간 비율로만 쓰인다.
    */
   width: number;
+  /**
+   * 가로 스크롤 시 왼쪽에 고정한다 — 행을 식별하는 열(이름)이 값과 함께 밀려 나가지 않게.
+   *
+   * offset 은 **앞에 있는 고정 열 폭의 합**이다. 앞에 고정하지 않은 열(No. 등)이 있으면 그 열은
+   * 스크롤되어 고정 열 밑으로 사라진다 — 고정 열이 첫 열일 필요는 없다.
+   * `fit` 표는 스크롤이 없어 의미가 없다. `label`·`input` 열만 지원한다 — 다른 종류가 필요해지면
+   * 같은 `stickyLeft` prop 을 그 셀에도 편다.
+   */
+  sticky?: boolean;
   /** 머리 옆 도움말 — 용어 설명·계산식 */
   hint?: ReactNode;
   /** 도움말 아이콘의 접근성 이름 (`header` 가 문자열이 아닐 때 지정) */
@@ -141,11 +150,12 @@ const renderCell = <T,>(
   index: number,
   key: number,
   editable: boolean,
+  stickyLeft: number | undefined,
 ): ReactNode => {
   switch (column.kind) {
     case "label":
       return (
-        <TableLabelCell key={key} align={column.align}>
+        <TableLabelCell key={key} align={column.align} stickyLeft={stickyLeft}>
           {column.render(row, index)}
         </TableLabelCell>
       );
@@ -172,6 +182,7 @@ const renderCell = <T,>(
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}
           showComplete={column.showComplete}
+          stickyLeft={stickyLeft}
           onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
@@ -223,6 +234,14 @@ export const InputTable = <T,>({
   const visible = columns.filter((c) => c.kind !== "action" || editable);
   const minWidth = visible.reduce((acc, c) => acc + c.width, 0);
 
+  // 고정 열의 left offset — 앞에 있는 고정 열 폭의 합. 고정하지 않은 열은 세지 않는다(그 밑으로 스크롤된다)
+  const stickyLefts: (number | undefined)[] = [];
+  let stickyLeft = 0;
+  for (const c of visible) {
+    stickyLefts.push(c.sticky ? stickyLeft : undefined);
+    if (c.sticky) stickyLeft += c.width;
+  }
+
   return (
     <div {...gridNav} className={cn("overflow-x-auto rounded-button", className)}>
       <table
@@ -238,6 +257,7 @@ export const InputTable = <T,>({
                 width={column.width}
                 hint={column.hint}
                 hintLabel={column.hintLabel}
+                stickyLeft={stickyLefts[i]}
               >
                 {column.header}
               </TableLabelCell>
@@ -252,7 +272,7 @@ export const InputTable = <T,>({
             return (
               <Fragment key={getRowKey(row, index)}>
                 <tr>
-                  {visible.map((column, i) => renderCell(column, row, index, i, editable))}
+                  {visible.map((column, i) => renderCell(column, row, index, i, editable, stickyLefts[i]))}
                 </tr>
 
                 {error && (

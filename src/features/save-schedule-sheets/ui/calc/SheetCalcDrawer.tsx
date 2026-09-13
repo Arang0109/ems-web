@@ -1,15 +1,19 @@
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
 
 import type { NozzleRecommendation, SheetCalcPreview } from "@entities/schedule";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@shared/model";
 import type { FieldTone } from "@shared/model";
+import { Button } from "@shared/ui/buttons";
 import { Drawer } from "@shared/ui/drawer";
 import { CalcResultGrid, InputGroup, UnitField } from "@shared/ui/form";
 import { Tabs } from "@shared/ui/tabs";
 
 import { PARTICLE_HINT } from "../../model/field-hints";
 import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
+import type { NozzleMissingGroup } from "../../model/nozzle-estimate";
+import type { SheetSectionId } from "../../model/section-progress";
 import type { ParticleForm, SamplingPointForm } from "../../model/types";
 import { exhaustGasAvgItems } from "../sections/exhaust-gas-rows";
 import { buildPointGroups, pointAverageItems } from "../sections/sampling-point/point-results";
@@ -36,6 +40,10 @@ interface Props {
   nozzleEstimate: NozzleRecommendation | null;
   targetVolume: string;
   onTargetVolumeChange: (value: string) => void;
+  /** 노즐 산정에 필요한데 비어 있는 입력 — 비어 있지 않으면 산정 탭 맨 위에 경고로 세운다 */
+  missingInputs: NozzleMissingGroup[];
+  /** 경고의 `이동` — 호출부가 드로어를 닫고 그 섹션을 펼쳐 스크롤한다 */
+  onGoToSection: (id: SheetSectionId) => void;
 
   editable: boolean;
   onParticleChange: (patch: Partial<ParticleForm>) => void;
@@ -66,6 +74,7 @@ const display = (v: number | null): string => (v == null ? "-" : String(v));
 export const SheetCalcDrawer = ({
   open, onOpenChange, isParticle, particle, points, preview, standardOxygen, visiblePollutants,
   nozzleOptions, recommendations, nozzleEstimate, targetVolume, onTargetVolumeChange,
+  missingInputs, onGoToSection,
   editable, onParticleChange, nozzleTone, onNozzleFocus,
 }: Props) => {
   const isMobile = useIsMobile();
@@ -81,6 +90,41 @@ export const SheetCalcDrawer = ({
 
   const hasNozzles = recommendations.length > 0;
   const calcReady = recommendations.some((r) => r.orificeDp != null);
+  const hasMissing = missingInputs.length > 0;
+
+  /**
+   * 빠진 입력 경고. 회색 한 줄로 두면 "계산이 안 되네" 하고 지나친다 — 노즐을 잘못 고르면
+   * 채취를 다시 해야 하므로 **무엇이 빠졌는지 칸 이름으로** 짚고 그 섹션으로 바로 보낸다.
+   * 산정 결과가 일부 나와도(예: 한 지점 온도만 비어 평균이 틀어진 경우) 경고는 유지한다.
+   */
+  const missingBanner = hasMissing && (
+    <section
+      role="alert"
+      className="space-y-2 rounded-panel border border-danger/40 bg-danger-soft px-3 py-2.5"
+    >
+      <p className="flex items-center gap-1.5 text-body-4 text-danger">
+        <TriangleAlert size={16} aria-hidden />
+        노즐 산정에 필요한 입력이 빠졌습니다
+      </p>
+      <ul className="space-y-1.5">
+        {missingInputs.map((group) => (
+          <li key={group.label} className="flex items-start justify-between gap-2">
+            <p className="text-body-3 text-ink">
+              <span className="text-body-4">{group.label}</span>
+              <span className="text-muted-ink"> — {group.items.join(", ")}</span>
+            </p>
+            {group.section ? (
+              <Button type="button" variant="outline" size="xs" onClick={() => onGoToSection(group.section!)}>
+                이동
+              </Button>
+            ) : (
+              <span className="shrink-0 text-caption text-muted-ink">측정장비 탭</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 
   const calcContent = (
     <div className="space-y-3">
@@ -121,6 +165,8 @@ export const SheetCalcDrawer = ({
 
   const nozzleContent = (
     <div className="space-y-4">
+      {missingBanner}
+
       {/* 옵션 라벨이 이미 "3 cm" 형태라 단위 박스를 따로 두지 않는다. */}
       <UnitField
         label="노즐 사이즈 (cm)" required options={nozzleOptions} placeholder="노즐 선택"
@@ -138,7 +184,9 @@ export const SheetCalcDrawer = ({
             <span className="text-body-3"> · 희망 흡입량 {targetVolume || "-"} m³ 기준</span>
           </>
         }
-        emptyText="노즐을 선택하면 예상 오리피스차압·채취시간·채취량이 표시됩니다."
+        emptyText={hasMissing
+          ? "위 경고의 입력을 채우면 예상 오리피스차압·채취시간·채취량이 계산됩니다."
+          : "노즐을 선택하면 예상 오리피스차압·채취시간·채취량이 표시됩니다."}
         items={nozzleEstimateItems(nozzleEstimate)}
       />
 
@@ -180,14 +228,15 @@ export const SheetCalcDrawer = ({
         <div className="space-y-2">
           <p className="text-body-4">노즐 추천 목록 ({filtered.length}건)</p>
 
+          {/* 노즐경 없음·입력 부족은 위 경고가 칸 이름까지 짚어 준다 — 여기서는 목록이 왜 비었는지만 잇는다 */}
           {!hasNozzles && (
             <p className="text-body-2 text-muted-ink py-2">
               배정된 노즐 장비의 노즐경 정보가 없습니다. 측정장비 탭에서 노즐을 배정해주세요.
             </p>
           )}
           {hasNozzles && !calcReady && (
-            <p className="text-body-2 text-muted-ink py-2">
-              계산에 필요한 입력(대기압·수분량·배출가스 농도·측정점 온도/동압)이 부족합니다.
+            <p className="text-body-2 text-danger py-2">
+              위 경고의 입력을 채우기 전에는 추천할 수 없습니다.
             </p>
           )}
           {hasNozzles && calcReady && filtered.length === 0 && (

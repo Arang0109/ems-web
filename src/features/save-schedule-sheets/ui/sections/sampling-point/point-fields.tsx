@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { SamplingPointForm } from "../../../model/types";
 
 /**
- * 측정점 입력 한 칸의 스펙. 모바일 카드(`UnitField`)와 데스크탑 전치 표(`TableInputCell`)가
- * 같은 배열을 읽으므로, 항목별 차이는 전부 여기서만 선언한다.
+ * 측정점 입력 한 칸의 스펙. 지점별 표(`InputTable`)·모바일 카드(`UnitField`)·데스크탑 전치 표
+ * (`TableInputCell`)가 같은 배열을 읽으므로, 항목별 차이는 전부 여기서만 선언한다.
  */
 export interface PointField {
   field: keyof SamplingPointForm;
@@ -39,7 +39,10 @@ export interface PointField {
   maxDecimals: number;
 }
 
-/** 유량 정보 — 모든 시트가 입력한다(유속·유량 계산의 입력). */
+/**
+ * 유량 정보(온도·동정압) — 모든 시트가 입력한다(유속·유량 계산의 입력).
+ * 입력은 `PointFlowTable`(행=지점인 표)이 그리고, 평균은 계산값 드로어가 그린다.
+ */
 export const FLOW_FIELDS: PointField[] = [
   {
     field: "Ts", label: "배출가스 온도", name: "배출가스온도",
@@ -48,7 +51,6 @@ export const FLOW_FIELDS: PointField[] = [
     min: undefined,
     // 소각로 배출구도 999.9°C 를 넘지 않는다
     maxIntDigits: 3, maxDecimals: 1,
-    className: "col-span-2",
   },
   {
     field: "Pv", label: "동압", name: "동압",

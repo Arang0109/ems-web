@@ -67,9 +67,13 @@ export const appendPoint = (points: SamplingPointForm[]): SamplingPointForm[] =>
 };
 
 /**
- * 앞 지점 값을 통째로 복사한다 — 지점 간 조건이 비슷한 경우가 많아 다시 입력하는 수고를 던다.
+ * 앞 지점의 **등속흡인 값**을 복사한다 — 지점 간 조건이 비슷한 경우가 많아 다시 입력하는 수고를 던다.
  *
- * **DGM 채취량 두 칸은 복사 대상이 아니다.** 적산계의 눈금이라 앞 지점 값을 그대로 베끼면
+ * **온도·동정압(Ts·Pv·Ps)은 복사하지 않는다.** 현장에서는 모든 지점의 온도·동정압을 먼저 재어
+ * 지점별 표에 적어 두고, 그 뒤에 지점을 순서대로 채취한다. 2지점 채취를 시작하며 불러오기를
+ * 누를 때 이미 적어 둔 2지점의 온도·동정압이 1지점 값으로 덮이면 안 된다.
+ *
+ * **DGM 채취량 두 칸도 복사 대상이 아니다.** 적산계의 눈금이라 앞 지점 값을 그대로 베끼면
  * 채취량(후 − 전)이 0 이 되어 버린다. 채취량-전은 규칙대로 앞 지점의 채취량-후를 잇고,
  * 채취량-후는 이 지점이 이미 갖고 있던 값을 그대로 둔다(대개 아직 재지 않은 빈 칸이다).
  */
@@ -83,6 +87,9 @@ export const copyPreviousPointValues = (
 
   const copied: SamplingPointForm = {
     ...previous,
+    Ts: current.Ts,
+    Pv: current.Pv,
+    Ps: current.Ps,
     beforeVm: previous.afterVm,
     afterVm: current.afterVm,
   };

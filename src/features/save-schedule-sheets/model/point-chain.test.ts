@@ -97,20 +97,36 @@ describe("appendPoint", () => {
 });
 
 describe("copyPreviousPointValues", () => {
-  it("DGM 채취량 두 칸을 뺀 나머지를 앞 지점에서 베낀다", () => {
+  it("온도·동정압과 DGM 채취량 두 칸을 뺀 등속흡인 값을 앞 지점에서 베낀다", () => {
     const points = [
-      point({ Ts: "150", Pv: "3.2", samplingTime: "30", beforeVm: "0.5", afterVm: "1.5" }),
+      point({ Ts: "150", Pv: "3.2", inTm: "25", samplingTime: "30", beforeVm: "0.5", afterVm: "1.5" }),
       point(),
     ];
 
     const next = copyPreviousPointValues(points, 1);
 
-    expect(next[1].Ts).toBe("150");
-    expect(next[1].Pv).toBe("3.2");
+    expect(next[1].inTm).toBe("25");
     expect(next[1].samplingTime).toBe("30");
     // 앞 지점의 채취량-전(0.5)을 베끼지 않고 채취량-후(1.5)를 잇는다
     expect(next[1].beforeVm).toBe("1.5");
     expect(next[1].afterVm).toBe("");
+    // 온도·동정압은 지점별로 먼저 적는 값이라 빈 칸이어도 채우지 않는다
+    expect(next[1].Ts).toBe("");
+    expect(next[1].Pv).toBe("");
+  });
+
+  it("먼저 적어 둔 온도·동정압은 불러오기가 덮지 않는다", () => {
+    const points = [
+      point({ Ts: "150", Pv: "3.2", Ps: "-5", inTm: "25" }),
+      point({ Ts: "148", Pv: "3.0", Ps: "-4" }),
+    ];
+
+    const next = copyPreviousPointValues(points, 1);
+
+    expect(next[1].Ts).toBe("148");
+    expect(next[1].Pv).toBe("3.0");
+    expect(next[1].Ps).toBe("-4");
+    expect(next[1].inTm).toBe("25");
   });
 
   it("이미 읽어 둔 채취량-후는 불러오기가 덮지 않는다", () => {

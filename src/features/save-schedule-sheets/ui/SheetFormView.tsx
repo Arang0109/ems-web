@@ -21,7 +21,7 @@ import { fieldPath, getMissingRequiredFields } from "../model/required-fields";
 import type { AssignedPollutants, ExhaustGasVisibility } from "../model/measured-pollutants";
 import { getExhaustGasVisibility, hasSavedExhaustGasValue } from "../model/measured-pollutants";
 import {
-  DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate,
+  DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate, getNozzleMissingInputs,
 } from "../model/nozzle-estimate";
 import { calcParticleSamplingMinutes } from "../model/derived-times";
 import { appendPoint, applyPointPatch, copyPreviousPointValues } from "../model/point-chain";
@@ -59,7 +59,7 @@ interface Props {
   calcDrawerOpen: boolean;
   onCalcDrawerOpenChange: (open: boolean) => void;
   /** 섹션 펼침 상태 — 바로가기가 공통 정보까지 가리키므로 SheetsEditor 가 소유한다 */
-  nav: Pick<SectionNav, "isOpen" | "setSectionOpen">;
+  nav: Pick<SectionNav, "isOpen" | "setSectionOpen" | "goToSection">;
   onChange: (updater: (sheet: SheetForm) => SheetForm) => void;
 }
 
@@ -250,6 +250,17 @@ export const SheetFormView = ({
     [nozzleEstimates, sheet.particle.nozzleSize],
   );
 
+  const nozzleMissingInputs = useMemo(
+    () => (particle ? getNozzleMissingInputs(sheet, externals) : []),
+    [particle, sheet, externals],
+  );
+
+  // 드로어가 폼을 가리므로(모바일은 바텀시트) 닫고 나서 그 섹션으로 보낸다.
+  const goToSectionFromDrawer = (id: SheetSectionId) => {
+    onCalcDrawerOpenChange(false);
+    nav.goToSection(id);
+  };
+
   return (
     <div className="space-y-4">
       <WeatherSection {...fieldProps} {...shellProps("weather")}
@@ -321,6 +332,8 @@ export const SheetFormView = ({
         nozzleEstimate={nozzleEstimate}
         targetVolume={nozzleTargetVolume}
         onTargetVolumeChange={setNozzleTargetVolume}
+        missingInputs={nozzleMissingInputs}
+        onGoToSection={goToSectionFromDrawer}
         editable={editable}
         onParticleChange={patchParticle}
         nozzleTone={fieldState.fieldTone(fieldPath.particle("nozzleSize"))}

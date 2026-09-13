@@ -113,7 +113,8 @@ export const NumericField = ({
           disabled={disabled}
           aria-label={label ? `${label} 부호 바꾸기` : "부호 바꾸기"}
           className={cn(
-            "flex w-10 shrink-0 items-center justify-center text-body-2 text-muted-ink transition-colors md:w-9",
+            "flex w-7 shrink-0 items-center justify-center",
+            "text-body-2 text-muted-ink transition-colors",
             "hover:text-brand-dark focus-visible:text-brand-dark focus-visible:outline-none",
             "disabled:cursor-not-allowed disabled:text-muted-ink/60",
           )}
