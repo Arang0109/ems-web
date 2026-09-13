@@ -12,7 +12,7 @@ arm64로 빌드해 EC2로 전송하는 방식이다.
 | 파일 | 설명 |
 |------|------|
 | `docker-compose.yml` | EC2에서 5개 서비스를 띄우는 compose 정의 (EC2에 배치) |
-| `.env.example` | EC2 시크릿(`JWT_SECRET`·`DB_PASSWORD`·`PLATFORM_*` 등) 템플릿 → EC2에서 `.env` 로 |
+| `.env.example` | EC2 시크릿(`JWT_SECRET`·`DB_PASSWORD`·`PLATFORM_*` 등) 템플릿 → EC2에서 `.env` 로. **실값을 이 파일에 적지 않는다** — public 저장소다. `CORS_ALLOWED_ORIGINS` 는 compose 에 기본값이 없어 `.env` 에 반드시 적어야 `up` 이 된다 |
 | `redeploy-frontend.sh` | **프론트 수정 후 frontend 컨테이너만 재배포**하는 로컬 스크립트 |
 | `redeploy-backend.sh` | **백엔드 수정 후 backend 컨테이너만 재배포**하는 로컬 스크립트 |
 | `redeploy-db.sh` | **DB(mysql·redis·mongo) 컨테이너 재배포 + 선택적 데이터 초기화** 로컬 스크립트 |
