@@ -126,14 +126,25 @@ const ITEM_POOL = [
   { stackPollutantId: 101, pollutantId: 1, code: 'TSP', nameKr: '먼지', nameEn: 'Dust', method: 'DUST', phase: 'PARTICLE', equipment: '입자상 채취기', testMethod: 'ES 01301', cycle: 'QUARTERLY', allowance: 30, oxygenApplicable: true },
   { stackPollutantId: 102, pollutantId: 2, code: 'NOX', nameKr: '질소산화물', nameEn: 'NOx', method: 'FIELD_MEASUREMENT', phase: 'GAS', equipment: '가스분석기', testMethod: 'ES 01310', cycle: 'QUARTERLY', allowance: 150, oxygenApplicable: true },
   { stackPollutantId: 103, pollutantId: 3, code: 'SOX', nameKr: '황산화물', nameEn: 'SOx', method: 'FIELD_MEASUREMENT', phase: 'GAS', equipment: '가스분석기', testMethod: 'ES 01312', cycle: 'QUARTERLY', allowance: 180, oxygenApplicable: true },
-  { stackPollutantId: 104, pollutantId: 4, code: 'HCL', nameKr: '염화수소', nameEn: 'HCl', method: 'ABSORPTION', phase: 'GAS', equipment: '흡수액 채취기', testMethod: 'ES 01303', cycle: 'MONTHLY', allowance: 10, oxygenApplicable: false },
+  { stackPollutantId: 104, pollutantId: 4, code: 'HCL', nameKr: '염화수소', nameEn: 'HCl', method: 'ABSORPTION_SOLUTION', phase: 'GAS', equipment: '흡수액 채취기', testMethod: 'ES 01303', cycle: 'MONTHLY', allowance: 10, oxygenApplicable: false },
   { stackPollutantId: 105, pollutantId: 5, code: 'CO', nameKr: '일산화탄소', nameEn: 'CO', method: 'FIELD_MEASUREMENT', phase: 'GAS', equipment: '가스분석기', testMethod: 'ES 01311', cycle: 'MONTHLY', allowance: 200, oxygenApplicable: false },
-  { stackPollutantId: 106, pollutantId: 11, code: 'NH3', nameKr: '암모니아', nameEn: 'NH3', method: 'ABSORPTION', phase: 'GAS', equipment: '흡수액 채취기', testMethod: 'ES 01304', cycle: 'ANNUAL', allowance: 30, oxygenApplicable: false },
+  { stackPollutantId: 106, pollutantId: 11, code: 'NH3', nameKr: '암모니아', nameEn: 'NH3', method: 'ABSORPTION_SOLUTION', phase: 'GAS', equipment: '흡수액 채취기', testMethod: 'ES 01304', cycle: 'ANNUAL', allowance: 30, oxygenApplicable: false },
+  // 현장채취 가스상 표의 자동 채움 규칙을 화면에서 볼 수 있게 채취 방법별 항목을 둔다.
+  // 흡착관 2종 → VOCs-T 한 행, 카트리지 2종 → VOCs 한 행, 테드라백 → 항목별 행.
+  { stackPollutantId: 107, pollutantId: 21, code: 'BENZENE', nameKr: '벤젠', nameEn: 'Benzene', method: 'ADSORPTION_TUBE', phase: 'GAS', equipment: '흡착관 채취기', testMethod: 'ES 01802', cycle: 'SEMI_ANNUAL', allowance: 10, oxygenApplicable: false },
+  { stackPollutantId: 108, pollutantId: 22, code: 'TOLUENE', nameKr: '톨루엔', nameEn: 'Toluene', method: 'ADSORPTION_TUBE', phase: 'GAS', equipment: '흡착관 채취기', testMethod: 'ES 01802', cycle: 'SEMI_ANNUAL', allowance: 60, oxygenApplicable: false },
+  { stackPollutantId: 109, pollutantId: 23, code: 'HCHO', nameKr: '포름알데히드', nameEn: 'Formaldehyde', method: 'CARTRIDGE', phase: 'GAS', equipment: '카트리지 채취기', testMethod: 'ES 01805', cycle: 'SEMI_ANNUAL', allowance: 10, oxygenApplicable: false },
+  { stackPollutantId: 110, pollutantId: 24, code: 'CH3CHO', nameKr: '아세트알데히드', nameEn: 'Acetaldehyde', method: 'CARTRIDGE', phase: 'GAS', equipment: '카트리지 채취기', testMethod: 'ES 01805', cycle: 'SEMI_ANNUAL', allowance: 10, oxygenApplicable: false },
+  { stackPollutantId: 111, pollutantId: 25, code: 'DMDS', nameKr: '이황화메틸', nameEn: 'Dimethyl disulfide', method: 'TEDLAR_BAG', phase: 'GAS', equipment: '테드라백', testMethod: 'ES 09305', cycle: 'SEMI_ANNUAL', allowance: null, oxygenApplicable: false },
+  // 비소화합물은 중금속 여지로 잡으면서 흡수액으로도 잡는 이중 채취 항목 — code 'AS' 예외로 가스상 행이 생긴다.
+  { stackPollutantId: 112, pollutantId: 26, code: 'AS', nameKr: '비소화합물', nameEn: 'Arsenic compounds', method: 'HEAVY_METAL', phase: 'GAS', equipment: '입자상 채취기', testMethod: 'ES 01400', cycle: 'ANNUAL', allowance: 2, oxygenApplicable: false },
 ];
 
 // 계획별로 선택된 측정물질 id. 등록 시 고른 항목을 흉내 낸 기본값이다.
+// 가스상 자동 채움(염화수소 / VOCs-T / VOCs / 이황화메틸 / 비소화합물)이 바로 보이도록 채취 방법별 항목을 섞어 둔다.
 const itemsStore: Record<number, number[]> = {};
-const selectedPollutantIds = (scheduleId: number): number[] => itemsStore[scheduleId] ?? [1, 2];
+const selectedPollutantIds = (scheduleId: number): number[] =>
+  itemsStore[scheduleId] ?? [1, 2, 4, 21, 22, 23, 24, 25, 26];
 
 // 계획별로 정정된 측정 조건. 스냅샷이 원장 사본이라는 성질을 흉내 내려면 원장(ITEM_POOL)이
 // 아니라 계획 쪽에 얹혀 있어야 한다 — 정정은 그 회차 문서에만 남는다.

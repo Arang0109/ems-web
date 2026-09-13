@@ -8,8 +8,8 @@ import { getDefaultSampleForm } from "./types";
  * 측정계획의 측정항목에서 현장채취 "가스상 물질" 표의 행을 만든다.
  *
  * 기록지는 개별 물질을 그대로 적지 않는다. 흡착관으로 잡는 16종은 `VOCs-T` 한 병에, 카트리지로
- * 잡는 알데히드류는 `VOCs` 한 병에 담기 때문이다. 반면 흡수액은 물질마다 병이 갈리므로 항목별로
- * 한 행씩 적는다. 그래서 **행 수와 항목 수가 같지 않다** — 시료 1건 ↔ 항목 N건이다.
+ * 잡는 알데히드류는 `VOCs` 한 병에 담기 때문이다. 반면 흡수액·테드라백은 물질마다 병(백)이 갈리므로
+ * 항목별로 한 행씩 적는다. 그래서 **행 수와 항목 수가 같지 않다** — 시료 1건 ↔ 항목 N건이다.
  *
  * 그 대응을 잃지 않도록 각 행은 자신이 담은 항목을 {@link SampleForm.pollutantIds} 로 들고 다닌다.
  * 실험분석은 항목별로 값을 적어야 하므로, 통칭 행의 채취시각을 개별 항목으로 되돌릴 때 이 링크가
@@ -22,8 +22,28 @@ const MERGED_GROUP_NAME: Partial<Record<MeasurementMethod, string>> = {
   CARTRIDGE: "VOCs",
 };
 
-/** 물질마다 병이 갈려 항목별로 한 행씩 적는 채취 방법 */
-const PER_ITEM_METHODS: MeasurementMethod[] = ["ABSORPTION_SOLUTION"];
+/** 물질마다 병(백)이 갈려 항목별로 한 행씩 적는 채취 방법 */
+const PER_ITEM_METHODS: MeasurementMethod[] = ["ABSORPTION_SOLUTION", "TEDLAR_BAG"];
+
+/**
+ * 입자상으로 잡으면서 **동시에 흡수액으로도** 잡는 이중 채취 항목 — 전역 카탈로그 `code` 기준.
+ *
+ * 비소화합물은 중금속 여지로 채취하므로 고객사가 측정방법을 `HEAVY_METAL` 로 두지만, 흡수액 채취도
+ * 함께 하므로 가스상 표에 행이 필요하다. `method` 는 고객사 소유값이라 그것으로 분기하면 업체마다
+ * 결과가 갈린다 — 고객사가 바꿀 수 없는 `code` 를 기준으로 method·phase 와 무관하게 행을 만든다.
+ */
+const DUAL_SAMPLING_CODES: ReadonlySet<string> = new Set(["AS"]);
+
+/** `code` 가 없는 구 스냅샷·자체 물질을 위한 이름 폴백. 정규화 완전일치만 쓴다(부분일치 금지). */
+const DUAL_SAMPLING_NAMES: ReadonlySet<string> = new Set(["비소화합물", "비소", "arsenic"]);
+
+/** 대소문자·공백·구분기호를 지운 비교용 표현 */
+const normalize = (value: string): string => value.toLowerCase().replace(/[\s\-_()]/g, "");
+
+const isDualSampling = (item: MeasurementItemSnapshot): boolean =>
+  item.code !== null
+    ? DUAL_SAMPLING_CODES.has(item.code)
+    : DUAL_SAMPLING_NAMES.has(normalize(item.nameKr));
 
 /**
  * 가스상 표에 적는 시료 한 행.
@@ -53,11 +73,14 @@ const isGasSampling = (item: MeasurementItemSnapshot): boolean => {
   return item.method in MERGED_GROUP_NAME || PER_ITEM_METHODS.includes(item.method);
 };
 
-/** 자동으로 만들 수 없어 사용자에게 알려야 하는 항목 — 카탈로그 투영값이 비어 있다 */
+/**
+ * 자동으로 만들 수 없어 사용자에게 알려야 하는 항목 — 채취 방법·형태가 비어 있다.
+ * 이중 채취 항목은 method·phase 없이도 행이 만들어지므로 안내 대상이 아니다.
+ */
 export const getUnresolvedItems = (
   items: MeasurementItemSnapshot[],
 ): MeasurementItemSnapshot[] =>
-  items.filter((item) => item.method === null || item.phase === null);
+  items.filter((item) => !isDualSampling(item) && (item.method === null || item.phase === null));
 
 /**
  * 측정항목에서 가스상 시료 행 목록을 만든다.
@@ -72,6 +95,16 @@ export const buildGasSampleGroups = (
   const mergedIndexByKey = new Map<string, number>();
 
   for (const item of items) {
+    // 이중 채취 항목은 phase·method 를 보지 않고 항목별 행으로 적는다.
+    if (isDualSampling(item)) {
+      groups.push({
+        key: `dual:${item.pollutantId}`,
+        sampleName: item.nameKr,
+        pollutantIds: [item.pollutantId],
+      });
+      continue;
+    }
+
     if (!isGasSampling(item)) continue;
 
     const mergedName = MERGED_GROUP_NAME[item.method as MeasurementMethod];

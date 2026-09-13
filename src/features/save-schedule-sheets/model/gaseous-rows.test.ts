@@ -14,10 +14,11 @@ const item = (
   nameKr: string,
   method: MeasurementMethod | null,
   phase: PollutantPhase | null,
+  code: string | null = null,
 ): MeasurementItemSnapshot => ({
   stackPollutantId: pollutantId * 100,
   pollutantId,
-  code: null,
+  code,
   nameKr,
   nameEn: "",
   field: "AIR",
@@ -82,15 +83,46 @@ describe("buildGasSampleGroups", () => {
     ]);
   });
 
-  it("현장측정·수은·테드라백·입자상 항목은 만들지 않는다", () => {
+  it("테드라백 항목은 흡수액처럼 항목마다 한 행씩 만든다", () => {
+    const groups = buildGasSampleGroups([
+      item(12, "이황화메틸", "TEDLAR_BAG", "GAS"),
+      item(16, "황화수소", "TEDLAR_BAG", "GAS"),
+    ]);
+
+    expect(groups.map((g) => g.sampleName)).toEqual(["이황화메틸", "황화수소"]);
+    expect(groups.map((g) => g.pollutantIds)).toEqual([[12], [16]]);
+  });
+
+  it("현장측정·수은·입자상 항목은 만들지 않는다", () => {
     const groups = buildGasSampleGroups([
       item(10, "질소산화물", "FIELD_MEASUREMENT", "GAS"),
       item(11, "수은화합물", "MERCURY", "GAS"),
-      item(12, "자체물질", "TEDLAR_BAG", "GAS"),
       item(13, "먼지", "DUST", "PARTICLE"),
     ]);
 
     expect(groups).toEqual([]);
+  });
+
+  // 비소화합물은 중금속 여지로 잡으면서 흡수액으로도 잡는다. 고객사가 method 를 HEAVY_METAL 로 두어도
+  // 흡수액 행은 있어야 하므로, 고객사가 바꿀 수 없는 code 를 기준으로 예외를 둔다.
+  it("비소화합물은 중금속(입자상)으로 잡아도 흡수액 행을 따로 만든다", () => {
+    const groups = buildGasSampleGroups([
+      item(20, "비소화합물", "HEAVY_METAL", "GAS", "AS"),
+      item(21, "비소화합물", "HEAVY_METAL", "PARTICLE", "AS"),
+    ]);
+
+    expect(groups.map((g) => g.sampleName)).toEqual(["비소화합물", "비소화합물"]);
+    expect(groups.map((g) => g.pollutantIds)).toEqual([[20], [21]]);
+  });
+
+  it("code 가 없는 비소화합물은 이름으로 알아보고, 안내 대상에서도 뺀다", () => {
+    const items = [
+      item(20, "비소화합물", null, null),
+      item(22, "비소 화합물", null, null),
+    ];
+
+    expect(buildGasSampleGroups(items).map((g) => g.pollutantIds)).toEqual([[20], [22]]);
+    expect(getUnresolvedItems(items)).toEqual([]);
   });
 
   it("method·phase 가 없는 항목은 자동으로 만들지 않고 안내 대상으로 남긴다", () => {

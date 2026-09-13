@@ -228,8 +228,9 @@ export type MeasurementItemSnapshotDto = {
   nameEn: string;
   field: MeasurementField;
   /**
-   * 채취 방법(흡착관·카트리지·흡수액 등)과 입자상/가스상 구분. `code` 와 같은 이유로 null 일 수
-   * 있다 — 카탈로그 도입 이전 스냅샷과 고객사 자체 물질은 카탈로그 투영값이 비어 있다.
+   * 채취 방법(흡착관·카트리지·흡수액 등)과 입자상/가스상 구분.
+   * `method` 는 고객사가 물질을 채택할 때 정한 값이라 이관 전 채택분은 null 일 수 있고,
+   * `phase` 는 `code` 와 같은 이유로 null 일 수 있다 — 카탈로그 도입 이전 스냅샷과 고객사 자체 물질.
    * 현장채취 가스상 표의 행 구성이 이 둘로 결정되므로 소비처는 null 분기를 반드시 다뤄야 한다.
    */
   method: MeasurementMethod | null;

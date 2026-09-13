@@ -18,7 +18,7 @@ type StackPollutantRow = {
 
 const measurementsByStack: Record<number, StackPollutantRow[]> = {
   // 측정계획 상세(schedule 핸들러 stackId: 1)의 측정항목 카드용.
-  // 스냅샷 items(먼지·질소산화물)를 포함해 "현재 측정 항목 / 나머지" 분기를 모두 태운다.
+  // 스냅샷 items 를 포함해 "현재 측정 항목 / 나머지" 분기를 모두 태운다. schedule 핸들러 ITEM_POOL 과 pollutantId 를 맞춘다.
   1: [
     { id: 101, stackId: 1, pollutantId: 1, code: 'TSP', nameKr: '먼지',       nameEn: 'Dust', cycle: 'QUARTERLY', allowance: '30 mg/Sm³', oxygenApplicable: true },
     { id: 102, stackId: 1, pollutantId: 2, code: 'NOX', nameKr: '질소산화물', nameEn: 'NOx',  cycle: 'QUARTERLY', allowance: '150 ppm', oxygenApplicable: true },
@@ -26,6 +26,12 @@ const measurementsByStack: Record<number, StackPollutantRow[]> = {
     { id: 104, stackId: 1, pollutantId: 4, code: 'HCL', nameKr: '염화수소',   nameEn: 'HCl',  cycle: 'MONTHLY',   allowance: '10 ppm', oxygenApplicable: false },
     { id: 105, stackId: 1, pollutantId: 5, code: 'CO', nameKr: '일산화탄소', nameEn: 'CO',   cycle: 'MONTHLY',   allowance: '200 ppm', oxygenApplicable: false },
     { id: 106, stackId: 1, pollutantId: 11, code: 'NH3', nameKr: '암모니아',  nameEn: 'NH3',  cycle: 'ANNUAL',    allowance: '30 ppm', oxygenApplicable: false },
+    { id: 107, stackId: 1, pollutantId: 21, code: 'BENZENE', nameKr: '벤젠',     nameEn: 'Benzene',      cycle: 'SEMI_ANNUAL', allowance: '10 ppm', oxygenApplicable: false },
+    { id: 108, stackId: 1, pollutantId: 22, code: 'TOLUENE', nameKr: '톨루엔',   nameEn: 'Toluene',      cycle: 'SEMI_ANNUAL', allowance: '60 ppm', oxygenApplicable: false },
+    { id: 109, stackId: 1, pollutantId: 23, code: 'HCHO', nameKr: '포름알데히드', nameEn: 'Formaldehyde', cycle: 'SEMI_ANNUAL', allowance: '10 ppm', oxygenApplicable: false },
+    { id: 110, stackId: 1, pollutantId: 24, code: 'CH3CHO', nameKr: '아세트알데히드', nameEn: 'Acetaldehyde', cycle: 'SEMI_ANNUAL', allowance: '10 ppm', oxygenApplicable: false },
+    { id: 111, stackId: 1, pollutantId: 25, code: 'DMDS', nameKr: '이황화메틸', nameEn: 'Dimethyl disulfide', cycle: 'SEMI_ANNUAL', allowance: '', oxygenApplicable: false },
+    { id: 112, stackId: 1, pollutantId: 26, code: 'AS', nameKr: '비소화합물',  nameEn: 'Arsenic compounds', cycle: 'ANNUAL', allowance: '2 mg/Sm³', oxygenApplicable: false },
   ],
   1001: [
     { id: 1, stackId: 1001, pollutantId: 1, code: 'TSP', nameKr: '먼지',        nameEn: 'Dust',             cycle: 'MONTHLY',     allowance: '30 mg/Sm³', oxygenApplicable: true },
