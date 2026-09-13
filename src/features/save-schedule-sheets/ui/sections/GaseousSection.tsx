@@ -166,7 +166,7 @@ export const GaseousSection = ({
   fieldTone, onFieldFocus, ...shell
 }: Props) => {
   const columns: InputTableColumn<SampleForm>[] = [
-    { kind: "label", header: "No.", width: ROW_LABEL_WIDTH, render: (_, index) => index + 1 },
+    { kind: "label", align: "center", header: "No.", width: ROW_LABEL_WIDTH, render: (_, index) => index + 1 },
 
     ...GAS_FIELDS.map((f): InputTableColumn<SampleForm> => ({
       kind: "input",

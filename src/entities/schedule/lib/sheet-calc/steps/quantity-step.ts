@@ -1,6 +1,7 @@
+import { roundHalfUp } from "@shared/lib";
+
 import type { SheetCalcContext, SheetCalcStep } from "../context";
 import { gasVelocityRaw } from "../formula";
-import { roundHalfUp } from "../math";
 
 // QuantityStep — 평균 유속·현장 습윤 유량·표준상태 건조 유량.
 // 유량은 반올림 전 원시 유속/원시 유량을 이어받아 계산한다(반올림 누적 방지).

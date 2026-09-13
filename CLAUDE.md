@@ -80,6 +80,8 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
 - **API 프록시:** 개발 서버에서 `/api` → `http://localhost:8080` (`vite.config.ts`)
 - **Mock API:** MSW. `VITE_ENABLE_MSW` 환경변수로 켠다
   (`.env.development` = `true`, `.env.production` = `false`).
+  로컬에서 실서버에 붙으려고 끌 때는 `.env.development` 를 고치지 말고 `.env.development.local` 에
+  `VITE_ENABLE_MSW=false` 를 둔다 — `*.local` 은 git 이 무시하고 Vite 가 같은 모드 파일을 덮어쓴다.
   도메인별 on/off 는 `src/shared/api/mocks/handlers/index.ts` 의 상태 마커로 관리한다.
 - **Path Aliases** (`vite.config.ts` · `tsconfig.app.json` · `vitest.config.ts` 3곳에 동일하게 정의):
 

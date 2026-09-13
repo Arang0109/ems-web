@@ -1,4 +1,5 @@
 import type { SheetCalcPreview } from "@entities/schedule";
+import { displayValue } from "@shared/lib";
 import { weatherConditionOptions, windDirectionOptions } from "@shared/model";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
@@ -14,8 +15,6 @@ interface Props extends SectionShellProps, FieldStateProps {
   editable: boolean;
   onChange: (patch: Partial<WeatherForm>) => void;
 }
-
-const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
 /*
  * 칸별 자릿수 근거 (`maxIntDigits`/`maxDecimals`) — 물리 범위에서 따온다.
@@ -43,7 +42,7 @@ export const WeatherSection = ({
         tone={fieldTone(fieldPath.weather("pressure"))}
         onFocus={() => onFieldFocus(fieldPath.weather("pressure"))}
         onChange={(v) => onChange({ pressure: v })}
-        helper={<CalcResultRow label="단위 환산 :" value={display(calc?.pa)} unit="mmHg" />}
+        helper={<CalcResultRow label="단위 환산 :" value={displayValue(calc?.pa)} unit="mmHg" />}
       />
       <UnitField
         label="기온" unit="°C" type="number" step={0.1}

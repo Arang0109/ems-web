@@ -1,7 +1,7 @@
 import type { EquipType } from "@shared/model";
 
 import type { EquipmentRegisterForm, EquipmentSpecForm } from "./types";
-import { isNonNegative, isPositive } from "./validator";
+import { isNonNegativeNumber, isPositiveNumber } from "@shared/lib";
 
 export type EquipmentStepId = 'basic' | 'purchase' | 'inspection' | 'spec';
 
@@ -41,21 +41,21 @@ const getSpecProgress = (
 ): { done: number; total: number } => {
   switch (type) {
     case 'PARTICLE_SAMPLER': {
-      const filled = [spec.totalVolume, spec.orificeDp, spec.yd].filter(isNonNegative).length;
+      const filled = [spec.totalVolume, spec.orificeDp, spec.yd].filter(isNonNegativeNumber).length;
       return { done: filled, total: 3 };
     }
     case 'GAS_SAMPLER':
     case 'OTHER':
-      return { done: isNonNegative(spec.totalVolume) ? 1 : 0, total: 1 };
+      return { done: isNonNegativeNumber(spec.totalVolume) ? 1 : 0, total: 1 };
     case 'PITOT_TUBE': {
       const rows = Math.max(spec.coefficients.length, 1);
-      const filledRows = spec.coefficients.filter((c) => isPositive(c.coefficient)).length
-        + spec.coefficients.filter((c) => isPositive(c.velocity)).length;
+      const filledRows = spec.coefficients.filter((c) => isPositiveNumber(c.coefficient)).length
+        + spec.coefficients.filter((c) => isPositiveNumber(c.velocity)).length;
       return { done: (spec.pitotTubeType ? 1 : 0) + filledRows, total: 1 + rows * 2 };
     }
     case 'NOZZLE': {
       const rows = Math.max(spec.diameters.length, 1);
-      const filled = spec.diameters.filter((d) => isPositive(d.diameter)).length;
+      const filled = spec.diameters.filter((d) => isPositiveNumber(d.diameter)).length;
       return { done: filled, total: rows };
     }
     // 가스분석기는 사양이 없고, 종류 미선택이면 아직 셀 대상이 없다.

@@ -1,5 +1,7 @@
+import { roundHalfUp } from "@shared/lib";
+
 import type { SheetCalcStep } from "../context";
-import { averageTreatNullAsZero, isEmpty, roundHalfUp } from "../math";
+import { averageTreatNullAsZero, isEmpty } from "../math";
 
 // ExhaustGasStep — 평균 농도(O2·CO2·CO·N2), 산소보정계수, 건조·습윤 분자량.
 // O2·CO2·CO 농도가 모두 비어 있으면 스텝 전체를 건너뛴다(서버 가드와 동일).

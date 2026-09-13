@@ -21,9 +21,9 @@ interface Props extends FieldStateProps {
  * 지점 이름 열 · 값 열 · 삭제 열의 폭 (px).
  * 표를 `fit` 으로 세우므로 고정 폭이 아니라 **열 간 비율**이다.
  */
-const LABEL_WIDTH = 20;
-const VALUE_WIDTH = 80;
-const ACTION_WIDTH = 39;
+const LABEL_WIDTH = 30;
+const VALUE_WIDTH = 60;
+const ACTION_WIDTH = 25;
 
 /**
  * 지점별 배출가스 온도·동정압 — 행=지점, 열=온도·동압·정압인 표.
@@ -56,14 +56,14 @@ export const PointFlowTable = ({
   };
 
   const columns: InputTableColumn<SamplingPointForm>[] = [
-    { kind: "label", header: "", width: LABEL_WIDTH, render: (_, i) => `${i + 1}` },
+    { kind: "label", header: "지점", width: LABEL_WIDTH, render: (_, i) => `${i + 1}` },
 
     ...FLOW_FIELDS.map((f): InputTableColumn<SamplingPointForm> => ({
       kind: "input",
       header: <>{f.label}</>,
       hint: POINT_HINT[f.field],
       hintLabel: `${f.name} 설명`,
-      width: f.field === "Pv" ? 60 : VALUE_WIDTH,
+      width: f.field === "Pv" ? 50 : VALUE_WIDTH,
       type: "number",
       min: f.min,
       step: f.step,

@@ -598,7 +598,7 @@ export const contractStatusOptions =
 | 디렉토리 | 파일 | 담는 것 |
 |----------|------|---------|
 | `format/` | `code.ts` | 자릿수 문자열(사업자번호·전화번호 등) 정규화·표시 |
-| | `number.ts` | 숫자 값의 Form ↔ Domain 변환과 금액 표시 |
+| | `number.ts` | 숫자 값의 Form ↔ Domain 변환·검증 판정, 반올림(`roundHalfUp`), 표시 포맷(`formatNumber`·`displayValue`·금액 한글) |
 | | `numeric-input.ts` | `NumericField` 전용 타이핑 마스킹·확정 |
 | | `time.ts` | 시각 변환·분 연산·`TimeField` 전용 마스킹 |
 | | `date.ts` | 날짜 표시 포맷 |
@@ -614,7 +614,10 @@ export const contractStatusOptions =
 | `formatAddress(road, addr)` | `string/address` | 도로명+상세 주소 결합 |
 | `formatDateTime(s)`, `formatDate(s)` | `format/date` | 날짜/시간 표시 포맷 |
 | `formatMonthDay(s)` | `format/date` | `'8월 15일'` 형태 짧은 날짜 |
-| `formatNumber(n, o?)` | `format/number` | 천 단위 구분 표시 포맷(금액 한정 아님). `o` 는 `{ minDecimals, maxDecimals }` — `minDecimals` 는 모자란 소수 자리를 `0` 으로 채우고, `maxDecimals` 를 생략하면 로케일 기본값 3자리에서 반올림된다 |
+| `formatNumber(n, o?)` | `format/number` | 천 단위 구분 표시 포맷(금액 한정 아님). `o` 는 `{ minDecimals, maxDecimals, decimals }` — `minDecimals` 는 모자란 소수 자리를 `0` 으로 채우고, `maxDecimals` 를 생략하면 로케일 기본값 3자리에서 반올림된다. `decimals` 는 둘을 같은 값으로 주는 축약 — **`toFixed(n)` 을 직접 쓰지 말고 이걸 쓴다** |
+| `displayValue(v, dash?)` | `format/number` | 없는 값(`null`·`undefined`·공백)을 `'-'` 로. 상세 화면·표 셀·기록지의 "미입력" 표기. `formatNumber` 와 이어 쓰면(`displayValue(formatNumber(v, { decimals: 2 }))`) 없음과 포맷된 값이 갈린다. 폼 초기값은 `toFormValue` 다 |
+| `roundHalfUp(n, scale)` | `format/number` | 소수 `scale` 자리 반올림 — Java `BigDecimal.HALF_UP` 미러(음수도 절대값 기준). 서버 계산을 미러링하는 `entities/schedule/lib` 와 표시 전 자릿수 맞추기가 쓴다. **`Math.round(x * 10 ** n) / 10 ** n` 을 손으로 적지 말 것** |
+| `isPositiveNumber(s)`, `isNonNegativeNumber(s)` | `format/number` | validator 용 Form 문자열 판정 — `> 0` / `>= 0`. 빈값·파싱 불가는 `false` |
 | `toKoreanAmount(n)` | `format/number` | 계약 금액 한글 병기 — `120000000` → `'금 일억이천만원'` |
 | `formatTime(s)`, `unformatTime(s)` | `format/time` | 서버 `"HH:mm:ss"` ↔ 폼 값 `"HH:mm"` |
 | `addMinutes(t, m)` | `format/time` | `"HH:mm"` + 분 (자정 순환). 파싱 불가 시 `null` |

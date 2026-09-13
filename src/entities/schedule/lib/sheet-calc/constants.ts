@@ -1,4 +1,4 @@
-import { roundHalfUp } from "./math";
+import { roundHalfUp } from "@shared/lib";
 
 // 서버 계산 스텝과 동일한 상수. 값이 바뀌면 서버 쪽도 함께 바뀌어야 한다.
 

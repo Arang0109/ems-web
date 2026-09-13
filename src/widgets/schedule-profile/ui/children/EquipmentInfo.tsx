@@ -3,6 +3,7 @@ import { SquarePen } from "lucide-react";
 
 import type { EquipmentSnapshot, TeamSnapshot } from "@entities/schedule";
 import { UpdateScheduleEquipmentsForm } from "@features/update-schedule-equipments";
+import { displayValue } from "@shared/lib";
 import { EQUIP_TYPE_LABEL, EQUIP_TYPE_DESCRIPTION } from "@shared/config";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Badge } from "@shared/ui/badges";
@@ -10,7 +11,7 @@ import { IconButton } from "@shared/ui/buttons";
 import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { useRemountKey } from "@shared/model";
 
-import { value, describeEquipmentSpec, sortEquipmentsByType } from "../../model/mapper";
+import { describeEquipmentSpec, sortEquipmentsByType } from "../../model/mapper";
 import type { EquipmentSpecItem } from "../../model/types";
 
 interface Props {
@@ -85,7 +86,7 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
         >
           {/* 데스크탑 DetailRow 는 라벨(7rem)+값을 가로로 놓으므로 기존 5열은 값이 들어갈 폭이 없다 */}
           <DetailGrid>
-            <DetailRow label="별칭" value={value(equip.alias)} />
+            <DetailRow label="별칭" value={displayValue(equip.alias)} />
             {describeEquipmentSpec(equip).map((item) => (
               <DetailRow key={item.label} label={item.label} value={<SpecValue item={item} />} />
             ))}

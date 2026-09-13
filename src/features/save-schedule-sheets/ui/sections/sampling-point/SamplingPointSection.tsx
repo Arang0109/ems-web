@@ -1,6 +1,7 @@
 import { Plus } from "lucide-react";
 
 import type { SheetCalcPreview } from "@entities/schedule";
+import { displayValue } from "@shared/lib";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Button } from "@shared/ui/buttons";
 
@@ -11,7 +12,7 @@ import { PointCards } from "./PointCards";
 import { PointCommonValues } from "./PointCommonValues";
 import { PointFlowTable } from "./PointFlowTable";
 import { PointTable } from "./PointTable";
-import { buildIsokineticGroup, display } from "./point-results";
+import { buildIsokineticGroup } from "./point-results";
 
 interface Props extends SectionShellProps, FieldStateProps {
   isParticle: boolean;
@@ -60,10 +61,10 @@ export const SamplingPointSection = ({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-col text-body-3">
           <p className="flex items-center gap-1 text-body-3 text-ink">
-            연도 단면적 <span className="text-body-4 text-primary">{display(preview?.quantity?.area)}</span>m³
+            연도 단면적 <span className="text-body-4 text-primary">{displayValue(preview?.quantity?.area)}</span>m³
           </p>
           <p className="flex items-center gap-1 text-body-3 text-ink">
-            규정 요구 측정점 수 <span className="text-body-4 text-primary">{display(preview?.samplingPointCnt)}</span>
+            규정 요구 측정점 수 <span className="text-body-4 text-primary">{displayValue(preview?.samplingPointCnt)}</span>
           </p>
         </div>
         {editable && (

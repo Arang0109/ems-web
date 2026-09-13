@@ -1,31 +1,29 @@
 import type { EquipmentUpdateForm, EquipmentSpecForm, InspectionItemForm } from "./types";
 import type { EquipType } from "@shared/model";
 import { EQUIP_SPEC_FIELD_LABEL } from "@shared/config";
-
-const isPositive = (v: string) => v.trim() !== '' && Number(v) > 0;
-const isNonNegative = (v: string) => v.trim() !== '' && Number(v) >= 0;
+import { isNonNegativeNumber, isPositiveNumber } from "@shared/lib";
 
 const validateSpec = (type: EquipType, spec: EquipmentSpecForm): string | undefined => {
   switch (type) {
     case 'PARTICLE_SAMPLER':
-      if (![spec.totalVolume, spec.orificeDp, spec.yd].every(isNonNegative)) {
+      if (![spec.totalVolume, spec.orificeDp, spec.yd].every(isNonNegativeNumber)) {
         return `${EQUIP_SPEC_FIELD_LABEL.totalVolume}·${EQUIP_SPEC_FIELD_LABEL.orificeDp}·${EQUIP_SPEC_FIELD_LABEL.yd} 값을 모두 입력해주세요.`;
       }
       return undefined;
     case 'GAS_SAMPLER':
     case 'OTHER':
-      if (!isNonNegative(spec.totalVolume)) return `${EQUIP_SPEC_FIELD_LABEL.totalVolume} 값을 입력해주세요.`;
+      if (!isNonNegativeNumber(spec.totalVolume)) return `${EQUIP_SPEC_FIELD_LABEL.totalVolume} 값을 입력해주세요.`;
       return undefined;
     case 'PITOT_TUBE':
       if (!spec.pitotTubeType) return `${EQUIP_SPEC_FIELD_LABEL.pitotTubeType}를 선택해주세요.`;
       if (spec.coefficients.length === 0) return `${EQUIP_SPEC_FIELD_LABEL.coefficient}를 1개 이상 추가해주세요.`;
-      if (!spec.coefficients.every((c) => isPositive(c.coefficient) && isPositive(c.velocity))) {
+      if (!spec.coefficients.every((c) => isPositiveNumber(c.coefficient) && isPositiveNumber(c.velocity))) {
         return `${EQUIP_SPEC_FIELD_LABEL.coefficient}·${EQUIP_SPEC_FIELD_LABEL.velocity}은 0보다 큰 값이어야 합니다.`;
       }
       return undefined;
     case 'NOZZLE':
       if (spec.diameters.length === 0) return `${EQUIP_SPEC_FIELD_LABEL.diameter}을 1개 이상 추가해주세요.`;
-      if (!spec.diameters.every((d) => isPositive(d.diameter))) {
+      if (!spec.diameters.every((d) => isPositiveNumber(d.diameter))) {
         return `${EQUIP_SPEC_FIELD_LABEL.diameter}은 0보다 큰 값이어야 합니다.`;
       }
       return undefined;
@@ -39,7 +37,7 @@ const validateSpec = (type: EquipType, spec: EquipmentSpecForm): string | undefi
 
 const validateInspections = (inspections: InspectionItemForm[]): string | undefined => {
   const invalid = inspections.find(
-    (item) => item.enabled && item.cycleMonths.trim() !== '' && !isPositive(item.cycleMonths)
+    (item) => item.enabled && item.cycleMonths.trim() !== '' && !isPositiveNumber(item.cycleMonths)
   );
   return invalid ? '검사 주기는 0보다 큰 값이어야 합니다.' : undefined;
 };

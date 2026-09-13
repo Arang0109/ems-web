@@ -11,7 +11,11 @@ export {
   toNumberOrNull,
   toFormValue,
   formatNumber,
+  displayValue,
   toKoreanAmount,
+  roundHalfUp,
+  isPositiveNumber,
+  isNonNegativeNumber,
 } from "./format/number";
 export type { FormatNumberOptions } from "./format/number";
 export {

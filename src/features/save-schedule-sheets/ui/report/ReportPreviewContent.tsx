@@ -1,7 +1,9 @@
-import type {
-  ParticleSamplerSpec, ScheduleDetail, ScheduleSnapshot, SheetCalcExternals, SheetCalcPreview,
+import {
+  convertMmH2OToMmHg, convertPerHourToPerMinute, toCelsius,
+  type ParticleSamplerSpec, type ScheduleDetail, type ScheduleSnapshot,
+  type SheetCalcExternals, type SheetCalcPreview,
 } from "@entities/schedule";
-import { toNumberOrNull, formatNumber, toNumber, formatDateDot } from "@shared/lib";
+import { displayValue, formatDateDot, formatNumber, toNumber, toNumberOrNull } from "@shared/lib";
 import {
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
 } from "@shared/config";
@@ -12,6 +14,7 @@ import type { ScheduleBasicInfoForm, SheetForm } from "../../model/types";
 import {
   calcMoistureSamplingMinutes, getGasAnalyzerEndTime, getThcAnalyzerEndTime,
 } from "../../model/derived-times";
+import { averageOfInputs } from "../../model/input-average";
 import { calcWallDistances, getSectionRadiusCm } from "../../model/wall-distances";
 import { StackCrossSection } from "./StackCrossSection";
 
@@ -47,20 +50,8 @@ const VCell = ({
   </td>
 );
 
-const hrToMin = (v: number | null | undefined): number => v == null || Number.isNaN(v) ? 0 : v/60;
-
-const fmt = (v: number | null | undefined, scale: number): string =>
-  v == null || Number.isNaN(v) ? "" : v.toFixed(scale);
-
 const timeRange = (start: string | null | undefined, end: string | null | undefined): string =>
   `${start ? start.slice(0, 5) : "--:--"} ~ ${end ? end.slice(0, 5) : "--:--"}`;
-
-// 표시 전용 평균 (입력된 값만)
-const avgOf = (values: string[]): number | null => {
-  const nums = values.map(toNumberOrNull).filter((v): v is number => v !== null);
-  if (nums.length === 0) return null;
-  return nums.reduce((a, v) => a + v, 0) / nums.length;
-};
 
 const GAS_ROW_COUNT = 8;
 
@@ -89,15 +80,16 @@ export const ReportPreviewContent = ({
   const radiusCm = getSectionRadiusCm(section);
   const wallDistances = calcWallDistances(section, points.length);
   const stackLength = stack.shape === "CIRCULAR"
-    ? (stack.horizontalLength != null ? stack.horizontalLength.toFixed(3) : "")
+    ? formatNumber(stack.horizontalLength, { decimals: 3 })
     : (stack.horizontalLength != null && stack.verticalLength != null
-      ? `${stack.horizontalLength.toFixed(3)} × ${stack.verticalLength.toFixed(3)}` : "");
+      ? `${formatNumber(stack.horizontalLength, { decimals: 3 })} × ${formatNumber(stack.verticalLength, { decimals: 3 })}` : "");
 
-  // 평균값 (기록지 평균행)
-  const avgTs = quantity?.avgTg == null ? null : quantity.avgTg - 273;
-  const avgTmC = preview?.avgTm == null ? null : preview.avgTm - 273;   // 가스미터 온도 (°C)
-  const avgVacuum = avgOf(points.map((p) => p.vacuumGaugePressure));
-  const avgFinalImpinger = avgOf(points.map((p) => p.finalImpingerTemperature));
+  // 평균값 (기록지 평균행) — 평균행이 소수 1자리라 입력 평균도 같은 자리에서 반올림한다
+  const avgTs = toCelsius(quantity?.avgTg);
+  const avgTmC = toCelsius(preview?.avgTm);   // 가스미터 온도 (°C)
+  const avgPsMmHg = quantity?.avgPs == null ? null : convertMmH2OToMmHg(quantity.avgPs);
+  const avgVacuum = averageOfInputs(points.map((p) => p.vacuumGaugePressure), 1);
+  const avgFinalImpinger = averageOfInputs(points.map((p) => p.finalImpingerTemperature), 1);
 
   // 총 채취량(m³) — 지점별 (채취 후 − 채취 전) 의 합. 마지막 지시량 자체가 아니다.
   const totalVm = particleCalc?.totalVm ?? null;
@@ -105,7 +97,7 @@ export const ReportPreviewContent = ({
   // 가스흡입량 — 총 채취량을 표준상태로 환산
   const suctionVolume = (() => {
     if (totalVm == null || avgTmC == null || preview?.weather.pa == null || particleCalc?.avgOrificeDp == null) return null;
-    const deltaHmmHg = particleCalc.avgOrificeDp / 13.6;
+    const deltaHmmHg = convertMmH2OToMmHg(particleCalc.avgOrificeDp, 10);   // ParticleStep 과 같은 scale
     return totalVm * (273 / (273 + avgTmC)) * ((preview.weather.pa + deltaHmmHg) / 760);
   })();
 
@@ -199,13 +191,13 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={3}>풍 속</TableLabelCell>
               <VCell colSpan={2}>{formatNumber(sheet.weather.windSpeed, {minDecimals:1})} <i>m/s</i></VCell>
               <TableLabelCell colSpan={2}>피토관계수</TableLabelCell>
-              <VCell colSpan={1}>{quantity?.Cp?.toFixed(3) ?? "-"}</VCell>
+              <VCell colSpan={1}>{displayValue(formatNumber(quantity?.Cp, { decimals: 3 }))}</VCell>
             </tr>
             <tr>
               <TableLabelCell colSpan={4}>측 정 일</TableLabelCell>
               <VCell colSpan={5}>{formatDateDot(schedule?.sampledAt)}</VCell>
               <TableLabelCell colSpan={5}>측정공 위치의 기압</TableLabelCell>
-              <VCell colSpan={3}>{fmt(preview?.weather.pa, 1) || "-"} <i>mmHg</i></VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(preview?.weather.pa, { decimals: 1 }))} <i>mmHg</i></VCell>
             </tr>
             <tr>
               <TableLabelCell colSpan={4}>채 취 시 간</TableLabelCell>
@@ -213,7 +205,7 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={3}>ΔH</TableLabelCell>
               <VCell colSpan={2}>{externals.deltaH ?? 46}</VCell>
               <TableLabelCell colSpan={2}>YD</TableLabelCell>
-              <VCell colSpan={1}>{samplerSpec?.yd.toFixed(4) ?? "-"}</VCell>
+              <VCell colSpan={1}>{displayValue(formatNumber(samplerSpec?.yd, { decimals: 4 }))}</VCell>
             </tr>
 
             {/* ── 연도 직경 / 벽면거리 / 가스흡입량 ──────── */}
@@ -222,18 +214,18 @@ export const ReportPreviewContent = ({
               <VCell colSpan={5}>{stackLength || "-"}</VCell>
               <TableLabelCell colSpan={6}>연도 벽면으로부터 (cm)</TableLabelCell>
               <TableLabelCell colSpan={3}>가스흡입량</TableLabelCell>
-              <VCell colSpan={5}>{fmt(suctionVolume, 3) || "-"} <i>Sm³</i></VCell>
+              <VCell colSpan={5}>{displayValue(formatNumber(suctionVolume, { decimals: 3 }))} <i>Sm³</i></VCell>
             </tr>
 
             <tr>
               <TableLabelCell colSpan={4}>연도 면적(m²)</TableLabelCell>
-              <VCell colSpan={5}>{fmt(quantity?.area, 3) || "-"}</VCell>
+              <VCell colSpan={5}>{displayValue(formatNumber(quantity?.area, { decimals: 3 }))}</VCell>
               <TableLabelCell colSpan={2}>1지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[0]?.toFixed(1) ?? ""}</VCell>
+              <VCell colSpan={4}>{formatNumber(wallDistances[0], { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={3}>O₂ (%)</TableLabelCell>
-              <VCell colSpan={2}>{fmt(preview?.exhaustGas.o2Avg, 1)}</VCell>
+              <VCell colSpan={2}>{formatNumber(preview?.exhaustGas.o2Avg, { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={2}>CO₂ (%)</TableLabelCell>
-              <VCell>{fmt(preview?.exhaustGas.co2Avg, 1)}</VCell>
+              <VCell>{formatNumber(preview?.exhaustGas.co2Avg, { decimals: 1 })}</VCell>
             </tr>
 
             <tr>
@@ -242,38 +234,38 @@ export const ReportPreviewContent = ({
                 {isParticle ? `측정 ${sheet.particle.thimbleFilter}, 바탕 ${sheet.particle.bgThimbleFilter}` : null}
               </VCell>
               <TableLabelCell colSpan={2}>2지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[1]?.toFixed(1) ?? ""}</VCell>
+              <VCell colSpan={4}>{formatNumber(wallDistances[1], { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={3}>누출검사 확인 (mmHg)</TableLabelCell>
               <VCell colSpan={2}>{isParticle ? 381 : "-"}</VCell>
               <TableLabelCell colSpan={2}>배출가스 정압 (mmHg)</TableLabelCell>
-              <VCell>{quantity?.avgPs == null ? "-" : (Math.round((quantity.avgPs / 13.6) * 100) / 100).toFixed(2)}</VCell>
+              <VCell>{displayValue(formatNumber(avgPsMmHg, { decimals: 2 }))}</VCell>
             </tr>
 
             <tr>
               <TableLabelCell colSpan={4}>기술책임자 확인</TableLabelCell>
               <VCell colSpan={5}>(서명)</VCell>
               <TableLabelCell colSpan={2}>3지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[2]?.toFixed(1) ?? ""}</VCell>
+              <VCell colSpan={4}>{formatNumber(wallDistances[2], { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={5}>흡인노즐 (mm)</TableLabelCell>
-              <VCell colSpan={3}>{fmt(toNumber(sheet.particle.nozzleSize) * 10, 2) || "-"}</VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(toNumber(sheet.particle.nozzleSize) * 10, { decimals: 2 }))}</VCell>
             </tr>
 
             <tr>
               <TableLabelCell colSpan={4}>시료채취자 확인</TableLabelCell>
               <VCell colSpan={5}>{basicInfoForm.mentorName || "-"} (서명)<br />{basicInfoForm.menteeName || "-"} (서명)</VCell>
               <TableLabelCell colSpan={2}>4지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[3]?.toFixed(1) ?? ""}</VCell>
+              <VCell colSpan={4}>{formatNumber(wallDistances[3], { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={5}>노즐단면적 (cm²)</TableLabelCell>
-              <VCell colSpan={3}>{fmt(nozzleArea, 3) || "-"}</VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(nozzleArea, { decimals: 3 }))}</VCell>
             </tr>
 
             <tr>
               <TableLabelCell colSpan={4}>환경기술인</TableLabelCell>
               <VCell colSpan={5}>{basicInfoForm.facilityManager || "-"} (서명)</VCell>
               <TableLabelCell colSpan={2}>5지점</TableLabelCell>
-              <VCell colSpan={4}>{wallDistances[4]?.toFixed(1) ?? ""}</VCell>
+              <VCell colSpan={4}>{formatNumber(wallDistances[4], { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={5}>등속흡인계수 (%)</TableLabelCell>
-              <VCell colSpan={3}>{fmt(particleCalc?.avgIsokineticRatio, 1)}</VCell>
+              <VCell colSpan={3}>{formatNumber(particleCalc?.avgIsokineticRatio, { decimals: 1 })}</VCell>
             </tr>
 
             {/* ════════ [입자상 물질] ════════ */}
@@ -285,7 +277,7 @@ export const ReportPreviewContent = ({
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 흡입유량 : {formatNumber(suctionFlowRate, {maxDecimals:1})} L/min
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                유량 : {formatNumber(hrToMin(quantity?.standardQuantity), {maxDecimals:1})} Sm³/min
+                유량 : {formatNumber(convertPerHourToPerMinute(quantity?.standardQuantity), {maxDecimals:1})} Sm³/min
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 {/* 이 행은 colSpan 23 짜리 nowrap 셀이라 표 폭을 좌우한다 —
                     포맷을 거치지 않으면 raw float 한 줄로 문서가 통째로 넓어진다 */}
@@ -353,15 +345,15 @@ export const ReportPreviewContent = ({
             <tr>
               <TableLabelCell colSpan={2}>평 균</TableLabelCell>
               <td colSpan={2} className="border border-border bg-muted/40" />
-              <VCell colSpan={2}>{fmt(avgVacuum, 1)}</VCell>
-              <VCell colSpan={2}>{fmt(quantity?.avgPs, 1)}</VCell>
-              <VCell colSpan={2}>{fmt(quantity?.avgPv, 1)}</VCell>
-              <VCell colSpan={1}>{fmt(avgTs, 1)}</VCell>
-              <VCell colSpan={2}>{fmt(avgTmC, 1)}</VCell>
-              <VCell colSpan={2}>{fmt(particleCalc?.avgKFactor, 2)}</VCell>
-              <VCell colSpan={2}>{fmt(particleCalc?.avgOrificeDp, 2)}</VCell>
-              <VCell colSpan={2}>{isParticle ? fmt(avgTs, 1) : ""}</VCell>
-              <VCell colSpan={2}>{fmt(avgFinalImpinger, 1)}</VCell>
+              <VCell colSpan={2}>{formatNumber(avgVacuum, { decimals: 1 })}</VCell>
+              <VCell colSpan={2}>{formatNumber(quantity?.avgPs, { decimals: 1 })}</VCell>
+              <VCell colSpan={2}>{formatNumber(quantity?.avgPv, { decimals: 1 })}</VCell>
+              <VCell colSpan={1}>{formatNumber(avgTs, { decimals: 1 })}</VCell>
+              <VCell colSpan={2}>{formatNumber(avgTmC, { decimals: 1 })}</VCell>
+              <VCell colSpan={2}>{formatNumber(particleCalc?.avgKFactor, { decimals: 2 })}</VCell>
+              <VCell colSpan={2}>{formatNumber(particleCalc?.avgOrificeDp, { decimals: 2 })}</VCell>
+              <VCell colSpan={2}>{isParticle ? formatNumber(avgTs, { decimals: 1 }) : ""}</VCell>
+              <VCell colSpan={2}>{formatNumber(avgFinalImpinger, { decimals: 1 })}</VCell>
               <td colSpan={2} className="border border-border bg-muted/40" />
             </tr>
 
@@ -371,7 +363,7 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={2}>수분량(%)</TableLabelCell>
               <VCell colSpan={3}>{formatNumber(preview?.moisture.xw, {minDecimals:2})}</VCell>
               <TableLabelCell colSpan={4}>배출가스온도(°C)</TableLabelCell>
-              <VCell colSpan={4}>{fmt(avgTs, 1)}</VCell>
+              <VCell colSpan={4}>{formatNumber(avgTs, { decimals: 1 })}</VCell>
               <TableLabelCell colSpan={4}>포화수증기압</TableLabelCell>
               <VCell colSpan={2}></VCell>
             </tr>
@@ -381,7 +373,7 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={4}>온 도(°C)</TableLabelCell>
               <TableLabelCell colSpan={4}>무수염화칼슘(g)</TableLabelCell>
               <TableLabelCell colSpan={5}>채 취 시 간</TableLabelCell>
-              <VCell colSpan={3}>{fmt(moistureSamplingTime, 0)}</VCell>
+              <VCell colSpan={3}>{formatNumber(moistureSamplingTime, { decimals: 0 })}</VCell>
               <TableLabelCell>분</TableLabelCell>
             </tr>
             <tr>
@@ -394,15 +386,15 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={3}>채취량(L)</TableLabelCell>
             </tr>
             <tr>
-              <VCell colSpan={3}>{formatNumber(sheet.moisture.suctionVelocity, { minDecimals: 1 }) || "-"}</VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(sheet.moisture.suctionVelocity, { minDecimals: 1 }))}</VCell>
               <VCell colSpan={3}>{formatNumber(preview?.moisture.pm_g, {minDecimals:2})}</VCell>
               <VCell colSpan={2}>{formatNumber(sheet.moisture.gasMeterTempIn, {minDecimals:0})}</VCell>
               <VCell colSpan={2}>{formatNumber(sheet.moisture.gasMeterTempOut, {minDecimals:0})}</VCell>
               <VCell colSpan={2}>{formatNumber(sheet.moisture.weightBefore, {minDecimals:2})}</VCell>
               <VCell colSpan={2}>{formatNumber(sheet.moisture.weightAfter, {minDecimals:2})}</VCell>
-              <VCell colSpan={3}>{formatNumber(sheet.moisture.dryGasVolumeBefore, { minDecimals: 1 }) || "-"}</VCell>
-              <VCell colSpan={3}>{formatNumber(sheet.moisture.dryGasVolumeAfter, { minDecimals: 1 }) || "-"}</VCell>
-              <VCell colSpan={3}>{fmt(moistureVolume, 0)}</VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(sheet.moisture.dryGasVolumeBefore, { minDecimals: 1 }))}</VCell>
+              <VCell colSpan={3}>{displayValue(formatNumber(sheet.moisture.dryGasVolumeAfter, { minDecimals: 1 }))}</VCell>
+              <VCell colSpan={3}>{formatNumber(moistureVolume, { decimals: 0 })}</VCell>
             </tr>
 
             {/* ════════ [가스상 및 VOCs 물질] ════════ */}

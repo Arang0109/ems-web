@@ -2,9 +2,9 @@ import { useParams } from "react-router";
 
 import { useScheduleDetail } from "@entities/schedule";
 
+import { displayValue } from "@shared/lib";
 import { MEASUREMENT_FIELD_LABEL } from "@shared/config";
 
-import { value } from "../model/mapper";
 
 /**
  * 페이지 제목 옆에 붙는 측정계획 식별 정보 — 측정시설명 · 접수번호 · 상태.
@@ -22,11 +22,11 @@ export const ScheduleProfileHeadline = () => {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-caption text-ink">{value(stackName)}</span>
+      <span className="text-caption text-ink">{displayValue(stackName)}</span>
       <span className="text-caption text-ink">|</span>
-      <span className="text-caption text-ink">{value(data.referenceNumber)}</span>
+      <span className="text-caption text-ink">{displayValue(data.referenceNumber)}</span>
       <span className="text-caption text-ink">|</span>
-      <span className="text-caption text-ink">{value(MEASUREMENT_FIELD_LABEL[data.measurementField])}</span>
+      <span className="text-caption text-ink">{displayValue(MEASUREMENT_FIELD_LABEL[data.measurementField])}</span>
     </div>
   );
 };

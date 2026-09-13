@@ -1,3 +1,5 @@
+import { roundHalfUp } from "@shared/lib";
+
 import type { SheetSave } from "../model/types";
 import type { SheetCalcExternals } from "./sheet-calc";
 import { DEFAULT_DELTA_H, K_FACTOR_CONST, runSheetCalc } from "./sheet-calc";
@@ -15,13 +17,6 @@ export type NozzleRecommendation = {
   Vm: number | null;                // 예상 흡입량 (m³) — 희망 흡입량 Vr의 현장조건 환산
   Vlc: number | null;               // 예상 채취수분량 (ml)
   samplingTime: number | null;      // 예상 채취시간 (min)
-};
-
-// 이 파일의 round는 sheet-calc의 roundHalfUp과 달리 음수에서 JS Math.round 동작을 따른다
-// (여기 값은 모두 양수라 실사용 차이는 없다).
-const round = (value: number, scale: number): number => {
-  const factor = 10 ** scale;
-  return Math.round(value * factor + 1e-9 * Math.sign(value)) / factor;
 };
 
 /**
@@ -47,30 +42,30 @@ export const calcNozzleRecommendations = (
     ) {
       const nz4 = (nozzleSize * 10) ** 4;
       const moistureRate = 1 - ctx.xw / 100;
-      kFactor = round(
+      kFactor = roundHalfUp(
         K_FACTOR_CONST * ctx.Cp * ctx.Cp * deltaH * nz4 * moistureRate * moistureRate *
           ((ctx.Md * ctx.avgTm * ctx.pg) / (ctx.Mw * ctx.avgTg * ctx.pa)),
         2,
       );
     }
 
-    const orificeDp = kFactor != null && ctx.avgPv != null ? round(kFactor * ctx.avgPv, 2) : null;
+    const orificeDp = kFactor != null && ctx.avgPv != null ? roundHalfUp(kFactor * ctx.avgPv, 2) : null;
     const pm = ctx.pa != null && orificeDp != null ? ctx.pa + orificeDp / 13.6 : null;
 
     // 표준상태 희망 흡입량 Vr → 현장 가스미터 조건의 예상 흡입량 Vm
     const vm =
       vr != null && ctx.avgTm != null && pm != null && pm !== 0
-        ? round(vr * (ctx.avgTm / 273) * (760 / pm), 5)
+        ? roundHalfUp(vr * (ctx.avgTm / 273) * (760 / pm), 5)
         : null;
 
     // Vlc = Vm × 10³ × (Xw / (100 − Xw)) × (18/22.4)
     const vlc =
       ctx.xw != null && vm != null && 100 - ctx.xw !== 0
-        ? round(vm * 1000 * (ctx.xw / (100 - ctx.xw)) * (18 / 22.4), 2)
+        ? roundHalfUp(vm * 1000 * (ctx.xw / (100 - ctx.xw)) * (18 / 22.4), 2)
         : null;
 
     // 예상 채취시간 = Tg × (0.00346·Vlc + Vm·(Pm/Tm)) × 1.667×10² / (Pg × Vs × An)
-    const an = round((Math.PI * nozzleSize * nozzleSize) / 4, 3);
+    const an = roundHalfUp((Math.PI * nozzleSize * nozzleSize) / 4, 3);
     let samplingTime: number | null = null;
     if (
       ctx.avgTg != null && vlc != null && vm != null && pm != null && ctx.avgTm != null &&
@@ -78,7 +73,7 @@ export const calcNozzleRecommendations = (
     ) {
       const a = ctx.avgTg * (0.00346 * vlc + vm * (pm / ctx.avgTm)) * 166.7;
       const b = ctx.pg * ctx.Vs * an;
-      samplingTime = round(a / b, 1);
+      samplingTime = roundHalfUp(a / b, 1);
     }
 
     return { nozzleSize, kFactor, orificeDp, Vm: vm, Vlc: vlc, samplingTime };

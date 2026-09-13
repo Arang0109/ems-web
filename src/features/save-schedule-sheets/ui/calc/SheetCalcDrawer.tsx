@@ -3,6 +3,7 @@ import { TriangleAlert } from "lucide-react";
 
 import type { NozzleRecommendation, SheetCalcPreview } from "@entities/schedule";
 import { cn } from "@/lib/utils";
+import { displayValue } from "@shared/lib";
 import { useIsMobile } from "@shared/model";
 import type { FieldTone } from "@shared/model";
 import { Button } from "@shared/ui/buttons";
@@ -51,8 +52,6 @@ interface Props {
   nozzleTone?: FieldTone;
   onNozzleFocus?: () => void;
 }
-
-const display = (v: number | null): string => (v == null ? "-" : String(v));
 
 /**
  * 기록지 한 장의 계산 결과를 모아 보는 가장자리 표면. 액션 바의 `계산값` 이 입구다.
@@ -269,7 +268,7 @@ export const SheetCalcDrawer = ({
                   {isSelected && <span className="text-caption text-brand-dark"> · 적용 중</span>}
                 </p>
                 <p className="text-caption text-muted-ink mt-1">
-                  오리피스차압 {display(r.orificeDp)} mmH₂O · 채취시간 {display(r.samplingTime)} 분 · 채취량 {display(r.Vm)} m³
+                  오리피스차압 {displayValue(r.orificeDp)} mmH₂O · 채취시간 {displayValue(r.samplingTime)} 분 · 채취량 {displayValue(r.Vm)} m³
                 </p>
               </button>
             );

@@ -1,16 +1,11 @@
 import type { MeasurementItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
+import { displayValue } from "@shared/lib";
 import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
 import { MEASUREMENT_CYCLE } from "@shared/model";
 import type { MeasurementCycle } from "@shared/model";
 
 import type { ScheduleItemGroup, ScheduleItemOption } from "./types";
-
-const text = (v?: string | number | null): string => {
-  if (v === null || v === undefined) return "-";
-  const s = String(v).trim();
-  return s === "" ? "-" : s;
-};
 
 /**
  * 선택 가능한 측정항목 목록을 주기별로 묶는다.
@@ -38,8 +33,8 @@ export const toItemGroups = (
     covered.add(pollutant.id);
     push(pollutant.cycle, {
       pollutantId: pollutant.id,
-      nameKr: text(pollutant.nameKr),
-      allowance: text(item ? item.allowance : pollutant.allowance),
+      nameKr: displayValue(pollutant.nameKr),
+      allowance: displayValue(item ? item.allowance : pollutant.allowance),
       oxygenApplicable: item ? item.oxygenApplicable : pollutant.oxygenApplicable,
       cycle: pollutant.cycle,
       isRetired: false,
@@ -51,8 +46,8 @@ export const toItemGroups = (
     .forEach((item) => {
       push(item.cycle, {
         pollutantId: item.pollutantId,
-        nameKr: text(item.nameKr),
-        allowance: text(item.allowance),
+        nameKr: displayValue(item.nameKr),
+        allowance: displayValue(item.allowance),
         oxygenApplicable: item.oxygenApplicable,
         cycle: item.cycle,
         isRetired: true,

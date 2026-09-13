@@ -23,8 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 
-# environment variable
-.env/*
+# environment variable — 시크릿이 들어갈 수 있는 실제 값 파일만 무시한다.
+# Vite 의 .env / .env.development / .env.production 은 팀 공용 설정이라 추적한다
+# (VITE_ 값은 번들에 노출되므로 애초에 시크릿을 넣지 않는다). 개인 토글은 *.local 로.
+.env.local
+.env.*.local
+deploy/.env
 
 # deploy — 로컬 접속 정보(EC2 IP·SSH 키 경로 등), 커밋 금지
 deploy/deploy.local.sh

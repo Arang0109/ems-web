@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { ArrowDownToLine } from "lucide-react";
 
 import type { SheetCalcPreview } from "@entities/schedule";
+import { displayValue } from "@shared/lib";
 import { useGridNavigation } from "@shared/model";
 import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
 
@@ -10,7 +11,7 @@ import { fieldPath } from "../../../model/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
 import { NOZZLE_BASIS_AFTER } from "./point-fields";
-import { averageOf, display, type PointGroup } from "./point-results";
+import { averageOf, type PointGroup } from "./point-results";
 import type { FieldStateProps } from "../shell-props";
 
 interface Props extends FieldStateProps {
@@ -90,7 +91,7 @@ export const PointTable = ({
                         onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
                         onChange={(v) => onPointChange(i, { [f.field]: v })} disabled={!editable} />
                     ))}
-                    <TableResultCell value={display(averageOf(f.field, points, preview))} />
+                    <TableResultCell value={displayValue(averageOf(f.field, points, preview))} />
                   </tr>
 
                   {/* 지점별 값이 아니라 시트 공통 기준이라 열을 나누지 않고 한 줄로 깐다 */}
@@ -108,9 +109,9 @@ export const PointTable = ({
                 <tr key={ri}>
                   <TableLabelCell hint={r.hint} hintLabel={`${r.name} 설명`}>{r.label}</TableLabelCell>
                   {points.map((_, i) => (
-                    <TableResultCell key={i} value={display(r.value(i))} />
+                    <TableResultCell key={i} value={displayValue(r.value(i))} />
                   ))}
-                  <TableResultCell value={display(r.avg)} />
+                  <TableResultCell value={displayValue(r.avg)} />
                 </tr>
               ))}
             </Fragment>

@@ -1,5 +1,6 @@
+import { roundHalfUp } from "@shared/lib";
+
 import { DEFAULT_CP } from "./constants";
-import { roundHalfUp } from "./math";
 import type { PitotCoefficient } from "./types";
 
 // 여러 스텝이 공유하는 순수 공식.

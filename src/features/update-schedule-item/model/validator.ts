@@ -1,3 +1,5 @@
+import { toNumberOrNull } from "@shared/lib";
+
 import type { ScheduleItemUpdateForm } from "./types";
 
 // 허용기준은 "미지정"이 유효한 값이라 비워 두는 것을 막지 않는다.
@@ -5,12 +7,13 @@ import type { ScheduleItemUpdateForm } from "./types";
 export const validateScheduleItemFields = (form: ScheduleItemUpdateForm) => {
   const errors: Partial<Record<keyof ScheduleItemUpdateForm, string>> = {};
 
-  const allowance = form.allowance.trim();
-  if (allowance && Number.isNaN(Number(allowance.replace(/,/g, "")))) {
-    errors.allowance = "허용기준은 숫자로 입력해주세요.";
-  }
-  if (allowance && Number(allowance.replace(/,/g, "")) < 0) {
-    errors.allowance = "허용기준은 0 이상이어야 합니다.";
+  if (form.allowance.trim()) {
+    const allowance = toNumberOrNull(form.allowance);
+    if (allowance === null) {
+      errors.allowance = "허용기준은 숫자로 입력해주세요.";
+    } else if (allowance < 0) {
+      errors.allowance = "허용기준은 0 이상이어야 합니다.";
+    }
   }
 
   return errors;
