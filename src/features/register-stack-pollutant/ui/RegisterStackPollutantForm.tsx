@@ -120,6 +120,7 @@ export const RegisterStackPollutantForm = ({
               <span className="text-label text-muted-foreground md:hidden">오염물질</span>
               <Select
                 id={`pollutant-${index}`}
+                searchable
                 placeholder={hasPollutants ? "오염물질 선택" : "등록된 측정물질이 없습니다"}
                 options={pollutantOptions}
                 value={row.pollutantId || undefined}

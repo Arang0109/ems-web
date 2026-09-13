@@ -13,12 +13,12 @@ import { toast } from "@shared/ui/toasts";
 interface Props {
   equipmentId: string | null;
   type: InspectionType;
-  /** 장비 상세를 다시 읽어 최종 수검일·다음 예정일을 갱신한다. */
+  /** 등록 후 모달을 닫는 등 화면 쪽 후처리. 이력·목록 갱신은 mutation 이 알아서 한다. */
   onSuccess?: () => void;
 }
 
 export const useRecordInspection = ({ equipmentId, type, onSuccess }: Props) => {
-  const { data: records, isLoading: isRecordsLoading, refetch } = useInspectionRecords({ equipmentId });
+  const { data: records, isLoading: isRecordsLoading } = useInspectionRecords({ equipmentId });
   const { recordInspection, isLoading } = useRecordInspectionAction();
 
   const [form, setForm] = useState<InspectionRecordForm>(getDefaultInspectionRecordForm(type));
@@ -46,7 +46,6 @@ export const useRecordInspection = ({ equipmentId, type, onSuccess }: Props) => 
       await recordInspection(equipmentId, toInspectionRecordCreate(form));
       toast.success('검사 실시 이력이 등록되었습니다.');
       setForm(getDefaultInspectionRecordForm(type));
-      refetch();
       onSuccess?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : '검사 이력 등록에 실패했습니다.';

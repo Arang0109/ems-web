@@ -57,7 +57,6 @@ export const useScheduleLifecycle = ({ scheduleId, status, onSuccess }: Params):
   const canComplete = status !== null && canTransitionScheduleStatus(status, "REPORT_COMPLETED");
   const canCancel = status !== null && canTransitionScheduleStatus(status, "CANCELED");
   const canDelete = status !== null && canDeleteSchedule(status);
-  // 성적서작성완료 재개방만 관리자 전용이다. 서버도 403으로 막지만 버튼부터 감춘다.
   const canReopen = status !== null && canReopenSchedule(status)
     && (!requiresAdminToReopenSchedule(status) || isAdmin(user?.role));
 

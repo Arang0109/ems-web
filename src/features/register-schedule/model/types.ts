@@ -5,6 +5,8 @@ export type ScheduleRegisterForm = {
   workplaceId: string;      // UI 연쇄 선택용 (서버 전송 대상 아님)
   stackId: string;          // 측정시설
   teamId: string;           // 측정 팀
+  mentorId: string;    // 측정 담당자 userId
+  menteeId: string;    // 측정 보조자 userId
   measurementField: MeasurementField;  // 기본값이 있어 미선택 상태가 없다
   measureDate: string;      // 측정 일자 (yyyy-MM-dd)
   measurementType: MeasurementType;
@@ -17,6 +19,8 @@ export const getDefaultScheduleRegisterForm = (): ScheduleRegisterForm => ({
   workplaceId: "",
   stackId: "",
   teamId: "",
+  mentorId: "",
+  menteeId: "",
   measurementField: "AIR",
   measureDate: "",
   measurementType: "SELF",

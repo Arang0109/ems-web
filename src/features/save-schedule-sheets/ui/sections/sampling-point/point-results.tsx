@@ -86,26 +86,30 @@ export const isokineticResults = (preview: SheetCalcPreview | null): PointResult
 
 /** 채취량 — 등속흡인 그룹의 첫 결과 행이자, 카드에서 입력 사이에 끼어드는 값 */
 export const vmResult = (preview: SheetCalcPreview | null): PointResult => ({
-  label: <span>채취량 (V<sub>m</sub>)</span>, name: "채취량", hint: POINT_RESULT_HINT.Vm,
+  label: <span>실제 채취량 (V<sub>m</sub>)</span>, name: "채취량", hint: POINT_RESULT_HINT.Vm,
   value: (i) => preview?.points[i]?.Vm, avg: preview?.particle?.totalVm,
 });
 
+/** 유량 정보(온도·동정압) — 입력은 `PointFlowTable` 이, 평균은 계산값 드로어가 그린다 */
+export const FLOW_GROUP: PointGroup = { label: "유량 정보", fields: FLOW_FIELDS, results: [] };
+
+/** 등속흡인 정보(입자상 전용) — 측정점 카드·전치 표가 이 그룹만 그린다 */
+export const buildIsokineticGroup = (preview: SheetCalcPreview | null): PointGroup => ({
+  label: "등속흡인 정보",
+  fields: ISOKINETIC_FIELDS,
+  results: [vmResult(preview), ...isokineticResults(preview)],
+});
+
 /**
- * 표·계산값 드로어의 그룹 구성. 모바일 카드의 그룹 순서와 같은 소스를 쓴다 —
- * 두 표현이 어긋나면 "지점 간 값 비교" 라는 이 섹션의 목적이 깨진다.
+ * 계산값 드로어의 측정지점 평균 그룹 구성. 섹션의 표현 순서(온도·동정압 표 → 등속흡인)와
+ * 같은 소스를 쓴다 — 두 표현이 어긋나면 "지점 간 값 비교" 라는 이 섹션의 목적이 깨진다.
  */
 export const buildPointGroups = (
   isParticle: boolean,
   preview: SheetCalcPreview | null,
 ): PointGroup[] => [
-  { label: "유량 정보", fields: FLOW_FIELDS, results: [] },
-  ...(isParticle
-    ? [{
-      label: "등속흡인 정보",
-      fields: ISOKINETIC_FIELDS,
-      results: [vmResult(preview), ...isokineticResults(preview)],
-    }]
-    : []),
+  FLOW_GROUP,
+  ...(isParticle ? [buildIsokineticGroup(preview)] : []),
 ];
 
 /** `PointResult` → `CalcResultGrid` 항목. 지점별 값(`index` 지정)과 평균(생략) 두 쓰임을 함께 덮는다. */

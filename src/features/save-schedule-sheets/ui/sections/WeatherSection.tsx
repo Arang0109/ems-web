@@ -6,7 +6,7 @@ import { UnitField, CalcResultRow } from "@shared/ui/form";
 import { WEATHER_HINT } from "../../model/field-hints";
 import { fieldPath } from "../../model/required-fields";
 import type { WeatherForm } from "../../model/types";
-import { FIELD_GRID, type FieldStateProps, type SectionShellProps } from "./shell-props";
+import type {  FieldStateProps, SectionShellProps } from "./shell-props";
 
 interface Props extends SectionShellProps, FieldStateProps {
   weather: WeatherForm;
@@ -17,6 +17,15 @@ interface Props extends SectionShellProps, FieldStateProps {
 
 const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
+/*
+ * 칸별 자릿수 근거 (`maxIntDigits`/`maxDecimals`) — 물리 범위에서 따온다.
+ *
+ * - 대기압 4/1 : 해수면 기압은 870~1085 hPa
+ * - 기온   2/1 : 현장 기온은 -40~60°C. 부호는 자릿수에 세지 않는다
+ * - 습도   3/1 : 백분율이라 상한이 100
+ * - 풍속   2/1 : 태풍급(50 m/s)도 두 자리
+ */
+
 export const WeatherSection = ({
   weather, calc, editable, onChange, fieldTone, onFieldFocus, ...shell
 }: Props) => (
@@ -25,42 +34,42 @@ export const WeatherSection = ({
     title="기상정보"
     subtitle="측정 현장의 기상 상태를 입력합니다."
   >
-    <div className={FIELD_GRID}>
+    <div className="grid grid-cols-2 gap-x-5 gap-y-3 md:grid-cols-3 xl:grid-cols-6">
       <UnitField
-        label="대기압" required unit="hPa" type="number" min={0.1} step={0.1}
+        label="대기압" unit="hPa" type="number" min={0.1} step={0.1}
+        maxIntDigits={4} maxDecimals={1}
         hint={WEATHER_HINT.pressure}
         value={weather.pressure} disabled={!editable}
         tone={fieldTone(fieldPath.weather("pressure"))}
         onFocus={() => onFieldFocus(fieldPath.weather("pressure"))}
         onChange={(v) => onChange({ pressure: v })}
-        helper={<CalcResultRow label="환산 : Pa (mmHg)" value={display(calc?.pa)} unit="mmHg" />}
+        helper={<CalcResultRow label="단위 환산 :" value={display(calc?.pa)} unit="mmHg" />}
       />
       <UnitField
-        label="기온" required unit="°C" type="number" step={0.1}
-        hint={WEATHER_HINT.temperature}
+        label="기온" unit="°C" type="number" step={0.1}
+        maxIntDigits={2} maxDecimals={1}
         value={weather.temperature} disabled={!editable}
         tone={fieldTone(fieldPath.weather("temperature"))}
         onFocus={() => onFieldFocus(fieldPath.weather("temperature"))}
         onChange={(v) => onChange({ temperature: v })}
       />
       <UnitField
-        label="습도" required unit="%" type="number" min={0} max={100} step={0.1}
-        hint={WEATHER_HINT.humidity}
+        label="습도" unit="%" type="number" min={0} max={100} step={0.1}
+        maxIntDigits={2} maxDecimals={1}
         value={weather.humidity} disabled={!editable}
         tone={fieldTone(fieldPath.weather("humidity"))}
         onFocus={() => onFieldFocus(fieldPath.weather("humidity"))}
         onChange={(v) => onChange({ humidity: v })}
       />
       <UnitField
-        label="기상" required options={weatherConditionOptions} placeholder="기상 선택"
-        hint={WEATHER_HINT.weatherCondition}
+        label="기상" options={weatherConditionOptions} placeholder="선택"
         value={weather.weatherCondition} disabled={!editable}
         tone={fieldTone(fieldPath.weather("weatherCondition"))}
         onFocus={() => onFieldFocus(fieldPath.weather("weatherCondition"))}
         onChange={(v) => onChange({ weatherCondition: v })}
       />
       <UnitField
-        label="풍향" required options={windDirectionOptions} placeholder="풍향 선택"
+        label="풍향" options={windDirectionOptions} placeholder="선택"
         hint={WEATHER_HINT.windDirection}
         value={weather.windDirection} disabled={!editable}
         tone={fieldTone(fieldPath.weather("windDirection"))}
@@ -68,8 +77,8 @@ export const WeatherSection = ({
         onChange={(v) => onChange({ windDirection: v })}
       />
       <UnitField
-        label="풍속" required unit="m/s" type="number" min={0} max={50} step={0.1}
-        hint={WEATHER_HINT.windSpeed}
+        label="풍속" unit="m/s" type="number" min={0} max={50} step={0.1}
+        maxIntDigits={2} maxDecimals={1}
         value={weather.windSpeed} disabled={!editable}
         tone={fieldTone(fieldPath.weather("windSpeed"))}
         onFocus={() => onFieldFocus(fieldPath.weather("windSpeed"))}

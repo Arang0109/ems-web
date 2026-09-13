@@ -1,6 +1,14 @@
 import { HelpTip } from "@shared/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+import { STICKY_CELL_CLASS } from "./cell-face";
+
+/**
+ * 고정 셀의 배경 — 기본 `bg-rule-dark/20` 은 반투명이라 밑으로 지나가는 값이 비친다.
+ * 같은 색을 `surface` 위에 섞어 불투명하게 만든다.
+ */
+const STICKY_LABEL_BG = "bg-[color-mix(in_srgb,var(--color-rule-dark)_20%,var(--color-surface))]";
+
 interface Props {
   children?: React.ReactNode;
   colSpan?: number;
@@ -18,21 +26,24 @@ interface Props {
   hint?: React.ReactNode;
   /** 도움말 아이콘의 접근성 이름 (라벨이 문자열이 아닐 때 지정) */
   hintLabel?: string;
+  /** 가로 스크롤 시 이 left(px)에 고정한다 — `InputTable` 이 앞 열 폭의 합으로 계산해 넘긴다 */
+  stickyLeft?: number;
 }
 
 // 기록지형 테이블의 행/열 라벨 셀
 export const TableLabelCell = ({
-  children, colSpan, rowSpan, scope = "row", align = "center", width, hint, hintLabel,
+  children, colSpan, rowSpan, scope = "row", align = "center", width, hint, hintLabel, stickyLeft,
 }: Props) => (
   <th
     scope={scope}
     colSpan={colSpan}
     rowSpan={rowSpan}
-    style={width === undefined ? undefined : { width }}
+    style={{ width, left: stickyLeft }}
     className={cn(
       "bg-rule-dark/20 border border-rule p-1 md:p-2",
       "text-label text-ink whitespace-nowrap",
       align === "left" ? "text-left" : "text-center",
+      stickyLeft !== undefined && [STICKY_CELL_CLASS, STICKY_LABEL_BG],
     )}
   >
     {hint ? (

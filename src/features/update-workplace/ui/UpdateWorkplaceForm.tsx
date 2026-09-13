@@ -3,7 +3,6 @@ import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 
 import type { Workplace } from '@entities/workplace';
 
-import { formatBusinessNumber } from '@shared/lib';
 import { FormDialog } from "@shared/ui/dialogs";
 import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
 import type { Grade } from "@shared/model";
@@ -72,7 +71,8 @@ export const UpdateWorkplaceForm = ({ open, onOpenChange, client, workplace, onS
           <InputGroup
             id="bizNumber"
             label="사업자등록번호"
-            value={formatBusinessNumber(form.bizNumber)}
+            code="business"
+            value={form.bizNumber}
             onChange={(value) => handleChange('bizNumber', value)}
             startIcon={<Hash />}
           />

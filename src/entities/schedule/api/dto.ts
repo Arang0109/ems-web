@@ -37,7 +37,7 @@ export type CreateScheduleRequest = {
 // 성적서 기본정보는 전부 최상위에 있다 — 관리번호·측정분야·측정용도와 채취일자·시료접수일·
 // 분석완료일·성적서발행일이 여기 있고 문서(snapshot)에는 사본을 두지 않는다.
 // 일자 넷은 수정 경로가 갈린다 — 채취일자는 PUT /schedules/{id},
-// 나머지 셋은 PATCH /schedules/{id}/basic-info 가 맡는다.
+// 나머지 셋은 PATCH /schedules/{id}/report-dates 가 맡는다.
 export type ScheduleResponse = {
   id: number;
   tenantId: number;
@@ -431,7 +431,16 @@ export type SheetRefDto = {
 // 서버는 요청에 담긴 카테고리의 시트만 교체하고 나머지는 보관본을 유지한다.
 // 그래서 시트 삭제는 deletedSheets 로 명시해야 한다 — 요청에서 빠졌다는 것만으로는
 // "내가 지웠다"와 "다른 사용자가 방금 추가했다"를 구분할 수 없기 때문이다.
+//
+// 채취 시각·현장 담당자를 함께 싣는다. 같은 채취 스냅샷 노드에 살고 현장 채취 탭이 함께 소유하므로,
+// 나눠 보내면 저장 한 번이 여러 왕복이 되고 중간에 실패하면 화면 상태가 갈라진다.
+// 이 넷은 null(문자열은 blank 포함)이 "기존 값 유지"다 — 값을 비울 수는 없다.
+// 시트와 잠금 시점을 공유한다 — 분석값 입력 중부터는 이 경로 전체가 409로 거부된다.
 export type SaveSheetsRequest = {
+  samplingStartedAt: string | null;     // "HH:mm:ss"
+  samplingEndedAt: string | null;
+  facilityManager: string | null;
+  samplingWitness: string | null;
   sheets: SamplingSheetDto[];
   deletedSheets: SheetRefDto[];
 };
@@ -510,7 +519,7 @@ export type ChangeWorkplaceSnapshotRequestBody = {
   stack?: ChangeStackSnapshotRequestBody;
 };
 
-// 담당자(배출시설관리자·시료채취입회자)는 basic-info 소관이라 이 요청에 없다.
+// 담당자(배출시설관리자·시료채취입회자)는 PUT /schedules/{id}/sheets 소관이라 이 요청에 없다.
 export type ChangeClientSnapshotRequest = {
   name?: string | null;
   bizNumber?: string | null;
@@ -548,31 +557,45 @@ export type UpdateScheduleItemRequest = {
   oxygenApplicable: boolean;
 };
 
-// 성적서를 진행하며 채우는 값의 수정 — PATCH /schedules/{id}/basic-info
-// 값의 주인이 넷으로 갈려 있어 서버가 나눠 저장한다(일자 셋은 측정계획 메타, 채취 시각·현장
-// 담당자는 채취 스냅샷, 서명란 담당자는 고객사 스냅샷, 측정자 표기는 팀 스냅샷).
-// 여러 화면이 공유하는 경로라 전부 부분 갱신이다 — null 은 "미전달"이지 "지움"이 아니다.
-// 계산 입력이 아니므로 서버는 측정 시트를 재계산하지 않는다.
-// 시료채취 시각은 측정계획 단위(공통) 값이며, 시트별 채취시각(MoistureDataDto·
-// ParticulateSamplingDto)과 다른 값이다.
-export type UpdateBasicInfoRequest = {
+// 성적서 진행 일자 수정 — PATCH /schedules/{id}/report-dates
+// 실험·분석 탭이 이 셋을 단독으로 소유하므로 전달한 값을 그대로 채택한다 —
+// null 은 "미전달"이 아니라 "지움"이다. 그래서 잘못 넣은 일자를 비울 수 있다.
+// sampledAt ≤ receivedAt ≤ analyzedAt ≤ issuedAt 순서를 어기면 400으로 거부된다.
+// 시료접수일이 채워지면 서버가 상태를 분석값 입력 중으로 전진시킨다.
+export type UpdateReportDatesRequest = {
   receivedAt: string | null;            // "yyyy-MM-dd"
   analyzedAt: string | null;
   issuedAt: string | null;
-  samplingStartedAt: string | null;     // "HH:mm:ss"
-  samplingEndedAt: string | null;
-  facilityManager: string | null;
-  samplingWitness: string | null;
+};
+
+// 고객사 스냅샷 수정 — PATCH /schedules/{id}/tenant
+// 성적서 서명란 담당자(analyst·technicalManager)를 현장 채취 탭과 실험·분석 탭이 공유하므로
+// 부분 갱신이다 — null(blank 포함)은 "기존 값 유지"이고 값을 비울 수는 없다.
+// 이 회차 문서만 고치며 고객사 원장은 바뀌지 않는다.
+export type ChangeTenantSnapshotRequest = {
+  name?: string | null;
+  bizNumber?: string | null;
+  representative?: string | null;
+  roadAddress?: string | null;
+  detailAddress?: string | null;
+  zipcode?: string | null;
   analyst: string | null;
   technicalManager: string | null;
-  mentorName: string | null;            // 팀 원장은 변경하지 않고 문서 표기만 바꾼다
+};
+
+// 측정팀 스냅샷 수정 — PATCH /schedules/{id}/team
+// 이 회차의 측정자 표기명만 고친다. null(blank 포함)은 "기존 값 유지"다.
+// 팀 원장도, 이 회차에 들고 간 장비 목록도 바뀌지 않는다(장비 교체는 /equipments).
+export type ChangeTeamSnapshotRequest = {
+  mentorName: string | null;
   menteeName: string | null;
 };
 
 // 측정계획 정의 수정 — PUT /schedules/{id}
 // 채취일자·측정용도·관리번호가 이 경로다. 전달한 값을 그대로 채택하므로 빈 값은 기존 값을 지운다.
 // 측정분야와 측정 대상(측정시설·측정팀)은 생성 시점에만 정하며 이 경로로 바꿀 수 없고,
-// 시료접수·분석완료·성적서발행 일자는 PATCH /schedules/{id}/basic-info 가 맡는다.
+// 시료접수·분석완료·성적서발행 일자는 PATCH /schedules/{id}/report-dates 가 맡는다 —
+// 소유 화면이 다르므로 한 경로에 묶으면 서로의 빈 칸이 상대의 값을 지운다.
 export type UpdateScheduleRequest = {
   sampledAt: string;                    // "yyyy-MM-dd" — 서버 필수값(비울 수 없다)
   schedulePurpose: MeasurementType | null;

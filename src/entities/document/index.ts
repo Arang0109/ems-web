@@ -24,3 +24,5 @@ export { useUpdateDocumentAction } from './model/use-update-document-action';
 export { useDeleteDocumentAction } from './model/use-delete-document-action';
 export { useDeleteDocumentVersionAction } from './model/use-delete-document-version-action';
 export { useDownloadDocumentAction } from './model/use-download-document-action';
+
+export { documentKeys } from "./model/query-keys";

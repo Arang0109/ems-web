@@ -1,7 +1,8 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 
 import { workplaceApi } from "../api/api";
+import { workplaceKeys } from "./query-keys";
 import type { Workplace } from "./types";
 
 interface Props {
@@ -9,10 +10,11 @@ interface Props {
   workplaceId: number | null;
 }
 
-/** 타입 A(자동 로드): 사업장 상세. 대상이 바뀌면 이전 값을 즉시 버린다. */
+/** 사업장 상세. 대상이 바뀌면 이전 값을 즉시 버린다. */
 export const useWorkplaceDetail = ({ workplaceId }: Props) =>
-  useFetch<Workplace | null>(
-    async () => unwrapMessage(await workplaceApi.getWorkplace(workplaceId as number)),
-    null,
-    { deps: [workplaceId], enabled: workplaceId != null, resetOnChange: true },
-  );
+  useEntityQuery<Workplace | null>({
+    queryKey: workplaceKeys.detail(workplaceId as number),
+    queryFn: async () => unwrapMessage(await workplaceApi.getWorkplace(workplaceId as number)),
+    initialData: null,
+    enabled: workplaceId != null,
+  });

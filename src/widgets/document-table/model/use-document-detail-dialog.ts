@@ -17,27 +17,19 @@ interface Props {
   document: Document | null;
   /** 상세 모달 열림 여부. 닫혀 있으면 버전 목록을 조회하지 않는다. */
   open: boolean;
-  onSuccess?: () => void;
 }
 
-export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) => {
+export const useDocumentDetailDialog = ({ document, open }: Props) => {
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const documentId = open && document ? document.id : null;
 
-  const { data, isLoading: loading, error, refetch } = useDocumentVersions({ documentId });
+  const { data, isLoading: loading, error } = useDocumentVersions({ documentId });
   const { handleDownload } = useDownloadDocument();
 
-  // 버전 목록과 함께 문서 목록·상세(최신 버전 번호, 수정일)도 갱신한다.
-  const handleVersionChanged = () => {
-    refetch();
-    onSuccess?.();
-  };
-
-  const { handleDelete, isLoading: isDeleting } = useDeleteDocumentVersion({
-    documentId,
-    onSuccess: handleVersionChanged,
-  });
+  // 버전 목록과 문서 목록·상세(최신 버전 번호, 수정일)는 모두 documentKeys 아래에 있어
+  // 버전 등록·삭제 mutation 하나가 셋을 함께 갱신한다.
+  const { handleDelete, isLoading: isDeleting } = useDeleteDocumentVersion({ documentId });
 
   const versionData = useMemo(
     // 마지막 남은 한 개는 서버가 삭제를 막으므로 목록이 둘 이상일 때만 삭제 가능하다.
@@ -70,6 +62,5 @@ export const useDocumentDetailDialog = ({ document, open, onSuccess }: Props) =>
     versionsError: error,
 
     uploadOpen, setUploadOpen,
-    handleVersionChanged,
   };
 };

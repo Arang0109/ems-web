@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import type { ContractRegisterForm } from "../types";
@@ -11,7 +11,8 @@ import { useRegisterContractAction } from "@entities/contract";
 import { toast } from "@shared/ui/toasts";
 
 export const useRegisterContract = () => {
-  const { data: workplaces, fetchWorkplaces } = useWorkplaces();
+  // null 은 필터 없는 전체 목록이다 — 계약은 어느 사업장에도 붙을 수 있다.
+  const { data: workplaces } = useWorkplaces(null);
   const navigate = useNavigate();
 
   const { registerContract, isLoading } = useRegisterContractAction();
@@ -21,10 +22,6 @@ export const useRegisterContract = () => {
   const handleChange = <K extends keyof ContractRegisterForm>(name: K, value: ContractRegisterForm[K]) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
-
-  useEffect(() => {
-    fetchWorkplaces(null);
-  }, [fetchWorkplaces])
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();

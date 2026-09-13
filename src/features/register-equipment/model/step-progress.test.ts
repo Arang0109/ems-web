@@ -57,7 +57,7 @@ describe('getEquipmentStepProgress', () => {
     expect(getEquipmentStepProgress(partial, 'spec')).toEqual({ done: 2, total: 3 });
   });
 
-  it('가스샘플러·기타 사양은 총유량 1개', () => {
+  it('가스샘플러·기타 사양은 적산량 1개', () => {
     const gas = getDefaultEquipmentRegisterForm('GAS_SAMPLER');
     expect(getEquipmentStepProgress(gas, 'spec')).toEqual({ done: 0, total: 1 });
     expect(getEquipmentStepProgress(formWithSpec(gas, { totalVolume: '5' }), 'spec'))

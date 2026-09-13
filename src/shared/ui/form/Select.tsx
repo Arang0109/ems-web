@@ -8,8 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
+import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
+
+import { InFieldLabel } from "./InFieldLabel";
+import {
+  IN_FIELD_CONTROL_HEIGHT,
+  IN_FIELD_SELECT_CLASS,
+  IN_FIELD_VALUE_CLASS,
+  inFieldPlaceholder,
+} from "./in-field";
+import { SearchableSelectControl } from "./SearchableSelectControl";
 
 /**
  * `T` 를 도메인 유니온(`Grade` 등)으로 좁히면 라벨을 value 로 잘못 넘기는 실수가 컴파일 에러가 된다.
@@ -26,10 +35,7 @@ export interface SelectGroupOption<T extends string = string> {
   options: SelectOption<T>[];
 }
 
-interface SelectProps<T extends string> {
-  options?: SelectOption<T>[];
-  groups?: SelectGroupOption<T>[];
-
+interface SelectBaseProps<T extends string> {
   // NoInfer: value 는 T 추론에 참여하지 않고 options 에서 정해진 T 로 "검사만" 받는다.
   // 이게 없으면 라벨(string)을 넘겼을 때 T 가 string 으로 넓어져 위반을 놓친다.
   // `""` 는 이 코드베이스의 "미선택" 표현이다(매칭되는 item 이 없어 placeholder 가 뜬다).
@@ -40,6 +46,7 @@ interface SelectProps<T extends string> {
   placeholder?: string;
   label?: React.ReactNode;
   helperText?: string;
+  errorMessage?: string;
 
   id?: string;
   disabled?: boolean;
@@ -48,21 +55,57 @@ interface SelectProps<T extends string> {
   size?: "sm" | "default";
 }
 
+/**
+ * `searchable` 은 옵션이 서버에서 온 긴 목록일 때 켠다 (사업장·의뢰기관·측정장비·오염물질 등).
+ * 고정 옵션(`@shared/model` 의 상수 배열 유래)에는 켜지 않는다 — 다섯 줄짜리 목록에
+ * 검색창이 붙으면 고르는 동작만 한 단계 길어진다.
+ *
+ * **옵션 개수로 자동 판정하지 않는 것은 의도다.** 목록이 9개면 없고 11개면 생기면
+ * 같은 화면이 데이터에 따라 달라져 아무도 무엇이 뜰지 예측하지 못한다.
+ *
+ * `groups` 와는 함께 쓸 수 없다 — 그룹 헤더와 필터링을 함께 맞추는 값을 치를 이유가
+ * 아직 없다(`groups` 호출부는 현재 0곳이다). 선택 속성으로 두면 아무도 판단하지 않은 채
+ * 기본값이 먹으므로 타입으로 막는다.
+ */
+type SelectVariantProps<T extends string> =
+  | { searchable: true; options: SelectOption<T>[]; groups?: never }
+  | { searchable?: false; options?: SelectOption<T>[]; groups?: SelectGroupOption<T>[] };
+
+type SelectProps<T extends string> = SelectBaseProps<T> & SelectVariantProps<T>;
+
+/**
+ * 라벨이 칸 안에 들어온 트리거 — 공유 클래스의 `data-[size=*]:h-*` 가 `h-12` 보다 구체적이라
+ * 같은 셀렉터로 덮는다 (`InputGroup` 의 인필드 라벨과 같은 48px 규칙).
+ */
+const LABELED_TRIGGER_CLASS = cn(
+  IN_FIELD_CONTROL_HEIGHT,
+  "data-[size=default]:h-12 data-[size=sm]:h-12",
+  IN_FIELD_VALUE_CLASS,
+  IN_FIELD_SELECT_CLASS,
+);
+
 export const Select = <T extends string = string>({
   options,
   groups,
+  searchable,
   value,
   defaultValue,
   onValueChange,
   placeholder,
   label,
   helperText,
+  errorMessage,
   id,
   disabled,
   required,
   className,
   size = "default",
 }: SelectProps<T>) => {
+  const hasLabel = !!label;
+  const invalid = !!errorMessage;
+  const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
+  const controlClassName = cn("w-full", hasLabel && LABELED_TRIGGER_CLASS, className);
+
   const renderItems = () => {
     if (groups) {
       return groups.map((group, index) => (
@@ -98,7 +141,21 @@ export const Select = <T extends string = string>({
     ? groups.flatMap((group) => group.options)
     : (options ?? []);
 
-  const select = (
+  const select = searchable ? (
+    <SearchableSelectControl
+      // 제네릭 좁히기는 이 컴포넌트의 props 경계에서 끝난다 — 아래 일반형과 같은 이유다.
+      options={items as SelectOption<string>[]}
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={(next) => onValueChange?.(next as T | null)}
+      placeholder={effectivePlaceholder}
+      id={id}
+      disabled={disabled}
+      invalid={invalid}
+      className={controlClassName}
+      size={size}
+    />
+  ) : (
     <SelectPrimitive
       // Base UI 는 value 를 넓은 string 으로 다룬다. 제네릭 좁히기는 이 컴포넌트의 props 경계에서 끝나고,
       // 여기서는 Base UI 계약에 맞춰 되돌린다 — 캐스팅을 이 한 곳에만 모으기 위한 의도적 처리다.
@@ -108,23 +165,37 @@ export const Select = <T extends string = string>({
       onValueChange={(next) => onValueChange?.(next as T | null)}
       disabled={disabled}
     >
-      <SelectTrigger id={id} size={size} className={cn("w-full", className)}>
-        <SelectValue placeholder={placeholder} />
+      <SelectTrigger
+        id={id}
+        size={size}
+        aria-invalid={invalid || undefined}
+        className={controlClassName}
+      >
+        <SelectValue placeholder={effectivePlaceholder} />
       </SelectTrigger>
       <SelectContent>{renderItems()}</SelectContent>
     </SelectPrimitive>
   );
 
-  if (!label) return select;
+  if (!hasLabel) return select;
 
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-      </FieldLabel>
-      {select}
+    <Field data-invalid={invalid || undefined} className="gap-1.5">
+      {/* 라벨은 트리거 위에 얹힌다 — 글줄 시작점은 트리거 좌패딩(pl-2.5)에 맞춘다 */}
+      <div className="relative">
+        <InFieldLabel
+          htmlFor={id}
+          required={required}
+          invalid={invalid}
+          disabled={disabled}
+          className="left-2.5"
+        >
+          {label}
+        </InFieldLabel>
+        {select}
+      </div>
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
     </Field>
   );
 };

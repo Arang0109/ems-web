@@ -13,24 +13,19 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   document: Document | null;
-  onSuccess?: () => void;
 }
 
-export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }: Props) => {
+export const DocumentDetailDialog = ({ open, onOpenChange, document }: Props) => {
   const { form, fieldErrors, isLoading, handleChange, handleSubmit } = useUpdateDocument({
     document,
-    onSuccess: () => {
-      onOpenChange(false);
-      onSuccess?.();
-    },
+    // 목록·상세 갱신은 mutation 이 documentKeys 를 무효화해 처리한다.
+    onSuccess: () => onOpenChange(false),
   });
 
   const { handleDelete } = useDeleteDocument({
     document,
-    onSuccess: () => {
-      onOpenChange(false);
-      onSuccess?.();
-    },
+    // 목록·상세 갱신은 mutation 이 documentKeys 를 무효화해 처리한다.
+    onSuccess: () => onOpenChange(false),
   });
 
   const {
@@ -38,8 +33,7 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
     versionsLoading,
     versionsError,
     uploadOpen, setUploadOpen,
-    handleVersionChanged,
-  } = useDocumentDetailDialog({ document, open, onSuccess });
+  } = useDocumentDetailDialog({ document, open });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const uploadFormKey = useRemountKey(uploadOpen);
@@ -79,7 +73,6 @@ export const DocumentDetailDialog = ({ open, onOpenChange, document, onSuccess }
         documentId={document.id}
         open={uploadOpen}
         onOpenChange={setUploadOpen}
-        onSuccess={handleVersionChanged}
       />
     </>
   );

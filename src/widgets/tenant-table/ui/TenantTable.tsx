@@ -7,11 +7,7 @@ import { Search } from '@shared/ui/form';
 import { Panel } from '@shared/ui/cards';
 import { useRemountKey } from '@shared/model';
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-export const TenantTable = ({ onSuccess }: Props) => {
+export const TenantTable = () => {
   const {
     table,
 
@@ -19,8 +15,8 @@ export const TenantTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading, error, refetch
-  } = useTenantTable({ onSuccess });
+    isLoading, error
+  } = useTenantTable();
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const provisionFormKey = useRemountKey(provisionModalOpen);
@@ -36,7 +32,6 @@ export const TenantTable = ({ onSuccess }: Props) => {
             key={provisionFormKey}
             open={provisionModalOpen}
             onOpenChange={setProvisionModalOpen}
-            onSuccess={refetch}
           />
         </div>
       </div>

@@ -5,7 +5,7 @@ import { ProtectedRoute } from "./protected-route";
 import { AdminRoute } from "./admin-route";
 import { PlatformRoute } from "./platform-route";
 
-import { MainLayout, PlatformLayout } from "@widgets/layouts";
+import { CHAT_ROUTE_HANDLE, MainLayout, PlatformLayout } from "@widgets/layouts";
 
 import { SignInPage } from "@pages/sign-in";
 import { Dashboard } from "@pages/dashboard";
@@ -22,6 +22,7 @@ import {
   SchedulePage, ScheduleRegisterPage, ScheduleDetailPage,
   CanceledSchedulePage,
 } from "@pages/schedule";
+import { ChatPage } from "@pages/chat";
 
 /**
  * 데이터 라우터로 구성한다 (`<BrowserRouter><Routes>` 조합이 아니다).
@@ -60,6 +61,11 @@ const router = createBrowserRouter(
         {/* :scheduleId 보다 먼저 둬야 "canceled"가 id로 잡히지 않는다 */}
         <Route path="/schedule/canceled" element={<CanceledSchedulePage />} />
         <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} />
+
+        {/* 화면 높이에 맞춰야 하므로 `handle` 로 레이아웃에 알린다.
+            데스크탑은 목록·대화를 한 화면에 두고, 모바일은 두 경로를 오간다. */}
+        <Route path="/chat" element={<ChatPage />} handle={CHAT_ROUTE_HANDLE} />
+        <Route path="/chat/:roomId" element={<ChatPage />} handle={CHAT_ROUTE_HANDLE} />
 
         <Route
           path="/admin/members"

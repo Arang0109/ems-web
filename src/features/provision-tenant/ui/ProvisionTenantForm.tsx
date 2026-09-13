@@ -5,9 +5,6 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, Select } from "@shared/ui/form";
 
-// Format
-import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from '@shared/lib';
-
 // Icon
 import { MailIcon, User2Icon, Phone, KeyRound, Building2, Briefcase, Hash } from "lucide-react";
 
@@ -52,8 +49,9 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             id="bizNumber"
             label="사업자번호"
             placeholder="사업자번호"
-            value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
+            code="business"
+            value={form.bizNumber}
+            onChange={(value) => handleChange("bizNumber", value)}
             invalid={!!fieldErrors?.bizNumber}
             error={fieldErrors?.bizNumber}
             startIcon={<Hash />}
@@ -126,8 +124,9 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             id="adminTel"
             label="전화번호"
             placeholder="전화번호"
-            value={formatPhoneNumber(form.adminTel)}
-            onChange={(value) => handleChange("adminTel", unformatNumber(value).slice(0, 11))}
+            code="phone"
+            value={form.adminTel}
+            onChange={(value) => handleChange("adminTel", value)}
             startIcon={<Phone />}
           />
           <InputGroup

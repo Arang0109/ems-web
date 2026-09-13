@@ -12,11 +12,10 @@ import { DocumentDetailDialog } from './DocumentDetailDialog';
 
 interface Props {
   category: DocumentCategory;
-  onSuccess?: () => void;
 }
 
 // Tabs가 이미 카드 컨테이너를 그리므로 TablePanel(자체 카드)을 쓰지 않는다.
-export const DocumentTable = ({ category, onSuccess }: Props) => {
+export const DocumentTable = ({ category }: Props) => {
   const {
     table,
 
@@ -28,8 +27,8 @@ export const DocumentTable = ({ category, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading, error, refetch,
-  } = useDocumentTable({ category, onSuccess });
+    isLoading, error,
+  } = useDocumentTable({ category });
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const registerFormKey = useRemountKey(registerModalOpen);
@@ -47,7 +46,6 @@ export const DocumentTable = ({ category, onSuccess }: Props) => {
             open={registerModalOpen}
             onOpenChange={setRegisterModalOpen}
             defaultCategory={category}
-            onSuccess={refetch}
           />
         </div>
       </div>
@@ -75,7 +73,6 @@ export const DocumentTable = ({ category, onSuccess }: Props) => {
         open={detailModalOpen}
         onOpenChange={setDetailModalOpen}
         document={detailDocument}
-        onSuccess={refetch}
       />
     </div>
   );

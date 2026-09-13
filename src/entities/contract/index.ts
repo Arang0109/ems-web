@@ -6,3 +6,5 @@ export { useContracts } from "./model/use-contracts";
 export { useContractDetail } from "./model/use-contract-detail";
 export { useRegisterContractAction } from "./model/use-register-contract-action";
 export { useUpdateContractAction } from "./model/use-update-contract-action";
+
+export { contractKeys } from "./model/query-keys";

@@ -4,13 +4,10 @@ import type { FieldTone } from "@shared/model";
 import { NumericField, TimeField } from "@shared/ui/form";
 import { cn } from "@/lib/utils";
 
-/** 톤별 셀 면 색 — `default` 는 칠하지 않는다 */
-const TONE_CELL: Record<Exclude<FieldTone, "default">, string> = {
-  info: "bg-info-soft",
-  danger: "bg-danger-soft",
-};
+import { STICKY_CELL_CLASS, cellFaceClass, isCellFilled } from "./cell-face";
 
-// 기록지형 테이블의 입력 셀 — 우측에 단위 표기
+// 기록지형 테이블의 입력 셀 — 우측에 단위 표기.
+// 면 색은 `UnitField` 와 같은 규칙이다 — 값이 차면 연초록, 톤이 그 위를 덮는다.
 export const TableInputCell = ({
   value,
   onChange,
@@ -22,7 +19,11 @@ export const TableInputCell = ({
   min,
   max,
   step,
+  maxIntDigits,
+  maxDecimals,
   tone = "default",
+  showComplete = true,
+  stickyLeft,
   onFocus,
 }: {
   value: string;
@@ -35,8 +36,15 @@ export const TableInputCell = ({
   min?: number;
   max?: number;
   step?: number;
+  /** 정수부·소수부 최대 자릿수 — `type="number"` 에서만. 넘기면 타이핑이 들어가지 않는다 */
+  maxIntDigits?: number;
+  maxDecimals?: number;
   /** 칸의 상태 색. 의미는 호출부가 정한다 (`UnitField` 와 같은 계약) */
   tone?: FieldTone;
+  /** 값이 들어차면 면을 연초록으로 물들인다. 완료 개념이 없는 칸에서는 끈다. */
+  showComplete?: boolean;
+  /** 가로 스크롤 시 이 left(px)에 고정한다 — `InputTable` 이 앞 열 폭의 합으로 계산해 넘긴다 */
+  stickyLeft?: number;
   /** 이 칸에 포커스가 들어왔을 때 — 셀 전체에 걸어 ± 버튼·시계 버튼까지 잡는다 */
   onFocus?: () => void;
 }) => {
@@ -50,7 +58,13 @@ export const TableInputCell = ({
     <td
       colSpan={colSpan}
       onFocusCapture={onFocus}
-      className={cn("border border-rule", tone !== "default" && TONE_CELL[tone])}
+      style={{ left: stickyLeft }}
+      className={cn(
+        "border border-rule",
+        // 고정 셀은 밑으로 지나가는 값이 비치면 안 된다 — 기본 면색을 깔고 완료·톤 색이 그 위를 덮는다
+        stickyLeft !== undefined && [STICKY_CELL_CLASS, "bg-surface"],
+        cellFaceClass(tone, isCellFilled(value, { showComplete, disabled })),
+      )}
     >
       <div className="flex items-center">
         {type === "time" ? (
@@ -69,6 +83,8 @@ export const TableInputCell = ({
             onChange={onChange}
             allowNegative={min === undefined || min < 0}
             step={step}
+            maxIntDigits={maxIntDigits}
+            maxDecimals={maxDecimals}
             frame="none"
             disabled={disabled}
             placeholder={placeholder}

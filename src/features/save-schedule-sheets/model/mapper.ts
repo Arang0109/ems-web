@@ -1,6 +1,6 @@
 import type {
-  BasicInfoUpdate, GaseousSampling, SamplingPoint, SamplingSheet, SamplingSnapshot, SheetSave,
-  TeamSnapshot, TenantSnapshot,
+  GaseousSampling, SamplingInfoSave, SamplingPoint, SamplingSheet, SamplingSnapshot, SheetSave,
+  TeamSnapshot, TeamSnapshotUpdate, TenantSnapshot, TenantSnapshotUpdate,
 } from "@entities/schedule";
 import type { WeatherCondition, WindDirection } from "@shared/model";
 import { formatTime, toFormValue, toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
@@ -232,21 +232,26 @@ const fromParticle = (sheet: SamplingSheet): ParticleForm => {
   };
 };
 
-// ── 공통 정보 (basic-info) ─────────────────────────────────────
-// 기록지가 아니라 측정계획 스냅샷 단위의 값이다.
+// ── 공통 정보 ──────────────────────────────────────────────────
+// 기록지가 아니라 측정계획 스냅샷 단위의 값이다. 값의 주인이 셋이라 저장 경로도 셋으로 갈린다 —
+// 채취 시각·현장 담당자는 시트 저장에 함께 실리고(같은 노드·같은 화면 소유),
+// 서명란 담당자는 PATCH /tenant, 측정자 표기는 PATCH /team 이다.
+// 셋 다 null(문자열은 blank 포함)을 "기존 값 유지"로 해석한다.
 
-// 서버는 null(문자열은 blank 포함)을 "기존 값 유지"로 해석하므로,
-// 이번 폼이 다루지 않는 접수/분석/발행일자는 null로 두어 보존시킨다.
-export const toBasicInfoUpdate = (form: ScheduleBasicInfoForm): BasicInfoUpdate => ({
-  facilityManager: trimValue(form.facilityManager),
-  samplingWitness: trimValue(form.samplingWitness),
-  analyst: trimValue(form.analyst),
-  technicalManager: trimValue(form.technicalManager),
-  receivedAt: null,
-  analyzedAt: null,
-  issuedAt: null,
+export const toSamplingInfoSave = (form: ScheduleBasicInfoForm): SamplingInfoSave => ({
   samplingStartedAt: unformatTime(form.samplingStartedAt),
   samplingEndedAt: unformatTime(form.samplingEndedAt),
+  facilityManager: trimValue(form.facilityManager),
+  samplingWitness: trimValue(form.samplingWitness),
+});
+
+// 이 폼이 다루지 않는 고객사 원장 사본(상호·주소 등)은 키 자체를 두지 않아 서버가 유지한다.
+export const toTenantSnapshotUpdate = (form: ScheduleBasicInfoForm): TenantSnapshotUpdate => ({
+  analyst: trimValue(form.analyst),
+  technicalManager: trimValue(form.technicalManager),
+});
+
+export const toTeamSnapshotUpdate = (form: ScheduleBasicInfoForm): TeamSnapshotUpdate => ({
   mentorName: trimValue(form.mentorName),
   menteeName: trimValue(form.menteeName),
 });

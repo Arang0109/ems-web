@@ -1,7 +1,8 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 
 import { memberApi } from "../api/api";
+import { memberKeys } from "./query-keys";
 import type { Member } from "./types";
 
 interface Props {
@@ -9,10 +10,11 @@ interface Props {
   id: number | null;
 }
 
-/** 타입 A(자동 로드): 구성원 상세. 대상이 바뀌면 이전 값을 즉시 버린다. */
+/** 구성원 상세. 대상이 바뀌면 이전 값을 즉시 버린다. */
 export const useMemberDetail = ({ id }: Props) =>
-  useFetch<Member | null>(
-    async () => unwrapMessage(await memberApi.getMember(id as number)),
-    null,
-    { deps: [id], enabled: id != null, resetOnChange: true },
-  );
+  useEntityQuery<Member | null>({
+    queryKey: memberKeys.detail(id as number),
+    queryFn: async () => unwrapMessage(await memberApi.getMember(id as number)),
+    initialData: null,
+    enabled: id != null,
+  });

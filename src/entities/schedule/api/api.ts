@@ -6,7 +6,8 @@ import type {
   CreateScheduleRequest, ScheduleListResponse, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeScheduleItemsRequest,
   ReorderScheduleItemsRequest, UpdateScheduleItemRequest,
-  UpdateBasicInfoRequest, UpdateScheduleRequest,
+  ChangeTenantSnapshotRequest, ChangeTeamSnapshotRequest,
+  UpdateReportDatesRequest, UpdateScheduleRequest,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
   AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from './dto';
@@ -97,14 +98,34 @@ export const scheduleApi = {
     return res.data;
   },
 
-  // 시트 저장과 한 흐름으로 묶여 있어(공통정보 → 시트) 같은 에러 계약을 쓴다.
-  updateBasicInfo: async (id: number, body: UpdateBasicInfoRequest): Promise<ScheduleResponse> => {
-    const res = await axiosPrivate.patch<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/basic-info`, body);
-    return unwrap(res);
+  // 성적서 진행 일자(접수·분석완료·발행)를 고친다. 실험·분석 탭이 단독으로 소유하는 경로라
+  // 전달한 값을 그대로 채택한다 — 빈 값은 지운다. 순서를 어기면 400으로 거부된다.
+  updateReportDates: async (
+    id: number, body: UpdateReportDatesRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.patch(`/schedules/${id}/report-dates`, body);
+    return res.data;
+  },
+
+  // 성적서 서명란 담당자(시료분석검사자·기술책임자)를 고친다. 두 탭이 공유하는 경로라 부분 갱신이며,
+  // 고객사 원장은 바뀌지 않는다.
+  changeTenant: async (
+    id: number, body: ChangeTenantSnapshotRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.patch(`/schedules/${id}/tenant`, body);
+    return res.data;
+  },
+
+  // 이 회차 측정자 표기명을 고친다. 팀 원장과 배정 장비는 바뀌지 않는다.
+  changeTeam: async (
+    id: number, body: ChangeTeamSnapshotRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.patch(`/schedules/${id}/team`, body);
+    return res.data;
   },
 
   // 계획 정의(채취일자·측정용도·관리번호)를 고친다. 측정분야는 생성 시점에만 정한다.
-  // updateBasicInfo 와 달리 동시 편집 충돌을 구분할 필요가 없어 일반 에러 계약을 쓴다.
+  // saveSheets 와 달리 동시 편집 충돌을 구분할 필요가 없어 일반 에러 계약을 쓴다.
   updateSchedule: async (
     id: number, body: UpdateScheduleRequest,
   ): Promise<ApiResponseMessage<ScheduleResponse>> => {
@@ -146,19 +167,6 @@ export const scheduleApi = {
     // Content-Type을 직접 지정하면 multipart boundary가 빠져 서버가 파트를 파싱하지 못하므로 헤더는 건드리지 않는다.
     // validateStatus도 건드리지 않는다 — 인터셉터를 우회하면 401 자동 refresh가 동작하지 않는다.
     return axiosPrivate.post(`/schedules/${id}/sampling-records/export`, formData, {
-      responseType: 'blob',
-    });
-  },
-
-  // 성적서 xlsx 내려받기. exportSamplingRecords 와 같은 계약이지만 결과가 ZIP이 아니라 파일 하나다.
-  exportReport: async (id: number, template: File): Promise<AxiosResponse<Blob>> => {
-    // 서버 계약상 파트는 'template' 하나뿐이다.
-    const formData = new FormData();
-    formData.append('template', template);
-
-    // Content-Type을 직접 지정하면 multipart boundary가 빠져 서버가 파트를 파싱하지 못하므로 헤더는 건드리지 않는다.
-    // validateStatus도 건드리지 않는다 — 인터셉터를 우회하면 401 자동 refresh가 동작하지 않는다.
-    return axiosPrivate.post(`/schedules/${id}/report/export`, formData, {
       responseType: 'blob',
     });
   },

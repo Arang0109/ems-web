@@ -109,8 +109,8 @@ export const describeMoistureWeightGain = (
   gain: number,
 ): string =>
   issue === "tooSmall"
-    ? `흡습병 무게차가 ${MOISTURE_WEIGHT_GAIN_RANGE.min}g 미만입니다 (현재 ${gainText(gain)}). 법정 허용 범위는 ${RANGE_TEXT} 입니다.`
-    : `흡습병 무게차가 ${MOISTURE_WEIGHT_GAIN_RANGE.max}g 을 초과했습니다 (현재 ${gainText(gain)}). 법정 허용 범위는 ${RANGE_TEXT} 입니다.`;
+    ? `무게차가 ${MOISTURE_WEIGHT_GAIN_RANGE.min}g 미만입니다 (현재 ${gainText(gain)}). 법정 허용 범위는 ${RANGE_TEXT} 입니다.`
+    : `무게차가 ${MOISTURE_WEIGHT_GAIN_RANGE.max}g 을 초과했습니다 (현재 ${gainText(gain)}). 법정 허용 범위는 ${RANGE_TEXT} 입니다.`;
 
 export interface MoistureWeightSummary {
   /** 범위를 벗어난 기록지 수. 0 이면 확인을 물을 것이 없다 */

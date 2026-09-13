@@ -1,17 +1,42 @@
-import { useAsyncAction } from "@shared/model";
-import { unwrapMessage } from "@shared/api";
-import { stackApi } from '../api/api';
+import { useCallback } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { toQueryErrorMessage, unwrapMessage } from "@shared/api";
+
+import { stackApi } from "../api/api";
+import { stackKeys } from "./query-keys";
+import type { StackDetail } from "./types";
 
 /**
- * 방지시설 표시 순서 변경.
- *
- * `orderedIds` 는 이 측정지점의 방지시설 **전체**여야 하며, 배열 순서가 곧 표시 순위다.
- * 집합이 서버와 다르면(내가 화면을 연 뒤 누군가 시설을 추가·삭제했다면) 서버가 저장을 거절한다.
+ * 방지시설 표시 순서 변경. 배출시설(`useReorderFacilitiesAction`)과 같은 계약이며,
+ * **성공해도 무효화하지 않고 캐시를 직접 고쳐 넣는 것**까지 같다 — 근거는 그쪽 주석 참조.
  */
 export const useReorderPreventionsAction = () => {
-  const { run, isLoading, error } = useAsyncAction(async (stackId: number, orderedIds: number[]) => {
-    unwrapMessage(await stackApi.reorderPreventions({ stackId, orderedIds }));
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async ({ stackId, orderedIds }: { stackId: number; orderedIds: number[] }) => {
+      unwrapMessage(await stackApi.reorderPreventions({ stackId, orderedIds }));
+    },
+
+    onSuccess: (_data, { stackId, orderedIds }) => {
+      const key = stackKeys.detail(stackId);
+      const cached = queryClient.getQueryData<StackDetail>(key);
+      if (!cached) return;
+
+      const byId = new Map(cached.preventions.map((prevention) => [prevention.id, prevention]));
+      queryClient.setQueryData<StackDetail>(key, {
+        ...cached,
+        preventions: orderedIds.flatMap((id) => byId.get(id) ?? []),
+      });
+    },
   });
 
-  return { reorderPreventions: run, isLoading, error };
+  const { mutateAsync } = mutation;
+  const reorderPreventions = useCallback(
+    (stackId: number, orderedIds: number[]) => mutateAsync({ stackId, orderedIds }),
+    [mutateAsync],
+  );
+
+  return { reorderPreventions, isLoading: mutation.isPending, error: toQueryErrorMessage(mutation.error) };
 };

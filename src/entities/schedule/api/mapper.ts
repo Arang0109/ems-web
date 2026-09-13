@@ -3,14 +3,16 @@ import { measurementUnitText } from "@shared/model";
 import type {
   CreateScheduleRequest, ScheduleResponse, SaveSheetsRequest,
   ChangeScheduleEquipmentsRequest, ChangeClientSnapshotRequest, ChangeStackSnapshotRequestBody,
-  ChangeScheduleItemsRequest, UpdateScheduleItemRequest, UpdateBasicInfoRequest, UpdateScheduleRequest,
+  ChangeScheduleItemsRequest, UpdateScheduleItemRequest, UpdateReportDatesRequest, UpdateScheduleRequest,
+  ChangeTenantSnapshotRequest, ChangeTeamSnapshotRequest,
   PreviousSheetResponse,
   PreviousSheetCandidateResponse,
   AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
 } from "./dto";
 import type {
-  ScheduleCreate, ScheduleDetail, SheetSave, SheetRef,
-  ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, BasicInfoUpdate, ScheduleMetaUpdate,
+  ScheduleCreate, ScheduleDetail, SheetSave, SheetRef, SamplingInfoSave,
+  ScheduleEquipmentsUpdate, ClientSnapshotUpdate, StackSnapshotUpdate, ScheduleMetaUpdate,
+  ReportDatesUpdate, TenantSnapshotUpdate, TeamSnapshotUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate, PreviousSheet, PreviousSheetCandidate,
   AnalysisResult, SamplingTimesSave, AnalysisResultsSave,
 } from "../model/types";
@@ -31,8 +33,17 @@ export const toScheduleDetail = (dto: ScheduleResponse): ScheduleDetail => dto;
 
 // 도메인 시트 입력 → 저장 요청 DTO: 재변환 없이 passthrough.
 // 삭제 목록을 함께 실어야 서버가 "요청에서 빠진 시트"를 보관본 유지로 처리할 수 있다.
-export const toSaveSheetsRequest = (sheets: SheetSave[], deletedSheets: SheetRef[]): SaveSheetsRequest =>
-  ({ sheets, deletedSheets });
+// 현장 채취 정보도 같이 싣는다 — 같은 스냅샷 노드에 살고 현장 채취 탭이 함께 소유한다.
+export const toSaveSheetsRequest = (
+  samplingInfo: SamplingInfoSave, sheets: SheetSave[], deletedSheets: SheetRef[],
+): SaveSheetsRequest => ({
+  samplingStartedAt: samplingInfo.samplingStartedAt,
+  samplingEndedAt: samplingInfo.samplingEndedAt,
+  facilityManager: samplingInfo.facilityManager,
+  samplingWitness: samplingInfo.samplingWitness,
+  sheets,
+  deletedSheets,
+});
 
 // 응답 DTO → 도메인: 키를 그대로 유지하므로 구조 변환이 없다.
 // null(불러올 기록 없음)은 오류가 아니라 정상 결과이므로 그대로 통과시킨다.
@@ -50,17 +61,20 @@ export const toChangeEquipmentsRequest = (
   equipmentIds: vo.equipmentIds,
 });
 
-// 날짜·시각은 전 레이어 string이므로 재변환 없이 passthrough.
-export const toUpdateBasicInfoRequest = (vo: BasicInfoUpdate): UpdateBasicInfoRequest => ({
-  facilityManager: vo.facilityManager,
-  samplingWitness: vo.samplingWitness,
-  analyst: vo.analyst,
-  technicalManager: vo.technicalManager,
+// 날짜는 전 레이어 string이므로 재변환 없이 passthrough.
+// 전체 채택 경로라 빈 칸을 null 그대로 실어야 서버가 값을 지운다.
+export const toUpdateReportDatesRequest = (vo: ReportDatesUpdate): UpdateReportDatesRequest => ({
   receivedAt: vo.receivedAt,
   analyzedAt: vo.analyzedAt,
   issuedAt: vo.issuedAt,
-  samplingStartedAt: vo.samplingStartedAt,
-  samplingEndedAt: vo.samplingEndedAt,
+});
+
+// 부분 갱신 경로다 — 전달하지 않은 필드는 서버가 기존 값을 유지한다.
+export const toChangeTenantRequest = (vo: TenantSnapshotUpdate): ChangeTenantSnapshotRequest => ({
+  ...vo,
+});
+
+export const toChangeTeamRequest = (vo: TeamSnapshotUpdate): ChangeTeamSnapshotRequest => ({
   mentorName: vo.mentorName,
   menteeName: vo.menteeName,
 });

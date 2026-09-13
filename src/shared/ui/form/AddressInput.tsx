@@ -56,7 +56,6 @@ export const AddressInput = ({
           onClick={() => open()}
           startIcon={Search}
           >
-          검색
         </Button>
       </Field>
       <Field orientation="horizontal">

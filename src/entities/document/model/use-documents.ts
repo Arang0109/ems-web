@@ -1,8 +1,9 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 import type { DocumentCategory } from "@shared/model";
 
 import { documentApi } from "../api/api";
+import { documentKeys } from "./query-keys";
 import type { Document } from "./types";
 
 interface Options {
@@ -10,10 +11,13 @@ interface Options {
   enabled?: boolean;
 }
 
-/** 타입 A(자동 로드): 문서 목록. `category` 로 분류를 좁힌다. */
+/** 문서 목록. `category` 로 분류를 좁힌다. */
 export const useDocuments = (category?: DocumentCategory, options?: Options) =>
-  useFetch<Document[]>(
-    async () => unwrapMessage(await documentApi.getDocuments(category)),
-    [],
-    { deps: [category], enabled: options?.enabled ?? true },
-  );
+  useEntityQuery<Document[]>({
+    queryKey: documentKeys.list(category),
+    queryFn: async () => unwrapMessage(await documentApi.getDocuments(category)),
+    initialData: [],
+    enabled: options?.enabled ?? true,
+    // 분류가 다른 목록도 함께 갱신한다 — 등록·삭제는 어느 분류에서 일어나든 전체에 영향을 준다.
+    invalidateKey: documentKeys.lists(),
+  });

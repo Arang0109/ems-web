@@ -20,6 +20,7 @@
 | 영역 | 라이브러리 |
 |------|-----------|
 | 라우팅 | `react-router` / `react-router-dom` 7 |
+| 서버 상태 | `@tanstack/react-query` 5 (+ `@tanstack/react-query-devtools`) |
 | 테이블 | `@tanstack/react-table` 8 |
 | 차트 | `recharts` 3 (+ `@recharts/devtools`) |
 | UI 동작 레이어 | `@base-ui/react` (shadcn/ui 컴포넌트의 기반) |
@@ -31,11 +32,17 @@
 | 폰트 | `pretendard` |
 | 주소 검색 | `@clroot/react-kakao-postcode` |
 | HTTP | `axios` |
+| 실시간 | `@stomp/stompjs` (채팅 STOMP 수신 전용. `sockjs-client` 는 쓰지 않는다 — 서버가 폴백을 켜지 않는다) |
 | 테스트 | `vitest` |
 
-> **상태관리·폼 라이브러리를 쓰지 않는 것이 의도된 결정이다.**
-> redux/zustand/react-query/react-hook-form/zod 를 도입하지 않는다.
-> 전역 상태는 `entities/auth` 의 Context 하나뿐이고, 폼은 `useState` + 슬라이스별
+> **서버 상태는 react-query 가, 클라이언트 상태는 직접 관리한다.**
+>
+> 서버에서 온 데이터(목록·상세·CRUD)는 `@tanstack/react-query` 가 소유한다 —
+> 캐시·중복 요청 합치기·무효화를 손으로 짜지 않는다. 자세한 규약은
+> [src/entities/CLAUDE.md](./src/entities/CLAUDE.md) 의 "훅 패턴" 참조.
+>
+> 그 밖에는 여전히 라이브러리를 쓰지 않는다 — **redux/zustand/react-hook-form/zod 를 도입하지 않는다.**
+> 클라이언트 전역 상태는 `entities/auth` 의 Context 하나뿐이고, 폼은 `useState` + 슬라이스별
 > `model/validator.ts` 로 처리한다. 새 라이브러리 도입은 별도 합의 사항이다.
 
 ---
@@ -57,6 +64,7 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
   - `CLAUDE.md` — 서버 개발 규칙
   - `ARCHITECTURE.md` — 아키텍처 상세
   - `docs/DATABASE.md` — DB 스키마
+  - `docs/chat-websocket-protocol.md` — **채팅 REST·STOMP 계약** (프론트용으로 작성돼 있다)
   - Swagger UI `/swagger-ui.html`, OpenAPI JSON `/v3/api-docs` (서버 실행 시, 기본 8080)
 - **컨트롤러/DTO 위치:** `src/main/java/com/ensolution/ems/{모듈}/presentation/.../controller`
   (요청/응답 DTO는 같은 모듈의 `request/`·`response/`)

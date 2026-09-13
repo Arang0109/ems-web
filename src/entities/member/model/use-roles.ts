@@ -1,9 +1,15 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 
 import { roleApi } from "../api/api";
+import { roleKeys } from "./query-keys";
 import type { Role } from "./types";
 
-/** 타입 A(자동 로드): 권한 목록. */
+/** 권한 목록. 거의 바뀌지 않는 마스터 데이터라 오래 캐시한다. */
 export const useRoles = () =>
-  useFetch<Role[]>(async () => unwrapMessage(await roleApi.getRoleList()), []);
+  useEntityQuery<Role[]>({
+    queryKey: roleKeys.list(),
+    queryFn: async () => unwrapMessage(await roleApi.getRoleList()),
+    initialData: [],
+    staleTime: 5 * 60_000,
+  });

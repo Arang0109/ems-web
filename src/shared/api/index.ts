@@ -1,5 +1,6 @@
 export { axiosPublic } from './axios-public';
-export { axiosPrivate } from './axios-private';
+export { axiosPrivate, refreshAccessToken, ACCESS_TOKEN_REFRESHED } from './axios-private';
 export { readBlobErrorMessage } from './blob-error';
 export { ApiError, unwrap } from './api-error';
-export { ApiResponseError, unwrapMessage, toErrorMessage } from './response';
+export { ApiResponseError, unwrapMessage, toErrorMessage, toQueryErrorMessage } from './response';
+export { queryClient } from './query-client';

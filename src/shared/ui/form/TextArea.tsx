@@ -1,11 +1,11 @@
 import React from "react";
 
-import {
-  Field,
-  FieldDescription,
-  FieldLabel,
-} from "@shared/ui/primitives";
+import { Field, FieldDescription } from "@shared/ui/primitives";
 import { Textarea as TextareaPrimitive } from "@shared/ui/primitives";
+import { cn } from "@/lib/utils";
+
+import { InFieldLabel } from "./InFieldLabel";
+import { IN_FIELD_VALUE_CLASS, inFieldPlaceholder } from "./in-field";
 
 interface TextareaProps {
   id?: string;
@@ -40,29 +40,36 @@ export const Textarea = ({
   maxLength,
   helperText,
 }: TextareaProps) => {
-  const isStringLabel = typeof label === "string";
+  const hasLabel = !!label;
+
+  const textarea = (
+    <TextareaPrimitive
+      id={id}
+      name={name}
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
+      placeholder={hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder}
+      rows={rows}
+      disabled={disabled}
+      readOnly={readOnly}
+      required={required}
+      maxLength={maxLength}
+      // 라벨이 얹힌 첫 줄만큼 글줄을 내린다 — 여러 줄이라 높이는 `rows`·내용이 정한다
+      className={cn(hasLabel && cn(IN_FIELD_VALUE_CLASS, "pb-2"))}
+    />
+  );
+
+  if (!hasLabel) return textarea;
 
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-      </FieldLabel>
-      <TextareaPrimitive
-        id={id}
-        name={name}
-        value={value}
-        onChange={(e) => onChange?.(e.target.value)}
-        placeholder={placeholder ?? (isStringLabel ? (label as string) : undefined)}
-        rows={rows}
-        disabled={disabled}
-        readOnly={readOnly}
-        required={required}
-        maxLength={maxLength}
-      />
-      {helperText && (
-        <FieldDescription>{helperText}</FieldDescription>
-      )}
+    <Field className="gap-1.5">
+      <div className="relative">
+        <InFieldLabel htmlFor={id} required={required} disabled={disabled} className="left-2.5">
+          {label}
+        </InFieldLabel>
+        {textarea}
+      </div>
+      {helperText && <FieldDescription>{helperText}</FieldDescription>}
     </Field>
   );
 };

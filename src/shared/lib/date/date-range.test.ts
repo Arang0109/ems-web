@@ -34,11 +34,11 @@ describe("toPresetRange", () => {
     expect(toDateKey(range.to)).toBe("2026-08-31");
   });
 
-  it("around30 은 기준일 전후 30일 구간이다", () => {
-    const range = toPresetRange("around30", TODAY);
+  it("year 은 해당 연의 365일 구간이다", () => {
+    const range = toPresetRange("year", TODAY);
 
-    expect(toDateKey(range.from)).toBe("2026-07-12");
-    expect(toDateKey(range.to)).toBe("2026-09-10");
+    expect(toDateKey(range.from)).toBe("2025-08-11");
+    expect(toDateKey(range.to)).toBe("2027-08-10");
   });
 });
 

@@ -1,9 +1,10 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 import type { MeasurementField } from "@shared/model";
 
 import { pollutantApi } from "../api/api";
 import { toPollutantCandidates } from "../api/mapper";
+import { pollutantKeys } from "./query-keys";
 import type { PollutantCandidate } from "./types";
 
 interface Props {
@@ -15,8 +16,11 @@ interface Props {
 
 /** 가이드에는 있으나 이 고객사가 아직 채택하지 않은 측정물질(채택 후보). */
 export const usePollutantCandidates = ({ field, enabled = true }: Props = {}) =>
-  useFetch<PollutantCandidate[]>(
-    async () => toPollutantCandidates(unwrapMessage(await pollutantApi.getPollutantCandidates({ field }))),
-    [],
-    { deps: [field], enabled },
-  );
+  useEntityQuery<PollutantCandidate[]>({
+    queryKey: pollutantKeys.candidates(field),
+    queryFn: async () =>
+      toPollutantCandidates(unwrapMessage(await pollutantApi.getPollutantCandidates({ field }))),
+    initialData: [],
+    enabled,
+    invalidateKey: pollutantKeys.all,
+  });

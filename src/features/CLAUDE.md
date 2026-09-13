@@ -105,19 +105,29 @@ ui/calc/
 ```
 sections/sampling-point/
 ├── index.ts                  # 섹션 컴포넌트만 노출
-├── SamplingPointSection.tsx  # 셸 — 요약 헤더 + 세 조각 조합
+├── SamplingPointSection.tsx  # 셸 — 요약 헤더 + 조각 조합 (온도·동정압 표 → 공통 값 → 등속흡인)
+├── PointFlowTable.tsx        # 지점별 온도·동정압 표 (행=지점, 열=Ts·Pv·Ps) — 모든 카테고리, 모바일도 같은 표. 지점 삭제는 여기서만
 ├── PointCommonValues.tsx     # 지점과 무관한 시트 단위 입력 (입자상 전용)
-├── PointCards.tsx            # 모바일 표현 (지점 = 카드) — 지점별 값만
-├── PointTable.tsx            # 데스크탑 표현 (행=항목, 열=지점 + 평균 열)
+├── PointCards.tsx            # 모바일 표현 (지점 = 카드) — 등속흡인만, 입자상 전용
+├── PointTable.tsx            # 데스크탑 표현 (행=항목, 열=지점 + 평균 열) — 등속흡인만, 입자상 전용
 ├── point-fields.tsx          # 항목 스펙 — 라벨·단위·하한·증감폭
 └── point-results.tsx         # 파생값 — 평균 판정·결과 행 빌더 (계산값 드로어도 소비)
 ```
 
-- **두 표현은 스펙 배열(`point-fields`)을 공유한다.** 각자 필드를 나열하면 한쪽만 고쳐져 어긋난다.
+- **온도·동정압은 등속흡인과 섞지 않는다.** 현장에서는 모든 지점의 온도·동정압을 먼저 재고 나서
+  채취를 시작하므로, `배출가스 정보` 처럼 행=지점인 `InputTable` 하나로 맨 앞에 세운다.
+  열이 5개뿐이라 `fit` 으로 모바일에도 같은 표를 쓴다. 평균 행은 두지 않는다 — 드로어 몫이다.
+- **세 표현은 스펙 배열(`point-fields`)을 공유한다.** 온도·동정압 표는 `FLOW_FIELDS`, 카드·전치 표는
+  `ISOKINETIC_FIELDS` 를 읽는다. 각자 필드를 나열하면 한쪽만 고쳐져 어긋난다.
 - **항목별 차이는 스펙에서만 선언한다.** 값의 하한(`min`)처럼 항목마다 갈리는 속성은
   **선택 속성으로 두지 말 것** — 아무도 판단하지 않은 채 기본값이 먹는다.
   실제로 동압(ΔP)에 음수 부호(±) 버튼이 붙어 있었다. `min: number | undefined` 처럼
   **키를 필수로** 두면 새 항목을 추가할 때 컴파일러가 판단을 강제한다.
+
+- **가스상 물질(`GaseousSection`)은 열 13개짜리 표 하나를 모든 폭에서 쓴다 — 모바일도 가로 스크롤.**
+  카드+모달(값이 카드에 안 보여 항목 간 대조 불가)과 칸을 기입 시점별로 묶은 `fit` 표 여러 개
+  (대조는 되지만 한 항목을 채우려면 표 사이를 오간다)를 모두 써 봤고, 둘 다 표 하나보다 못했다.
+  다시 카드나 묶음 표로 돌리지 말 것.
 
 ### 스텝 위저드 폼 Feature (register-equipment 등)
 
@@ -193,6 +203,8 @@ export const validateClientFields = (form: ClientRegisterForm) => {
 - `@shared/lib`의 유틸 활용:
   - `trimValue(s)` — 앞뒤 공백 제거
   - `unformatNumber(s)` — 자릿수 코드 정규화 (숫자만 추출, 결과 `string`)
+    (mapper 에서만 쓴다 — **입력 칸에서는 직접 부르지 않는다.** 사업자번호·전화번호 칸은
+    `InputGroup` 의 `code` 모드가 표시·자릿수 제한을 함께 맡는다)
   - `toNumber(s)` / `toNumberOrNull(s)` — Form 문자열을 `number` / `number | null`로 변환
 - UI 전용 필드는 변환 시 제외
 
@@ -202,7 +214,8 @@ export const validateClientFields = (form: ClientRegisterForm) => {
 - Form 유효성 검증을 수행한다.
 - Form → Entity 도메인 입력 모델로 변환한다.
 - Entity action hook을 호출한다.
-- 성공 시 form reset, modal close, refetch, toast, navigate 등을 처리한다.
+- 성공 시 form reset, modal close, toast, navigate 등을 처리한다.
+  **목록 재조회는 하지 않는다** — 엔티티 액션 훅의 무효화가 담당한다.
 - API DTO를 직접 생성하지 않는다.
 
 #### fieldErrors 패턴
@@ -306,9 +319,8 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 |--------|------|
 | `selectedXxx` | 현재 선택된 항목 |
 | `relatedData` | 선택에 연동되어 페칭된 하위 데이터 |
-| `handleSelectXxxRow(item)` | 선택 핸들러, 연쇄 페칭 포함 |
+| `handleSelectXxxRow(item)` | 선택 핸들러. **선택 state 만 바꾼다** — 하위 목록은 선택값을 인자로 받는 조회 훅이 따라온다 |
 | `clearXxxSelection()` | 선택 초기화 (필요 시) |
-| `refetchRelated()` | 연동 데이터 재조회 |
 | `loading`, `error` | 페칭 상태 |
 
 ---

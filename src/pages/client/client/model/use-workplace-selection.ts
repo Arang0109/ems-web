@@ -18,27 +18,21 @@ const toWorkplace = (item: WorkplaceListItem): Workplace => ({
 });
 
 export const useWorkplaceSelection = () => {
-  const [selectedWorkplaceId, setSelectedWorkplaceId] = useState<number | null>(null);
   const [selectedWorkplaceItem, setSelectedWorkplaceItem] = useState<WorkplaceListItem | null>(null);
 
-  const { data: stacks, fetchStacks, isLoading: loading, error } = useStacks();
+  // 선택된 사업장이 바뀌면 측정시설 목록이 따라온다.
+  const { data: stacks, isLoading, error, refetch: refetchStacks } =
+    useStacks(selectedWorkplaceItem?.id ?? null, { enabled: selectedWorkplaceItem != null });
 
   const selectedWorkplace: Workplace | null = selectedWorkplaceItem
     ? toWorkplace(selectedWorkplaceItem)
     : null;
 
   const handleSelectWorkplaceRow = (workplace: WorkplaceListItem) => {
-    setSelectedWorkplaceId(workplace.id);
     setSelectedWorkplaceItem(workplace);
-    fetchStacks(workplace.id);
-  };
-
-  const refetchStacks = () => {
-    if (selectedWorkplaceId) fetchStacks(selectedWorkplaceId);
   };
 
   const clearWorkplaceSelection = () => {
-    setSelectedWorkplaceId(null);
     setSelectedWorkplaceItem(null);
   };
 
@@ -49,6 +43,6 @@ export const useWorkplaceSelection = () => {
     clearWorkplaceSelection,
     refetchStacks,
 
-    isLoading: loading, error,
+    isLoading, error,
   }
 }

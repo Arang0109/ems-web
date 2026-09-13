@@ -13,8 +13,20 @@ import { TableSelectCell } from "./TableSelectCell";
 interface ColumnBase {
   /** 열 머리 */
   header: ReactNode;
-  /** 열 폭 (px). 합이 표의 `minWidth` 가 된다 — 표는 좁아지면 가로 스크롤한다 */
+  /**
+   * 열 폭 (px). 합이 표의 `minWidth` 가 된다 — 표는 좁아지면 가로 스크롤한다.
+   * `fit` 을 켜면 고정 폭이 아니라 열 간 비율로만 쓰인다.
+   */
   width: number;
+  /**
+   * 가로 스크롤 시 왼쪽에 고정한다 — 행을 식별하는 열(이름)이 값과 함께 밀려 나가지 않게.
+   *
+   * offset 은 **앞에 있는 고정 열 폭의 합**이다. 앞에 고정하지 않은 열(No. 등)이 있으면 그 열은
+   * 스크롤되어 고정 열 밑으로 사라진다 — 고정 열이 첫 열일 필요는 없다.
+   * `fit` 표는 스크롤이 없어 의미가 없다. `label`·`input` 열만 지원한다 — 다른 종류가 필요해지면
+   * 같은 `stickyLeft` prop 을 그 셀에도 편다.
+   */
+  sticky?: boolean;
   /** 머리 옆 도움말 — 용어 설명·계산식 */
   hint?: ReactNode;
   /** 도움말 아이콘의 접근성 이름 (`header` 가 문자열이 아닐 때 지정) */
@@ -48,10 +60,21 @@ interface InputColumn<T> extends ColumnBase {
   min?: number;
   max?: number;
   step?: number;
+  /**
+   * 정수부·소수부 최대 자릿수. 넘기면 **타이핑이 들어가지 않는다**.
+   * `max` 와 갈래가 다르다 — `max` 는 표시용이고 범위 검증은 validator 몫이다.
+   *
+   * 열 단위 단일 값이다. 행마다 자릿수가 갈리는 표가 아직 없어서인데, 필요해지면
+   * `tone`·`disabled` 처럼 `(row) => number` 로 넓힌다.
+   */
+  maxIntDigits?: number;
+  maxDecimals?: number;
   /** 행별 비활성. 표 전체의 `editable` 과 합쳐진다 */
   disabled?: (row: T) => boolean;
   /** 셀별 상태 색. 의미는 호출부가 정한다 — 셀 단위로 갈리므로 행이 아니라 여기서 받는다 */
   tone?: (row: T, index: number) => FieldTone;
+  /** 값이 들어차면 셀을 연초록으로 물들인다(기본 켜짐). 완료 개념이 없는 열에서는 끈다 */
+  showComplete?: boolean;
   /** 그 셀에 포커스가 들어왔을 때 */
   onFocus?: (row: T, index: number) => void;
 }
@@ -71,6 +94,8 @@ interface SelectColumn<T> extends ColumnBase {
   disabled?: (row: T) => boolean;
   /** 셀별 상태 색. 의미는 호출부가 정한다 */
   tone?: (row: T, index: number) => FieldTone;
+  /** 값을 고르면 셀을 연초록으로 물들인다(기본 켜짐). 완료 개념이 없는 열에서는 끈다 */
+  showComplete?: boolean;
   /** 그 셀에 포커스가 들어왔을 때 */
   onFocus?: (row: T, index: number) => void;
 }
@@ -106,6 +131,14 @@ interface Props<T> {
   rowError?: (row: T, index: number) => string | undefined;
   /** 바깥 래퍼 클래스 — 표현을 폭으로 가르는 호출부의 `hidden md:block` 자리 */
   className?: string;
+  /**
+   * 표를 컨테이너 폭에 맞춰 가로 스크롤을 없앤다. 켜면 `width` 는 고정 폭이 아니라
+   * **열 간 비율 힌트**로만 쓰인다 (`table-fixed` — 폭이 모자라면 비율대로 함께 줄어든다).
+   *
+   * 열이 적어 좁은 화면에도 다 들어가는 표에만 준다 (회차 3열 등). 열이 많은 표를 이걸로
+   * 접으면 칸마다 두세 글자만 보여 못 읽는다 — 그런 표는 기본값(가로 스크롤)이 맞다.
+   */
+  fit?: boolean;
 }
 
 const READONLY_CLASS =
@@ -117,11 +150,12 @@ const renderCell = <T,>(
   index: number,
   key: number,
   editable: boolean,
+  stickyLeft: number | undefined,
 ): ReactNode => {
   switch (column.kind) {
     case "label":
       return (
-        <TableLabelCell key={key} align={column.align}>
+        <TableLabelCell key={key} align={column.align} stickyLeft={stickyLeft}>
           {column.render(row, index)}
         </TableLabelCell>
       );
@@ -142,9 +176,13 @@ const renderCell = <T,>(
           min={column.min}
           max={column.max}
           step={column.step}
+          maxIntDigits={column.maxIntDigits}
+          maxDecimals={column.maxDecimals}
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}
+          showComplete={column.showComplete}
+          stickyLeft={stickyLeft}
           onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
@@ -159,6 +197,7 @@ const renderCell = <T,>(
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}
+          showComplete={column.showComplete}
           onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
@@ -180,23 +219,35 @@ const renderCell = <T,>(
  *
  * 모바일 표현은 일부러 맡지 않는다. 칸이 적으면 카드에 펼치고 많으면 모달에서 고치는 식으로
  * 화면마다 답이 다르므로, 호출부가 `hidden md:block` 으로 이 표를 데스크탑에만 세우고
- * 좁은 폭의 표현은 따로 그린다.
+ * 좁은 폭의 표현은 따로 그린다. 열이 적어 좁은 화면에도 표 그대로 세울 수 있으면 `fit` 을
+ * 켠다 — 가로 스크롤 대신 열이 비율대로 줄어든다.
  *
  * 열이 데이터 개수만큼 늘어나는 전치 표(행=항목, 열=측정점)는 이 조립기의 모양이 아니다.
  * 그런 표는 셀 부품(`TableLabelCell`·`TableInputCell`·`TableResultCell`)을 직접 쓰고
  * `useGridNavigation` 만 따로 얹는다.
  */
 export const InputTable = <T,>({
-  rows, columns, getRowKey, editable = true, rowError, className,
+  rows, columns, getRowKey, editable = true, rowError, className, fit = false,
 }: Props<T>) => {
   const gridNav = useGridNavigation();
 
   const visible = columns.filter((c) => c.kind !== "action" || editable);
   const minWidth = visible.reduce((acc, c) => acc + c.width, 0);
 
+  // 고정 열의 left offset — 앞에 있는 고정 열 폭의 합. 고정하지 않은 열은 세지 않는다(그 밑으로 스크롤된다)
+  const stickyLefts: (number | undefined)[] = [];
+  let stickyLeft = 0;
+  for (const c of visible) {
+    stickyLefts.push(c.sticky ? stickyLeft : undefined);
+    if (c.sticky) stickyLeft += c.width;
+  }
+
   return (
-    <div {...gridNav} className={cn("overflow-x-auto", className)}>
-      <table className="w-full border-collapse" style={{ minWidth: `${minWidth}px` }}>
+    <div {...gridNav} className={cn("overflow-x-auto rounded-button", className)}>
+      <table
+        className={cn("w-full border-collapse", fit && "table-fixed")}
+        style={fit ? undefined : { minWidth: `${minWidth}px` }}
+      >
         <thead>
           <tr>
             {visible.map((column, i) => (
@@ -206,6 +257,7 @@ export const InputTable = <T,>({
                 width={column.width}
                 hint={column.hint}
                 hintLabel={column.hintLabel}
+                stickyLeft={stickyLefts[i]}
               >
                 {column.header}
               </TableLabelCell>
@@ -220,7 +272,7 @@ export const InputTable = <T,>({
             return (
               <Fragment key={getRowKey(row, index)}>
                 <tr>
-                  {visible.map((column, i) => renderCell(column, row, index, i, editable))}
+                  {visible.map((column, i) => renderCell(column, row, index, i, editable, stickyLefts[i]))}
                 </tr>
 
                 {error && (
@@ -238,7 +290,6 @@ export const InputTable = <T,>({
           })}
         </tbody>
       </table>
-      <p className="text-caption text-muted-ink">셀은 <b>Alt + 방향키</b>로 조작이 가능합니다.</p>
     </div>
   );
 };

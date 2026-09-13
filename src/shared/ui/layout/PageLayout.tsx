@@ -6,6 +6,8 @@ import { PageTitle } from "@shared/ui/semantics";
 interface Props {
   title: string;
   description?: string;
+  /** 제목 우측 보조 정보 — 상세 화면의 대상 식별자·상태 배지 등. 데이터는 넘기는 쪽(위젯)이 소유한다 */
+  subtitle?: React.ReactNode;
   /** 제목 좌측 뒤로가기 버튼 — 모바일(md 미만)에서만 노출한다 */
   showBack?: boolean;
   /** 뒤로가기 목적지. 없으면 히스토리 뒤로(-1) */
@@ -31,6 +33,7 @@ interface Props {
 export const PageLayout = ({
   title,
   description,
+  subtitle,
   showBack,
   backTo,
   onBackClick,
@@ -46,7 +49,7 @@ export const PageLayout = ({
           <BackButton to={backTo} onClick={onBackClick} className="-ml-2 -mt-1 md:hidden" />
         )}
 
-        <PageTitle title={title} description={description} />
+        <PageTitle title={title} description={description} subtitle={subtitle} />
 
         {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
       </div>

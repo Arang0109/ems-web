@@ -8,11 +8,7 @@ import { BasicTable, TableFooterBar, TablePanel } from '@shared/ui/table';
 import { Search } from '@shared/ui/form';
 import { useRemountKey } from '@shared/model';
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-export const MemberTable = ({ onSuccess }: Props) => {
+export const MemberTable = () => {
   const {
     table,
 
@@ -24,8 +20,8 @@ export const MemberTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading, error, refetch
-  } = useMemberTable({ onSuccess });
+    isLoading, error
+  } = useMemberTable();
 
   // 열릴 때마다 폼을 초기 상태로 되돌린다
   const registerFormKey = useRemountKey(registerModalOpen);
@@ -42,7 +38,6 @@ export const MemberTable = ({ onSuccess }: Props) => {
               key={registerFormKey}
               open={registerModalOpen}
               onOpenChange={setRegisterModalOpen}
-              onSuccess={refetch}
             />
           </>
         }
@@ -62,7 +57,6 @@ export const MemberTable = ({ onSuccess }: Props) => {
         open={updateModalOpen}
         onOpenChange={setUpdateModalOpen}
         member={detailMember}
-        onSuccess={refetch}
       />
     </>
   );

@@ -34,3 +34,14 @@ export const unwrapMessage = <T>(
 /** 화면에 내보낼 실패 문구. 서버가 준 문구만 그대로 쓰고 나머지는 표준 문구로 덮는다. */
 export const toErrorMessage = (err: unknown, fallbackMessage: string): string =>
   err instanceof ApiResponseError ? err.message : fallbackMessage;
+
+/**
+ * 쿼리·뮤테이션의 에러를 화면 문구로 바꾼다. `toErrorMessage` 의 react-query 판(`null` 통과).
+ *
+ * 엔티티 훅이 `error: string | null` 계약을 유지하기 위해 쓴다 — react-query 는 `Error` 객체를
+ * 주지만, 화면은 서버가 준 문구 한 줄만 필요하다.
+ */
+export const toQueryErrorMessage = (
+  err: unknown,
+  fallbackMessage: string = ERROR_MESSAGE.NETWORK,
+): string | null => (err == null ? null : toErrorMessage(err, fallbackMessage));

@@ -1,8 +1,9 @@
-import { useAsyncAction } from "@shared/model";
+import { useEntityMutation } from "@shared/model";
 import { unwrapMessage } from "@shared/api";
 import type { AnalysisResult, AnalysisResultsSave } from "./types";
 import { scheduleApi } from "../api/api";
 import { toAnalysisResults, toSaveAnalysisResultsRequest } from "../api/mapper";
+import { scheduleKeys } from "./query-keys";
 
 /**
  * 항목별 실험분석 결과를 일괄 저장한다.
@@ -12,12 +13,12 @@ import { toAnalysisResults, toSaveAnalysisResultsRequest } from "../api/mapper";
  * 채취시간은 건드리지 않아 두 탭이 서로를 덮어쓰지 않는다.
  */
 export const useSaveAnalysisResultsAction = () => {
-  const { run, isLoading, error } = useAsyncAction(async (scheduleId: number, results: AnalysisResultsSave,): Promise<AnalysisResult[]> => {
+  const { run, isLoading, error } = useEntityMutation(async (scheduleId: number, results: AnalysisResultsSave,): Promise<AnalysisResult[]> => {
     const result = unwrapMessage(await scheduleApi.saveAnalysisResults(
       scheduleId, toSaveAnalysisResultsRequest(results),
     ));
     return toAnalysisResults(result);
-  });
+  }, { invalidateKeys: [scheduleKeys.all] });
 
   return { saveAnalysisResults: run, isLoading, error };
 };

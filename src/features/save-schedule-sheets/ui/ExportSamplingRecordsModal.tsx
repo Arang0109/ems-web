@@ -42,6 +42,7 @@ export const ExportSamplingRecordsModal = ({
       <div className="space-y-3">
         <Select
           id="sampling-record-template-document"
+          searchable
           label="채취기록부 양식"
           required
           options={documentOptions}

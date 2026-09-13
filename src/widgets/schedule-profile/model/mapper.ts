@@ -2,7 +2,7 @@ import type { EquipmentSnapshot, EquipmentSpec, MeasurementItemSnapshot } from "
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import {
   MEASUREMENT_FIELD_LABEL, GRADE_LABEL, SHAPE_LABEL, ORIENTATION_LABEL,
-  PITOT_TUBE_TYPE_LABEL, MEASUREMENT_CYCLE_LABEL,
+  PITOT_TUBE_TYPE_LABEL, MEASUREMENT_CYCLE_LABEL, EQUIP_SPEC_FIELD_LABEL,
 } from "@shared/config";
 import { EQUIP_TYPE, MEASUREMENT_CYCLE } from "@shared/model";
 import type { EquipType, MeasurementCycle, Shape } from "@shared/model";
@@ -48,26 +48,26 @@ export const describeEquipmentSpec = (equip: EquipmentSnapshot): EquipmentSpecIt
     case "PARTICLE_SAMPLER": {
       const s = spec as Extract<EquipmentSpec, { orificeDp: number }>;
       return [
-        { label: "적산량", value: value(s.totalVolume) },
-        { label: "오리피스 보정계수", value: value(s.orificeDp) },
-        { label: "Yd", value: value(s.yd) },
+        { label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: value(s.totalVolume) },
+        { label: EQUIP_SPEC_FIELD_LABEL.orificeDp, value: value(s.orificeDp) },
+        { label: EQUIP_SPEC_FIELD_LABEL.yd, value: value(s.yd) },
       ];
     }
     case "GAS_SAMPLER":
     case "OTHER": {
       const s = spec as Extract<EquipmentSpec, { totalVolume: number }>;
-      return [{ label: "적산량", value: value(s.totalVolume) }];
+      return [{ label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: value(s.totalVolume) }];
     }
     case "PITOT_TUBE": {
       const s = spec as Extract<EquipmentSpec, { pitotTubeType: unknown }>;
       return [
-        { label: "피토우관 유형", value: PITOT_TUBE_TYPE_LABEL[s.pitotTubeType] ?? String(s.pitotTubeType) },
-        { label: "피토관 계수", chips: s.coefficients?.map((c) => String(c.coefficient)) ?? [] },
+        { label: EQUIP_SPEC_FIELD_LABEL.pitotTubeType, value: PITOT_TUBE_TYPE_LABEL[s.pitotTubeType] ?? String(s.pitotTubeType) },
+        { label: EQUIP_SPEC_FIELD_LABEL.coefficients, chips: s.coefficients?.map((c) => String(c.coefficient)) ?? [] },
       ];
     }
     case "NOZZLE": {
       const s = spec as Extract<EquipmentSpec, { diameters: unknown }>;
-      return [{ label: "노즐 직경 (cm)", chips: s.diameters?.map((d) => String(d.diameter)) ?? [] }];
+      return [{ label: EQUIP_SPEC_FIELD_LABEL.diameters, chips: s.diameters?.map((d) => String(d.diameter)) ?? [] }];
     }
     default:
       return [];

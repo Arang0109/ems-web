@@ -16,7 +16,7 @@ export const AdminDocumentPage = () => {
   return (
     <PageLayout
       title="문서 관리"
-      description="성적서·채취기록부 양식, 계약서, 인증서 등 문서를 분류별로 등록하고 버전을 관리할 수 있습니다."
+      description="채취기록부 양식, 계약서, 인증서 등 문서를 분류별로 등록하고 버전을 관리할 수 있습니다."
     >
       <Tabs options={tabOptions} />
     </PageLayout>

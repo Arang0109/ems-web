@@ -1,9 +1,14 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 
 import { clientApi } from "../api/api";
+import { clientKeys } from "./query-keys";
 import type { Client } from "./types";
 
-/** 타입 A(자동 로드): 의뢰기관 목록. */
+/** 의뢰기관 목록. */
 export const useClients = () =>
-  useFetch<Client[]>(async () => unwrapMessage(await clientApi.getClientList()), []);
+  useEntityQuery<Client[]>({
+    queryKey: clientKeys.list(),
+    queryFn: async () => unwrapMessage(await clientApi.getClientList()),
+    initialData: [],
+  });

@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { AnalysisResult, MeasurementItemSnapshot } from "@entities/schedule";
 
 import {
-  toAnalysisResultsSave, toAnalysisRows, toBasicInfoUpdate, toSamplingTimesSave,
+  toAnalysisResultsSave, toAnalysisRows, toReportDatesUpdate, toSamplingTimesSave,
+  toTenantSnapshotUpdate,
 } from "./mapper";
 import {
   getDefaultAnalysisProgressForm, isResultChanged, isSamplingTimeChanged,
@@ -193,19 +194,42 @@ describe("toSamplingTimesSave", () => {
   });
 });
 
-describe("toBasicInfoUpdate", () => {
-  it("이 화면이 다루지 않는 필드는 null로 둔다 — 서버가 기존 값을 유지한다", () => {
-    const update = toBasicInfoUpdate({
+describe("toReportDatesUpdate", () => {
+  it("이 탭이 일자를 단독으로 소유하므로 빈 칸을 null 그대로 보낸다 — 서버가 값을 지운다", () => {
+    const update = toReportDatesUpdate({
       ...getDefaultAnalysisProgressForm(),
       receivedAt: "2026-08-18",
       analyst: "김분석",
     });
 
     expect(update.receivedAt).toBe("2026-08-18");
+    expect(update.analyzedAt).toBeNull();
+    expect(update.issuedAt).toBeNull();
+  });
+
+  it("서명란 담당자는 이 요청에 담기지 않는다 — 소유 노드가 달라 저장 경로가 갈린다", () => {
+    const update = toReportDatesUpdate({
+      ...getDefaultAnalysisProgressForm(),
+      analyst: "김분석",
+    });
+
+    expect(update).not.toHaveProperty("analyst");
+    expect(update).not.toHaveProperty("technicalManager");
+  });
+});
+
+describe("toTenantSnapshotUpdate", () => {
+  it("서명란 담당자만 담는다 — 나머지는 키를 두지 않아 서버가 기존 값을 유지한다", () => {
+    const update = toTenantSnapshotUpdate({
+      ...getDefaultAnalysisProgressForm(),
+      receivedAt: "2026-08-18",
+      analyst: "김분석",
+    });
+
     expect(update.analyst).toBe("김분석");
-    expect(update.samplingStartedAt).toBeNull();
-    expect(update.facilityManager).toBeNull();
-    expect(update.mentorName).toBeNull();
+    expect(update.technicalManager).toBeNull();
+    expect(update).not.toHaveProperty("receivedAt");
+    expect(update).not.toHaveProperty("name");
   });
 });
 

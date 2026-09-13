@@ -1,6 +1,7 @@
 import type { EquipmentRegisterForm, EquipmentSpecForm, InspectionItemForm } from "./types";
 import type { EquipmentStepId } from "./step-progress";
 import type { EquipType } from "@shared/model";
+import { EQUIP_SPEC_FIELD_LABEL } from "@shared/config";
 
 type EquipmentErrors = Partial<Record<keyof EquipmentRegisterForm, string>>;
 
@@ -12,24 +13,24 @@ export const validateEquipmentSpec = (type: EquipType, spec: EquipmentSpecForm):
   switch (type) {
     case 'PARTICLE_SAMPLER':
       if (![spec.totalVolume, spec.orificeDp, spec.yd].every(isNonNegative)) {
-        return '총유량·오리피스 ΔP·Yd 값을 모두 입력해주세요.';
+        return `${EQUIP_SPEC_FIELD_LABEL.totalVolume}·${EQUIP_SPEC_FIELD_LABEL.orificeDp}·${EQUIP_SPEC_FIELD_LABEL.yd} 값을 모두 입력해주세요.`;
       }
       return undefined;
     case 'GAS_SAMPLER':
     case 'OTHER':
-      if (!isNonNegative(spec.totalVolume)) return '총유량을 입력해주세요.';
+      if (!isNonNegative(spec.totalVolume)) return `${EQUIP_SPEC_FIELD_LABEL.totalVolume} 값을 입력해주세요.`;
       return undefined;
     case 'PITOT_TUBE':
-      if (!spec.pitotTubeType) return '피토관 종류를 선택해주세요.';
-      if (spec.coefficients.length === 0) return '계수를 1개 이상 추가해주세요.';
+      if (!spec.pitotTubeType) return `${EQUIP_SPEC_FIELD_LABEL.pitotTubeType}를 선택해주세요.`;
+      if (spec.coefficients.length === 0) return `${EQUIP_SPEC_FIELD_LABEL.coefficient}를 1개 이상 추가해주세요.`;
       if (!spec.coefficients.every((c) => isPositive(c.coefficient) && isPositive(c.velocity))) {
-        return '계수·유속은 0보다 큰 값이어야 합니다.';
+        return `${EQUIP_SPEC_FIELD_LABEL.coefficient}·${EQUIP_SPEC_FIELD_LABEL.velocity}은 0보다 큰 값이어야 합니다.`;
       }
       return undefined;
     case 'NOZZLE':
-      if (spec.diameters.length === 0) return '직경을 1개 이상 추가해주세요.';
+      if (spec.diameters.length === 0) return `${EQUIP_SPEC_FIELD_LABEL.diameter}을 1개 이상 추가해주세요.`;
       if (!spec.diameters.every((d) => isPositive(d.diameter))) {
-        return '직경은 0보다 큰 값이어야 합니다.';
+        return `${EQUIP_SPEC_FIELD_LABEL.diameter}은 0보다 큰 값이어야 합니다.`;
       }
       return undefined;
     // 가스분석기는 사양이 없어 검증할 값도 없다.

@@ -29,6 +29,7 @@ export const RegisterContractForm = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <Select
               id="workplaceId"
+              searchable
               label="측정대상 사업장"
               placeholder="사업장 선택"
               value={form.workplaceName}

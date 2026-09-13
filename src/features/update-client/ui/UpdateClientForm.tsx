@@ -8,9 +8,6 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { InputGroup, SectionTitle, FieldGroup, AddressInput } from "@shared/ui/form";
 
-// Format
-import { formatPhoneNumber, unformatNumber, formatBusinessNumber } from '@shared/lib';
-
 // Icon
 import { MailIcon, User2Icon, Phone, Building2, Hash } from "lucide-react";
 
@@ -65,8 +62,9 @@ export const UpdateClientForm = ({ open, onOpenChange, client, onSuccess }: Prop
           <InputGroup
             id="bizNumber"
             label="사업자등록번호"
-            value={formatBusinessNumber(form.bizNumber)}
-            onChange={(value) => handleChange("bizNumber", unformatNumber(value).slice(0, 10))}
+            code="business"
+            value={form.bizNumber}
+            onChange={(value) => handleChange("bizNumber", value)}
             startIcon={<Hash />}
           />
           <InputGroup
@@ -98,7 +96,8 @@ export const UpdateClientForm = ({ open, onOpenChange, client, onSuccess }: Prop
           <InputGroup
             id="tel"
             placeholder="전화번호"
-            value={formatPhoneNumber(form.tel)}
+            code="phone"
+            value={form.tel}
             onChange={(value) => handleChange('tel', value)}
             startIcon={<Phone />}
           />

@@ -55,6 +55,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
         <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="mentorUserId"
+            searchable
             label="사수"
             placeholder="사수 선택"
             options={memberOptions}
@@ -64,6 +65,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
           />
           <Select
             id="menteeUserId"
+            searchable
             label="부사수"
             placeholder="부사수 선택"
             options={memberOptions}
@@ -79,6 +81,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
         <div className="grid md:grid-cols-2 gap-4">
           <Select
             id="particleSamplerId"
+            searchable
             label="입자샘플러"
             placeholder="입자샘플러 선택"
             options={particleSamplerOptions}
@@ -88,6 +91,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
           />
           <Select
             id="gasSamplerId"
+            searchable
             label="가스샘플러"
             placeholder="가스샘플러 선택"
             options={gasSamplerOptions}
@@ -97,6 +101,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
           />
           <Select
             id="pitotTubeId"
+            searchable
             label="피토관"
             placeholder="피토관 선택"
             options={pitotTubeOptions}
@@ -106,6 +111,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
           />
           <Select
             id="nozzleId"
+            searchable
             label="노즐"
             placeholder="노즐 선택"
             options={nozzleOptions}

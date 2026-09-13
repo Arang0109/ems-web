@@ -1,9 +1,10 @@
 import { unwrapMessage } from "@shared/api";
-import { useFetch } from "@shared/model";
+import { useEntityQuery } from "@shared/model";
 import type { MeasurementField } from "@shared/model";
 
 import { pollutantApi } from "../api/api";
 import { toPollutants } from "../api/mapper";
+import { pollutantKeys } from "./query-keys";
 import type { Pollutant } from "./types";
 
 interface Props {
@@ -18,9 +19,10 @@ interface Props {
  * 따로 조회한다. 그래서 한 번도 채택하지 않은 고객사는 빈 목록을 본다.
  */
 export const usePollutants = ({ field }: Props = {}) =>
-  useFetch<Pollutant[]>(
-    async () => toPollutants(unwrapMessage(await pollutantApi.getPollutants({ field }))),
-    [],
-    // 객체를 그대로 의존성에 두면 매 렌더 새 참조라 무한 재조회가 된다 — 원시값으로 편다.
-    { deps: [field] },
-  );
+  useEntityQuery<Pollutant[]>({
+    queryKey: pollutantKeys.list(field),
+    queryFn: async () => toPollutants(unwrapMessage(await pollutantApi.getPollutants({ field }))),
+    initialData: [],
+    // 채택하면 후보에서 빠지고 목록에 들어온다 — 둘은 항상 함께 갱신돼야 한다.
+    invalidateKey: pollutantKeys.all,
+  });

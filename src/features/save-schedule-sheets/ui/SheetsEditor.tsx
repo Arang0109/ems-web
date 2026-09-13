@@ -9,15 +9,18 @@ import { Select } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
 import { useConfirm, useUnsavedChangesGuard } from "@shared/ui/dialogs";
 import { StickyActionBar } from "@shared/ui/layout";
+import { ChipNav } from "@shared/ui/nav";
 
 import { buildSamplingTimeline } from "../model/sampling-timeline";
 import { getMissingRequiredFields } from "../model/required-fields";
 import type { SheetFieldPath } from "../model/required-fields";
-import { getVisibleSections } from "../model/section-progress";
+import { BASIC_INFO_SECTION, getVisibleSections } from "../model/section-progress";
+import type { EditorSectionId } from "../model/section-progress";
 import { isParticleCategory } from "../model/types";
 import { useSaveSheets } from "../model/hooks/use-save-sheets";
 import { useBorrowedFields } from "../model/hooks/use-borrowed-fields";
 import { useLoadPreviousSheet } from "../model/hooks/use-load-previous-sheet";
+import { sectionDomId, useSectionNav } from "../model/hooks/use-section-nav";
 import type { SheetFieldState } from "./sheet-field-state";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { SheetFormView } from "./SheetFormView";
@@ -64,6 +67,16 @@ export const SheetsEditor = ({
   // 계산값 드로어의 입구는 액션 바에 있고 표면은 SheetFormView 가 그린다 —
   // 그쪽이 배출가스 노출 판정·노즐 추정치를 이미 들고 있어 열림 상태만 위로 올린다.
   const [calcDrawerOpen, setCalcDrawerOpen] = useState(false);
+
+  // 섹션 바로가기는 공통 정보와 활성 기록지의 섹션을 한 줄에 놓는다 —
+  // 공통 정보를 뺀 채 위에서 시작하면, 스크롤을 내린 뒤 총 채취시간으로 돌아갈 길이 없다.
+  const nav = useSectionNav();
+  const navItems = useMemo(
+    () => (activeSheet
+      ? [BASIC_INFO_SECTION, ...getVisibleSections(isParticleCategory(activeSheet.category))]
+      : []),
+    [activeSheet],
+  );
 
   // 타임라인은 측정계획 단위 총 채취시간과 활성 시트의 시각을 함께 봐야 한다.
   // 둘을 다 쥐고 있는 곳이 여기뿐이라 이 컴포넌트가 소유한다.
@@ -125,14 +138,6 @@ export const SheetsEditor = ({
 
   return (
     <div className="space-y-4">
-        {/* 측정계획 단위 공통 값이므로 시트 탭 바깥에 둔다(시트 전환·시트 0개와 무관하게 유지). */}
-      <BasicInfoSection
-          basicInfoForm={basicInfoForm}
-          editable={editable}
-          showMissing={showMissing}
-          onChange={handleBasicInfoChange}
-        />
-
       {/* 기록지 탭 바 — 활성 기록지는 브랜드 테두리, × 로 삭제, 우측 정사각 + 로 추가 */}
       <div className="flex flex-wrap items-center gap-2">
         {sheets.map((sheet, index) => {
@@ -183,8 +188,14 @@ export const SheetsEditor = ({
           </div>
         )}
       </div>
-
-      {activeSheet ? (
+        <ChipNav
+          ariaLabel="입력 섹션 바로가기"
+          className="sticky top-14 z-10 bg-canvas py-2"
+          items={navItems}
+          activeId={nav.activeSectionId}
+          onSelect={(id) => nav.goToSection(id as EditorSectionId)}
+        />
+        {activeSheet ? (
         <div className="space-y-3">
           {/* 같은 시설이라도 회차마다 쓰는 기록지가 다르므로 계획을 만들 때 미리 채워 둘 수 없다.
               기록지를 추가한 뒤 여기서 직접 불러온다. 불러오기는 화면만 채우고 저장하지 않는다.
@@ -219,6 +230,17 @@ export const SheetsEditor = ({
             </div>
           )}
 
+          {/* 측정계획 단위 공통 값 — 기록지 전환과 무관하게 같은 폼을 보여준다.
+              기록지 안쪽(SheetFormView)에 두지 않는 것은 그쪽이 기록지마다 리마운트되기 때문이다. */}
+          <BasicInfoSection
+            id={sectionDomId(BASIC_INFO_SECTION.id)}
+            basicInfoForm={basicInfoForm}
+            editable={editable}
+            showMissing={showMissing}
+            open={nav.isOpen(BASIC_INFO_SECTION.id)}
+            onOpenChange={(open) => nav.setSectionOpen(BASIC_INFO_SECTION.id, open)}
+            onChange={handleBasicInfoChange}
+          />
           <SheetFormView
             // 인덱스만으로는 부족하다 — 다른 사용자가 앞쪽 기록지를 지우면 같은 인덱스가 다른 기록지를
             // 가리키게 되는데, 그때 리마운트되지 않으면 배출가스 입력칸 노출 판정 같은 내부 상태가
@@ -237,6 +259,7 @@ export const SheetsEditor = ({
             updatedSections={updatedSections[activeSheet.category]}
             calcDrawerOpen={calcDrawerOpen}
             onCalcDrawerOpenChange={setCalcDrawerOpen}
+            nav={nav}
             onChange={updateActiveSheet}
           />
 

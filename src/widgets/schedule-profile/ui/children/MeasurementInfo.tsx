@@ -94,20 +94,20 @@ export const MeasurementInfo = ({
   return (
     <div className="space-y-4">
       <SectionAccordion
-        title="사전 정보"
+        title="측정계획 사전 정보"
         action={editAction("사전 정보 수정", () => setBasicInfoEditOpen(true))}
         defaultOpen={true}
       >
         <DetailGrid>
-          <DetailRow label="관리번호" value={value(schedule?.referenceNumber)} />
+          <DetailRow label="관리 번호 (문서 번호)" value={value(schedule?.referenceNumber)} />
           {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
-          <DetailRow label="측정일자" value={value(schedule?.sampledAt)} />
-          <DetailRow label="측정분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
+          <DetailRow label="측정 일자" value={value(schedule?.sampledAt)} />
+          <DetailRow label="측정 분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
           <DetailRow
-            label="측정용도"
+            label="측정 용도"
             value={purposeLabel(schedule?.schedulePurpose ?? null)}
           />
-          <DetailRow label="측정팀" value={value(team.teamName)} />
+          <DetailRow label="측정 팀" value={value(team.teamName)} />
         </DetailGrid>
       </SectionAccordion>
 
@@ -160,7 +160,7 @@ export const MeasurementInfo = ({
             value={value(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
           />
           {/* 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 채취 스냅샷이 보유한다.
-              수정도 이 폼이 아니라 기본정보(PATCH /basic-info) 소관이다. */}
+              수정도 이 폼이 아니라 성적서 진행 일자(PATCH /report-dates) 소관이다. */}
           <DetailRow label="배출시설 관리자" value={value(samplingData?.facilityManager)} />
           <DetailRow label="시료채취 입회자" value={value(samplingData?.samplingWitness)} />
           <DetailRow label="업종" value={value(workplace.businessCategory)} />

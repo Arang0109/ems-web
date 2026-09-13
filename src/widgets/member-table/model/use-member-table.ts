@@ -10,17 +10,13 @@ import { useDataTable } from '@shared/model';
 
 import { TABLE_PAGE_SIZE } from "@shared/config";
 
-interface Props {
-  onSuccess?: () => void;
-}
-
-export const useMemberTable = ({ onSuccess }: Props) => {
+export const useMemberTable = () => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   /** 상세 모달 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailMemberId, setDetailMemberId] = useState<number | null>(null);
 
-  const { data, isLoading: loading, error, refetch: memberRefetch } = useMembers();
+  const { data, isLoading: loading, error } = useMembers();
 
   const tableData = useMemo(
     () => data.map(toMemberRows),
@@ -28,16 +24,12 @@ export const useMemberTable = ({ onSuccess }: Props) => {
   );
 
   // Row 는 표시용 포맷 값이라 폼 초기값으로 쓸 수 없다. 목록 원본에서 같은 id 를 찾는다.
-  // id 만 보관하고 파생시켜야 refetch 이후에도 모달이 최신 값을 따른다.
+  // id 만 보관하고 파생시켜야 목록 캐시가 갱신된 뒤에도 모달이 최신 값을 따른다.
   const detailMember = useMemo(
     () => data.find((member) => member.id === detailMemberId) ?? null,
     [data, detailMemberId],
   );
 
-  const refetch = () => {
-    memberRefetch();
-    onSuccess?.();
-  }
 
   const handleViewDetail = (row: MemberTableRow) => {
     setDetailMemberId(row.id);
@@ -62,6 +54,6 @@ export const useMemberTable = ({ onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading: loading, error, refetch,
+    isLoading: loading, error,
   }
 }

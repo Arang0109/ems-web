@@ -14,31 +14,27 @@ import { TABLE_PAGE_SIZE } from "@shared/config";
 
 interface Props {
   category: DocumentCategory;
-  onSuccess?: () => void;
 }
 
-export const useDocumentTable = ({ category, onSuccess }: Props) => {
+export const useDocumentTable = ({ category }: Props) => {
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   /** 상세 모달 대상 겸 행 선택 강조 대상 — 상세보기를 누른(또는 클릭한) 행이다. */
   const [detailDocumentId, setDetailDocumentId] = useState<number | null>(null);
 
-  const { data, isLoading: loading, error, refetch: documentRefetch } = useDocuments(category);
+  const { data, isLoading: loading, error } = useDocuments(category);
   const { handleDownload } = useDownloadDocument();
 
   const tableData = useMemo(() => data.map(toDocumentRows), [data]);
 
   // Row 는 표시용 포맷 값이라 상세 모달에 쓸 수 없다. 목록 원본에서 같은 id 를 찾는다.
-  // id 만 보관하고 파생시켜야 refetch 이후에도 모달이 최신 값을 따른다.
+  // id 만 보관하고 파생시켜야 목록 캐시가 갱신된 뒤에도 모달이 최신 값을 따른다.
   const detailDocument = useMemo(
     () => data.find((document) => document.id === detailDocumentId) ?? null,
     [data, detailDocumentId],
   );
 
-  const refetch = () => {
-    documentRefetch();
-    onSuccess?.();
-  };
+;
 
   const handleViewDetail = (row: DocumentTableRow) => {
     setDetailDocumentId(row.id);
@@ -69,6 +65,6 @@ export const useDocumentTable = ({ category, onSuccess }: Props) => {
 
     globalFilter, setGlobalFilter,
 
-    isLoading: loading, error, refetch,
+    isLoading: loading, error,
   };
 };

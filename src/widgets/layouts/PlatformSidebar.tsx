@@ -16,7 +16,6 @@ import { PLATFORM_BRAND } from "./brand";
 // ─── 메뉴 구조 (플랫폼 운영자 전용) ──────────────────────────────────────────
 const PLATFORM_MENU: SidebarNavGroup[] = [
   {
-    label: "platform",
     items: [
       { icon: Building2, label: "고객사 관리", path: "/platform/tenants" },
       { icon: FlaskConical, label: "측정물질 카탈로그", path: "/platform/pollutant-catalog" },
