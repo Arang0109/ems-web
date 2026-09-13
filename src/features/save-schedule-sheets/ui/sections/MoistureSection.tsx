@@ -4,6 +4,7 @@ import { useIsMobile } from "@shared/model";
 import type { SheetCalcPreview } from "@entities/schedule";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
+import { formatNumber } from "@shared/lib";
 
 import { MOISTURE_HINT } from "../../model/field-hints";
 import { fieldPath } from "../../model/required-fields";
@@ -72,7 +73,7 @@ export const MoistureSection = ({
         <>
           <CalcResultRow
             label="흡습된 수분무게 (ma) :"
-            value={display(calc?.ma)}
+            value={formatNumber(calc?.ma, {minDecimals:2})}
             unit="g"
             className="col-span-2"
           />
@@ -93,7 +94,8 @@ export const MoistureSection = ({
           label="흡습된 수분무게"
           unit="g"
           readOnly
-          value={display(calc?.ma)}
+          // value={display(calc?.ma)}
+          value={formatNumber(calc?.ma, {minDecimals:2})}
         />)}
         <UnitField
           label="온도 - 입구" unit="°C" type="number" step={0.1}
@@ -115,7 +117,7 @@ export const MoistureSection = ({
         <>
           <CalcResultRow
             label="평균온도 (Tm) :"
-            value={display(calc?.tm_g)}
+            value={formatNumber(calc?.tm_g, {minDecimals:1})}
             unit="°C"
             className="col-span-2"
           />
@@ -136,12 +138,12 @@ export const MoistureSection = ({
           label="평균온도"
           unit="°C"
           readOnly
-          value={display(calc?.tm_g)}
+          value={formatNumber(calc?.tm_g, {minDecimals:1})}
         />)}
 
         <UnitField
           label="흡인량 - 전" unit="L" type="number" min={0} step={0.001}
-          maxIntDigits={6} maxDecimals={3}
+          maxIntDigits={7} maxDecimals={3}
           value={moisture.dryGasVolumeBefore} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("dryGasVolumeBefore"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("dryGasVolumeBefore"))}
@@ -149,7 +151,7 @@ export const MoistureSection = ({
         />
         <UnitField
           label="흡인량 - 후" unit="L" type="number" min={0} step={0.001}
-          maxIntDigits={6} maxDecimals={3}
+          maxIntDigits={7} maxDecimals={3}
           value={moisture.dryGasVolumeAfter} disabled={!editable}
           tone={fieldTone(fieldPath.moisture("dryGasVolumeAfter"))}
           onFocus={() => onFieldFocus(fieldPath.moisture("dryGasVolumeAfter"))}
@@ -159,7 +161,7 @@ export const MoistureSection = ({
         <>
           <CalcResultRow
             label="흡인량 : (Vm) :"
-            value={display(calc?.vm_g)}
+            value={formatNumber(calc?.vm_g, {minDecimals:3})}
             unit="L"
             className="col-span-2"
           />
@@ -195,8 +197,8 @@ export const MoistureSection = ({
           onChange={(v) => onChange({ gasMeterGaugePressure: v })}
         />
         <div className="flex flex-col justify-center gap-1">
-          <CalcResultRow label="Pg(mmHg)" value={display(calc?.pm_g)} unit="mmHg" />
-          <CalcResultRow label="Pg(inchH₂O)" value={display(calc?.pmGInchH2O)} unit="inchH₂O" />
+          <CalcResultRow label="Pg(mmHg)" value={formatNumber(calc?.pm_g, {minDecimals:2})} unit="mmHg" />
+          <CalcResultRow label="Pg(inchH₂O)" value={formatNumber(calc?.pmGInchH2O, {minDecimals:1})} unit="inchH₂O" />
         </div>
         <UnitField
           label="흡인 유속" unit="L/min" type="number" min={0} step={0.1}
@@ -208,7 +210,7 @@ export const MoistureSection = ({
           onChange={(v) => onChange({ suctionVelocity: v })}
         />
         <div className="flex flex-col justify-center gap-1">
-          <CalcResultRow label="수분량 : Xw(%)" value={display(calc?.xw)} unit="%" />
+          <CalcResultRow label="수분량 : Xw(%)" value={formatNumber(calc?.xw, {minDecimals:2})} unit="%" />
         </div>
       </div>
     </SectionAccordion>
