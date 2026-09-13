@@ -8,9 +8,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
+import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
+import { InFieldLabel } from "./InFieldLabel";
+import {
+  IN_FIELD_CONTROL_HEIGHT,
+  IN_FIELD_SELECT_CLASS,
+  IN_FIELD_VALUE_CLASS,
+  inFieldPlaceholder,
+} from "./in-field";
 import { SearchableSelectControl } from "./SearchableSelectControl";
 
 /**
@@ -66,6 +73,17 @@ type SelectVariantProps<T extends string> =
 
 type SelectProps<T extends string> = SelectBaseProps<T> & SelectVariantProps<T>;
 
+/**
+ * 라벨이 칸 안에 들어온 트리거 — 공유 클래스의 `data-[size=*]:h-*` 가 `h-12` 보다 구체적이라
+ * 같은 셀렉터로 덮는다 (`InputGroup` 의 인필드 라벨과 같은 48px 규칙).
+ */
+const LABELED_TRIGGER_CLASS = cn(
+  IN_FIELD_CONTROL_HEIGHT,
+  "data-[size=default]:h-12 data-[size=sm]:h-12",
+  IN_FIELD_VALUE_CLASS,
+  IN_FIELD_SELECT_CLASS,
+);
+
 export const Select = <T extends string = string>({
   options,
   groups,
@@ -83,6 +101,11 @@ export const Select = <T extends string = string>({
   className,
   size = "default",
 }: SelectProps<T>) => {
+  const hasLabel = !!label;
+  const invalid = !!errorMessage;
+  const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
+  const controlClassName = cn("w-full", hasLabel && LABELED_TRIGGER_CLASS, className);
+
   const renderItems = () => {
     if (groups) {
       return groups.map((group, index) => (
@@ -125,10 +148,11 @@ export const Select = <T extends string = string>({
       value={value}
       defaultValue={defaultValue}
       onValueChange={(next) => onValueChange?.(next as T | null)}
-      placeholder={placeholder}
+      placeholder={effectivePlaceholder}
       id={id}
       disabled={disabled}
-      className={className}
+      invalid={invalid}
+      className={controlClassName}
       size={size}
     />
   ) : (
@@ -141,26 +165,37 @@ export const Select = <T extends string = string>({
       onValueChange={(next) => onValueChange?.(next as T | null)}
       disabled={disabled}
     >
-      <SelectTrigger id={id} size={size} className={cn("w-full", className)}>
-        <SelectValue placeholder={placeholder} />
+      <SelectTrigger
+        id={id}
+        size={size}
+        aria-invalid={invalid || undefined}
+        className={controlClassName}
+      >
+        <SelectValue placeholder={effectivePlaceholder} />
       </SelectTrigger>
       <SelectContent>{renderItems()}</SelectContent>
     </SelectPrimitive>
   );
 
-  if (!label) return select;
+  if (!hasLabel) return select;
 
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-        {errorMessage && (
-          <span className="text-caption text-destructive">{errorMessage}</span>
-        )}
-      </FieldLabel>
-      {select}
+    <Field data-invalid={invalid || undefined} className="gap-1.5">
+      {/* 라벨은 트리거 위에 얹힌다 — 글줄 시작점은 트리거 좌패딩(pl-2.5)에 맞춘다 */}
+      <div className="relative">
+        <InFieldLabel
+          htmlFor={id}
+          required={required}
+          invalid={invalid}
+          disabled={disabled}
+          className="left-2.5"
+        >
+          {label}
+        </InFieldLabel>
+        {select}
+      </div>
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
     </Field>
   );
 };

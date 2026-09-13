@@ -19,7 +19,7 @@ export type DateRangeValue = {
   to: Date;
 };
 
-export const DATE_RANGE_PRESET = ["today", "week", "month", "around30"] as const;
+export const DATE_RANGE_PRESET = ["today", "week", "month", "year"] as const;
 
 export type DateRangePreset = (typeof DATE_RANGE_PRESET)[number];
 
@@ -59,7 +59,7 @@ export const toPresetRange = (preset: DateRangePreset, today: Date): DateRangeVa
       };
     case "month":
       return { from: startOfMonth(today), to: endOfMonth(today) };
-    case "around30":
+    case "year":
       return { from: subDays(today, AROUND_DAYS), to: addDays(today, AROUND_DAYS) };
   }
 };

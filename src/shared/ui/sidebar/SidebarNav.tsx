@@ -5,7 +5,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -53,9 +52,7 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
   return (
     <SidebarContent className="px-2 py-2">
       {groups.map((group) => (
-        <SidebarGroup key={group.label} className="p-0">
-          <SidebarGroupLabel
-            className={cn("text-body-1")}>{group.label}</SidebarGroupLabel>
+        <SidebarGroup className="p-0">
           <SidebarGroupContent>
             <SidebarMenu>
               {group.items.map((item) =>

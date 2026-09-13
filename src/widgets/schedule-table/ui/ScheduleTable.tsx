@@ -29,8 +29,8 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
   return (
     <div>
       {/* 모바일에서는 검색이 가용 폭을 채운다 (피그마 필터 바의 flex-1) */}
+      <Search className="w-full" filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색'} />
       <div className="mt-3 flex items-center gap-2">
-        <Search className="w-full" filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색'} />
         <FilterSelect
           icon={Users}
           options={teamOptions}

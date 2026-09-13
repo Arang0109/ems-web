@@ -36,12 +36,11 @@ export const UpdateScheduleItemsForm = ({
 
   return (
     <FormDialog
-      title="측정항목 수정"
-      description="이번 측정계획에서 측정할 항목을 선택합니다. 측정시설에 등록된 항목 중에서만 고를 수 있습니다."
+      title="측정항목"
       open={open}
       onOpenChange={onOpenChange}
-      cancelLabel="취소"
-      submitLabel="수정"
+      cancelLabel="닫기"
+      submitLabel="저장"
       submitDisabled={!hasOptions}
       isLoading={isLoading}
       size="lg"
@@ -113,7 +112,6 @@ export const UpdateScheduleItemsForm = ({
 
         <p className="text-caption text-muted-foreground">
           이미 포함된 항목의 허용기준은 측정 시점 값이 그대로 유지됩니다.
-          항목을 빼도 이미 입력한 측정 데이터는 지워지지 않으므로, 필요하면 측정 데이터 탭에서 정리해 주세요.
         </p>
       </FieldGroup>
     </FormDialog>

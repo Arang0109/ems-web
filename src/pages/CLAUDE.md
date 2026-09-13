@@ -23,6 +23,26 @@
 </PageLayout>
 ```
 
+### 제목 옆 동적 정보는 `subtitle`·`actions` 슬롯으로 — 데이터는 위젯이 소유한다
+
+상세 페이지가 제목 옆에 대상 식별자·상태 배지·생애주기 버튼을 보여야 할 때, 페이지가
+entity 훅으로 데이터를 받아 내려보내지 않는다. **위젯이 슬롯용 조각 컴포넌트를 export** 하고
+페이지는 그것을 슬롯에 꽂기만 한다. 조각은 본문 위젯과 같은 react-query 키를 구독하므로
+요청은 한 번이고, 저장·상태 변경으로 캐시가 갱신되면 제목 옆 정보도 함께 바뀐다.
+
+```tsx
+<PageLayout
+  title="측정계획 상세"
+  subtitle={<ScheduleProfileHeadline />}   // 측정시설명 · 접수번호 · 상태
+  actions={<ScheduleProfileActions />}     // 완료·취소·삭제·재개방
+  showBack backTo={backTo}
+>
+  <ScheduleProfile />
+</PageLayout>
+```
+
+반대로 위젯이 `PageLayout` 을 렌더해 제목까지 가져가지도 않는다 — 셸의 주인은 페이지다.
+
 ### 목록에서 진입하는 페이지는 `showBack` 을 넘긴다
 
 상세·등록 페이지는 `showBack backTo="/목록경로"` 를 넘긴다. 뒤로가기 버튼은 **모바일(md 미만)

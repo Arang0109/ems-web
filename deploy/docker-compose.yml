@@ -44,7 +44,7 @@ services:
       # REST 는 nginx 동일 오리진이라 프리플라이트가 없지만, WebSocket 핸드셰이크는 동일
       # 오리진이어도 Origin 을 검사하기 때문이다. 증상이 프록시 문제로 오인되기 쉽다.
       # 기본값을 비워 두면 안 된다 — 빈 문자열이 서버 기본값을 덮어써 모든 오리진이 차단된다.
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://13.236.208.223,https://env-bridge.co.kr,https://www.env-bridge.co.kr}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://43.202.50.123,https://env-bridge.co.kr,https://www.env-bridge.co.kr}
       # 운영자(PLATFORM_ADMIN) 최초 부트스트랩 — 서버의 PlatformAdminInitializer가 읽는다.
       # 서버의 .env는 .dockerignore 대상이라 컨테이너 안에 없다. 값은 반드시 여기로 주입된다.
       # 계정 생성을 확인한 뒤 .env에서 PLATFORM_BOOTSTRAP_ENABLED=false로 되돌린다.

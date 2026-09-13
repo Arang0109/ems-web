@@ -15,7 +15,7 @@ interface Props {
  */
 export const CalcResultRow = ({ label, value, unit, className }: Props) => (
   <div className={cn("flex items-center justify-between gap-2", className)}>
-    <span className="text-label text-muted-ink">{label}</span>
+    <span className="text-label text-ink-soft">{label}</span>
     <span className="flex items-center gap-0.5 text-label text-ink-soft">
       <span>{value}</span>
       {unit && <span>{unit}</span>}

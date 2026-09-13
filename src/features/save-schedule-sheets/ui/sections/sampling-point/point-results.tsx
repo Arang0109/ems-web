@@ -86,7 +86,7 @@ export const isokineticResults = (preview: SheetCalcPreview | null): PointResult
 
 /** 채취량 — 등속흡인 그룹의 첫 결과 행이자, 카드에서 입력 사이에 끼어드는 값 */
 export const vmResult = (preview: SheetCalcPreview | null): PointResult => ({
-  label: <span>채취량 (V<sub>m</sub>)</span>, name: "채취량", hint: POINT_RESULT_HINT.Vm,
+  label: <span>실제 채취량 (V<sub>m</sub>)</span>, name: "채취량", hint: POINT_RESULT_HINT.Vm,
   value: (i) => preview?.points[i]?.Vm, avg: preview?.particle?.totalVm,
 });
 

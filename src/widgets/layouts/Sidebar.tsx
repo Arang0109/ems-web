@@ -70,9 +70,6 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
       { label: "측정물질 관리", path: "/pollutants" },
     ],
   },
-];
-
-const ADMIN_MENU_ITEMS: MenuItem[] = [
   {
     icon: Award,
     label: "관리자",
@@ -125,11 +122,9 @@ export const Sidebar = () => {
   const mainMenu = filterMenuByRole(MAIN_MENU_ITEMS, user?.role).map((item) =>
     item.path === "/chat" ? { ...item, badge: unreadCount } : item,
   );
-  const adminMenu = filterMenuByRole(ADMIN_MENU_ITEMS, user?.role);
 
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => ({
     ...getInitialOpenMenus(location.pathname, MAIN_MENU_ITEMS),
-    ...getInitialOpenMenus(location.pathname, ADMIN_MENU_ITEMS),
   }));
 
   // 경로가 바뀔 때 활성 하위 메뉴의 상위 메뉴를 자동으로 열어 준다.
@@ -141,7 +136,7 @@ export const Sidebar = () => {
     setOpenMenus((prev) => {
       const next = { ...prev };
       let changed = false;
-      [...MAIN_MENU_ITEMS, ...ADMIN_MENU_ITEMS].forEach((item) => {
+      [...MAIN_MENU_ITEMS].forEach((item) => {
         if (hasActiveChild(location.pathname, item) && !next[item.label]) {
           next[item.label] = true;
           changed = true;
@@ -156,8 +151,7 @@ export const Sidebar = () => {
 
   // 표시할 그룹 구성 (admin 메뉴는 노출 항목이 있을 때만)
   const groups: SidebarNavGroup[] = [
-    { label: "main", items: mainMenu },
-    ...(adminMenu.length > 0 ? [{ label: "admin", items: adminMenu }] : []),
+    { items: mainMenu },
   ];
 
   return (
@@ -175,12 +169,13 @@ export const Sidebar = () => {
     >
       <SidebarNav
         groups={groups}
+        // 서브메뉴가 있는 항목은 펼침 토글일 뿐이므로 활성 색을 주지 않는다 — 활성 표시는 하위 항목이 맡는다
         isActive={(item) =>
           item.path
             ? item.matchPrefix
               ? matchSection(location.pathname, item.path)
               : matchPath(location.pathname, item.path)
-            : hasActiveChild(location.pathname, item)
+            : false
         }
         isSubActive={(sub: SidebarNavSubItem) => matchPath(location.pathname, sub.path)}
         isOpen={(item) => !!openMenus[item.label]}

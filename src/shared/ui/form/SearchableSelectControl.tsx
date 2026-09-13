@@ -22,6 +22,8 @@ interface Props {
 
   id?: string;
   disabled?: boolean;
+  /** 트리거에 `aria-invalid` 를 건다 — 공유 클래스의 `aria-invalid:` 테두리가 켜진다 */
+  invalid?: boolean;
   className?: string;
   size?: "sm" | "default";
 }
@@ -48,6 +50,7 @@ export const SearchableSelectControl = ({
   emptyText = "검색 결과가 없습니다.",
   id,
   disabled,
+  invalid,
   className,
   size = "default",
 }: Props) => (
@@ -64,6 +67,7 @@ export const SearchableSelectControl = ({
       id={id}
       data-slot="select-trigger"
       data-size={size}
+      aria-invalid={invalid || undefined}
       className={cn(selectTriggerClassName, "w-full", className)}
     >
       {/* 트리거의 `*:data-[slot=select-value]:...` 규칙이 이 span 을 잡는다.
@@ -73,7 +77,10 @@ export const SearchableSelectControl = ({
       </span>
       <Combobox.Icon
         render={
-          <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+          <ChevronDownIcon
+            data-slot="select-icon"
+            className="pointer-events-none size-4 text-muted-foreground"
+          />
         }
       />
     </Combobox.Trigger>

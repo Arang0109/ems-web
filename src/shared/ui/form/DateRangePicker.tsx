@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+import { InFieldLabel } from "./InFieldLabel";
+import {
+  IN_FIELD_CONTROL_HEIGHT,
+  IN_FIELD_ICON_CLASS,
+  IN_FIELD_VALUE_CLASS,
+  inFieldPlaceholder,
+} from "./in-field";
+
 export type { DateRange };
 
 interface Props {
@@ -49,6 +57,9 @@ export const DateRangePicker = ({
   numberOfMonths,
 }: Props) => {
   const [open, setOpen] = React.useState(false);
+  // 인필드 라벨은 트리거형에만 얹는다 — `inline` 은 달력 패널이라 얹을 칸이 없다
+  const hasInFieldLabel = !!label && !inline;
+  const effectivePlaceholder = hasInFieldLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
 
   const calendar = (
     <Calendar
@@ -74,6 +85,8 @@ export const DateRangePicker = ({
             className={cn(
               "justify-between gap-3 font-normal",
               !value?.from && "text-muted-ink",
+              hasInFieldLabel &&
+                cn("relative w-full pl-2.5 pr-9", IN_FIELD_CONTROL_HEIGHT, IN_FIELD_VALUE_CLASS),
               className
             )}
           >
@@ -84,9 +97,12 @@ export const DateRangePicker = ({
                 {value.to ? format(value.to, "yyyy.MM.dd") : "…"}
               </span>
             ) : (
-              <span>{placeholder}</span>
+              <span>{effectivePlaceholder}</span>
             )}
-            <CalendarDays size={19} />
+            <CalendarDays
+              size={hasInFieldLabel ? 16 : 19}
+              className={cn(hasInFieldLabel && cn("text-muted-foreground", IN_FIELD_ICON_CLASS))}
+            />
           </Button>
         }
       />
@@ -98,13 +114,27 @@ export const DateRangePicker = ({
 
   if (!label) return picker;
 
+  if (!hasInFieldLabel) {
+    return (
+      <Field>
+        <FieldLabel htmlFor={id}>
+          {label}
+          {required && <span className="ml-1 text-danger">*</span>}
+        </FieldLabel>
+        {picker}
+        {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      </Field>
+    );
+  }
+
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>
-        {label}
-        {required && <span className="ml-1 text-danger">*</span>}
-      </FieldLabel>
-      {picker}
+    <Field className="gap-1.5">
+      <div className="relative">
+        <InFieldLabel htmlFor={id} required={required} disabled={disabled} className="left-2.5">
+          {label}
+        </InFieldLabel>
+        {picker}
+      </div>
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
     </Field>
   );

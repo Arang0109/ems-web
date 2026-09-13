@@ -24,7 +24,7 @@ export const PointCommonValues = ({
   <div className={FIELD_GRID}>
     {/* 종료시각은 시작시각 + Σ채취시간으로 자동 계산되므로 입력창 없이 보조 행으로 붙인다. */}
     <UnitField
-      label="입자상 물질 채취 시작시각" required type="time"
+      label="입자상 물질 채취 시작시각" type="time"
       hint={PARTICLE_HINT.samplingStartTime}
       value={particle.samplingStartTime} disabled={!editable}
       tone={fieldTone(fieldPath.particle("samplingStartTime"))}

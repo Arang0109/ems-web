@@ -77,6 +77,8 @@ export const useScheduleFormOptions = ({ clientId, workplaceId, stackId, teamId 
     label: t.name,
   }));
 
+  console.log(userOptions);
+
   // 측정항목은 **측정주기별 묶음**으로 고른다. 묶음 순서는 `MEASUREMENT_CYCLE` 선언 순서로
   // 고정한다 — 등록 순서에 따라 묶음이 흔들리면 안 된다(상세 화면·수정 폼과 같은 규칙).
   // 항목 라벨에 주기를 붙이지 않는 것은 그룹 머리글이 이미 말하기 때문이다.

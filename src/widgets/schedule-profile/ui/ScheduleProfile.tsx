@@ -1,13 +1,8 @@
 import { useParams } from "react-router";
 
-import { ScheduleLifecycleActions } from "@features/manage-schedule-lifecycle";
-
-import { SCHEDULE_STATUS_LABEL, SCHEDULE_STATUS_TONE } from "@shared/config";
 import { Tabs } from "@shared/ui/tabs";
-import { StatusDot } from "@shared/ui/badges";
 
 import { useScheduleProfile } from "../model/use-schedule-profile";
-import { value } from "../model/mapper";
 import { MeasurementInfo } from "./children/MeasurementInfo";
 import { EquipmentInfo } from "./children/EquipmentInfo";
 import { SheetInput } from "./children/SheetInput";
@@ -99,28 +94,7 @@ export const ScheduleProfile = () => {
     },
   ];
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-body-3 text-muted-ink">{externals.stackName} | </span>
-          <span className="text-body-4 text-ink">{value(detail?.referenceNumber)}</span>
-          {status && (
-            <StatusDot pill tone={SCHEDULE_STATUS_TONE[status]} label={SCHEDULE_STATUS_LABEL[status]} className="text-body-3" />
-          )}
-        </div>
-
-        {/*
-          생애주기 확정(완료·취소·삭제·재개방).
-          전진(측정중·분석값입력중)은 채취 시작시각·실측값·시료접수일 입력 시 서버가 자동 처리한다.
-        */}
-        <div className="flex flex-wrap items-center gap-2">
-          <ScheduleLifecycleActions scheduleId={id} status={status} onSuccess={refetch} />
-        </div>
-      </div>
-
-      {/* 측정 데이터 탭에서 작성하던 기록지가 탭을 옮겨도 남아 있어야 한다 (탭 본문 언마운트 방지). */}
-      <Tabs options={tabOptions} keepMounted />
-    </div>
-  );
+  // 제목 옆 식별 정보·생애주기 액션은 페이지 셸 슬롯에 들어간다 (ScheduleProfileHeadline·ScheduleProfileActions).
+  // 측정 데이터 탭에서 작성하던 기록지가 탭을 옮겨도 남아 있어야 한다 (탭 본문 언마운트 방지).
+  return <Tabs options={tabOptions} keepMounted />;
 };

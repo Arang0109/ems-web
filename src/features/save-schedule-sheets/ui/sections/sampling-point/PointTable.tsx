@@ -8,6 +8,8 @@ import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/tabl
 import { POINT_HINT } from "../../../model/field-hints";
 import { fieldPath } from "../../../model/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
+import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
+import { NOZZLE_BASIS_AFTER } from "./point-fields";
 import { averageOf, display, type PointGroup } from "./point-results";
 import type { FieldStateProps } from "../shell-props";
 
@@ -15,6 +17,8 @@ interface Props extends FieldStateProps {
   points: SamplingPointForm[];
   preview: SheetCalcPreview | null;
   groups: PointGroup[];
+  /** 고른 노즐의 예상 채취시간·채취량 — 채취시간 행 아래 한 줄로 깐다 */
+  nozzleBasis: NozzleBasis;
   editable: boolean;
   onPointChange: (index: number, patch: Partial<SamplingPointForm>) => void;
   onRemovePoint: (index: number) => void;
@@ -32,7 +36,7 @@ const LABEL_WIDTH = 180;
  * 항목별 입력 스펙(단위·하한·증감폭)은 `PointCards` 와 같은 `PointField` 를 읽는다.
  */
 export const PointTable = ({
-  points, preview, groups, editable, onPointChange, onRemovePoint, onCopyPreviousPoint,
+  points, preview, groups, nozzleBasis, editable, onPointChange, onRemovePoint, onCopyPreviousPoint,
   fieldTone, onFieldFocus,
 }: Props) => {
   const wide = points.length + 1;   // 지점 열 + 평균 열 (라벨 제외)
@@ -77,19 +81,30 @@ export const PointTable = ({
               </tr>
 
               {group.fields.map((f) => (
-                <tr key={String(f.field)}>
-                  <TableLabelCell hint={POINT_HINT[f.field]} hintLabel={`${f.name} 설명`}>
-                    {f.label} ({f.unit})
-                  </TableLabelCell>
-                  {points.map((p, i) => (
-                    <TableInputCell key={i} type="number" value={p[f.field]} unit={f.unit}
-                      min={f.min} step={f.step}
-                      tone={fieldTone(fieldPath.point(i, f.field))}
-                      onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
-                      onChange={(v) => onPointChange(i, { [f.field]: v })} disabled={!editable} />
-                  ))}
-                  <TableResultCell value={display(averageOf(f.field, points, preview))} />
-                </tr>
+                <Fragment key={String(f.field)}>
+                  <tr>
+                    <TableLabelCell hint={POINT_HINT[f.field]} hintLabel={`${f.name} 설명`}>
+                      {f.label} ({f.unit})
+                    </TableLabelCell>
+                    {points.map((p, i) => (
+                      <TableInputCell key={i} type="number" value={p[f.field]} unit={f.unit}
+                        min={f.min} step={f.step}
+                        tone={fieldTone(fieldPath.point(i, f.field))}
+                        onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
+                        onChange={(v) => onPointChange(i, { [f.field]: v })} disabled={!editable} />
+                    ))}
+                    <TableResultCell value={display(averageOf(f.field, points, preview))} />
+                  </tr>
+
+                  {/* 지점별 값이 아니라 시트 공통 기준이라 열을 나누지 않고 한 줄로 깐다 */}
+                  {f.field === NOZZLE_BASIS_AFTER && (
+                    <tr>
+                      <td colSpan={wide + 1} className="border border-rule px-2 py-1">
+                        <NozzleBasisNote basis={nozzleBasis} className="bg-transparent p-0" />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
 
               {group.results.map((r, ri) => (

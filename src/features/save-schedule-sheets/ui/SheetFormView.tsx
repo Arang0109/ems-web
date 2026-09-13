@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Check } from "lucide-react";
 
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
 import { addMinutes } from "@shared/lib";
 import type { SectionHighlight } from "@shared/ui/accordion";
 import { Button } from "@shared/ui/buttons";
-import { ChipNav } from "@shared/ui/nav";
 import { useRemountKey } from "@shared/model";
 
 import type {
@@ -13,12 +12,11 @@ import type {
   SamplingPointForm, SampleForm, ParticleForm,
 } from "../model/types";
 import {
-  getDefaultSamplingPointForm, getDefaultSampleForm,
+  getDefaultSampleForm,
   isParticleCategory,
 } from "../model/types";
-import {
-  getProgressTone, getSectionProgress, getVisibleSections, type SheetSectionId,
-} from "../model/section-progress";
+import { getProgressTone, getSectionProgress, type SheetSectionId } from "../model/section-progress";
+import { sectionDomId, type SectionNav } from "../model/hooks/use-section-nav";
 import { fieldPath, getMissingRequiredFields } from "../model/required-fields";
 import type { AssignedPollutants, ExhaustGasVisibility } from "../model/measured-pollutants";
 import { getExhaustGasVisibility, hasSavedExhaustGasValue } from "../model/measured-pollutants";
@@ -26,6 +24,7 @@ import {
   DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate,
 } from "../model/nozzle-estimate";
 import { calcParticleSamplingMinutes } from "../model/derived-times";
+import { appendPoint, applyPointPatch, copyPreviousPointValues } from "../model/point-chain";
 import type { GasSampleGroup } from "../model/gaseous-rows";
 import { toSampleForm } from "../model/gaseous-rows";
 import { checkMoistureWeightGain } from "../model/validator";
@@ -59,11 +58,10 @@ interface Props {
   /** 계산값 드로어의 열림 상태 — 입구가 액션 바에 있어 SheetsEditor 가 소유한다 */
   calcDrawerOpen: boolean;
   onCalcDrawerOpenChange: (open: boolean) => void;
+  /** 섹션 펼침 상태 — 바로가기가 공통 정보까지 가리키므로 SheetsEditor 가 소유한다 */
+  nav: Pick<SectionNav, "isOpen" | "setSectionOpen">;
   onChange: (updater: (sheet: SheetForm) => SheetForm) => void;
 }
-
-/** 섹션 카드의 DOM id — 섹션 바로가기의 스크롤 이동 대상 */
-const sectionDomId = (id: SheetSectionId): string => `sheet-section-${id}`;
 
 // 채취 종료시간 = 시작시간 + Σ지점별 채취시간(분). 시작이 없으면 빈 값.
 // 합산 규칙은 타임라인과 공유한다 — 두 곳이 다른 종료시각을 말하면 안 된다.
@@ -81,17 +79,15 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 export const SheetFormView = ({
   sheet, previewCalc, externals, assignedPollutants, unassignedGroups, unresolvedItemNames,
   fieldState, editable, updatedSections,
-  calcDrawerOpen, onCalcDrawerOpenChange, onChange,
+  calcDrawerOpen, onCalcDrawerOpenChange, nav, onChange,
 }: Props) => {
   // 차압 범위 슬라이더는 열릴 때마다 초기 상태로 되돌린다 (희망 흡입량은 아래에서 유지한다)
   const nozzleFormKey = useRemountKey(calcDrawerOpen);
 
   // 희망 흡입량은 드로어 밖에 둔다 — 노즐을 고른 뒤에도 같은 기준의 예상치를 계속 보여줘야 한다.
   const [nozzleTargetVolume, setNozzleTargetVolume] = useState(DEFAULT_TARGET_VOLUME);
-  const [activeSectionId, setActiveSectionId] = useState<SheetSectionId>("weather");
 
   const particle = isParticleCategory(sheet.category);
-  const sections = useMemo(() => getVisibleSections(particle), [particle]);
 
   // 이미 입력된 값이 있는 항목은 배정 여부와 무관하게 계속 보여준다.
   // 판정을 마운트 시점으로 고정하는 것이 핵심 — 매 렌더 폼 값을 다시 보면 마지막 글자를
@@ -106,26 +102,6 @@ export const SheetFormView = ({
     () => getExhaustGasVisibility(assignedPollutants, hadSavedValue),
     [assignedPollutants, hadSavedValue],
   );
-
-  // 첫 섹션만 펼친 상태로 시작한다 — 모바일에서 한 번에 한 섹션씩 채우는 흐름.
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => ({
-    // weather: true
-  }));
-
-  const setSectionOpen = useCallback((id: SheetSectionId, open: boolean) => {
-    setOpenSections((prev) => ({ ...prev, [id]: open }));
-    if (open) setActiveSectionId(id);
-  }, []);
-
-  // 대상 섹션을 펼치고 그 카드로 스크롤한다.
-  const goToSection = useCallback((id: SheetSectionId) => {
-    setOpenSections((prev) => ({ ...prev, [id]: true }));
-    setActiveSectionId(id);
-    // 펼침 애니메이션이 시작된 뒤 위치를 잡아야 목표 카드가 화면에 걸린다.
-    requestAnimationFrame(() => {
-      document.getElementById(sectionDomId(id))?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }, []);
 
   // 접혀 있는 섹션이 갱신됐을 때도 눈에 띄어야 하므로 배지는 카드 헤더에 붙인다.
   const updated = useMemo(() => new Set(updatedSections ?? []), [updatedSections]);
@@ -156,8 +132,8 @@ export const SheetFormView = ({
 
     return {
       id: sectionDomId(id),
-      open: openSections[id] ?? false,
-      onOpenChange: (open: boolean) => setSectionOpen(id, open),
+      open: nav.isOpen(id),
+      onOpenChange: (open: boolean) => nav.setSectionOpen(id, open),
       progress,
       progressTone: getProgressTone(progress),
       highlights: highlightsOf(id, borrowedCount),
@@ -199,18 +175,17 @@ export const SheetFormView = ({
       },
     }));
 
+  // 지점 간에 걸리는 규칙(채취시간 공통·DGM 적산값 잇기)은 `point-chain` 이 소유한다.
   const patchPoint = (index: number, patch: Partial<SamplingPointForm>) =>
     onChange((s) => {
-      const next = {
-        ...s,
-        samplingPoints: s.samplingPoints.map((p, i) => (i === index ? { ...p, ...patch } : p)),
-      };
+      const next = { ...s, samplingPoints: applyPointPatch(s.samplingPoints, index, patch) };
       // 채취시간이 바뀌면 종료시간을 재계산한다.
       return "samplingTime" in patch ? withAutoEndTime(next) : next;
     });
 
+  // 새 지점도 채취시간(공통값)을 물려받으므로 종료시간이 그만큼 늘어난다.
   const addPoint = () =>
-    onChange((s) => ({ ...s, samplingPoints: [...s.samplingPoints, getDefaultSamplingPointForm()] }));
+    onChange((s) => withAutoEndTime({ ...s, samplingPoints: appendPoint(s.samplingPoints) }));
 
   const removePoint = (index: number) =>
     onChange((s) => withAutoEndTime({
@@ -218,18 +193,12 @@ export const SheetFormView = ({
       samplingPoints: s.samplingPoints.filter((_, i) => i !== index),
     }));
 
-  // 앞 지점 값을 통째로 복사한다 — 지점 간 조건이 비슷한 경우가 많아 다시 입력하는 수고를 던다.
   // 채취시간도 함께 복사되므로 종료시간을 다시 계산한다.
   const copyPreviousPoint = (index: number) =>
-    onChange((s) => {
-      const previous = s.samplingPoints[index - 1];
-      if (!previous) return s;
-
-      return withAutoEndTime({
-        ...s,
-        samplingPoints: s.samplingPoints.map((p, i) => (i === index ? { ...previous } : p)),
-      });
-    });
+    onChange((s) => withAutoEndTime({
+      ...s,
+      samplingPoints: copyPreviousPointValues(s.samplingPoints, index),
+    }));
 
   const patchSample = (index: number, patch: Partial<SampleForm>) =>
     onChange((s) => ({
@@ -283,14 +252,6 @@ export const SheetFormView = ({
 
   return (
     <div className="space-y-4">
-      <ChipNav
-        ariaLabel="입력 섹션 바로가기"
-        className="sticky top-14 z-10 bg-canvas py-2"
-        items={sections}
-        activeId={activeSectionId}
-        onSelect={(id) => goToSection(id as SheetSectionId)}
-      />
-
       <WeatherSection {...fieldProps} {...shellProps("weather")}
         weather={sheet.weather} calc={previewCalc?.weather ?? null}
         editable={editable} onChange={patchWeather} />
@@ -309,6 +270,12 @@ export const SheetFormView = ({
         points={sheet.samplingPoints}
         particle={sheet.particle}
         preview={previewCalc}
+        nozzleBasis={{
+          size: sheet.particle.nozzleSize,
+          estimate: nozzleEstimate,
+          targetVolume: nozzleTargetVolume,
+          pointCount: sheet.samplingPoints.length,
+        }}
         editable={editable}
         onPointChange={patchPoint}
         onAddPoint={addPoint}

@@ -66,15 +66,59 @@ let schedules: MockSchedule[] = [
 const STANDARD_OXYGEN = 4; // 계산 외부 입력 (StackSnapshot.standardOxygen)
 const sheetStore: Record<number, unknown[]> = {};
 
-// ── 기본정보 저장소 (PATCH basic-info 로 갱신되는 담당자·일자·채취 시각) ─────────────────
-const BASIC_INFO_KEYS = [
-  'facilityManager', 'samplingWitness', 'analyst', 'technicalManager',
-  'receivedAt', 'analyzedAt', 'issuedAt', 'samplingStartedAt', 'samplingEndedAt',
-  'mentorName', 'menteeName',
+// ── 기본정보 저장소 ────────────────────────────────────────────
+// 값의 주인이 갈려 저장 경로도 갈린다 — 채취 시각·현장 담당자는 PUT /sheets,
+// 서명란 담당자는 PATCH /tenant, 측정자 표기는 PATCH /team 이다.
+// 일자 셋은 메타(schedule) 소유이고 PATCH /report-dates 가 전체 채택으로 다룬다 —
+// 부분 갱신인 나머지와 규칙이 다르므로 키 묶음을 나눠 둔다. 저장소는 하나로 공유한다.
+const SAMPLING_INFO_KEYS = [
+  'samplingStartedAt', 'samplingEndedAt', 'facilityManager', 'samplingWitness',
 ] as const;
+const TENANT_STAFF_KEYS = ['analyst', 'technicalManager'] as const;
+const TEAM_MEMBER_KEYS = ['mentorName', 'menteeName'] as const;
+const REPORT_DATE_KEYS = ['receivedAt', 'analyzedAt', 'issuedAt'] as const;
 
-type MockBasicInfo = Partial<Record<(typeof BASIC_INFO_KEYS)[number], string>>;
+type BasicInfoKey =
+  | (typeof SAMPLING_INFO_KEYS)[number]
+  | (typeof TENANT_STAFF_KEYS)[number]
+  | (typeof TEAM_MEMBER_KEYS)[number]
+  | (typeof REPORT_DATE_KEYS)[number];
+
+type MockBasicInfo = Partial<Record<BasicInfoKey, string>>;
 const basicInfoStore: Record<number, MockBasicInfo> = {};
+
+/**
+ * 부분 갱신 경로의 공통 처리 — null·빈 문자열은 "기존 값 유지"다(서버 SnapshotMerge.keep 규칙).
+ * 자기 소유 키만 훑으므로 다른 화면이 넣은 값을 덮어쓰지 않는다.
+ */
+const patchBasicInfo = async (
+  rawId: string | readonly string[] | undefined,
+  request: Request,
+  keys: readonly BasicInfoKey[],
+  message: string,
+) => {
+  const id = Number(rawId);
+  const schedule = schedules.find((s) => s.id === id);
+  if (!schedule) {
+    return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
+  }
+  if (isTerminalScheduleStatus(schedule.status)) {
+    return HttpResponse.json(
+      { status: false, message: '성적서 작성이 완료되었거나 취소된 측정계획은 수정할 수 없습니다.', data: null },
+      { status: 409 },
+    );
+  }
+
+  const body = (await request.json()) as Record<string, unknown>;
+  const merged: MockBasicInfo = { ...(basicInfoStore[id] ?? {}) };
+  for (const key of keys) {
+    const value = body[key];
+    if (typeof value === 'string' && value !== '') merged[key] = value;
+  }
+  basicInfoStore[id] = merged;
+
+  return HttpResponse.json({ status: true, message, data: buildScheduleResponse(schedule) });
+};
 
 // 측정항목 스냅샷 풀 — stack-pollutant 핸들러의 stackId 1 목록과 pollutantId 를 맞춘다.
 // 서버는 측정시설 원장에서 선택된 물질만 스냅샷에 담으므로, 여기서도 풀을 걸러 만든다.
@@ -328,7 +372,7 @@ export const scheduleHandlers = [
 
     const body = (await request.json()) as Record<string, unknown>;
 
-    // 전달한 값을 그대로 채택한다 — 빈 값은 기존 값을 지운다(basic-info 의 부분 갱신과 규칙이 다르다).
+    // 전달한 값을 그대로 채택한다 — 빈 값은 기존 값을 지운다(스냅샷 경로의 부분 갱신과 규칙이 다르다).
     const text = (key: string): string | null => {
       const value = body[key];
       return typeof value === 'string' && value !== '' ? value : null;
@@ -369,7 +413,15 @@ export const scheduleHandlers = [
     const body = (await request.json()) as {
       sheets: LooseSheet[];
       deletedSheets?: { category?: MeasurementCategory; version?: number | null }[];
-    };
+    } & Record<string, unknown>;
+
+    // 채취 시각·현장 담당자는 같은 스냅샷 노드에 살아 이 요청에 함께 실린다(부분 갱신).
+    const samplingInfo: MockBasicInfo = { ...(basicInfoStore[id] ?? {}) };
+    for (const key of SAMPLING_INFO_KEYS) {
+      const value = body[key];
+      if (typeof value === 'string' && value !== '') samplingInfo[key] = value;
+    }
+    basicInfoStore[id] = samplingInfo;
 
     // 서버 SheetMerge 와 같은 규칙 — category 를 자연키로 삼아 요청에 담긴 시트만 교체하고,
     // 요청에 없는 시트는 보관본을 유지한다(다른 사용자가 방금 추가한 시트를 지우지 않기 위함).
@@ -504,8 +556,9 @@ export const scheduleHandlers = [
     return HttpResponse.json({ status: true, message: '측정항목 정정 성공', data: buildScheduleResponse(schedule) });
   }),
 
-  // 기본정보 수정 — 시료접수일자가 처음 입력되면 서버처럼 분석 단계로 전진시킨다.
-  http.patch(`${BASE_URL}/schedules/:id/basic-info`, async ({ params, request }) => {
+  // 성적서 진행 일자 수정 — 실험·분석 탭이 단독으로 소유하므로 전체 채택이다.
+  // 빈 값은 지우며, 시료접수일자가 처음 입력되면 서버처럼 분석 단계로 전진시킨다.
+  http.patch(`${BASE_URL}/schedules/:id/report-dates`, async ({ params, request }) => {
     const id = Number(params.id);
     const schedule = schedules.find((s) => s.id === id);
     if (!schedule) {
@@ -522,19 +575,39 @@ export const scheduleHandlers = [
     const previous = basicInfoStore[id] ?? {};
     const merged: MockBasicInfo = { ...previous };
 
-    // null·빈 문자열은 "기존 값 유지" — 서버 SnapshotMerge.keep 규칙과 같다.
-    for (const key of BASIC_INFO_KEYS) {
+    // 전체 채택 — 전달한 값을 그대로 쓰고 빈 값은 지운다.
+    for (const key of REPORT_DATE_KEYS) {
       const value = body[key];
       if (typeof value === 'string' && value !== '') merged[key] = value;
+      else delete merged[key];
     }
+
+    // 서버 requireChronological 과 같은 규칙 — 빈 칸은 건너뛰되 사슬은 끊지 않는다.
+    const chain = [schedule.sampledAt, merged.receivedAt, merged.analyzedAt, merged.issuedAt]
+      .filter((date): date is string => Boolean(date));
+    if (chain.some((date, i) => i > 0 && date < chain[i - 1])) {
+      return HttpResponse.json(
+        { status: false, message: '보고서 진행 일자의 순서가 올바르지 않습니다', data: null },
+        { status: 400 },
+      );
+    }
+
     basicInfoStore[id] = merged;
 
     if (!previous.receivedAt && merged.receivedAt && schedule.status === 'MEASURING') {
       schedule.status = 'ANALYZING';
     }
 
-    return HttpResponse.json({ status: true, message: '기본정보 수정 성공', data: buildScheduleResponse(schedule) });
+    return HttpResponse.json({ status: true, message: '성적서 진행 일자 수정 성공', data: buildScheduleResponse(schedule) });
   }),
+
+  // 고객사 스냅샷 수정 — 서명란 담당자를 두 탭이 공유하므로 부분 갱신이다.
+  http.patch(`${BASE_URL}/schedules/:id/tenant`, async ({ params, request }) =>
+    patchBasicInfo(params.id, request, TENANT_STAFF_KEYS, '고객사 스냅샷 수정 성공')),
+
+  // 측정팀 스냅샷 수정 — 이 회차 측정자 표기만 바꾼다.
+  http.patch(`${BASE_URL}/schedules/:id/team`, async ({ params, request }) =>
+    patchBasicInfo(params.id, request, TEAM_MEMBER_KEYS, '측정팀 스냅샷 수정 성공')),
 
   // 성적서 작성 완료 확정 — 전이 규칙은 프론트·서버가 공유한다(허용되지 않는 전이는 400).
   http.post(`${BASE_URL}/schedules/:id/completion`, ({ params }) => {

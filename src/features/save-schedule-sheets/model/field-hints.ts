@@ -38,7 +38,6 @@ export const MOISTURE_HINT = {
 
 export const EXHAUST_GAS_HINT = {
   gasAnalyzer: "측정 시작시간을 입력하면 종료시간이 15분 후로 자동 설정됩니다.",
-  reading: "입력한 회차만 평균에 반영됩니다.\n측정하지 않은 회차는 0 을 넣지 말고 비워 두세요.",
   standardOxygen:
     "측정시설에 등록된 표준산소농도입니다.",
   o2CorrectionFactor:
@@ -50,7 +49,11 @@ export const EXHAUST_GAS_HINT = {
 
 export const POINT_HINT: Partial<Record<keyof SamplingPointForm, string>> = {
   samplingTime:
-    "지점에서 입자상 물질을 채취한 시간입니다.\n전 지점 합계가 총 채취시간이 되고, 채취 시작시간에 더해 종료시간이 자동 계산됩니다.",
+    "지점에서 입자상 물질을 채취한 시간입니다.\n전 지점이 같은 시간으로 채취하므로 한 지점에 입력하면 나머지 지점도 함께 바뀝니다.\n전 지점 합계가 총 채취시간이 되고, 채취 시작시간에 더해 종료시간이 자동 계산됩니다.",
+  beforeVm:
+    "채취를 시작할 때 읽은 건식가스미터(DGM) 적산값입니다.\n미터를 되돌리지 않으므로 앞 지점의 채취량-후가 기본값으로 채워집니다.\n미터를 초기화했거나 장비를 바꿨다면 직접 고쳐 입력합니다.",
+  afterVm:
+    "채취를 끝낼 때 읽은 건식가스미터(DGM) 적산값입니다.\n(후 − 전) 이 그 지점의 채취량(Vm)이고, 이 값이 다음 지점의 채취량-전으로 이어집니다.",
 };
 
 /** 측정점 계산 결과 행 — 라벨 순서와 1:1 로 대응한다 */

@@ -1,4 +1,4 @@
-import { ListFilter } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 import { DATE_RANGE_PRESET, type DateRangePreset } from "@shared/lib";
 import { DATE_RANGE_PRESET_LABEL } from "@shared/config";
@@ -33,7 +33,7 @@ export const ScheduleFilterPopover = ({
   onOpen,
 }: Props) => (
   <FilterPopover
-    icon={ListFilter}
+    icon={Calendar}
     title="측정일 기간"
     ariaLabel="측정일 기간 필터"
     activeCount={activeCount}

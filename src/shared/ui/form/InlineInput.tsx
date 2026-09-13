@@ -16,7 +16,10 @@ interface InlineInputProps {
 
   type?: React.HTMLInputTypeAttribute;
   placeholder?: string;
+  /** 입력칸(프레임)의 폭. 부모를 꽉 채우려면 `className` 으로 루트를 늘리고 `"w-full"` 을 준다 */
   width?: string;
+  /** 루트 클래스 — 루트는 `inline-flex` 라 내용 폭으로 잡힌다. 늘리려면 `"flex-1"` 등을 넘긴다 */
+  className?: string;
 
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
@@ -43,6 +46,7 @@ export const InlineInput = ({
   type = "text",
   placeholder,
   width = "w-20",
+  className,
   prefix,
   suffix,
   disabled = false,
@@ -57,7 +61,7 @@ export const InlineInput = ({
   const frameClass = toneFrameClass(readOnly ? "default" : tone);
 
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)}>
       {prefix && (
         <span className="text-body-2 text-muted-foreground whitespace-nowrap">{prefix}</span>
       )}

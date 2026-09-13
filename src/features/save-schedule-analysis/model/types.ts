@@ -38,7 +38,7 @@ export type AnalysisRowForm = {
   analysisEquipment: string;
 };
 
-/** 분석 진행 정보 — 기본정보(PATCH basic-info) 중 분석 단계에서 채우는 값만 추린다. */
+/** 분석 진행 정보 — 성적서 진행 일자(PATCH report-dates)와 서명란 담당자(PATCH tenant)를 함께 담는다. */
 export type AnalysisProgressForm = {
   receivedAt: string;         // "yyyy-MM-dd" — 입력되면 서버가 '분석값입력중'으로 전진시킨다
   analyzedAt: string;

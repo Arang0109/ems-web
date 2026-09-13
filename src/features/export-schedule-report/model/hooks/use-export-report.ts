@@ -9,16 +9,8 @@ import { useReportTemplate } from "./use-report-template";
 interface Params {
   scheduleId: number | null;
 }
-
-// 성적서 탭의 다운로드 시나리오. 템플릿은 관리자가 등록해 둔 양식 문서에서 고르고,
-// 고른 버전의 파일을 받아 export API에 실어 보낸다(서버가 저장된 양식을 자동으로 쓰지 않는다).
+// 채취기록부 export(`exportSamplingRecords`)를 탄다.**
 //
-// **당분간 성적서 export(`exportReport`)가 아니라 채취기록부 export(`exportSamplingRecords`)를 탄다.**
-// 두 엔드포인트는 jxls 컨텍스트가 다르므로(성적서=전 시트 단일 xlsx, 채취기록부=시트별 ZIP)
-// 양식 분류도 함께 채취기록부로 맞춰 둔다(useReportTemplate 참고). 성적서 export 를 쓰게 되면
-// 이 훅의 액션과 양식 분류를 같이 되돌린다.
-//
-// 채취기록지 탭(useExportSamplingRecords)과 달리 저장을 선행하지 않는다 — 성적서 탭은
 // 측정값을 편집하는 화면이 아니라 이미 저장된 데이터를 그대로 내보내는 화면이다.
 export const useExportReport = ({ scheduleId }: Params) => {
   const { exportSamplingRecords } = useExportSamplingRecordsAction();

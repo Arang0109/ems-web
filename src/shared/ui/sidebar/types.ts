@@ -26,7 +26,6 @@ export type SidebarNavItem = {
 
 /** 라벨로 묶인 내비게이션 그룹 */
 export type SidebarNavGroup = {
-  label: string;
   items: SidebarNavItem[];
 };
 

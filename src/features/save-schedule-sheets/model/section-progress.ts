@@ -9,12 +9,26 @@ import type { SheetForm } from "./types";
 
 export type SheetSectionId = "weather" | "moisture" | "exhaust" | "point" | "sample" | "gaseous";
 
+/**
+ * 입력 화면 전체의 섹션 id — 기록지 섹션에 측정계획 단위 **공통 정보**를 더한 것.
+ *
+ * `SheetSectionId` 와 분리해 둔다. 공통 정보는 `SheetForm` 이 아니라 `ScheduleBasicInfoForm` 을
+ * 보므로, 진행도·필수 칸 판정(`getSectionProgress` 등)은 기록지 섹션만 받는 게 맞다.
+ * 섹션 바로가기·펼침 상태처럼 화면 이동에만 쓰는 곳이 이 타입을 쓴다.
+ */
+export type EditorSectionId = "basic" | SheetSectionId;
+
 export interface SheetSection {
   id: SheetSectionId;
   label: string;
   /** 입자상 시트에서만 노출되는 섹션 */
   particleOnly?: boolean;
 }
+
+/** 공통 정보 섹션 — 기록지 전환과 무관하게 늘 바로가기의 첫 항목이다 */
+export const BASIC_INFO_SECTION: { id: EditorSectionId; label: string } = {
+  id: "basic", label: "공통 정보",
+};
 
 export const SHEET_SECTIONS: SheetSection[] = [
   { id: "weather", label: "기상정보" },

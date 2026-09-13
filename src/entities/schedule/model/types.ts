@@ -72,6 +72,16 @@ export type SheetSave = SamplingSheetDto;
 // 삭제할 시트 참조 (Form → Domain 변환 결과)
 export type SheetRef = SheetRefDto;
 
+// 현장 채취 정보. 시트와 같은 스냅샷 노드에 살고 현장 채취 탭이 함께 소유하므로
+// 시트 저장에 함께 실린다 — 나눠 보내면 저장 한 번이 여러 왕복이 된다.
+// null(blank 포함)은 "기존 값 유지"다.
+export type SamplingInfoSave = {
+  samplingStartedAt: string | null; // "HH:mm:ss" — 측정계획 단위 공통 채취 시각
+  samplingEndedAt: string | null;
+  facilityManager: string | null;
+  samplingWitness: string | null;
+};
+
 // 새 기록지를 채울 이전 회차 기록. 출처를 함께 들고 있어야 화면이
 // "언제 측정한 값을 가져왔는지" 밝힐 수 있다 — 출처를 모르면 그 값을 믿을지 판단할 수 없다.
 export type PreviousSheet = PreviousSheetResponse;
@@ -93,23 +103,34 @@ export type ScheduleEquipmentsUpdate = {
   equipmentIds: string[];
 };
 
-// 기본정보 수정. 담당자·접수/분석/발행일자·채취 시각·측정자 표기명을 다룬다.
-// 시간·날짜는 문자열이므로 숫자 타입 규칙의 대상이 아니다.
-export type BasicInfoUpdate = {
-  facilityManager: string | null;
-  samplingWitness: string | null;
-  analyst: string | null;
-  technicalManager: string | null;
+// 성적서 진행 일자 수정. 실험·분석 탭이 단독으로 소유하므로 전달한 값을 그대로 채택한다 —
+// null 은 "지움"이다. 날짜는 문자열이므로 숫자 타입 규칙의 대상이 아니다.
+export type ReportDatesUpdate = {
   receivedAt: string | null;        // "yyyy-MM-dd"
   analyzedAt: string | null;
   issuedAt: string | null;
-  samplingStartedAt: string | null; // "HH:mm:ss" — 측정계획 단위 공통 채취 시각
-  samplingEndedAt: string | null;
+};
+
+// 고객사 스냅샷 수정. 성적서 서명란 담당자를 현장 채취 탭과 실험·분석 탭이 공유하므로
+// null 은 "기존 값 유지"다 — 값을 비울 수는 없다.
+export type TenantSnapshotUpdate = {
+  name?: string;
+  bizNumber?: string;
+  representative?: string;
+  roadAddress?: string;
+  detailAddress?: string;
+  zipcode?: string;
+  analyst: string | null;
+  technicalManager: string | null;
+};
+
+// 측정팀 스냅샷 수정. 이 회차 표기명만 바꾸며 팀 원장과 배정 장비는 건드리지 않는다.
+export type TeamSnapshotUpdate = {
   mentorName: string | null;
   menteeName: string | null;
 };
 
-// 측정계획 정의 수정. 채취일자·측정용도·관리번호가 여기 속한다(BasicInfoUpdate 계약 밖이다).
+// 측정계획 정의 수정. 채취일자·측정용도·관리번호가 여기 속한다(ReportDatesUpdate 계약 밖이다).
 // 전달한 값을 그대로 채택하므로 빈 값은 기존 값을 지운다 — 단 채취일자는 측정 건수 집계의
 // 기준일이라 서버가 비우지 못하게 막는다.
 export type ScheduleMetaUpdate = {
@@ -120,7 +141,7 @@ export type ScheduleMetaUpdate = {
 
 // 의뢰기관 스냅샷 수정. 트리 어느 깊이든 전달한 필드만 수정되고 나머지는 서버가 기존 값을 유지한다.
 // 원장 연결키(clientId/workplaceId/stackId)는 수정 대상이 아니라 키 자체를 두지 않는다.
-// 담당자(배출시설관리자·시료채취입회자)는 BasicInfoUpdate 소관이다.
+// 담당자(배출시설관리자·시료채취입회자)는 SamplingInfoSave 소관이다(시트 저장에 함께 실린다).
 export type ClientSnapshotUpdate = {
   name?: string;
   bizNumber?: string;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { chatApi } from "../api/api";
@@ -33,19 +33,37 @@ export const useChatAttachment = ({ roomId, messageId, enabled = true }: Props) 
   });
 
   const blob = query.data;
+  const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
-  // blob 하나당 URL 하나. `useEffect` 로 만들어 state 에 담으면 URL 이 없는 프레임이
-  // 한 번 그려져 이미지가 깜빡인다.
-  const objectUrl = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
-
-  // 해제만 effect 가 맡는다 — 컴포넌트가 사라지거나 blob 이 바뀌면 이전 URL 을 돌려준다
+  /**
+   * URL 을 만드는 것과 돌려주는 것이 **한 effect 안에** 있어야 한다.
+   *
+   * `useMemo` 로 만들고 effect 로 해제하면 StrictMode 에서 깨진다 — 개발 모드는 effect 를
+   * mount → cleanup → mount 로 두 번 돌리는데, 그 사이 `useMemo` 는 다시 계산되지 않아
+   * **이미 해제한 URL 이 그대로 남는다.** 그 URL 은 이미 그려진 `<img>` 에서는 멀쩡해 보이지만
+   * (브라우저가 디코딩한 비트맵을 갖고 있다) 새 `<img>` 가 다시 요청하는 순간 깨진다.
+   * 확대 모달을 열 때 이미지가 깨지던 원인이 이것이다.
+   *
+   * 여기처럼 두면 StrictMode 의 두 번째 실행이 새 URL 을 만들어 state 를 덮으므로 안전하다.
+   * setState 는 외부 리소스를 화면에 잇는 것이라 cascading render 가 아니다.
+   */
   useEffect(() => {
-    if (!objectUrl) return;
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [objectUrl]);
+    if (!blob) return;
+
+    const url = URL.createObjectURL(blob);
+    // 규칙은 cascading render 를 막으려는 것인데, 여기는 외부 리소스(object URL)를 화면에
+    // 잇는 자리라 해당하지 않는다. 생성과 해제가 한 effect 안에 있어야 StrictMode 에서
+    // 안전하므로 다른 곳으로 옮길 수도 없다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setObjectUrl(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [blob]);
 
   return {
-    objectUrl,
+    // blob 이 사라지면(캐시 정리) 남아 있던 URL 은 이미 해제된 것이라 쓰면 안 된다.
+    // effect 안에서 null 로 되돌리는 대신 여기서 거른다.
+    objectUrl: blob ? objectUrl : null,
     isLoading: query.isLoading,
     isError: query.isError,
   };

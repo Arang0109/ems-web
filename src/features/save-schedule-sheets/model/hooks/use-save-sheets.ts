@@ -61,7 +61,7 @@ export const useSaveSheets = ({
   const { saveSheets, isLoading } = useSaveSheetsAction();
   const {
     form: basicInfoForm, isDirty: isBasicInfoDirty,
-    isLoading: isBasicInfoLoading, handleChange, saveBasicInfo,
+    isLoading: isBasicInfoLoading, handleChange, samplingInfo, saveBasicInfo,
   } = useScheduleBasicInfo(
     {
       scheduleId,
@@ -357,13 +357,15 @@ export const useSaveSheets = ({
     const previousStatus = status;
 
     try {
-      // 공통 정보(채취시간·담당자)를 먼저 반영한다. 실패하면 시트는 건드리지 않아
-      // "시트만 저장되고 공통 정보는 실패"하는 부분 성공 상태가 생기지 않는다.
-      await saveBasicInfo();
-
       // 바꾼 기록지만 보낸다 — 손대지 않은 기록지까지 보내면 서버가 그 version 도 올려
       // 다음 사람의 저장이 애먼 기록지에서 충돌한다. 요청에 없는 기록지는 서버가 그대로 둔다.
-      const detail = await saveSheets(scheduleId, changedSheets.map(toSheetSave), deletedSheets);
+      // 채취 시각·현장 담당자는 같은 스냅샷 노드·같은 화면 소유라 이 요청에 함께 실린다.
+      const savedDetail = await saveSheets(
+        scheduleId, samplingInfo, changedSheets.map(toSheetSave), deletedSheets);
+
+      // 남은 공통 정보(서명란 담당자·측정자 표기)는 소유 노드가 달라 각자의 경로로 간다.
+      // 시트 저장 뒤에 보내야 "시트는 실패했는데 담당자만 저장됨"이 생기지 않는다.
+      const detail = await saveBasicInfo(savedDetail);
       // 서버 계산결과가 반영된 최신 시트로 폼을 동기화하고 기준선도 함께 옮긴다.
       const saved = hydrate(detail.snapshot.samplingData?.sheets ?? []);
       setSheets(saved);

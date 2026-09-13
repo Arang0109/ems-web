@@ -13,7 +13,10 @@ import { TableSelectCell } from "./TableSelectCell";
 interface ColumnBase {
   /** 열 머리 */
   header: ReactNode;
-  /** 열 폭 (px). 합이 표의 `minWidth` 가 된다 — 표는 좁아지면 가로 스크롤한다 */
+  /**
+   * 열 폭 (px). 합이 표의 `minWidth` 가 된다 — 표는 좁아지면 가로 스크롤한다.
+   * `fit` 을 켜면 고정 폭이 아니라 열 간 비율로만 쓰인다.
+   */
   width: number;
   /** 머리 옆 도움말 — 용어 설명·계산식 */
   hint?: ReactNode;
@@ -52,6 +55,8 @@ interface InputColumn<T> extends ColumnBase {
   disabled?: (row: T) => boolean;
   /** 셀별 상태 색. 의미는 호출부가 정한다 — 셀 단위로 갈리므로 행이 아니라 여기서 받는다 */
   tone?: (row: T, index: number) => FieldTone;
+  /** 값이 들어차면 셀을 연초록으로 물들인다(기본 켜짐). 완료 개념이 없는 열에서는 끈다 */
+  showComplete?: boolean;
   /** 그 셀에 포커스가 들어왔을 때 */
   onFocus?: (row: T, index: number) => void;
 }
@@ -71,6 +76,8 @@ interface SelectColumn<T> extends ColumnBase {
   disabled?: (row: T) => boolean;
   /** 셀별 상태 색. 의미는 호출부가 정한다 */
   tone?: (row: T, index: number) => FieldTone;
+  /** 값을 고르면 셀을 연초록으로 물들인다(기본 켜짐). 완료 개념이 없는 열에서는 끈다 */
+  showComplete?: boolean;
   /** 그 셀에 포커스가 들어왔을 때 */
   onFocus?: (row: T, index: number) => void;
 }
@@ -106,6 +113,14 @@ interface Props<T> {
   rowError?: (row: T, index: number) => string | undefined;
   /** 바깥 래퍼 클래스 — 표현을 폭으로 가르는 호출부의 `hidden md:block` 자리 */
   className?: string;
+  /**
+   * 표를 컨테이너 폭에 맞춰 가로 스크롤을 없앤다. 켜면 `width` 는 고정 폭이 아니라
+   * **열 간 비율 힌트**로만 쓰인다 (`table-fixed` — 폭이 모자라면 비율대로 함께 줄어든다).
+   *
+   * 열이 적어 좁은 화면에도 다 들어가는 표에만 준다 (회차 3열 등). 열이 많은 표를 이걸로
+   * 접으면 칸마다 두세 글자만 보여 못 읽는다 — 그런 표는 기본값(가로 스크롤)이 맞다.
+   */
+  fit?: boolean;
 }
 
 const READONLY_CLASS =
@@ -145,6 +160,7 @@ const renderCell = <T,>(
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}
+          showComplete={column.showComplete}
           onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
@@ -159,6 +175,7 @@ const renderCell = <T,>(
           value={column.value(row)}
           disabled={!editable || (column.disabled?.(row) ?? false)}
           tone={column.tone?.(row, index)}
+          showComplete={column.showComplete}
           onFocus={column.onFocus && (() => column.onFocus?.(row, index))}
           onChange={(v) => column.onChange(row, v, index)}
         />
@@ -180,14 +197,15 @@ const renderCell = <T,>(
  *
  * 모바일 표현은 일부러 맡지 않는다. 칸이 적으면 카드에 펼치고 많으면 모달에서 고치는 식으로
  * 화면마다 답이 다르므로, 호출부가 `hidden md:block` 으로 이 표를 데스크탑에만 세우고
- * 좁은 폭의 표현은 따로 그린다.
+ * 좁은 폭의 표현은 따로 그린다. 열이 적어 좁은 화면에도 표 그대로 세울 수 있으면 `fit` 을
+ * 켠다 — 가로 스크롤 대신 열이 비율대로 줄어든다.
  *
  * 열이 데이터 개수만큼 늘어나는 전치 표(행=항목, 열=측정점)는 이 조립기의 모양이 아니다.
  * 그런 표는 셀 부품(`TableLabelCell`·`TableInputCell`·`TableResultCell`)을 직접 쓰고
  * `useGridNavigation` 만 따로 얹는다.
  */
 export const InputTable = <T,>({
-  rows, columns, getRowKey, editable = true, rowError, className,
+  rows, columns, getRowKey, editable = true, rowError, className, fit = false,
 }: Props<T>) => {
   const gridNav = useGridNavigation();
 
@@ -195,8 +213,11 @@ export const InputTable = <T,>({
   const minWidth = visible.reduce((acc, c) => acc + c.width, 0);
 
   return (
-    <div {...gridNav} className={cn("overflow-x-auto", className)}>
-      <table className="w-full border-collapse" style={{ minWidth: `${minWidth}px` }}>
+    <div {...gridNav} className={cn("overflow-x-auto rounded-button", className)}>
+      <table
+        className={cn("w-full border-collapse", fit && "table-fixed")}
+        style={fit ? undefined : { minWidth: `${minWidth}px` }}
+      >
         <thead>
           <tr>
             {visible.map((column, i) => (
@@ -238,7 +259,6 @@ export const InputTable = <T,>({
           })}
         </tbody>
       </table>
-      <p className="text-caption text-muted-ink">셀은 <b>Alt + 방향키</b>로 조작이 가능합니다.</p>
     </div>
   );
 };

@@ -8,9 +8,11 @@ import {
   SelectLabel,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
+import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
+import { InFieldLabel } from "./InFieldLabel";
+import { IN_FIELD_SELECT_CLASS, inFieldPlaceholder } from "./in-field";
 import type { SelectOption, SelectGroupOption } from "./Select";
 
 interface BaseProps<T extends string> {
@@ -63,6 +65,16 @@ type VariantProps<T extends string> =
 type Props<T extends string> = BaseProps<T> & VariantProps<T>;
 
 /**
+ * 라벨이 칸 안에 들어온 트리거. 칩이 줄바꿈되면 높이가 자라므로 `min-h` 로 잡고,
+ * 위 여백은 `IN_FIELD_VALUE_CLASS`(pt-[22px] pb-1) 대신 칩 줄 여백(py-1.5)에 맞춘 값을 쓴다.
+ * 꺽쇠는 프레임 세로 중앙에 고정된다 — 두 줄로 자라도 가운데다.
+ */
+const LABELED_TRIGGER_CLASS = cn(
+  "data-[size=default]:min-h-12 data-[size=sm]:min-h-12 pt-[22px] pb-1.5",
+  IN_FIELD_SELECT_CLASS,
+);
+
+/**
  * 칩(chip)형 다중 선택. 고른 항목이 트리거 안에 pill 로 쌓이고 각 칩의 ✕ 로 개별 해제한다.
  *
  * **단일 선택은 `Select` 다.** 값 계약이 다르므로(`""` vs `[]`) 한 컴포넌트로 합치지 않는다 —
@@ -92,6 +104,10 @@ export const MultiSelect = <T extends string = string>({
   className,
   size = "default",
 }: Props<T>) => {
+  const hasLabel = !!label;
+  const invalid = !!errorMessage;
+  const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
+
   // 칩 라벨·빈 목록 판정은 평탄화한 배열에서 한다 (`Select.tsx` 의 `items` 와 같은 관용구).
   const items: SelectOption<T>[] = groups
     ? groups.flatMap((group) => group.options)
@@ -129,13 +145,14 @@ export const MultiSelect = <T extends string = string>({
         size={size}
         nativeButton={false}
         render={<div />}
-        aria-invalid={errorMessage ? true : undefined}
+        aria-invalid={invalid || undefined}
         aria-required={required || undefined}
         className={cn(
           "w-full whitespace-normal py-1.5",
           "data-[size=default]:h-auto data-[size=default]:min-h-[38px]",
           "data-[size=sm]:h-auto data-[size=sm]:min-h-8",
           "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+          hasLabel && LABELED_TRIGGER_CLASS,
           className,
         )}
       >
@@ -143,7 +160,7 @@ export const MultiSelect = <T extends string = string>({
             칩만 줄바꿈되게 하려면 래퍼가 필요하다. */}
         <span data-slot="select-value" className="flex flex-1 flex-wrap items-center gap-1.5">
           {value.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-muted-foreground">{effectivePlaceholder}</span>
           ) : (
             value.map((v) => {
               const text = labelOf(v);
@@ -198,17 +215,24 @@ export const MultiSelect = <T extends string = string>({
     </SelectRoot>
   );
 
-  if (!label) return control;
+  if (!hasLabel) return control;
 
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>
-        {label}
-        {required && <span className="ml-1 text-destructive">*</span>}
-        {errorMessage && <span className="text-caption text-destructive">{errorMessage}</span>}
-      </FieldLabel>
-      {control}
+    <Field data-invalid={invalid || undefined} className="gap-1.5">
+      <div className="relative">
+        <InFieldLabel
+          htmlFor={id}
+          required={required}
+          invalid={invalid}
+          disabled={disabled}
+          className="left-2.5"
+        >
+          {label}
+        </InFieldLabel>
+        {control}
+      </div>
       {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
     </Field>
   );
 };

@@ -12,11 +12,11 @@ import type { ScheduleTableRow } from './types';
  */
 export const scheduleCardConfig: MobileCardConfig<ScheduleTableRow> = {
   title: (row) => row.stackName,
-  subtitle: (row) => `${row.measureDate} | ${row.referenceNumber}`,
+  subtitle: (row) => `${row.clientName} - ${row.teamName}`,
   status: (row) => <StatusPill status={row.status} />,
-  // columns: 1,
-  // fields: [
-  //   { label: '관리번호', content: (row) => row.referenceNumber },
-  //   { label: '측정분야 | 측정팀', content: (row) => `${row.measurementField} | ${row.teamName}` }
-  // ],
+  columns: 2,
+  fields: [
+    { label: '측정일', content: (row) => row.measureDate },
+    { label: '관리번호', content: (row) => row.referenceNumber },
+  ],
 };

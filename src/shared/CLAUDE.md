@@ -43,7 +43,7 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `dialogs/` | `FormDialog`(폼 제출 모달), `StepFormDialog`(스텝 위저드 모달), `ConfirmProvider` + `useConfirm`(확인 다이얼로그), `useUnsavedChangesGuard`(미저장 이탈 방지). 앞의 둘은 비공개 `FormDialogShell` 위에 얹힌다. `DocumentViewerDialog`(고정폭 문서 뷰어)는 셸을 쓰지 않는다 — 아래 참조 |
 | `drawer/` | `Drawer` — 화면 가장자리에서 밀려 들어오는 오버레이(모바일 하단 바텀시트 / 데스크탑 사이드). 폼 제출 표면이 아니다 — 아래 참조 |
 | `feedback/` | EmptyText — 패널 안 한 줄 빈 상태·안내 문구 |
-| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`(단일 선택)+`MultiSelect`(칩형 다중 선택 — 아래 참조), `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(라벨+단위+완료체크), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
+| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`(단일 선택)+`MultiSelect`(칩형 다중 선택 — 아래 참조), `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(인필드 라벨+단위+상태 톤 — 아래 참조), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
 | `layout/` | PageLayout(페이지 셸 — 뒤로가기+제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
 | `nav/` | `ChipNav`(가로 스크롤 pill 칩 — 섹션 바로가기), `StepNav`(스텝 위저드 인디케이터 — 번호·연결선·완료 상태) |
 | `links/` | Link |
@@ -238,6 +238,79 @@ const handleDelete = async () => {
 > **음수가 성립하지 않는 항목(무게·부피·유량·농도·시간·율)에는 호출부에서 `min={0}` 을 명시할 것.**
 > 안 그러면 의미 없는 ± 버튼이 붙는다. `max` 는 표시용일 뿐 값을 제한하지 않는다(범위 검증은 validator 몫).
 
+### 폼 컨트롤의 라벨은 칸 안에 있다
+
+`label` 이 칸 **바깥 위**가 아니라 **칸 안 상단 좌측**에 작게 얹힌다.
+칸 자체는 커지지만 바깥 라벨 줄이 사라져, 한 필드가 먹는 세로 공간은 오히려 줄어든다.
+폼이 길수록 이 차이가 크다.
+
+`InputGroup`·`Select`(검색형 포함)·`MultiSelect`·`DatePicker`·`DateRangePicker`(트리거형)·
+`Textarea`·`UnitField` 가 모두 같은 규칙이다 — **한 폼 안에서 칸 높이가 갈리지 않는다.**
+
+| | 칸 높이 | 한 필드가 먹는 높이 |
+|---|---|---|
+| 한 줄 컨트롤 (`label` 있을 때) | 38px → 48px | 70px → 48px |
+| `MultiSelect` | `min-h` 48px — 칩이 줄바꿈되면 자란다 | |
+| `Textarea` | 첫 줄만큼(22px) 위 여백 — 높이는 `rows`·내용이 정한다 | |
+| `UnitField` (데스크탑 / 모바일) | 38 → 48px / 48 → 56px | 57 → 48px / 67 → 56px |
+
+- 라벨과 **같은 문구의 `placeholder` 는 자동으로 감춘다**(`inFieldPlaceholder`) — 같은 자리에서
+  두 번 읽히기 때문이다. 라벨이 못 하는 말(형식 예시·"종별 선택" 같은 행동 지시)만 `placeholder` 로 남긴다.
+- `label` 이 없으면 예전 그대로 38px 한 줄이다 (표 셀·인라인 조합·필터 바에서 쓰는 형태).
+  `UnitField` 는 `label` 이 필수라 항상 인필드 라벨이다.
+- **우측 아이콘(셀렉트 꺽쇠·달력)은 프레임 세로 중앙에 고정한다.** 값 영역에 위 여백을 주면
+  자식 아이콘도 같이 내려가므로, 여백과 무관하게 절대 배치한다(`IN_FIELD_ICON_CLASS`).
+  `Select` 트리거는 꺽쇠를 직접 그리지 못하므로 `data-slot="select-icon"` 을 자손 선택자로
+  잡는 `IN_FIELD_SELECT_CLASS` 를 쓴다. `DatePicker` 의 달력 아이콘도 라벨이 있으면 **좌측에서
+  우측으로** 옮긴다 — 좌측에 두면 라벨 시작점이 아이콘 폭만큼 밀려 옆 칸과 글줄이 어긋난다.
+- 아이콘·± 버튼·시계 버튼은 라벨 높이만큼 내려 입력 글줄에 눈높이를 맞춘다.
+  `UnitField` 는 값 영역(`input`/`Select` 트리거/`TimeField`·`NumericField` 루트)에
+  같은 위 여백을 걸어 이를 한 번에 처리한다.
+- `errorMessage` 는 라벨 줄이 아니라 **칸 아래** 빨간 `FieldDescription` 으로 내려간다.
+  라벨 줄은 한 줄짜리 캡션이라 에러 문구까지 얹을 자리가 없다. 대신 라벨이 빨갛게 물들고
+  트리거에 `aria-invalid` 가 걸려 테두리가 바뀐다.
+- **라벨 줄은 클릭을 흘려보낸다**(`pointer-events-none`) — 칸 위에 얹혀 있어 입력창 포커스를
+  가로채면 안 된다. 도움말 버튼(`addon`)만 클릭을 되살린다.
+- 라벨을 바깥에 두는 것은 `Checkbox`(가로 배치)·`FileInput`(버튼+파일명이라 칸이 없다)·
+  `AddressInput`(세 칸 묶음의 그룹 제목)·`DateRangePicker inline`(달력 패널)뿐이다.
+
+**라벨 자체는 비공개 `InFieldLabel` 하나가 그린다** (`shared/ui/form/InFieldLabel.tsx`, 미공개).
+위치(`top-1.5`)·타이포(`text-caption`)·필수 별표·단위·`addon` 슬롯이 여기 모여 있고,
+값 영역이 비워야 할 위 여백(`IN_FIELD_VALUE_CLASS`)·프레임 높이(`IN_FIELD_CONTROL_HEIGHT`)·
+아이콘 고정·placeholder 규칙은 같은 디렉토리의 `in-field.ts` 에서 나온다 —
+**라벨 위치를 바꾸면 값 여백도 같이 바뀌기 때문**이다. 호스트는 글줄 시작점(`left-*`)만 정한다.
+
+**단위는 라벨 뒤 괄호로 붙인다 — `대기압 (hPa)`.**
+`UnitField` 의 우측 회색 단위 박스는 없앴다. 고정폭(44~48px)이라 모바일에서 입력 폭을 갉아먹고,
+면 색과 좌측 테두리 때문에 값보다 먼저 눈에 들었다. 라벨이 길어 자리가 모자라면
+**라벨만 줄인다** — 필수 별표와 단위는 잘리면 뜻이 사라진다.
+
+> `UnitField` 와 `InputGroup` 은 라벨 모양만 공유하고 **합치지 않는다.**
+> `UnitField` 는 `tone`(빌려온 값·검증 누락)·`onFocus`(계산 드로어의 현재 칸 추적)·
+> `helper`(CalcResultRow)·완료 표시·`Select`/`TimeField` 분기·모바일 18px 값 글자를 들고 있고,
+> 이는 측정 시트 입력 화면 전용 개념이다. `InputGroup` 쪽 호출부(170곳)에는 필요 없다.
+
+### `UnitField` 의 상태는 **프레임이** 말한다
+
+칸 오른쪽 **바깥**에 아이콘 열을 두던 방식은 그만뒀다. 기록지 한 장이 수십 칸이라
+완료 체크가 줄줄이 서서 정작 값이 안 읽히고, 그 열이 칸마다 입력 폭을 27px 씩 먹었다.
+
+| 상태 | 어떻게 보이나 | 언제 |
+|------|--------------|------|
+| 완료 | 면이 `bg-brand-soft`(연초록) | 값이 들어찼을 때 (`showComplete` 로 끌 수 있다) |
+| `info` | `border-info` + `bg-info-soft`, 값 글자 `text-info-ink`, 우상단 시계 | 이전 기록지에서 빌려온 값 — 확인이 필요하다 |
+| `danger` | `border-danger` + `bg-danger-soft`, 라벨도 빨강, 우상단 경고 | 검증에서 걸린 필수 누락 |
+
+- **톤이 완료보다 이긴다** — 확인·누락이 "다 채웠다"보다 급한 소식이다. `cn` 순서가 그 규칙이다.
+- 상태 아이콘은 라벨 줄과 같은 높이(`top-1.5 right-1.5`)에 절대배치한다. 칸 폭을 먹지 않고,
+  ± 버튼·시계 버튼이 있는 값 영역과도 겹치지 않는다.
+- 완료만 **색뿐**이고 아이콘이 없다 — 값이 칸에 그대로 보이는 것이 이미 완료의 증거라서다.
+  반면 `info`·`danger` 는 값만 봐서는 알 수 없으니 모양으로도 구분한다.
+- `readOnly`(자동계산 결과) 칸은 완료로 물들이지 않는다 — 사람이 채운 칸이 아니다.
+- **표 셀(`TableInputCell`·`TableSelectCell`)도 같은 규칙이다** — 면 색만 바꾼다(테두리는 표의 것).
+  완료·톤 판정은 `table/cell-face.ts` 한 곳에서 나오고, `disabled` 셀은 완료로 칠하지 않는다.
+  `showComplete` 로 끄는 것도 같다 — `InputTable` 의 `input`·`select` 열 선언에서 받는다.
+
 ### 다중 선택은 `Select` 가 아니라 `MultiSelect` 다
 
 값 계약이 갈라지기 때문에 한 컴포넌트로 합치지 않는다 — `Select` 의 미선택은 `""`,
@@ -315,8 +388,8 @@ open 상태를 직접 소유하고 트리거 클릭으로 토글한다(hover·�
 |--------|-----|------|
 | `label` | `TableLabelCell` (`th scope="row"`) | 행을 식별하는 이름 |
 | `readonly` | `td` | 고칠 수 없는 원장 값 (참고용) |
-| `input` | `TableInputCell` | 입력 칸. `type="number"`·`"time"` 은 `NumericField`·`TimeField` 로 렌더된다 |
-| `select` | `TableSelectCell` | 정해진 값 중 하나를 고르는 칸(단위 등). 트리거가 버튼이라 `Alt+화살표` 이동에는 끼지 않는다 — 이동은 `Tab` 이 맡는다 |
+| `input` | `TableInputCell` | 입력 칸. `type="number"`·`"time"` 은 `NumericField`·`TimeField` 로 렌더된다. 값이 차면 연초록(`showComplete` 로 끈다) |
+| `select` | `TableSelectCell` | 정해진 값 중 하나를 고르는 칸(단위 등). 트리거가 버튼이라 `Alt+화살표` 이동에는 끼지 않는다 — 이동은 `Tab` 이 맡는다. 완료 면색은 `input` 과 같다 |
 | `result` | `TableResultCell` | 자동계산 결과 (회색 배경) |
 | `action` | `td` | 행 삭제 등. `editable` 이 꺼지면 열째로 빠진다 |
 
@@ -556,7 +629,7 @@ api/
 상태 코드를 알아야 하므로 `unwrap(res)` 을 거쳐 `ApiError` 를 던진다.
 
 ```ts
-// entities/schedule/api/api.ts — 이 계약을 쓰는 함수는 saveSheets·updateBasicInfo 둘뿐이다
+// entities/schedule/api/api.ts — 이 계약을 쓰는 함수는 saveSheets 하나뿐이다
 saveSheets: async (id, body): Promise<ScheduleResponse> => {
   const res = await axiosPrivate.put<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/sheets`, body);
   return unwrap(res);   // 실패면 ApiError(status, message) throw

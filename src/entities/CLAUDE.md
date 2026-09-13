@@ -231,13 +231,13 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 
 #### 409 충돌은 상태 코드를 보존해야 한다
 
-`schedule` 의 `saveSheets`·`updateBasicInfo` 만 `unwrap`(`@shared/api`)을 거쳐 `ApiError` 를 던진다.
+`schedule` 의 `saveSheets` 만 `unwrap`(`@shared/api`)을 거쳐 `ApiError` 를 던진다.
 `updateSchedule` 은 이름이 비슷해도 **일반 계약**이다 — 이름으로 일괄 판단하지 말 것.
 
 | 규칙 | 근거 |
 |------|------|
 | `mutationFn` 은 `unwrap` 을 그대로 쓴다 | `unwrapMessage` 로 바꾸면 상태 코드가 사라져 409 분기가 죽는다 |
-| **`onError` 에 전역 409 처리를 넣지 않는다** | 같은 `updateBasicInfo` 를 쓰는 `use-analysis-progress` 에는 409 특례가 없다(단순 toast). 전역 처리는 그쪽 UX 를 바꾼다 |
+| **`onError` 에 전역 409 처리를 넣지 않는다** | 409 특례가 필요한 것은 동시 편집이 실제로 일어나는 `saveSheets` 뿐이다. `use-analysis-progress` 는 단순 toast 로 끝내며, 전역 처리는 그쪽 UX 를 바꾼다 |
 | 분기는 `err instanceof ApiError && err.isConflict` 로 좁힌다 | `instanceof Error` 로 넓히면 409 분기가 죽는다 |
 
 ### 재시도 정책은 `shared/api/query-client.ts` 가 소유한다
@@ -277,7 +277,7 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `equipment` | `useEquipments`, `useEquipmentDetail`, `useInspectionRecords` | `useRegisterEquipmentAction`, `useUpdateEquipmentAction`, `useDeleteEquipmentAction`, `useChangeEquipmentStatusAction`, `useRecordInspectionAction` |
 | `member` | `useMembers`, `useMemberDetail`, `useRoles` | `useRegisterMemberAction`, `useUpdateMemberAction`, `useDeleteMemberAction` |
 | `team` | `useTeams`, `useTeamDetail` | `useRegisterTeamAction`, `useUpdateTeamAction`, `useDeleteTeamAction` |
-| `schedule` | `useSchedules`, `useCanceledSchedules`, `useScheduleDetail`, `useScheduleAnalyses`, `useFetchScheduleDetail`(명령형), `useFetchScheduleAnalyses`(명령형) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateBasicInfoAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
+| `schedule` | `useSchedules`, `useCanceledSchedules`, `useScheduleDetail`, `useScheduleAnalyses`, `useFetchScheduleDetail`(명령형), `useFetchScheduleAnalyses`(명령형) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateReportDatesAction`, `useChangeTenantAction`, `useChangeTeamAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
 | `tenant` | `useTenants` | `useProvisionTenantAction` |
 | `chat` | `useChatRooms`, `useChatRoomDetail`, `useChatContacts`, `useChatUnreadCount`, `useChatMessages`(무한), `useChatAttachment`(blob) | `useSendChatMessageAction`(낙관), `useMarkChatRoomReadAction`, `useOpenChatRoomAction`, `useHideChatRoomAction`, `useDownloadChatAttachmentAction`, `useChatRealtime`(STOMP 구독) |
 | `auth` | — | `useAuth`(Context 훅). API: `signInApi`, `signOutApi` |

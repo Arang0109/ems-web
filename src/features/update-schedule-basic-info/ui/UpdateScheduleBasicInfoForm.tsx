@@ -34,42 +34,43 @@ export const UpdateScheduleBasicInfoForm = ({
 
   return (
     <FormDialog
-      title="사전 정보 수정"
-      description="이 측정계획의 관리번호와 측정일자, 측정용도를 바로잡습니다. 측정분야와 측정팀은 계획을 세울 때 정해지므로 여기서 바꿀 수 없습니다."
+      title="측정계획 사전 정보"
       open={open}
       onOpenChange={onOpenChange}
-      cancelLabel="취소"
-      submitLabel="수정"
+      cancelLabel="닫기"
+      submitLabel="저장"
       isLoading={isLoading}
       onSubmit={handleSubmit}
     >
       <FieldGroup>
         <InputGroup
           id="schedule-reference-number"
-          label="관리번호"
-          placeholder="예) KGAR-26-01-001"
+          label="관리 번호 (문서 번호)"
+          placeholder="예) 01-001-01"
           value={form.referenceNumber}
           onChange={(value) => handleChange("referenceNumber", value)}
-          helperText="비워 두고 저장하면 기존 관리번호가 지워집니다."
         />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DatePicker
+            id="schedule-measure-date"
+            label="측정일자"
+            required
+            value={toDate(form.measureDate)}
+            onChange={(date) => handleChange("measureDate", toDateValue(date))}
+            helperText={fieldErrors?.measureDate}
+          />
 
-        <DatePicker
-          id="schedule-measure-date"
-          label="측정일자"
-          required
-          value={toDate(form.measureDate)}
-          onChange={(date) => handleChange("measureDate", toDateValue(date))}
-          helperText={fieldErrors?.measureDate}
-        />
-
-        <Select
-          id="schedule-measurement-type"
-          label="측정용도"
-          placeholder="용도 선택"
-          options={measurementTypeOptions}
-          value={form.measurementType}
-          onValueChange={(value) => handleChange("measurementType", value ?? "")}
-        />
+          <Select
+            id="schedule-measurement-type"
+            label="측정용도"
+            required
+            placeholder="용도 선택"
+            options={measurementTypeOptions}
+            value={form.measurementType}
+            onValueChange={(value) => handleChange("measurementType", value ?? "")}
+          />
+        </div>
+        
       </FieldGroup>
     </FormDialog>
   );

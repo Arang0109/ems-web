@@ -14,7 +14,8 @@ export type {
   SheetSave, SheetRef,
   ClientSnapshotUpdate, WorkplaceSnapshotUpdate, StackSnapshotUpdate, ScheduleEquipmentsUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate,
-  BasicInfoUpdate, ScheduleMetaUpdate, SamplingRecordsExport, ReportExport, PreviousSheet, PreviousSheetCandidate,
+  ReportDatesUpdate, TenantSnapshotUpdate, TeamSnapshotUpdate, SamplingInfoSave,
+  ScheduleMetaUpdate, SamplingRecordsExport, ReportExport, PreviousSheet, PreviousSheetCandidate,
   AnalysisResult,
   SamplingTimesSave, SamplingTimeEntry, AnalysisResultsSave, AnalysisResultEntry,
 } from './model/types';
@@ -32,13 +33,14 @@ export { useChangeEquipmentsAction } from './model/use-change-equipments-action'
 export { useChangeItemsAction } from './model/use-change-items-action';
 export { useReorderItemsAction } from './model/use-reorder-items-action';
 export { useUpdateItemAction } from './model/use-update-item-action';
-export { useUpdateBasicInfoAction } from './model/use-update-basic-info-action';
+export { useUpdateReportDatesAction } from './model/use-update-report-dates-action';
+export { useChangeTenantAction } from './model/use-change-tenant-action';
+export { useChangeTeamAction } from './model/use-change-team-action';
 export { useUpdateScheduleAction } from './model/use-update-schedule-action';
 export { useCompleteScheduleAction } from './model/use-complete-schedule-action';
 export { useCancelScheduleAction } from './model/use-cancel-schedule-action';
 export { useReopenScheduleAction } from './model/use-reopen-schedule-action';
 export { useExportSamplingRecordsAction } from './model/use-export-sampling-records-action';
-export { useExportReportAction } from './model/use-export-report-action';
 
 export { useScheduleAnalyses, useFetchScheduleAnalyses } from './model/use-schedule-analyses';
 export { useSaveSamplingTimesAction } from './model/use-save-sampling-times-action';

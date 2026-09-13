@@ -1,12 +1,12 @@
-import { Hash, Building2, User2Icon, Phone, MailIcon } from "lucide-react";
+import { Hash, Building2, User2Icon } from "lucide-react";
 
 import type { ClientSnapshot } from "@entities/schedule";
 import { gradeOptions } from "@shared/model";
 import type { Grade } from "@shared/model";
-import { formatBusinessNumber, formatPhoneNumber, unformatNumber } from "@shared/lib";
+import { formatBusinessNumber, unformatNumber } from "@shared/lib";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { FieldGroup, InputGroup, SectionTitle, Select, AddressInput } from "@shared/ui/form";
+import { FieldGroup, InputGroup, Select, AddressInput } from "@shared/ui/form";
 
 import { useUpdateScheduleClient } from "../model/hooks/use-update-schedule-client";
 
@@ -35,19 +35,16 @@ export const UpdateScheduleClientForm = ({
 
   return (
     <FormDialog
-      title="의뢰기관 정보 수정"
-      description="입력을 비워도 기존 값이 삭제되지 않고 그대로 유지됩니다."
+      title="의뢰기관 정보"
       open={open}
       onOpenChange={onOpenChange}
-      cancelLabel="취소"
-      submitLabel="수정"
+      cancelLabel="닫기"
+      submitLabel="저장"
       isLoading={isLoading}
       size="lg"
       onSubmit={handleSubmit}
     >
       <FieldGroup>
-        <SectionTitle>의뢰기관 정보</SectionTitle>
-
         <InputGroup
           id="name"
           label="측정대행 의뢰기관"
@@ -90,29 +87,7 @@ export const UpdateScheduleClientForm = ({
           }}
           onChange={handleClientAddressChange}
         />
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <InputGroup
-            id="tel"
-            label="전화번호"
-            placeholder="전화번호"
-            value={formatPhoneNumber(form.tel)}
-            onChange={(value) => handleChange("tel", unformatNumber(value).slice(0, 11))}
-            startIcon={<Phone />}
-          />
-          <InputGroup
-            id="email"
-            label="이메일"
-            placeholder="이메일"
-            value={form.email}
-            onChange={(value) => handleChange("email", value)}
-            startIcon={<MailIcon />}
-          />
-        </div>
-
         <Divider />
-
-        <SectionTitle>사업장 정보</SectionTitle>
 
         <div className="grid md:grid-cols-3 gap-4">
           <InputGroup

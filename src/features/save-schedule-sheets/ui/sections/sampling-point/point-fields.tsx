@@ -14,6 +14,7 @@ export interface PointField {
   unit: string;
   /** ↑/↓ 증감 폭. 정수로 읽는 항목은 생략한다 */
   step?: number;
+  className?: string;
   /**
    * 값의 하한 — **모든 항목이 명시한다(선택 속성이 아니다).**
    *
@@ -29,10 +30,11 @@ export interface PointField {
 /** 유량 정보 — 모든 시트가 입력한다(유속·유량 계산의 입력). */
 export const FLOW_FIELDS: PointField[] = [
   {
-    field: "Ts", label: "배출가스온도", name: "배출가스온도",
+    field: "Ts", label: "배출가스 온도", name: "배출가스온도",
     unit: "°C", step: 0.1,
     // 상온·저온 배출구는 외기보다 찰 수 있어 음수를 막지 않는다
     min: undefined,
+    className: "col-span-2",
   },
   {
     field: "Pv", label: "동압", name: "동압",
@@ -57,23 +59,23 @@ export const FLOW_FIELDS: PointField[] = [
  */
 export const ISOKINETIC_FIELDS: PointField[] = [
   {
-    field: "inTm", label: "건식가스미터 온도-입구", name: "건식가스미터 입구온도", unit: "°C", step: 0.1,
+    field: "inTm", label: "DGM 입구온도", name: "건식가스미터 입구온도", unit: "°C", step: 0.1,
     min: undefined,   // 가스미터를 지난 가스는 외기 온도까지 내려간다
   },
   {
-    field: "outTm", label: "건식가스미터 온도-출구", name: "건식가스미터 출구온도", unit: "°C", step: 0.1,
+    field: "outTm", label: "DGM 출구온도", name: "건식가스미터 출구온도", unit: "°C", step: 0.1,
     min: undefined,   // 위와 같음
   },
   {
-    field: "samplingTime", label: "채취시간", name: "채취시간", unit: "min",
-    min: 0,
+    field: "samplingTime", label: "채취시간", name: "채취시간", unit: "분",
+    min: 0, className: "col-span-2",   // 채취시간은 0분 이상만 성립한다
   },
   {
-    field: "beforeVm", label: "건식가스미터 채취량-전", name: "흡입량 전", unit: "m³", step: 0.00001,
+    field: "beforeVm", label: "채취량-전", name: "흡입량 전", unit: "m³", step: 0.00001,
     min: 0,           // 가스미터 적산값
   },
   {
-    field: "afterVm", label: "건식가스미터 채취량-후", name: "흡입량 후", unit: "m³", step: 0.00001,
+    field: "afterVm", label: "채취량-후", name: "흡입량 후", unit: "m³", step: 0.00001,
     min: 0,           // 가스미터 적산값
   },
   {
@@ -89,3 +91,6 @@ export const ISOKINETIC_FIELDS: PointField[] = [
 
 /** 채취량(V<sub>m</sub>) 결과 행이 끼어드는 위치 — 이 항목 **뒤**에 온다 */
 export const VM_RESULT_AFTER: PointField["field"] = "afterVm";
+
+/** 노즐 기준선(`NozzleBasisNote`)이 끼어드는 위치 — 채취시간 **뒤**에 온다 */
+export const NOZZLE_BASIS_AFTER: PointField["field"] = "samplingTime";

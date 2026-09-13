@@ -6,6 +6,7 @@ import { Button } from "@shared/ui/buttons";
 
 import type { ParticleForm, SamplingPointForm } from "../../../model/types";
 import type { FieldStateProps, SectionShellProps } from "../shell-props";
+import type { NozzleBasis } from "./NozzleBasisNote";
 import { PointCards } from "./PointCards";
 import { PointCommonValues } from "./PointCommonValues";
 import { PointTable } from "./PointTable";
@@ -16,6 +17,8 @@ interface Props extends SectionShellProps, FieldStateProps {
   points: SamplingPointForm[];
   particle: ParticleForm;
   preview: SheetCalcPreview | null;
+  /** 고른 노즐의 예상 채취시간·채취량 — 채취시간 입력 아래 기준선으로 붙는다 */
+  nozzleBasis: NozzleBasis;
   editable: boolean;
   onPointChange: (index: number, patch: Partial<SamplingPointForm>) => void;
   onAddPoint: () => void;
@@ -35,7 +38,7 @@ interface Props extends SectionShellProps, FieldStateProps {
  * 두 표현이 어긋나지 않도록 **항목 스펙은 `point-fields`, 파생값은 `point-results`** 한 곳에서만 온다.
  */
 export const SamplingPointSection = ({
-  isParticle, points, particle, preview, editable,
+  isParticle, points, particle, preview, nozzleBasis, editable,
   onPointChange, onAddPoint, onRemovePoint, onCopyPreviousPoint,
   onParticleChange, fieldTone, onFieldFocus,
   ...shell
@@ -81,6 +84,7 @@ export const SamplingPointSection = ({
         isParticle={isParticle}
         points={points}
         preview={preview}
+        nozzleBasis={nozzleBasis}
         editable={editable}
         onPointChange={onPointChange}
         onRemovePoint={onRemovePoint}
@@ -92,6 +96,7 @@ export const SamplingPointSection = ({
         points={points}
         preview={preview}
         groups={groups}
+        nozzleBasis={nozzleBasis}
         editable={editable}
         onPointChange={onPointChange}
         onRemovePoint={onRemovePoint}

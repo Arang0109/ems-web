@@ -4,19 +4,24 @@ import { ArrowDownToLine, X } from "lucide-react";
 import type { SheetCalcPreview } from "@entities/schedule";
 import { SubAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
-import { UnitField, CalcResultRow, CalcResultGrid } from "@shared/ui/form";
+import { UnitField, CalcResultRow } from "@shared/ui/form";
 
 import { POINT_HINT } from "../../../model/field-hints";
 import { fieldPath } from "../../../model/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
-import { FLOW_FIELDS, ISOKINETIC_FIELDS, VM_RESULT_AFTER, type PointField } from "./point-fields";
-import { display, isokineticResults, toResultItems, vmResult } from "./point-results";
+import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
+import {
+  FLOW_FIELDS, ISOKINETIC_FIELDS, NOZZLE_BASIS_AFTER, VM_RESULT_AFTER, type PointField,
+} from "./point-fields";
+import { display, isokineticResults, vmResult } from "./point-results";
 import type { FieldStateProps } from "../shell-props";
 
 interface Props extends FieldStateProps {
   isParticle: boolean;
   points: SamplingPointForm[];
   preview: SheetCalcPreview | null;
+  /** 고른 노즐의 예상 채취시간·채취량 — 채취시간 입력 아래 기준선으로 붙는다 */
+  nozzleBasis: NozzleBasis;
   editable: boolean;
   onPointChange: (index: number, patch: Partial<SamplingPointForm>) => void;
   onRemovePoint: (index: number) => void;
@@ -25,7 +30,7 @@ interface Props extends FieldStateProps {
 
 /** 지점 카드 안의 그룹 소제목 — 접히지 않는 구분 라벨(피그마의 muted 소제목). */
 const GroupLabel = ({ children }: { children: React.ReactNode }) => (
-  <p className="text-label text-muted-ink">{children}</p>
+  <p className="text-label text-ink">{children}</p>
 );
 
 /**
@@ -39,7 +44,7 @@ const GroupLabel = ({ children }: { children: React.ReactNode }) => (
  * 여기서는 카드 아래 붙는 독립된 결과 묶음이라 폼에서 떼어 냈다.
  */
 export const PointCards = ({
-  isParticle, points, preview, editable,
+  isParticle, points, preview, nozzleBasis, editable,
   onPointChange, onRemovePoint, onCopyPreviousPoint,
   fieldTone, onFieldFocus,
 }: Props) => {
@@ -48,13 +53,14 @@ export const PointCards = ({
   const inputField = (f: PointField, i: number) => (
     <UnitField
       key={String(f.field)}
-      label={f.label} required unit={f.unit} type="number" min={f.min} step={f.step}
+      label={f.label} unit={f.unit} type="number" min={f.min} step={f.step}
       hint={POINT_HINT[f.field]}
       hintLabel={`${f.name} 설명`}
       value={points[i][f.field]} disabled={!editable}
       tone={fieldTone(fieldPath.point(i, f.field))}
       onFocus={() => onFieldFocus(fieldPath.point(i, f.field))}
       onChange={(v) => onPointChange(i, { [f.field]: v })}
+      className={f.className}
     />
   );
 
@@ -86,8 +92,8 @@ export const PointCards = ({
           )}
 
           <div className="space-y-3">
-            <GroupLabel>유량 정보</GroupLabel>
-            <div className="grid grid-cols-1 gap-y-3">
+            <GroupLabel>배출가스의 온도, 동·정압 정보</GroupLabel>
+            <div className="grid grid-cols-2 gap-3">
               {FLOW_FIELDS.map((f) => inputField(f, i))}
             </div>
           </div>
@@ -95,24 +101,34 @@ export const PointCards = ({
           {isParticle && (
             <div className="mt-4 space-y-3 border-t border-rule pt-4">
               <GroupLabel>등속흡인 정보</GroupLabel>
-              <div className="grid grid-cols-1 gap-y-3">
+              <div className="grid grid-cols-2 gap-3">
                 {/* 채취량은 입력이 아니라 결과지만 시안의 기입 순서상 입력 사이에 온다 */}
                 {ISOKINETIC_FIELDS.map((f) => (
                   <Fragment key={String(f.field)}>
                     {inputField(f, i)}
+                    {/* 채취량을 적어 넣기 전에 목표치를 보게 한다 — 지점별 값이 아니라 시트 공통 기준이다 */}
+                    {f.field === NOZZLE_BASIS_AFTER && (
+                      <NozzleBasisNote basis={nozzleBasis} className="col-span-2" />
+                    )}
                     {f.field === VM_RESULT_AFTER && (
-                      <CalcResultRow label={vm.label} value={display(vm.value(i))} />
+                      <>
+                        <CalcResultRow label={vm.label} value={display(vm.value(i))} unit="m³" className="col-span-2" />
+                        {isokineticResults(preview).map((r) => (
+                          <CalcResultRow
+                            key={String(r.name)}
+                            label={r.label}
+                            value={display(r.value(i))}
+                            unit={r.unit}
+                            className="col-span-2"
+                          />
+                        ))}
+                      </>
                     )}
                   </Fragment>
                 ))}
               </div>
 
-              <CalcResultGrid
-                title="자동계산 데이터"
-                columns={2}
-                emptyText="등속흡인 정보를 입력하면 차압·등속흡입계수가 계산됩니다."
-                items={toResultItems(isokineticResults(preview), i)}
-              />
+              
             </div>
           )}
         </SubAccordion>

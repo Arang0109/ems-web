@@ -102,7 +102,7 @@ export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
 };
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
-  SELF: '자가측정용',
+  SELF: '자가 측정용',
   REFERENCE: '참고용',
 };
 
@@ -191,7 +191,6 @@ export const WIND_DIRECTION_LABEL: Record<WindDirection, string> = {
   W: '서', WNW: '서북서', NW: '북서', NNW: '북북서',
 };
 export const DOCUMENT_CATEGORY_LABEL: Record<DocumentCategory, string> = {
-  REPORT_TEMPLATE: '성적서 양식',
   SAMPLING_RECORD_TEMPLATE: '채취기록부 양식',
   CONTRACT: '계약서',
   CERTIFICATE: '인증서',
@@ -235,5 +234,5 @@ export const DATE_RANGE_PRESET_LABEL: Record<DateRangePreset, string> = {
   today: '오늘',
   week: '이번 주',
   month: '이번 달',
-  around30: '전후 30일'
+  year: '이번 년도'
 };

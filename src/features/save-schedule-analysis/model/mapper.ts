@@ -1,6 +1,6 @@
 import type {
   AnalysisResult, AnalysisResultsSave, SamplingTimesSave,
-  BasicInfoUpdate, MeasurementItemSnapshot, ScheduleDetail,
+  ReportDatesUpdate, TenantSnapshotUpdate, MeasurementItemSnapshot, ScheduleDetail,
 } from "@entities/schedule";
 import { toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
 
@@ -65,7 +65,7 @@ export const toSamplingTimesSave = (rows: AnalysisRowForm[]): SamplingTimesSave 
 
 /**
  * 진행 정보의 출처가 둘로 갈린다 — 일자 셋은 계획 메타(응답 최상위)가, 서명란 담당자 둘은
- * 고객사 스냅샷(snapshot.tenant)이 갖는다. 한 폼이지만 저장은 basic-info 한 경로로 나간다.
+ * 고객사 스냅샷(snapshot.tenant)이 갖는다. 한 폼이지만 소유가 갈려 저장은 두 경로로 나간다.
  */
 export const fromBasicInfo = (schedule: ScheduleDetail | null): AnalysisProgressForm => {
   if (!schedule) return getDefaultAnalysisProgressForm();
@@ -79,22 +79,24 @@ export const fromBasicInfo = (schedule: ScheduleDetail | null): AnalysisProgress
 };
 
 /**
- * 분석 진행 정보 → 기본정보 수정 입력.
- * 이 화면이 다루지 않는 필드는 null로 둔다 — 서버가 "미전달 = 기존 값 유지"로 해석하므로
- * 측정 데이터 탭에서 입력한 채취 시각·채취자 표기를 덮어쓰지 않는다.
+ * 분석 진행 정보 → 성적서 진행 일자 수정 입력.
+ * 이 탭이 일자 셋을 단독으로 소유하므로 빈 칸을 null 그대로 실어 보낸다 — 서버가 값을 지운다.
+ * 그래서 잘못 넣은 일자를 되돌릴 수 있다.
  */
-export const toBasicInfoUpdate = (form: AnalysisProgressForm): BasicInfoUpdate => ({
-  facilityManager: null,
-  samplingWitness: null,
-  analyst: emptyToNull(form.analyst),
-  technicalManager: emptyToNull(form.technicalManager),
+export const toReportDatesUpdate = (form: AnalysisProgressForm): ReportDatesUpdate => ({
   receivedAt: emptyToNull(form.receivedAt),
   analyzedAt: emptyToNull(form.analyzedAt),
   issuedAt: emptyToNull(form.issuedAt),
-  samplingStartedAt: null,
-  samplingEndedAt: null,
-  mentorName: null,
-  menteeName: null,
+});
+
+/**
+ * 분석 진행 정보 → 고객사 스냅샷 수정 입력.
+ * 서명란 담당자는 현장 채취 탭과 공유하는 값이라 부분 갱신이다 — 이 화면이 다루지 않는 필드는
+ * 키 자체를 두지 않아 서버가 기존 값을 유지한다.
+ */
+export const toTenantSnapshotUpdate = (form: AnalysisProgressForm): TenantSnapshotUpdate => ({
+  analyst: emptyToNull(form.analyst),
+  technicalManager: emptyToNull(form.technicalManager),
 });
 
 const emptyToNull = (value: string): string | null => trimValue(value) || null;
