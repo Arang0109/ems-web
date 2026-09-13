@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatNumber, toFormValue, toKoreanAmount, toNumber, toNumberOrNull } from './number';
+import {
+  displayValue, formatNumber, isNonNegativeNumber, isPositiveNumber, roundHalfUp,
+  toFormValue, toKoreanAmount, toNumber, toNumberOrNull,
+} from './number';
 
 describe('toFormValue — Domain(number | null) → Form(string)', () => {
   it('null·undefined 는 빈 문자열로 — 이 함수의 존재 이유(String(null) === "null" 방지)', () => {
@@ -90,6 +93,88 @@ describe('formatNumber', () => {
   it('min·max 를 같게 주면 자릿수가 고정된다', () => {
     expect(formatNumber(1234.5678, { minDecimals: 2, maxDecimals: 2 })).toBe('1,234.57');
     expect(formatNumber(1234, { minDecimals: 2, maxDecimals: 2 })).toBe('1,234.00');
+  });
+
+  it('decimals 는 min·max 를 같은 값으로 주는 축약이다 — toFixed(n) 자리', () => {
+    expect(formatNumber(1234.5678, { decimals: 2 })).toBe('1,234.57');
+    expect(formatNumber(1234, { decimals: 2 })).toBe('1,234.00');
+    expect(formatNumber(2.5, { decimals: 0 })).toBe('3');
+    expect(formatNumber(null, { decimals: 2 })).toBe('');
+  });
+
+  it('decimals 가 min·max 보다 우선한다', () => {
+    expect(formatNumber(1.5, { decimals: 1, minDecimals: 3, maxDecimals: 3 })).toBe('1.5');
+  });
+});
+
+describe('displayValue — 없는 값을 대시로', () => {
+  it('null·undefined·공백은 대시', () => {
+    expect(displayValue(null)).toBe('-');
+    expect(displayValue(undefined)).toBe('-');
+    expect(displayValue('')).toBe('-');
+    expect(displayValue('   ')).toBe('-');
+  });
+
+  it('0 은 값이다', () => {
+    expect(displayValue(0)).toBe('0');
+  });
+
+  it('숫자는 문자열로, 문자열은 앞뒤 공백을 지운다', () => {
+    expect(displayValue(12.5)).toBe('12.5');
+    expect(displayValue(' abc ')).toBe('abc');
+  });
+
+  it('대시 문자를 바꿀 수 있다', () => {
+    expect(displayValue(null, '—')).toBe('—');
+  });
+
+  it('formatNumber 와 이어 쓰면 "없음" 과 "포맷된 값" 이 갈린다', () => {
+    expect(displayValue(formatNumber(null, { decimals: 2 }))).toBe('-');
+    expect(displayValue(formatNumber(1.005, { decimals: 2 }))).toBe('1.01');
+  });
+});
+
+describe('roundHalfUp — BigDecimal HALF_UP 미러', () => {
+  it('소수 scale 자리에서 반올림한다', () => {
+    expect(roundHalfUp(1.2345, 2)).toBe(1.23);
+    expect(roundHalfUp(1.235, 2)).toBe(1.24);
+    expect(roundHalfUp(0.7071, 3)).toBe(0.707);
+  });
+
+  it('.5 는 부호와 무관하게 절대값이 커지는 쪽으로 — JS Math.round 와 다르다', () => {
+    expect(roundHalfUp(2.5, 0)).toBe(3);
+    expect(roundHalfUp(-2.5, 0)).toBe(-3);
+    expect(Math.round(-2.5)).toBe(-2);
+  });
+
+  it('fp 표현 오차를 흡수한다 (1.005 * 100 === 100.49999…)', () => {
+    expect(roundHalfUp(1.005, 2)).toBe(1.01);
+  });
+
+  it('NaN·Infinity 는 그대로', () => {
+    expect(roundHalfUp(Number.NaN, 1)).toBeNaN();
+    expect(roundHalfUp(Number.POSITIVE_INFINITY, 1)).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('isPositiveNumber / isNonNegativeNumber — Form 문자열 판정', () => {
+  it('빈값·파싱 불가는 둘 다 false', () => {
+    for (const v of ['', '  ', 'abc', null, undefined]) {
+      expect(isPositiveNumber(v)).toBe(false);
+      expect(isNonNegativeNumber(v)).toBe(false);
+    }
+  });
+
+  it('0 에서 갈린다', () => {
+    expect(isPositiveNumber('0')).toBe(false);
+    expect(isNonNegativeNumber('0')).toBe(true);
+  });
+
+  it('음수는 둘 다 false, 양수는 둘 다 true', () => {
+    expect(isPositiveNumber('-1')).toBe(false);
+    expect(isNonNegativeNumber('-1')).toBe(false);
+    expect(isPositiveNumber('1,234.5')).toBe(true);
+    expect(isNonNegativeNumber('1,234.5')).toBe(true);
   });
 });
 

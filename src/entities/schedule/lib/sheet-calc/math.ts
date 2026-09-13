@@ -1,14 +1,8 @@
-// 서버 Calculator 미러링 — 반올림·집계 순수 유틸.
-// 도메인 지식이 없는 수치 연산만 담는다(공식은 formula.ts, 단위변환은 convert.ts).
+import { roundHalfUp } from "@shared/lib";
 
-// BigDecimal HALF_UP(부호 무관 반올림, .5는 절대값 증가)과 동일. fp 표현오차는 미세 nudge로 흡수.
-export const roundHalfUp = (value: number, scale: number): number => {
-  if (!Number.isFinite(value)) return value;
-  const factor = 10 ** scale;
-  const scaled = Math.abs(value) * factor;
-  const rounded = Math.round(scaled + 1e-9);
-  return (value < 0 ? -rounded : rounded) / factor;
-};
+// 서버 Calculator 미러링 — 집계 순수 유틸.
+// 도메인 지식이 없는 수치 연산만 담는다(공식은 formula.ts, 단위변환은 convert.ts).
+// 반올림(`roundHalfUp`, BigDecimal HALF_UP 미러)은 도메인 무관이라 `@shared/lib` 에 있다.
 
 // null은 0으로 취급해 평균(scale HALF_UP). 비어 있으면 0. (Calculator.averageTreatNullAsZero)
 export const averageTreatNullAsZero = (

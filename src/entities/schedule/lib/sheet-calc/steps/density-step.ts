@@ -1,6 +1,7 @@
+import { roundHalfUp } from "@shared/lib";
+
 import { STANDARD_MOLAR_VOLUME as SM } from "../constants";
 import type { SheetCalcContext, SheetCalcStep } from "../context";
-import { roundHalfUp } from "../math";
 
 // DensityStep — 표준상태 배출가스밀도(round 2)와 현장조건 밀도(round 3).
 // 현장조건 밀도는 반올림 전 원시 표준밀도를 쓴다.

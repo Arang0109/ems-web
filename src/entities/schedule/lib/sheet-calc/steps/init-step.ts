@@ -1,7 +1,9 @@
+import { roundHalfUp } from "@shared/lib";
+
 import type { SheetCalcStep } from "../context";
 import { toKelvin } from "../convert";
 import { stackCircleArea } from "../formula";
-import { averageTreatNullAsZero, roundHalfUp } from "../math";
+import { averageTreatNullAsZero } from "../math";
 import type { SheetCalcExternals } from "../types";
 
 // InitStep — 단면적, 규정 측정점 수, 측정점 평균(Tg·Pv·Ps).

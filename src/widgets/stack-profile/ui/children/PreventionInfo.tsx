@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Plus, SquarePen } from "lucide-react";
 import type { Prevention } from "@entities/stack";
 import { RegisterPreventionForm } from "@features/register-prevention";
 import { UpdatePreventionForm, useReorderPreventions } from "@features/update-prevention";
-import { formatNumber } from "@shared/lib";
+import { displayValue, formatNumber } from "@shared/lib";
 import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
@@ -12,7 +12,6 @@ import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { DragHandle, SortableList, type SortableControls } from "@shared/ui/sortable";
 import { useRemountKey } from "@shared/model";
 
-import { value } from "../../model/mapper";
 
 interface Props {
   stackId: number;
@@ -91,9 +90,9 @@ export const PreventionInfo = ({ stackId, preventions, onRefetch }: Props) => {
       {/* 방지시설명은 SubAccordion 제목이 이미 보여주므로 행으로 반복하지 않는다 */}
       <DetailGrid>
         {/* capacity 는 number | null — toFormValue 로 되돌려야 null 이 "null" 이 되지 않는다 */}
-        <DetailRow label="대상물질" value={value(prevention.targetName)} />
-        <DetailRow label="용량" value={`${value(formatNumber(prevention.capacity))} ${value(prevention.unit)}`} />
-        <DetailRow label="제거 효율" value={value(prevention.removalEfficiency)} />
+        <DetailRow label="대상물질" value={displayValue(prevention.targetName)} />
+        <DetailRow label="용량" value={`${displayValue(formatNumber(prevention.capacity))} ${displayValue(prevention.unit)}`} />
+        <DetailRow label="제거 효율" value={displayValue(prevention.removalEfficiency)} />
       </DetailGrid>
     </SubAccordion>
   );

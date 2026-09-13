@@ -1,6 +1,6 @@
 import type { MeasurementRecord } from "@entities/measurement-record";
 import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
-import { formatNumber } from "@shared/lib";
+import { displayValue, formatNumber } from "@shared/lib";
 import { measurementUnitText } from "@shared/model";
 
 /** 연도 선택의 "전체 기간". 숫자 연도와 한 값으로 다루려고 상수로 둔다. */
@@ -48,7 +48,7 @@ export type HistoryItem = {
  * 미량 항목(예: 0.0004 ppm)이 0 으로 보인다.
  */
 export const formatMeasure = (value: number | null): string =>
-  value === null ? "-" : formatNumber(value, { maxDecimals: 6 });
+  displayValue(formatNumber(value, { maxDecimals: 6 }));
 
 /** 이력에 실제로 존재하는 연도만 최신순으로 준다 — 측정이 없는 연도를 고르게 두지 않는다. */
 export const toHistoryYears = (records: MeasurementRecord[]): number[] => {

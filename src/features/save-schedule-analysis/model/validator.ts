@@ -1,3 +1,5 @@
+import { toNumberOrNull } from "@shared/lib";
+
 import { hasAnalysisInput, type AnalysisRowForm } from "./types";
 
 /**
@@ -28,7 +30,7 @@ export const validateAnalysisRows = (rows: AnalysisRowForm[]): Record<number, st
       errors[row.pollutantId] = "측정분석값을 입력해주세요.";
       continue;
     }
-    if (value !== "" && !Number.isFinite(Number(value.replace(/,/g, "")))) {
+    if (value !== "" && toNumberOrNull(value) === null) {
       errors[row.pollutantId] = "측정분석값은 숫자로 입력해주세요.";
     }
   }

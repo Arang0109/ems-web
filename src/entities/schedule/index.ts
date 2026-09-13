@@ -46,7 +46,14 @@ export { useScheduleAnalyses, useFetchScheduleAnalyses } from './model/use-sched
 export { useSaveSamplingTimesAction } from './model/use-save-sampling-times-action';
 export { useSaveAnalysisResultsAction } from './model/use-save-analysis-results-action';
 
-export { calcSheetPreview, getSheetCalcExternals, calcRequiredPointCount } from './lib/sheet-calc';
+export {
+  calcSheetPreview,
+  getSheetCalcExternals,
+  calcRequiredPointCount,
+  convertMmH2OToMmHg,
+  toCelsius,
+  convertPerHourToPerMinute,
+} from './lib/sheet-calc';
 export type { SheetCalcExternals, SheetCalcPreview, SheetCalcPointPreview, PitotCoefficient } from './lib/sheet-calc';
 export { calcNozzleRecommendations } from './lib/nozzle-recommend';
 export type { NozzleRecommendation } from './lib/nozzle-recommend';

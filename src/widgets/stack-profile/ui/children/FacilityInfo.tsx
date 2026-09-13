@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, Plus, SquarePen } from "lucide-react";
 import type { Facility } from "@entities/stack";
 import { RegisterFacilityForm } from "@features/register-facility";
 import { UpdateFacilityForm, useReorderFacilities } from "@features/update-facility";
+import { displayValue } from "@shared/lib";
 import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
@@ -11,7 +12,6 @@ import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { DragHandle, SortableList, type SortableControls } from "@shared/ui/sortable";
 import { useRemountKey } from "@shared/model";
 
-import { value } from "../../model/mapper";
 
 interface Props {
   stackId: number;
@@ -89,12 +89,12 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
     >
       {/* 배출시설명은 SubAccordion 제목이 이미 보여주므로 행으로 반복하지 않는다 */}
       <DetailGrid cols={3}>
-        <DetailRow label="연료 사용량" value={value(facility.fuelUsage)} />
-        <DetailRow label="제품 생산량" value={value(facility.productOutput)} />
-        <DetailRow label="소각량" value={value(facility.incinerationAmount)} />
-        <DetailRow label="원료 투입량" value={value(facility.fuelInput)} />
-        <DetailRow label="종류" value={value(facility.fuelType)} />
-        <DetailRow label="단위" value={value(facility.unit)} />
+        <DetailRow label="연료 사용량" value={displayValue(facility.fuelUsage)} />
+        <DetailRow label="제품 생산량" value={displayValue(facility.productOutput)} />
+        <DetailRow label="소각량" value={displayValue(facility.incinerationAmount)} />
+        <DetailRow label="원료 투입량" value={displayValue(facility.fuelInput)} />
+        <DetailRow label="종류" value={displayValue(facility.fuelType)} />
+        <DetailRow label="단위" value={displayValue(facility.unit)} />
       </DetailGrid>
     </SubAccordion>
   );

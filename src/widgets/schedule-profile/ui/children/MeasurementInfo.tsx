@@ -8,7 +8,7 @@ import { UpdateScheduleStackForm } from "@features/update-schedule-stack";
 import { UpdateScheduleItemsForm } from "@features/update-schedule-items";
 import { UpdateScheduleItemForm } from "@features/update-schedule-item";
 import { UpdateScheduleBasicInfoForm } from "@features/update-schedule-basic-info";
-import { formatBusinessNumber } from "@shared/lib";
+import { displayValue, formatBusinessNumber } from "@shared/lib";
 import { MEASUREMENT_TYPE_LABEL } from "@shared/config";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
@@ -16,7 +16,7 @@ import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { useRemountKey } from "@shared/model";
 
 import {
-  value, fieldLabel, gradeLabel, shapeLabel, orientationLabel, describeDimension,
+  fieldLabel, gradeLabel, shapeLabel, orientationLabel, describeDimension,
   groupPollutantsByCycle,
 } from "../../model/mapper";
 
@@ -99,15 +99,15 @@ export const MeasurementInfo = ({
         defaultOpen={true}
       >
         <DetailGrid>
-          <DetailRow label="관리 번호 (문서 번호)" value={value(schedule?.referenceNumber)} />
+          <DetailRow label="관리 번호 (문서 번호)" value={displayValue(schedule?.referenceNumber)} />
           {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
-          <DetailRow label="측정 일자" value={value(schedule?.sampledAt)} />
+          <DetailRow label="측정 일자" value={displayValue(schedule?.sampledAt)} />
           <DetailRow label="측정 분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
           <DetailRow
             label="측정 용도"
             value={purposeLabel(schedule?.schedulePurpose ?? null)}
           />
-          <DetailRow label="측정 팀" value={value(team.teamName)} />
+          <DetailRow label="측정 팀" value={displayValue(team.teamName)} />
         </DetailGrid>
       </SectionAccordion>
 
@@ -127,18 +127,18 @@ export const MeasurementInfo = ({
         action={editAction("측정시설 정보 수정", () => setStackEditOpen(true))}
       >
         <DetailGrid>
-          <DetailRow label="측정시설" value={value(stack.name)} />
-          <DetailRow label="SEMS 번호" value={value(stack.semsNumber)} />
+          <DetailRow label="측정시설" value={displayValue(stack.name)} />
+          <DetailRow label="SEMS 번호" value={displayValue(stack.semsNumber)} />
           <DetailRow label="측정시설 종별" value={gradeLabel(stack.grade)} />
-          <DetailRow label="주요 생산품" value={value(stack.mainProduct)} />
+          <DetailRow label="주요 생산품" value={displayValue(stack.mainProduct)} />
           <DetailRow label="방향" value={orientationLabel(stack.orientation)} />
           <DetailRow label="형태" value={shapeLabel(stack.shape)} />
           <DetailRow
             label="지름 / 크기"
             value={describeDimension(stack.shape, stack.horizontalLength, stack.verticalLength)}
           />
-          <DetailRow label="측정공 높이 (m)" value={value(stack.height)} />
-          <DetailRow label="기준산소농도 (%)" value={value(stack.standardOxygen)} />
+          <DetailRow label="측정공 높이 (m)" value={displayValue(stack.height)} />
+          <DetailRow label="기준산소농도 (%)" value={displayValue(stack.standardOxygen)} />
         </DetailGrid>
       </SectionAccordion>
 
@@ -147,8 +147,8 @@ export const MeasurementInfo = ({
         action={editAction("의뢰기관 정보 수정", () => setClientEditOpen(true))}
       >
         <DetailGrid>
-          <DetailRow label="의뢰기관" value={value(client.name)} />
-          <DetailRow label="사업장" value={value(workplace.name)} />
+          <DetailRow label="의뢰기관" value={displayValue(client.name)} />
+          <DetailRow label="사업장" value={displayValue(workplace.name)} />
           <DetailRow
             label="사업자번호"
             value={client.bizNumber ? formatBusinessNumber(client.bizNumber) : "-"}
@@ -157,13 +157,13 @@ export const MeasurementInfo = ({
           <DetailRow
             label="사업장주소"
             span="full"
-            value={value(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
+            value={displayValue(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
           />
           {/* 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 채취 스냅샷이 보유한다.
               수정도 이 폼이 아니라 성적서 진행 일자(PATCH /report-dates) 소관이다. */}
-          <DetailRow label="배출시설 관리자" value={value(samplingData?.facilityManager)} />
-          <DetailRow label="시료채취 입회자" value={value(samplingData?.samplingWitness)} />
-          <DetailRow label="업종" value={value(workplace.businessCategory)} />
+          <DetailRow label="배출시설 관리자" value={displayValue(samplingData?.facilityManager)} />
+          <DetailRow label="시료채취 입회자" value={displayValue(samplingData?.samplingWitness)} />
+          <DetailRow label="업종" value={displayValue(workplace.businessCategory)} />
           <DetailRow label="사업장 종별" value={gradeLabel(workplace.grade)} />
         </DetailGrid>
       </SectionAccordion>

@@ -13,7 +13,7 @@ import {
   checkMoistureWeightGain, describeMoistureWeightGain, getMoistureWeightGain,
 } from "../../model/validator";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
-import { Divider } from "@/shared/ui/borders/Divider";
+import { Divider } from "@shared/ui/borders";
 
 interface Props extends SectionShellProps, FieldStateProps {
   moisture: MoistureForm;
@@ -21,8 +21,6 @@ interface Props extends SectionShellProps, FieldStateProps {
   editable: boolean;
   onChange: (patch: Partial<MoistureForm>) => void;
 }
-
-const display = (v: number | null | undefined): string => (v == null ? "-" : String(v));
 
 /*
  * 칸별 자릿수 근거 (`maxIntDigits`/`maxDecimals`) — 계측기의 표시 범위에서 따온다.
@@ -94,7 +92,6 @@ export const MoistureSection = ({
           label="흡습된 수분무게"
           unit="g"
           readOnly
-          // value={display(calc?.ma)}
           value={formatNumber(calc?.ma, {minDecimals:2})}
         />)}
         <div className="col-span-2">
@@ -187,7 +184,7 @@ export const MoistureSection = ({
           label="흡인량"
           unit="L"
           readOnly
-          value={display(calc?.vm_g)}
+          value={formatNumber(calc?.vm_g, {minDecimals:3})}
         />)}
       </div>
       {isMobile && <Divider />}

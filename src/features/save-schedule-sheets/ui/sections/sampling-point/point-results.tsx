@@ -1,16 +1,12 @@
 import type { ReactNode } from "react";
 
-import type { SheetCalcPreview } from "@entities/schedule";
-import { toNumberOrNull } from "@shared/lib";
+import { toCelsius, type SheetCalcPreview } from "@entities/schedule";
 import type { CalcResultItem } from "@shared/ui/form";
 
 import { POINT_RESULT_HINT } from "../../../model/field-hints";
+import { averageOfInputs } from "../../../model/input-average";
 import type { SamplingPointForm } from "../../../model/types";
 import { FLOW_FIELDS, ISOKINETIC_FIELDS, type PointField } from "./point-fields";
-
-/** 값이 없으면 `-`. 표기는 표시하는 쪽이 정하므로 계산부는 원값을 그대로 돌려준다. */
-export const display = (value: number | null | undefined): string =>
-  value == null ? "-" : String(value);
 
 /** 지점별 계산 결과 한 행 — 입력이 아니라 파생값이다. */
 export interface PointResult {
@@ -30,14 +26,6 @@ export interface PointGroup {
   results: PointResult[];
 }
 
-// 표시 전용 입력값 평균 (DGM 온도 행의 평균열) — 입력된 값만, 소수 1자리.
-const avgOfInputs = (values: string[]): number | null => {
-  const nums = values.map(toNumberOrNull).filter((v): v is number => v !== null);
-  if (nums.length === 0) return null;
-
-  return Math.round((nums.reduce((a, v) => a + v, 0) / nums.length) * 10) / 10;
-};
-
 /**
  * 지점별 입력값의 평균. 계산 미리보기가 제공하는 값이 있으면 그것을, 없으면 입력 평균을 쓴다.
  * 평균이 의미 없는 항목(적산값·게이지압 등)은 `null` 이다.
@@ -50,12 +38,12 @@ export const averageOf = (
   const quantity = preview?.quantity ?? null;
 
   switch (field) {
-    case "Ts": return quantity?.avgTg == null ? null : quantity.avgTg - 273;
+    case "Ts": return toCelsius(quantity?.avgTg);
     case "Pv": return quantity?.avgPv;
     case "Ps": return quantity?.avgPs;
     case "samplingTime": return preview?.particle?.totalSamplingTime;
     case "inTm":
-    case "outTm": return avgOfInputs(points.map((p) => p[field]));
+    case "outTm": return averageOfInputs(points.map((p) => p[field]), 1);
     default: return null;
   }
 };

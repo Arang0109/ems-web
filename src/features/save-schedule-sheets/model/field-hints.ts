@@ -25,7 +25,8 @@ export const MOISTURE_HINT = {
 } as const;
 
 export const EXHAUST_GAS_HINT = {
-  gasAnalyzer: "측정 시간은 15분으로 설정됩니다.",
+  gasAnalyzer: "가스분석기 측정 시작 시각입니다.\n측정 시간은 15분으로 설정됩니다.",
+  thcAnalyzer: "THC 측정 시작 시각입니다.\n측정 시간은 30분으로 설정됩니다.",
   standardOxygen:
     "측정시설에 등록된 표준산소농도입니다.",
   o2CorrectionFactor:

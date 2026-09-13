@@ -44,7 +44,7 @@ export const ExhaustGasSection = ({
 
   const columns: InputTableColumn<GasRow>[] = [
     {
-      kind: "label", header: "항목", width: LABEL_WIDTH, align: "left",
+      kind: "label", header: "항목", width: LABEL_WIDTH, align: "center",
       render: (row) => (
         <>
           {row.label} ({row.unit})
@@ -77,9 +77,9 @@ export const ExhaustGasSection = ({
       title="배출가스 정보"
       subtitle="O₂, CO₂, CO, NOx, SOx 측정값을 입력합니다."
     >
-      <div className="grid grid-cols-1 gap-x-5 gap-y-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-3 md:grid-cols-4">
         <UnitField
-          label="가스분석기 측정 시작시각" type="time"
+          label="가스분석기 측정" type="time"
           hint={EXHAUST_GAS_HINT.gasAnalyzer}
           value={exhaustGas.gasAnalyzerStartTime} disabled={!editable}
           tone={fieldTone(fieldPath.exhaustTime("gasAnalyzerStartTime"))}
@@ -88,7 +88,8 @@ export const ExhaustGasSection = ({
         />
         {visiblePollutants.thc && (
           <UnitField
-            label="THC 측정 시작시각" required type="time"
+            label="THC 측정" type="time"
+            hint={EXHAUST_GAS_HINT.thcAnalyzer}
             value={exhaustGas.thcAnalyzerStartTime} disabled={!editable}
             tone={fieldTone(fieldPath.exhaustTime("thcAnalyzerStartTime"))}
             onFocus={() => onFieldFocus(fieldPath.exhaustTime("thcAnalyzerStartTime"))}

@@ -4,16 +4,11 @@ import {
   MEASUREMENT_FIELD_LABEL, GRADE_LABEL, SHAPE_LABEL, ORIENTATION_LABEL,
   PITOT_TUBE_TYPE_LABEL, MEASUREMENT_CYCLE_LABEL, EQUIP_SPEC_FIELD_LABEL,
 } from "@shared/config";
+import { displayValue } from "@shared/lib";
 import { EQUIP_TYPE, MEASUREMENT_CYCLE } from "@shared/model";
 import type { EquipType, MeasurementCycle, Shape } from "@shared/model";
 
 import type { EquipmentSpecItem, PollutantChipItem, PollutantCycleGroup, ReportItem } from "./types";
-
-export const value = (v?: string | number | null): string => {
-  if (v === null || v === undefined) return "-";
-  const s = String(v).trim();
-  return s === "" ? "-" : s;
-};
 
 export const fieldLabel = (v?: string | null): string =>
   v ? (MEASUREMENT_FIELD_LABEL[v as keyof typeof MEASUREMENT_FIELD_LABEL] ?? v) : "-";
@@ -28,8 +23,8 @@ export const orientationLabel = (v?: string | null): string =>
 export const describeDimension = (
   shape: Shape, horizontal: number | null, vertical: number | null,
 ): string => {
-  if (shape === "CIRCULAR") return `${value(horizontal)} m`;
-  if (shape === "RECTANGULAR") return `${value(horizontal)} m × ${value(vertical)} m`;
+  if (shape === "CIRCULAR") return `${displayValue(horizontal)} m`;
+  if (shape === "RECTANGULAR") return `${displayValue(horizontal)} m × ${displayValue(vertical)} m`;
   return "-";
 };
 
@@ -48,15 +43,15 @@ export const describeEquipmentSpec = (equip: EquipmentSnapshot): EquipmentSpecIt
     case "PARTICLE_SAMPLER": {
       const s = spec as Extract<EquipmentSpec, { orificeDp: number }>;
       return [
-        { label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: value(s.totalVolume) },
-        { label: EQUIP_SPEC_FIELD_LABEL.orificeDp, value: value(s.orificeDp) },
-        { label: EQUIP_SPEC_FIELD_LABEL.yd, value: value(s.yd) },
+        { label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: displayValue(s.totalVolume) },
+        { label: EQUIP_SPEC_FIELD_LABEL.orificeDp, value: displayValue(s.orificeDp) },
+        { label: EQUIP_SPEC_FIELD_LABEL.yd, value: displayValue(s.yd) },
       ];
     }
     case "GAS_SAMPLER":
     case "OTHER": {
       const s = spec as Extract<EquipmentSpec, { totalVolume: number }>;
-      return [{ label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: value(s.totalVolume) }];
+      return [{ label: EQUIP_SPEC_FIELD_LABEL.totalVolume, value: displayValue(s.totalVolume) }];
     }
     case "PITOT_TUBE": {
       const s = spec as Extract<EquipmentSpec, { pitotTubeType: unknown }>;
@@ -109,10 +104,10 @@ export const groupPollutantsByCycle = (
       key: `stack-pollutant-${row.id}`,
       pollutantId: pollutant.id,
       stackPollutantId: row.id,
-      name: value(pollutant.nameKr),
+      name: displayValue(pollutant.nameKr),
       // 허용기준·산소보정은 측정 당시 값이 정확하므로 포함 항목은 스냅샷 값을 쓴다.
-      allowance: value(item ? item.allowance : pollutant.allowance),
-      standardOxygen: value(standardOxygen),
+      allowance: displayValue(item ? item.allowance : pollutant.allowance),
+      standardOxygen: displayValue(standardOxygen),
       oxygenApplicable: item ? item.oxygenApplicable : pollutant.oxygenApplicable,
     };
 
@@ -131,9 +126,9 @@ export const groupPollutantsByCycle = (
         key: `item-${item.stackPollutantId}`,
         pollutantId: item.pollutantId,
         stackPollutantId: item.stackPollutantId,
-        name: value(item.nameKr),
-        allowance: value(item.allowance),
-        standardOxygen: value(standardOxygen),
+        name: displayValue(item.nameKr),
+        allowance: displayValue(item.allowance),
+        standardOxygen: displayValue(standardOxygen),
         oxygenApplicable: item.oxygenApplicable,
       });
     });
@@ -153,8 +148,8 @@ export const toReportItems = (
   items.map((item) => ({
     // SortableList 가 id: number 를 요구한다. 측정계획 문서 안에서 측정물질은 유일하다.
     id: item.pollutantId,
-    name: value(item.nameKr),
-    allowance: value(item.allowance),
-    standardOxygen: value(standardOxygen),
+    name: displayValue(item.nameKr),
+    allowance: displayValue(item.allowance),
+    standardOxygen: displayValue(standardOxygen),
     oxygenApplicable: item.oxygenApplicable,
   }));

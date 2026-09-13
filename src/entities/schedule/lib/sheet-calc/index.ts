@@ -11,3 +11,6 @@ export { getSheetCalcExternals } from "./externals";
 
 // 같은 lib 안의 파생 계산(nozzle-recommend)이 공유하는 상수
 export { DEFAULT_DELTA_H, K_FACTOR_CONST, MOISTURE_RATIO } from "./constants";
+
+// 화면·기록지가 계산 결과를 다른 단위로 보여줄 때 쓰는 환산 — 호출부가 공식을 다시 적지 않는다
+export { convertMmH2OToMmHg, toCelsius, convertPerHourToPerMinute } from "./convert";

@@ -1,9 +1,11 @@
+import { roundHalfUp } from "@shared/lib";
+
 import type { SamplingPoint } from "../../../model/types";
 import { DEFAULT_DELTA_H, ISO_CONST, K_FACTOR_CONST, MOISTURE_RATIO } from "../constants";
 import type { SheetCalcContext, SheetCalcStep } from "../context";
 import { convertMmH2OToMmHg, toKelvin } from "../convert";
 import { gasVelocityRaw, nozzleArea } from "../formula";
-import { averageOrNull, compactNumbers, roundHalfUp, sumOrNull } from "../math";
+import { averageOrNull, compactNumbers, sumOrNull } from "../math";
 import type { SheetCalcPointPreview } from "../types";
 
 // ParticleStep — 측정점별 등속흡인 계산 + 입자상 집계.

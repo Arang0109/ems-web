@@ -1,10 +1,16 @@
-import type { NozzleRecommendation, SheetCalcPreview } from "@entities/schedule";
+import {
+  convertPerHourToPerMinute, type NozzleRecommendation, type SheetCalcPreview,
+} from "@entities/schedule";
+import { roundHalfUp } from "@shared/lib";
 import type { CalcResultItem } from "@shared/ui/form";
 
 import { PARTICLE_HINT, WEATHER_HINT } from "../../model/field-hints";
-import { formatNumber } from "@shared/lib";
 
-const hrToMin = (v: number | null | undefined): number => v == null || Number.isNaN(v) ? 0 : v/60;
+/** 시간당 유량의 분당 표기 — 원값과 같은 소수 1자리. 없으면 `null` 을 넘겨 그리드가 `—` 를 찍게 둔다. */
+const perMinute = (perHour: number | null | undefined): number | null => {
+  const v = convertPerHourToPerMinute(perHour);
+  return v == null ? null : roundHalfUp(v, 1);
+};
 
 /**
  * 계산 결과 드로어가 그리는 묶음들.
@@ -44,12 +50,12 @@ export const flowItems = (preview: SheetCalcPreview | null): CalcResultItem[] =>
     { label: "피토우관 계수", value: quantity?.Cp, hint: PARTICLE_HINT.Cp },
     { label: "배출가스 밀도", value: quantity?.gasDensity, hint: PARTICLE_HINT.gasDensity },
     { label: "습윤 유량", value: quantity?.quantity, unit: "m³/hr", hint: PARTICLE_HINT.quantity },
-    { label: "습윤 유량", value: formatNumber(hrToMin(quantity?.quantity), {maxDecimals:1}), unit: "m³/min" },
+    { label: "습윤 유량", value: perMinute(quantity?.quantity), unit: "m³/min" },
     {
       label: "표준 유량", value: quantity?.standardQuantity,
       unit: "Sm³/hr", hint: PARTICLE_HINT.standardQuantity, hintLabel: "표준 유량 설명",
     },
-    { label: "표준 유량", value: formatNumber(hrToMin(quantity?.standardQuantity), {maxDecimals:1}), unit: "Sm³/min", },
+    { label: "표준 유량", value: perMinute(quantity?.standardQuantity), unit: "Sm³/min" },
   ];
 };
 
@@ -65,6 +71,6 @@ export const nozzleEstimateItems = (estimate: NozzleRecommendation | null): Calc
   },
   {
     label: "예상 채취량", value: estimate?.Vm, unit: "m³",
-    hint: PARTICLE_HINT.estimatedVm,
+    hint: PARTICLE_HINT.recommendationHelp,
   },
 ];

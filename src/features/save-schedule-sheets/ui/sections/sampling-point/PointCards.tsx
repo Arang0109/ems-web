@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { ArrowDownToLine } from "lucide-react";
 
 import type { SheetCalcPreview } from "@entities/schedule";
+import { displayValue } from "@shared/lib";
 import { SubAccordion } from "@shared/ui/accordion";
 import { Badge } from "@shared/ui/badges";
 import { Button } from "@shared/ui/buttons";
@@ -14,7 +15,7 @@ import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
 import {
   ISOKINETIC_FIELDS, NOZZLE_BASIS_AFTER, VM_RESULT_AFTER, type PointField,
 } from "./point-fields";
-import { display, isokineticResults, vmResult } from "./point-results";
+import { isokineticResults, vmResult } from "./point-results";
 import type { FieldStateProps } from "../shell-props";
 
 interface Props extends FieldStateProps {
@@ -111,12 +112,12 @@ export const PointCards = ({
                     )}
                     {f.field === VM_RESULT_AFTER && (
                       <>
-                        <CalcResultRow label={vm.label} value={display(vm.value(i))} unit="m³" className="col-span-2" />
+                        <CalcResultRow label={vm.label} value={displayValue(vm.value(i))} unit="m³" className="col-span-2" />
                         {isokineticResults(preview).map((r) => (
                           <CalcResultRow
                             key={String(r.name)}
                             label={r.label}
-                            value={display(r.value(i))}
+                            value={displayValue(r.value(i))}
                             unit={r.unit}
                             className="col-span-2"
                           />

@@ -1,3 +1,5 @@
+import { toNumberOrNull } from "@shared/lib";
+
 import type { ScheduleStackUpdateForm } from "./types";
 
 const NUMERIC_FIELDS = [
@@ -26,7 +28,7 @@ export const validateScheduleStackFields = (form: ScheduleStackUpdateForm) => {
   // standardOxygen·mainProduct는 선택 항목이라 빈 값을 허용한다.
   for (const key of NUMERIC_FIELDS) {
     const raw = form[key].trim();
-    if (raw && Number.isNaN(Number(raw.replace(/[,\s]/g, "")))) {
+    if (raw && toNumberOrNull(raw) === null) {
       errors[key] = "숫자만 입력해주세요.";
     }
   }
