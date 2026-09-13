@@ -11,10 +11,8 @@ import { Divider } from "@shared/ui/borders";
 import { Button } from "@shared/ui/buttons";
 import { StatusDot } from "@shared/ui/badges";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import {
-  measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions,
-} from "@shared/model";
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
+import { measurementFieldOptions, pollutantPhaseOptions } from "@shared/model";
+import type { MeasurementField, PollutantPhase } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -91,6 +89,7 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             required
           />
         </div>
+        {/* 측정방법은 카탈로그가 갖지 않는다 — 업체마다 다를 수 있어 고객사가 채택할 때 정한다. */}
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="nameKr"
@@ -102,16 +101,6 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             error={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
-          />
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Select
-            id="method"
-            label="측정방법"
-            placeholder="측정방법 선택"
-            options={measurementMethodOptions}
-            value={form.method}
-            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
           />
           <Select
             id="phase"

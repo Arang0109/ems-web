@@ -1,4 +1,4 @@
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model"
+import type { MeasurementField, PollutantPhase } from "@shared/model"
 
 /** `GET /platform/pollutant-catalog` 쿼리. 서버 기본값은 `includeInactive=false` 다. */
 export type PollutantCatalogListQuery = {
@@ -12,7 +12,6 @@ export type PollutantCatalogResponse = {
   code: string,
   field: MeasurementField,
   nameKr: string,
-  method: MeasurementMethod | null,
   phase: PollutantPhase | null,
   sortOrder: number | null,
   active: boolean
@@ -20,6 +19,7 @@ export type PollutantCatalogResponse = {
 
 /**
  * 영문명·시험장비·시험방법은 가이드가 보유하지 않는다 — 고객사가 채택한 뒤 직접 입력하는 값이다.
+ * 측정방법도 가이드가 갖지 않는다 — 같은 물질이라도 업체마다 다를 수 있어 고객사가 채택 시 정한다.
  *
  * `code` 는 등록할 때만 정한다 — 측정계획 스냅샷과 프론트 분기 로직이 이 값에 의존해
  * 서버가 수정을 허용하지 않는다.
@@ -28,7 +28,6 @@ export type PollutantCatalogRegisterRequest = {
   code: string,
   field: MeasurementField,
   nameKr: string,
-  method: MeasurementMethod | null,
   phase: PollutantPhase | null,
   sortOrder: number | null
 }
@@ -37,7 +36,6 @@ export type PollutantCatalogRegisterRequest = {
 export type PollutantCatalogUpdateRequest = {
   field: MeasurementField,
   nameKr: string,
-  method: MeasurementMethod | null,
   phase: PollutantPhase | null,
   sortOrder: number | null
 }

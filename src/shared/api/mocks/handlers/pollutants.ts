@@ -8,13 +8,13 @@ const BASE_URL = 'http://localhost:8080/api';
  * 실제 서버는 `catalog/pollutant-catalog.json` 시드로 채운다.
  *
  * 영문명·시험장비·시험방법은 **가이드가 보유하지 않는다** — 채택한 뒤 고객사가 입력하는 값이다.
+ * 측정방법도 가이드가 갖지 않는다 — 같은 물질이라도 업체마다 다를 수 있어 채택 시 고객사가 정한다.
  */
 type CatalogRow = {
   id: number;
   code: string;
   field: MeasurementField;
   nameKr: string;
-  method: MeasurementMethod | null;
   phase: PollutantPhase | null;
   sortOrder: number;
   active: boolean;
@@ -22,11 +22,13 @@ type CatalogRow = {
 
 /**
  * 고객사가 채택한 측정물질. 가이드에 없는 물질은 만들 수 없으므로 `catalogId` 는 필수다.
- * 담긴 값은 전부 고객사 소유값이고, `code`·`field`·`method`·`phase` 는 조회 시 가이드에서 투영한다.
+ * 담긴 값은 전부 고객사 소유값이고, `code`·`field`·`phase` 는 조회 시 가이드에서 투영한다.
+ * `method` 는 채택 시 고객사가 정한다 — 이관 전 채택분은 null 일 수 있다.
  */
 type PollutantRow = {
   id: number;
   catalogId: number;
+  method: MeasurementMethod | null;
   nameKr: string;
   nameEn: string | null;
   equipment: string | null;
@@ -35,32 +37,33 @@ type PollutantRow = {
 
 // 수정·삭제 결과가 목록에 반영되도록 모듈 스코프 store 로 둔다(새로고침하면 초기화).
 export const pollutantCatalog: CatalogRow[] = [
-  { id: 1,  code: 'TSP',   field: 'AIR',             nameKr: '먼지',                 method: 'DUST',                phase: 'PARTICLE', sortOrder: 100, active: true },
-  { id: 2,  code: 'PM10',  field: 'AIR',             nameKr: '미세먼지',             method: 'DUST',                phase: 'PARTICLE', sortOrder: 110, active: true },
-  { id: 3,  code: 'SOX',   field: 'AIR',             nameKr: '황산화물',             method: 'FIELD_MEASUREMENT',   phase: 'GAS',      sortOrder: 210, active: true },
-  { id: 4,  code: 'NOX',   field: 'AIR',             nameKr: '질소산화물',           method: 'FIELD_MEASUREMENT',   phase: 'GAS',      sortOrder: 200, active: true },
-  { id: 5,  code: 'HCL',   field: 'AIR',             nameKr: '염화수소',             method: 'ABSORPTION_SOLUTION', phase: 'GAS',      sortOrder: 250, active: true },
-  { id: 6,  code: 'CO',    field: 'AIR',             nameKr: '일산화탄소',           method: 'FIELD_MEASUREMENT',   phase: 'GAS',      sortOrder: 220, active: true },
-  { id: 7,  code: 'THC',   field: 'AIR',             nameKr: '총탄화수소',           method: 'FIELD_MEASUREMENT',   phase: 'GAS',      sortOrder: 320, active: true },
-  { id: 8,  code: 'PB',    field: 'AIR',             nameKr: '납',                   method: 'HEAVY_METAL',         phase: 'PARTICLE', sortOrder: 500, active: true },
+  { id: 1,  code: 'TSP',   field: 'AIR',             nameKr: '먼지',                 phase: 'PARTICLE', sortOrder: 100, active: true },
+  { id: 2,  code: 'PM10',  field: 'AIR',             nameKr: '미세먼지',             phase: 'PARTICLE', sortOrder: 110, active: true },
+  { id: 3,  code: 'SOX',   field: 'AIR',             nameKr: '황산화물',             phase: 'GAS',      sortOrder: 210, active: true },
+  { id: 4,  code: 'NOX',   field: 'AIR',             nameKr: '질소산화물',           phase: 'GAS',      sortOrder: 200, active: true },
+  { id: 5,  code: 'HCL',   field: 'AIR',             nameKr: '염화수소',             phase: 'GAS',      sortOrder: 250, active: true },
+  { id: 6,  code: 'CO',    field: 'AIR',             nameKr: '일산화탄소',           phase: 'GAS',      sortOrder: 220, active: true },
+  { id: 7,  code: 'THC',   field: 'AIR',             nameKr: '총탄화수소',           phase: 'GAS',      sortOrder: 320, active: true },
+  { id: 8,  code: 'PB',    field: 'AIR',             nameKr: '납',                   phase: 'PARTICLE', sortOrder: 500, active: true },
   // phase 를 비워 둔 항목 — 가이드도 선택 항목은 null 일 수 있다
-  { id: 9,  code: 'BOD',   field: 'WATER',           nameKr: '생물화학적산소요구량', method: 'FIELD_MEASUREMENT',   phase: null,       sortOrder: 100, active: true },
-  { id: 10, code: 'COD',   field: 'WATER',           nameKr: '화학적산소요구량',     method: 'FIELD_MEASUREMENT',   phase: null,       sortOrder: 110, active: true },
-  { id: 11, code: 'SS',    field: 'WATER',           nameKr: '부유물질',             method: 'FIELD_MEASUREMENT',   phase: 'PARTICLE', sortOrder: 120, active: true },
+  { id: 9,  code: 'BOD',   field: 'WATER',           nameKr: '생물화학적산소요구량', phase: null,       sortOrder: 100, active: true },
+  { id: 10, code: 'COD',   field: 'WATER',           nameKr: '화학적산소요구량',     phase: null,       sortOrder: 110, active: true },
+  { id: 11, code: 'SS',    field: 'WATER',           nameKr: '부유물질',             phase: 'PARTICLE', sortOrder: 120, active: true },
   // 대기 납과 code 가 같지만 분야가 달라 별개 물질이다 — code 만으로 물질을 특정할 수 없음을 보여준다
-  { id: 12, code: 'PB',    field: 'WATER',           nameKr: '납',                   method: 'HEAVY_METAL',         phase: null,       sortOrder: 300, active: true },
-  { id: 13, code: 'NOISE', field: 'NOISE_VIBRATION', nameKr: '소음',                 method: 'FIELD_MEASUREMENT',   phase: null,       sortOrder: 100, active: true },
-  { id: 14, code: 'NH3',   field: 'ODOR',            nameKr: '암모니아',             method: 'ABSORPTION_SOLUTION', phase: 'GAS',      sortOrder: 100, active: true },
+  { id: 12, code: 'PB',    field: 'WATER',           nameKr: '납',                   phase: null,       sortOrder: 300, active: true },
+  { id: 13, code: 'NOISE', field: 'NOISE_VIBRATION', nameKr: '소음',                 phase: null,       sortOrder: 100, active: true },
+  { id: 14, code: 'NH3',   field: 'ODOR',            nameKr: '암모니아',             phase: 'GAS',      sortOrder: 100, active: true },
   // 폐지된 가이드 항목 — 새로 채택할 수 없어 후보에서 빠진다
-  { id: 15, code: 'CS2',   field: 'AIR',             nameKr: '이황화탄소',           method: 'ABSORPTION_SOLUTION', phase: 'GAS',      sortOrder: 300, active: false },
+  { id: 15, code: 'CS2',   field: 'AIR',             nameKr: '이황화탄소',           phase: 'GAS',      sortOrder: 300, active: false },
 ];
 
 const pollutants: PollutantRow[] = [
-  { id: 101, catalogId: 4, nameKr: '질소산화물', nameEn: 'Nitrogen Oxides', equipment: '자동가스분석기', testMethod: 'ES 01303.2 (사내)' },
+  { id: 101, catalogId: 4, method: 'FIELD_MEASUREMENT', nameKr: '질소산화물', nameEn: 'Nitrogen Oxides', equipment: '자동가스분석기', testMethod: 'ES 01303.2 (사내)' },
   // 채택만 해 두고 영문명·분석 정보는 아직 비운 상태
-  { id: 102, catalogId: 1, nameKr: '먼지', nameEn: null, equipment: null, testMethod: null },
-  // 폐지된 가이드 항목을 이미 채택해 쓰는 중 — 목록에는 계속 보이고 후보에서만 빠진다
-  { id: 103, catalogId: 15, nameKr: '이황화탄소', nameEn: 'Carbon Disulfide', equipment: '흡수병', testMethod: 'ES 01405.1' },
+  { id: 102, catalogId: 1, method: 'DUST', nameKr: '먼지', nameEn: null, equipment: null, testMethod: null },
+  // 폐지된 가이드 항목을 이미 채택해 쓰는 중 — 목록에는 계속 보이고 후보에서만 빠진다.
+  // 측정방법 이관 전에 채택한 행이라 method 가 비어 있다 — 수정 화면에서 채운다.
+  { id: 103, catalogId: 15, method: null, nameKr: '이황화탄소', nameEn: 'Carbon Disulfide', equipment: '흡수병', testMethod: 'ES 01405.1' },
 ];
 
 const findCatalog = (catalogId: number) => pollutantCatalog.find((c) => c.id === catalogId);
@@ -68,8 +71,8 @@ const findCatalog = (catalogId: number) => pollutantCatalog.find((c) => c.id ===
 const sortOrderOf = (catalogId: number) => findCatalog(catalogId)?.sortOrder ?? 0;
 
 /**
- * 고객사 소유값에 가이드 투영값(code·field·method·phase)을 얹는다.
- * 서버 `PollutantEntityMapper.toDomain` 과 같은 규칙이다.
+ * 고객사 소유값에 가이드 투영값(code·field·phase)을 얹는다.
+ * 서버 `PollutantEntityMapper.toDomain` 과 같은 규칙이다. `method` 는 고객사 값이라 그대로 싣는다.
  */
 const toResponse = (pollutant: PollutantRow) => {
   const base = findCatalog(pollutant.catalogId);
@@ -81,7 +84,7 @@ const toResponse = (pollutant: PollutantRow) => {
     field: base?.field ?? 'AIR',
     nameKr: pollutant.nameKr,
     nameEn: pollutant.nameEn,
-    method: base?.method ?? null,
+    method: pollutant.method,
     phase: base?.phase ?? null,
     equipment: pollutant.equipment,
     testMethod: pollutant.testMethod,
@@ -93,7 +96,6 @@ const toCandidate = (base: CatalogRow) => ({
   code: base.code,
   field: base.field,
   nameKr: base.nameKr,
-  method: base.method,
   phase: base.phase,
   sortOrder: base.sortOrder,
 });
@@ -175,11 +177,19 @@ export const pollutantHandlers = [
         { status: 409 },
       );
     }
+    // 서버 CreatePollutantRequest.method 는 @NotNull 이다.
+    if (!body.method) {
+      return HttpResponse.json(
+        { status: false, message: '측정방법은 필수입니다.', data: null },
+        { status: 400 },
+      );
+    }
 
     // nameKr 을 비우면 가이드의 표준 국문명을 복사한다.
     const created: PollutantRow = {
       id: Date.now(),
       catalogId: base.id,
+      method: body.method,
       nameKr: body.nameKr?.trim() || base.nameKr,
       nameEn: body.nameEn ?? null,
       equipment: body.equipment ?? null,
@@ -205,6 +215,7 @@ export const pollutantHandlers = [
     }
 
     // 서버는 전달되지 않았거나 빈 문자열인 필드를 기존 값으로 유지하고, catalogId 는 받지 않는다.
+    // method 도 같은 규칙이다 — null 이면 기존 값 유지.
     const body = await request.json() as Record<string, unknown>;
     const updated = { ...pollutants[index] };
     for (const [key, value] of Object.entries(body)) {

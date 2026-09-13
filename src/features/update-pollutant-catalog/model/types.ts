@@ -1,5 +1,5 @@
 import type { PollutantCatalog } from "@entities/pollutant-catalog";
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
+import type { MeasurementField, PollutantPhase } from "@shared/model";
 import { toFormValue } from "@shared/lib";
 
 /**
@@ -9,7 +9,6 @@ import { toFormValue } from "@shared/lib";
 export type PollutantCatalogUpdateForm = {
   field: MeasurementField;
   nameKr: string;
-  method: MeasurementMethod | "";
   phase: PollutantPhase | "";
   sortOrder: string;
 };
@@ -18,7 +17,6 @@ export type PollutantCatalogUpdateForm = {
 export const getDefaultForm = (catalog: PollutantCatalog | null): PollutantCatalogUpdateForm => ({
   field: catalog?.field ?? "AIR",
   nameKr: catalog?.nameKr ?? "",
-  method: catalog?.method ?? "",
   phase: catalog?.phase ?? "",
   // String(null) 이 "null" 문자열로 새는 것을 막는다 (루트 CLAUDE.md 의 toFormValue 규칙)
   sortOrder: toFormValue(catalog?.sortOrder ?? null),

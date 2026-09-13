@@ -4,9 +4,9 @@ import { useRegisterPollutant } from "../model/hooks/use-register-pollutant";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import {
-  MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
-} from "@shared/config";
+import { MEASUREMENT_FIELD_LABEL, POLLUTANT_PHASE_LABEL } from "@shared/config";
+import { measurementMethodOptions } from "@shared/model";
+import type { MeasurementMethod } from "@shared/model";
 
 // Icon
 import { FlaskConical, FileText, Hash, Plus } from "lucide-react";
@@ -24,7 +24,8 @@ const EMPTY = "—";
  * 측정물질 등록 — 지원 물질 가이드에서 **채택**한다.
  *
  * 고객사는 가이드에 없는 물질을 만들 수 없으므로 이 폼의 첫 입력은 가이드 항목 선택이다.
- * 측정분야·측정방법·형태는 가이드가 정하므로 입력받지 않고 선택 결과만 보여 준다.
+ * 측정분야·형태는 가이드가 정하므로 입력받지 않고 선택 결과만 보여 준다.
+ * 측정방법은 같은 물질이라도 업체마다 다를 수 있어(이황화메틸: 테드라백·카트리지) 고객사가 직접 고른다.
  */
 export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) => {
   const {
@@ -78,14 +79,10 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
 
         {/* 가이드가 정하는 값이라 입력받지 않는다 — 무엇을 고른 것인지 확인만 시켜 준다. */}
         {selectedCandidate && (
-          <dl className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
+          <dl className="grid grid-cols-2 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
             <div>
               <dt className="text-muted-foreground">측정분야</dt>
               <dd>{MEASUREMENT_FIELD_LABEL[selectedCandidate.field]}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">측정방법</dt>
-              <dd>{selectedCandidate.method ? MEASUREMENT_METHOD_LABEL[selectedCandidate.method] : EMPTY}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">상</dt>
@@ -97,6 +94,19 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
         <Divider />
 
         <SectionTitle>우리 회사 관리 정보</SectionTitle>
+        {/* 측정방법은 가이드가 정하지 않는다 — 우리 회사가 이 물질에 쓰는 방법을 고른다. */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="method"
+            label="측정방법"
+            placeholder="측정방법 선택"
+            options={measurementMethodOptions}
+            value={form.method}
+            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
+            helperText={fieldErrors?.method ?? "같은 물질이라도 회사마다 다를 수 있어 직접 정합니다."}
+            required
+          />
+        </div>
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="nameKr"

@@ -12,6 +12,7 @@ import { trimValue } from "@shared/lib";
  * (값을 지우는 방법은 없다 — 다른 값으로 덮어쓰기만 가능하다).
  */
 export const toPollutantUpdate = (form: PollutantUpdateForm): PollutantUpdate => ({
+  method: form.method || null,
   nameKr: trimValue(form.nameKr) || null,
   nameEn: trimValue(form.nameEn) || null,
   equipment: trimValue(form.equipment) || null,

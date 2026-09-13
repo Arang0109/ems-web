@@ -8,10 +8,10 @@ import type { Pollutant } from "@entities/pollutant";
 // UI
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
-import { FieldGroup, InputGroup, SectionTitle } from "@shared/ui/form";
-import {
-  MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
-} from "@shared/config";
+import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
+import { MEASUREMENT_FIELD_LABEL, POLLUTANT_PHASE_LABEL } from "@shared/config";
+import { measurementMethodOptions } from "@shared/model";
+import type { MeasurementMethod } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -26,8 +26,9 @@ const EMPTY = "—";
 /**
  * 측정물질 상세 편집.
  *
- * 측정분야·측정방법·형태는 지원 물질 가이드가 단일 진실 소스라 여기서 바꿀 수 없다
- * (법령이 개정되면 가이드를 통해 자동으로 반영된다). 편집 대상은 표기명과 분석 정보뿐이다.
+ * 측정분야·형태는 지원 물질 가이드가 단일 진실 소스라 여기서 바꿀 수 없다
+ * (법령이 개정되면 가이드를 통해 자동으로 반영된다). 편집 대상은 측정방법·표기명·분석 정보다.
+ * 측정방법은 같은 물질이라도 회사마다 다를 수 있어 고객사가 직접 정한다.
  */
 export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }: Props) => {
   const close = () => {
@@ -62,14 +63,10 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
         </div>
 
         {/* 가이드 소유값 — 읽기 전용이다. */}
-        <dl className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
+        <dl className="grid grid-cols-2 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
           <div>
             <dt className="text-muted-foreground">측정분야</dt>
             <dd>{MEASUREMENT_FIELD_LABEL[pollutant.field]}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">측정방법</dt>
-            <dd>{pollutant.method ? MEASUREMENT_METHOD_LABEL[pollutant.method] : EMPTY}</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">상</dt>
@@ -77,8 +74,21 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
           </div>
         </dl>
         <p className="text-body-4 text-muted-foreground">
-          측정분야·측정방법·상은 법령 가이드가 정하므로 수정할 수 없습니다.
+          측정분야·상은 법령 가이드가 정하므로 수정할 수 없습니다.
         </p>
+
+        {/* 측정방법은 고객사 소유값 — 이관 전에 채택한 물질은 비어 있을 수 있어 여기서 채운다. */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="method"
+            label="측정방법"
+            placeholder="측정방법 선택"
+            options={measurementMethodOptions}
+            value={form.method}
+            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
+            helperText="같은 물질이라도 회사마다 다를 수 있어 직접 정합니다."
+          />
+        </div>
 
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup

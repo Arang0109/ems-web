@@ -30,7 +30,6 @@ export const toPollutantCandidate = (dto: PollutantCandidateResponse): Pollutant
   code: dto.code,
   field: dto.field,
   nameKr: dto.nameKr,
-  method: dto.method,
   phase: dto.phase,
   sortOrder: dto.sortOrder,
 });
@@ -45,6 +44,7 @@ const trimOrNull = (value: string | null): string | null =>
 
 export const toRegisterRequest = (vo: PollutantCreate): PollutantRegisterRequest => ({
   catalogId: vo.catalogId,
+  method: vo.method,
   nameKr: trimOrNull(vo.nameKr),
   nameEn: trimOrNull(vo.nameEn),
   equipment: trimOrNull(vo.equipment),
@@ -52,6 +52,7 @@ export const toRegisterRequest = (vo: PollutantCreate): PollutantRegisterRequest
 });
 
 export const toUpdateRequest = (vo: PollutantUpdate): PollutantUpdateRequest => ({
+  method: vo.method,
   nameKr: trimOrNull(vo.nameKr),
   nameEn: trimOrNull(vo.nameEn),
   equipment: trimOrNull(vo.equipment),

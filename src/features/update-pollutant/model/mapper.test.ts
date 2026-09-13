@@ -21,6 +21,7 @@ const pollutant: Pollutant = {
 describe("toPollutantUpdate", () => {
   it("고객사가 관리하는 값만 담는다", () => {
     expect(toPollutantUpdate(getDefaultForm(pollutant))).toEqual({
+      method: "FIELD_MEASUREMENT",
       nameKr: "질소산화물",
       nameEn: "Nitrogen Oxides",
       equipment: "자동가스분석기",
@@ -54,5 +55,18 @@ describe("toPollutantUpdate", () => {
     expect(input.nameEn).toBeNull();
     expect(input.equipment).toBeNull();
     expect(input.testMethod).toBeNull();
+  });
+
+  it("측정방법을 고치면 그대로 실린다", () => {
+    const form = { ...getDefaultForm(pollutant), method: "CARTRIDGE" as const };
+
+    expect(toPollutantUpdate(form).method).toBe("CARTRIDGE");
+  });
+
+  // 이관 전 채택분은 method 가 비어 있다 — 미선택은 null 로 보내 서버가 기존 값을 유지하게 한다.
+  it("측정방법을 고르지 않으면 null 이다", () => {
+    const legacy: Pollutant = { ...pollutant, method: null };
+
+    expect(toPollutantUpdate(getDefaultForm(legacy)).method).toBeNull();
   });
 });
