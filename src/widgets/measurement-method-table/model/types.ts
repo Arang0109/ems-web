@@ -8,4 +8,6 @@ export type MeasurementMethodTableRow = {
   mergedSampleName: string;
   /** `30분` 표기. 미지정은 EMPTY */
   samplingMinutes: string;
+  /** `1.5 L/min` 표기. 미지정은 EMPTY */
+  suctionFlowRate: string;
 };

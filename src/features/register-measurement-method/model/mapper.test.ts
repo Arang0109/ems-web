@@ -16,6 +16,7 @@ describe("toMeasurementMethodCreate", () => {
       sampleGrouping: "MERGED",
       mergedSampleName: "VOCs",
       samplingMinutes: 30,
+      suctionFlowRate: null,
       sortOrder: null,
     });
   });

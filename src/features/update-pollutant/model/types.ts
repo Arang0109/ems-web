@@ -12,6 +12,7 @@ import { toFormValue } from "@shared/lib";
 export type PollutantUpdateForm = {
   methodId: string;
   samplingMinutes: string;
+  suctionFlowRate: string;
   nameKr: string;
   nameEn: string;
   equipment: string;
@@ -22,6 +23,7 @@ export type PollutantUpdateForm = {
 export const getDefaultForm = (pollutant: Pollutant | null): PollutantUpdateForm => ({
   methodId: pollutant?.methodId != null ? String(pollutant.methodId) : "",
   samplingMinutes: toFormValue(pollutant?.samplingMinutes),
+  suctionFlowRate: toFormValue(pollutant?.suctionFlowRate),
   nameKr: pollutant?.nameKr ?? "",
   nameEn: pollutant?.nameEn ?? "",
   equipment: pollutant?.equipment ?? "",

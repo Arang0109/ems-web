@@ -18,6 +18,9 @@ export const toPollutantRow = (col: Pollutant): PollutantTableRow => ({
   samplingMinutes: col.effectiveSamplingMinutes == null
     ? EMPTY
     : `${col.effectiveSamplingMinutes}분${col.samplingMinutes != null && col.sampleGrouping !== 'MERGED' ? ' (항목)' : ''}`,
+  suctionFlowRate: col.effectiveSuctionFlowRate == null
+    ? EMPTY
+    : `${col.effectiveSuctionFlowRate} L/min${col.suctionFlowRate != null && col.sampleGrouping !== 'MERGED' ? ' (항목)' : ''}`,
   phase: col.phase ? POLLUTANT_PHASE_LABEL[col.phase] : EMPTY,
   equipment: col.equipment || EMPTY,
   testMethod: col.testMethod || EMPTY,

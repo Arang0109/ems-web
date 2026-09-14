@@ -7,7 +7,7 @@ import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
 import { MEASUREMENT_FIELD_LABEL, MEASUREMENT_MODE_LABEL, POLLUTANT_PHASE_LABEL } from "@shared/config";
 
 // Icon
-import { Clock, FlaskConical, FileText, Hash, Plus } from "lucide-react";
+import { Clock, FlaskConical, FileText, Gauge, Hash, Plus } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -135,6 +135,20 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
             invalid={!!fieldErrors?.samplingMinutes}
             error={fieldErrors?.samplingMinutes}
             startIcon={<Clock />}
+          />
+          {/* 항목별 흡인유량 — 흡수액은 물질마다 유량이 정해져 있다. 통칭 시료(VOCs·VOCs-T)는 측정방법이 정한다. */}
+          <InputGroup
+            id="suctionFlowRate"
+            type="number"
+            label="항목 흡인유량 (L/min)"
+            value={isMerged ? "" : form.suctionFlowRate}
+            onChange={(value) => handleChange("suctionFlowRate", value)}
+            disabled={!selectedMethod || isMerged}
+            min={0}
+            maxDecimals={3}
+            invalid={!!fieldErrors?.suctionFlowRate}
+            error={fieldErrors?.suctionFlowRate}
+            startIcon={<Gauge />}
           />
         </div>
         <div className="grid md:grid-cols-2 gap-4">

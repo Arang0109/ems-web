@@ -30,14 +30,20 @@ export type Pollutant = {
    * 방법의 표준값을 덮어쓴다. 없으면 null. 통칭 채취(MERGED) 항목에는 둘 수 없다.
    */
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   /** 측정방법 투영값. `methodId` 가 null 이면 전부 비어 있다 */
   methodName: string,
   sampleGrouping: SampleGrouping | null,
   mergedSampleName: string,
   /** 측정방법의 표준 채취시간(분). 미지정은 null */
   methodSamplingMinutes: number | null,
+  /** 측정방법의 표준 흡인유량(L/min). 미지정은 null */
+  methodSuctionFlowRate: number | null,
   /** 이 항목에 실제 적용되는 채취시간(분). 화면은 이것을 보여 준다 */
   effectiveSamplingMinutes: number | null,
+  /** 이 항목에 실제 적용되는 흡인유량(L/min). 통칭 채취면 방법 값, 아니면 `suctionFlowRate ?? methodSuctionFlowRate` */
+  effectiveSuctionFlowRate: number | null,
   /** 가이드가 비워 둘 수 있는 선택 항목이라 미지정을 null 로 구분한다 */
   phase: PollutantPhase | null,
   /** 측정방식 분류(카탈로그 전역 사실). 회사 측정방법을 쪼개도 이 축으로 묶인다 */
@@ -70,6 +76,8 @@ export type PollutantCreate = {
   catalogId: number,
   methodId: number,
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   nameKr: string | null,
   nameEn: string | null,
   equipment: string | null,
@@ -84,6 +92,8 @@ export type PollutantCreate = {
 export type PollutantUpdate = {
   methodId: number | null,
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   nameKr: string | null,
   nameEn: string | null,
   equipment: string | null,

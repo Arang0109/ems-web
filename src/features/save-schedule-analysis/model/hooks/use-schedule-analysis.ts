@@ -117,24 +117,25 @@ export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Para
    *
    * 통칭 시료 한 행이 여러 항목으로 펴진다 — `VOCs` 09:00~10:00 은 포름알데히드·아세트알데히드
    * 두 행에 같은 시각으로 들어간다. 근거는 시료 행의 `pollutantIds` 이며, 그것이 없는
-   * 옛 기록지·수동 행은 가져올 것이 없다.
+   * 옛 기록지·수동 행은 가져올 것이 없다. 입자상 기록지의 시각은 시료 행이 아니라 시트 집계에
+   * 있고 항목과의 대응은 측정항목의 `mode` 가 정하므로 `items` 를 함께 넘긴다.
    *
    * 덮어쓰기이므로 무엇이 바뀌는지 먼저 밝히고 확인받는다.
    */
   const importSamplingTimes = async () => {
-    const times = collectSamplingTimes(sheets);
+    const times = collectSamplingTimes(sheets, items);
     const changes = countSamplingTimeChanges(rows, times);
 
     if (changes === 0) {
       toast.info(
         times.size === 0
-          ? "기록지에서 가져올 채취시각이 없습니다. 가스상 물질 표에 채취시각을 먼저 입력하세요."
+          ? "기록지에서 가져올 채취시각이 없습니다. 기록지에 채취시각을 먼저 입력하세요."
           : "기록지의 채취시각이 이미 표에 반영돼 있습니다.",
       );
       return;
     }
 
-    const ambiguous = countAmbiguousPollutants(sheets);
+    const ambiguous = countAmbiguousPollutants(sheets, items);
     const isConfirmed = await confirm({
       title: "기록지의 채취시각을 가져올까요?",
       description: `${changes}개 항목의 채취시각이 기록지 값으로 바뀝니다.`

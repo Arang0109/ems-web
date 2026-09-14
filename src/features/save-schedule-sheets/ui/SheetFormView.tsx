@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Check } from "lucide-react";
 
 import type { SheetCalcExternals, SheetCalcPreview } from "@entities/schedule";
-import { addMinutes } from "@shared/lib";
 import type { SectionHighlight } from "@shared/ui/accordion";
 import { Button } from "@shared/ui/buttons";
 import { useRemountKey } from "@shared/model";
@@ -15,21 +14,22 @@ import {
   getDefaultSampleForm,
   isParticleCategory,
 } from "../model/types";
-import { getProgressTone, getSectionProgress, type SheetSectionId } from "../model/section-progress";
+import type { SheetSectionId } from "../model/sections";
+import { getProgressTone, getSectionProgress } from "../model/input/section-progress";
 import { sectionDomId, type SectionNav } from "../model/hooks/use-section-nav";
-import { fieldPath, getMissingRequiredFields } from "../model/required-fields";
-import type { AssignedPollutants, ExhaustGasVisibility } from "../model/measured-pollutants";
-import { getExhaustGasVisibility, hasSavedExhaustGasValue } from "../model/measured-pollutants";
+import { fieldPath, getMissingRequiredFields } from "../model/input/required-fields";
+import type { AssignedPollutants, ExhaustGasVisibility } from "../model/input/measured-pollutants";
+import { getExhaustGasVisibility, hasSavedExhaustGasValue } from "../model/input/measured-pollutants";
 import {
   DEFAULT_TARGET_VOLUME, calcNozzleEstimates, findNozzleEstimate, getNozzleMissingInputs,
-} from "../model/nozzle-estimate";
-import { calcParticleSamplingMinutes } from "../model/derived-times";
-import { appendPoint, applyPointPatch, copyPreviousPointValues } from "../model/point-chain";
-import type { GasSampleGroup } from "../model/gaseous-rows";
-import { toSampleForm } from "../model/gaseous-rows";
-import type { SampleRules } from "../model/sample-rules";
-import { getIsokineticDisplay, getSampleEndTime } from "../model/sample-rules";
-import { checkMoistureWeightGain } from "../model/validator";
+} from "../model/derived/nozzle-estimate";
+import { withParticleEndTime } from "../model/derived/derived-times";
+import { appendPoint, applyPointPatch, copyPreviousPointValues } from "../model/input/point-chain";
+import type { GasSampleGroup } from "../model/gaseous/gaseous-rows";
+import { toSampleForm } from "../model/gaseous/gaseous-rows";
+import type { SampleRules } from "../model/gaseous/sample-rules";
+import { applySamplePatch, calcIsokineticDisplay } from "../model/gaseous/sample-rules";
+import { checkMoistureWeightGain } from "../model/input/validator";
 import type { SheetFieldState } from "./sheet-field-state";
 import { WeatherSection } from "./sections/WeatherSection";
 import { MoistureSection } from "./sections/MoistureSection";
@@ -65,19 +65,6 @@ interface Props {
   nav: Pick<SectionNav, "isOpen" | "setSectionOpen" | "goToSection">;
   onChange: (updater: (sheet: SheetForm) => SheetForm) => void;
 }
-
-// 채취 종료시간 = 시작시간 + Σ지점별 채취시간(분). 시작이 없으면 빈 값.
-// 합산 규칙은 타임라인과 공유한다 — 두 곳이 다른 종료시각을 말하면 안 된다.
-const calcSamplingEndTime = (start: string, points: SamplingPointForm[]): string =>
-  addMinutes(start, calcParticleSamplingMinutes(points)) ?? "";
-
-const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
-  ...sheet,
-  particle: {
-    ...sheet.particle,
-    samplingEndTime: calcSamplingEndTime(sheet.particle.samplingStartTime, sheet.samplingPoints),
-  },
-});
 
 export const SheetFormView = ({
   sheet, previewCalc, externals, assignedPollutants, unassignedGroups, sampleRules, unresolvedItemNames,
@@ -183,39 +170,31 @@ export const SheetFormView = ({
     onChange((s) => {
       const next = { ...s, samplingPoints: applyPointPatch(s.samplingPoints, index, patch) };
       // 채취시간이 바뀌면 종료시간을 재계산한다.
-      return "samplingTime" in patch ? withAutoEndTime(next) : next;
+      return "samplingTime" in patch ? withParticleEndTime(next) : next;
     });
 
   // 새 지점도 채취시간(공통값)을 물려받으므로 종료시간이 그만큼 늘어난다.
   const addPoint = () =>
-    onChange((s) => withAutoEndTime({ ...s, samplingPoints: appendPoint(s.samplingPoints) }));
+    onChange((s) => withParticleEndTime({ ...s, samplingPoints: appendPoint(s.samplingPoints) }));
 
   const removePoint = (index: number) =>
-    onChange((s) => withAutoEndTime({
+    onChange((s) => withParticleEndTime({
       ...s,
       samplingPoints: s.samplingPoints.filter((_, i) => i !== index),
     }));
 
   // 채취시간도 함께 복사되므로 종료시간을 다시 계산한다.
   const copyPreviousPoint = (index: number) =>
-    onChange((s) => withAutoEndTime({
+    onChange((s) => withParticleEndTime({
       ...s,
       samplingPoints: copyPreviousPointValues(s.samplingPoints, index),
     }));
 
-  // 시작시각이 바뀌면 종료시각을 시작 + 표준 채취시간으로 따라 움직인다 — 입자상 섹션의 withAutoEndTime 과 같은 규약.
-  // 채취시간이 없는 항목·등속흡인 행(시각이 입자상 사본)은 getSampleEndTime 이 null 을 주므로 기존 값을 둔다.
-  const withSampleEndTime = (sample: SampleForm, patch: Partial<SampleForm>): SampleForm => {
-    const next = { ...sample, ...patch };
-    if (!("startTime" in patch)) return next;
-    const endTime = getSampleEndTime(next.startTime, next.pollutantIds, sampleRules);
-    return endTime === null ? next : { ...next, endTime };
-  };
-
+  // 시작시각이 바뀌면 종료시각이, 시각·흡인유량이 바뀌면 시료채취량이 따라온다 — 입자상 섹션의 withParticleEndTime 과 같은 규약.
   const patchSample = (index: number, patch: Partial<SampleForm>) =>
     onChange((s) => ({
       ...s,
-      samples: s.samples.map((sp, i) => (i === index ? withSampleEndTime(sp, patch) : sp)),
+      samples: s.samples.map((sp, i) => (i === index ? applySamplePatch(sp, patch, sampleRules) : sp)),
     }));
 
   const addSample = () => onChange((s) => ({ ...s, samples: [...s.samples, getDefaultSampleForm()] }));
@@ -246,7 +225,7 @@ export const SheetFormView = ({
   const patchParticle = (patch: Partial<ParticleForm>) =>
     onChange((s) => {
       const next = { ...s, particle: { ...s.particle, ...patch } };
-      return "samplingStartTime" in patch ? withAutoEndTime(next) : next;
+      return "samplingStartTime" in patch ? withParticleEndTime(next) : next;
     });
 
   const nozzleOptions = externals.nozzleDiameters.map((d) => ({ value: String(d), label: `${d} cm` }));
@@ -320,7 +299,7 @@ export const SheetFormView = ({
         samples={sheet.samples}
         unassignedGroups={unassignedGroups}
         sampleRules={sampleRules}
-        isokineticDisplayOf={(sample) => getIsokineticDisplay(sample, sheet, previewCalc, sampleRules)}
+        isokineticDisplayOf={(sample) => calcIsokineticDisplay(sample, sheet, previewCalc, sampleRules)}
         unresolvedItemNames={unresolvedItemNames}
         editable={editable}
         onSampleChange={patchSample}

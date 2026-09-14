@@ -1,4 +1,4 @@
-import { Clock, Hash, FlaskConical, FileText } from "lucide-react";
+import { Clock, Gauge, Hash, FlaskConical, FileText } from "lucide-react";
 
 import { useUpdatePollutant } from "../model/hooks/use-update-pollutant";
 import { useDeletePollutant } from "../model/hooks/use-delete-pollutant";
@@ -49,6 +49,7 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
   // 목록을 아직 못 받았으면 원장 투영값으로 판단한다.
   const isMerged = (selectedMethod?.sampleGrouping ?? pollutant.sampleGrouping) === "MERGED";
   const methodDefault = selectedMethod?.samplingMinutes ?? pollutant.methodSamplingMinutes;
+  const methodFlowRate = selectedMethod?.suctionFlowRate ?? pollutant.methodSuctionFlowRate;
 
   return (
     <FormDialog
@@ -127,6 +128,30 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
                 : "이 항목에만 적용됩니다. 측정방법 표준값은 측정방법 관리에서 바꿉니다."
             }
             startIcon={<Clock />}
+          />
+          {/* 항목별 흡인유량 — 흡수액은 물질마다 유량이 정해져 있다. 통칭 시료(VOCs·VOCs-T)는 측정방법이 정한다. */}
+          <InputGroup
+            id="suctionFlowRate"
+            type="number"
+            label="항목 흡인유량 (L/min)"
+            placeholder={
+              isMerged ? "통칭 채취는 측정방법 값을 따릅니다"
+                : methodFlowRate != null ? `비우면 ${methodFlowRate} L/min(측정방법 표준)`
+                : "비우면 측정방법 표준값을 따릅니다"
+            }
+            value={isMerged ? "" : form.suctionFlowRate}
+            onChange={(value) => handleChange("suctionFlowRate", value)}
+            disabled={isMerged}
+            min={0}
+            maxDecimals={3}
+            invalid={!!fieldErrors?.suctionFlowRate}
+            error={fieldErrors?.suctionFlowRate}
+            helperText={
+              isMerged
+                ? "한 병으로 함께 채취하는 방법은 측정방법 관리에서 유량을 바꿉니다."
+                : "이 항목에만 적용됩니다. 측정방법 표준값은 측정방법 관리에서 바꿉니다."
+            }
+            startIcon={<Gauge />}
           />
         </div>
 

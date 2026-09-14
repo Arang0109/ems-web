@@ -11,10 +11,10 @@ import { Drawer } from "@shared/ui/drawer";
 import { CalcResultGrid, InputGroup, UnitField } from "@shared/ui/form";
 import { Tabs } from "@shared/ui/tabs";
 
-import { PARTICLE_HINT } from "../../model/field-hints";
-import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
-import type { NozzleMissingGroup } from "../../model/nozzle-estimate";
-import type { SheetSectionId } from "../../model/section-progress";
+import { PARTICLE_HINT } from "../../model/input/field-hints";
+import type { ExhaustGasVisibility } from "../../model/input/measured-pollutants";
+import type { NozzleMissingGroup } from "../../model/derived/nozzle-estimate";
+import type { SheetSectionId } from "../../model/sections";
 import type { ParticleForm, SamplingPointForm } from "../../model/types";
 import { exhaustGasAvgItems } from "../sections/exhaust-gas-rows";
 import { buildPointGroups, pointAverageItems } from "../sections/sampling-point/point-results";

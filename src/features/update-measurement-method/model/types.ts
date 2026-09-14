@@ -12,6 +12,7 @@ export type MeasurementMethodUpdateForm = {
   sampleGrouping: SampleGrouping | "";
   mergedSampleName: string;
   samplingMinutes: string;
+  suctionFlowRate: string;
 };
 
 /** prop 은 useState 초기값으로만 쓴다 — 다시 열 때의 초기화는 부모의 key 리마운트가 담당한다. */
@@ -20,4 +21,5 @@ export const getDefaultForm = (method: MeasurementMethod | null): MeasurementMet
   sampleGrouping: method?.sampleGrouping ?? "",
   mergedSampleName: method?.mergedSampleName ?? "",
   samplingMinutes: toFormValue(method?.samplingMinutes),
+  suctionFlowRate: toFormValue(method?.suctionFlowRate),
 });

@@ -12,10 +12,11 @@ import { TableLabelCell } from "@shared/ui/table";
 
 import type { ScheduleBasicInfoForm, SheetForm } from "../../model/types";
 import {
-  calcMoistureSamplingMinutes, getGasAnalyzerEndTime, getThcAnalyzerEndTime,
-} from "../../model/derived-times";
-import { averageOfInputs } from "../../model/input-average";
-import { calcWallDistances, getSectionRadiusCm } from "../../model/wall-distances";
+  calcMoistureSamplingMinutes, calcGasAnalyzerEndTime, calcThcAnalyzerEndTime,
+} from "../../model/derived/derived-times";
+import { averageOfInputs } from "../../model/derived/input-average";
+import { calcSuctionFlowRate, litersOf } from "../../model/derived/suction";
+import { calcWallDistances, getSectionRadiusCm } from "../../model/derived/wall-distances";
 import { StackCrossSection } from "./StackCrossSection";
 
 // 종이 기록지(대기시료 채취기록지) 재현 — 표시 전용. 구버전 ReportPreviewContent 이식.
@@ -101,12 +102,8 @@ export const ReportPreviewContent = ({
     return totalVm * (273 / (273 + avgTmC)) * ((preview.weather.pa + deltaHmmHg) / 760);
   })();
 
-  // 흡입유량(L/min) — 총 채취량 ÷ 총 채취시간
-  const suctionFlowRate = (() => {
-    const minutes = particleCalc?.totalSamplingTime ?? null;
-    if (totalVm == null || minutes == null || minutes === 0) return null;
-    return (totalVm * 1000) / minutes;
-  })();
+  // 흡입유량(L/min) — 총 채취량 ÷ 총 채취시간. 식은 등속흡인 행 파생과 같은 곳(derived/suction)에서 온다.
+  const suctionFlowRate = calcSuctionFlowRate(litersOf(totalVm), particleCalc?.totalSamplingTime ?? null);
 
   const startVolume = toNumberOrNull(points[0]?.beforeVm ?? "");
   const nozzleSize = toNumberOrNull(sheet.particle.nozzleSize);
@@ -297,7 +294,7 @@ export const ReportPreviewContent = ({
               <TableLabelCell rowSpan={2} colSpan={2}>여과지홀더 온도</TableLabelCell>
               <TableLabelCell rowSpan={2} colSpan={2}>임핀저<br />출구온도</TableLabelCell>
               <TableLabelCell>채취 전</TableLabelCell>
-              <VCell>{startVolume == null ? "0.00" : formatNumber(startVolume * 1000, {minDecimals:2})}</VCell>
+              <VCell>{startVolume == null ? "0.00" : formatNumber(litersOf(startVolume), {minDecimals:2})}</VCell>
             </tr>
             <tr>
               <TableLabelCell>Ts</TableLabelCell>
@@ -327,8 +324,8 @@ export const ReportPreviewContent = ({
                   <VCell colSpan={2}>{formatNumber(pc?.orificeDp, {minDecimals:2})}</VCell>
                   <VCell colSpan={2}>{isParticle ? mp?.Ts ?? "" : ""}</VCell>
                   <VCell colSpan={2}>{mp?.finalImpingerTemperature ?? ""}</VCell>
-                  <VCell>{after == null ? "" : formatNumber(after * 1000, {minDecimals:2})}</VCell>
-                  <VCell>{before != null && after != null ? formatNumber((after - before) * 1000, {minDecimals:2}) : ""}</VCell>
+                  <VCell>{after == null ? "" : formatNumber(litersOf(after), {minDecimals:2})}</VCell>
+                  <VCell>{before != null && after != null ? formatNumber(litersOf(after - before), {minDecimals:2}) : ""}</VCell>
                 </tr>
               );
             })}
@@ -338,7 +335,7 @@ export const ReportPreviewContent = ({
               <TableLabelCell colSpan={2}>합 계</TableLabelCell>
               <VCell colSpan={2}>{particleCalc?.totalSamplingTime ?? ""}</VCell>
               <td colSpan={18} className="border border-border bg-muted/40" />
-              <VCell>{totalVm == null ? "" : formatNumber(totalVm * 1000, {minDecimals:2})}</VCell>
+              <VCell>{totalVm == null ? "" : formatNumber(litersOf(totalVm), {minDecimals:2})}</VCell>
             </tr>
 
             {/* 평균 행 */}
@@ -404,13 +401,13 @@ export const ReportPreviewContent = ({
               <VCell colSpan={12}>
                 가스분석기 측정시간 ( {timeRange(
                   sheet.exhaustGas.gasAnalyzerStartTime,
-                  getGasAnalyzerEndTime(sheet.exhaustGas.gasAnalyzerStartTime),
+                  calcGasAnalyzerEndTime(sheet.exhaustGas.gasAnalyzerStartTime),
                 )} )
               </VCell>
               <VCell colSpan={6}>
                 THC 측정시간 ( {timeRange(
                   sheet.exhaustGas.thcAnalyzerStartTime,
-                  getThcAnalyzerEndTime(sheet.exhaustGas.thcAnalyzerStartTime),
+                  calcThcAnalyzerEndTime(sheet.exhaustGas.thcAnalyzerStartTime),
                 )} )
               </VCell>
             </tr>

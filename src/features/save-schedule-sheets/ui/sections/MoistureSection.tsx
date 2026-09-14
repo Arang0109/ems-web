@@ -6,12 +6,12 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
 import { formatNumber } from "@shared/lib";
 
-import { MOISTURE_HINT } from "../../model/field-hints";
-import { fieldPath } from "../../model/required-fields";
+import { MOISTURE_HINT } from "../../model/input/field-hints";
+import { fieldPath } from "../../model/input/required-fields";
 import type { MoistureForm } from "../../model/types";
 import {
-  checkMoistureWeightGain, describeMoistureWeightGain, getMoistureWeightGain,
-} from "../../model/validator";
+  checkMoistureWeightGain, describeMoistureWeightGain, calcMoistureWeightGain,
+} from "../../model/input/validator";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 import { Divider } from "@shared/ui/borders";
 
@@ -40,7 +40,7 @@ export const MoistureSection = ({
   // 법정 허용 범위를 벗어난 채취는 수분량 산정에 쓸 수 없다. 값을 고쳐 될 일이 아니라 다시
   // 채취해야 하므로, 저장을 막는 대신 입력한 자리에서 바로 알린다.
   const weightIssue = checkMoistureWeightGain(moisture);
-  const weightGain = getMoistureWeightGain(moisture);
+  const weightGain = calcMoistureWeightGain(moisture);
   
   const isMobile = useIsMobile();
 

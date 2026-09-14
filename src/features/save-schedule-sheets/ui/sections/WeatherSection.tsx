@@ -4,8 +4,8 @@ import { weatherConditionOptions, windDirectionOptions } from "@shared/model";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
 
-import { WEATHER_HINT } from "../../model/field-hints";
-import { fieldPath } from "../../model/required-fields";
+import { WEATHER_HINT } from "../../model/input/field-hints";
+import { fieldPath } from "../../model/input/required-fields";
 import type { WeatherForm } from "../../model/types";
 import type {  FieldStateProps, SectionShellProps } from "./shell-props";
 

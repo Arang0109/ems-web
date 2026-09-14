@@ -21,6 +21,10 @@ export const defaultColumns = [
     header: "표준 채취시간",
     enableSorting: false,
   }),
+  columnHelper.accessor("suctionFlowRate", {
+    header: "표준 흡인유량",
+    enableSorting: false,
+  }),
   columnHelper.display({
     id: "actions",
     cell: RowActionCell,

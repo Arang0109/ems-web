@@ -3,8 +3,8 @@ import type { SectionHighlight } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
 import { SectionAccordion } from "@shared/ui/accordion";
 
-import { REQUIRED_BASIC_INFO_FIELDS, getMissingBasicInfoFields } from "../model/required-fields";
-import { getProgressTone } from "../model/section-progress";
+import { REQUIRED_BASIC_INFO_FIELDS, getMissingBasicInfoFields } from "../model/input/required-fields";
+import { getProgressTone } from "../model/input/section-progress";
 import type { ScheduleBasicInfoForm } from "../model/types";
 
 interface Props {

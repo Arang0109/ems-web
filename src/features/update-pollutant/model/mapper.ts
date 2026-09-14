@@ -16,6 +16,7 @@ import { toNumberOrNull, trimValue } from "@shared/lib";
 export const toPollutantUpdate = (form: PollutantUpdateForm): PollutantUpdate => ({
   methodId: form.methodId ? Number(form.methodId) : null,
   samplingMinutes: toNumberOrNull(form.samplingMinutes),
+  suctionFlowRate: toNumberOrNull(form.suctionFlowRate),
   nameKr: trimValue(form.nameKr) || null,
   nameEn: trimValue(form.nameEn) || null,
   equipment: trimValue(form.equipment) || null,

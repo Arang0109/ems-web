@@ -7,6 +7,8 @@ export const validatePollutantUpdateFields = (form: PollutantUpdateForm) => {
   if (!form.nameKr.trim()) errors.nameKr = "측정물질명(한글)을 입력해주세요.";
   const minutes = form.samplingMinutes.trim();
   if (minutes && !/^\d+$/.test(minutes)) errors.samplingMinutes = "채취시간은 0 이상의 정수(분)로 입력해주세요.";
+  const flowRate = form.suctionFlowRate.trim();
+  if (flowRate && !/^\d+(\.\d+)?$/.test(flowRate)) errors.suctionFlowRate = "흡인유량은 0 이상의 숫자(L/min)로 입력해주세요.";
 
   return errors;
 };

@@ -230,6 +230,8 @@ export type MeasurementMethodSnapshotDto = {
   /** `MERGED` 일 때만 값이 있다 */
   mergedSampleName: string | null;
   samplingMinutes: number | null;
+  /** 표준 흡인유량(L/min). 통칭 시료의 유량은 이 값이 정한다. 도입 이전 문서는 null */
+  suctionFlowRate: number | null;
 };
 
 export type MeasurementItemSnapshotDto = {
@@ -261,6 +263,11 @@ export type MeasurementItemSnapshotDto = {
    * 다를 수 있다. 계획 기본값이며 실측 시각은 `analysis` 가 갖는다. 승격 이전 문서는 null.
    */
   samplingMinutes: number | null;
+  /**
+   * 이 항목에 적용되는 표준 흡인유량(L/min). 항목별 오버라이드가 반영된 값 — 새 가스상 행의 흡인유량 칸을
+   * 이 값으로 채워 시작한다. 실측값은 행이 따로 갖는다. 도입 이전 문서는 null.
+   */
+  suctionFlowRate: number | null;
   cycle: MeasurementCycle;
   allowance: number | null;
   /** 측정 시점의 산소보정 적용 여부 — 측정시설 원장(stack-pollutant)에서 스냅샷된 값 */

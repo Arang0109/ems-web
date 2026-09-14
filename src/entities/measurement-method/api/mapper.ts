@@ -11,6 +11,7 @@ export const toMeasurementMethod = (dto: MeasurementMethodResponse): Measurement
   sampleGrouping: dto.sampleGrouping,
   mergedSampleName: dto.mergedSampleName ?? '',
   samplingMinutes: dto.samplingMinutes,
+  suctionFlowRate: dto.suctionFlowRate,
   sortOrder: dto.sortOrder,
 });
 
@@ -26,6 +27,7 @@ export const toRegisterRequest = (vo: MeasurementMethodCreate): MeasurementMetho
   sampleGrouping: vo.sampleGrouping,
   mergedSampleName: trimOrNull(vo.mergedSampleName),
   samplingMinutes: vo.samplingMinutes,
+  suctionFlowRate: vo.suctionFlowRate,
   sortOrder: vo.sortOrder,
 });
 
@@ -34,4 +36,5 @@ export const toUpdateRequest = (vo: MeasurementMethodUpdate): MeasurementMethodU
   sampleGrouping: vo.sampleGrouping,
   mergedSampleName: trimOrNull(vo.mergedSampleName),
   samplingMinutes: vo.samplingMinutes,
+  suctionFlowRate: vo.suctionFlowRate,
 });

@@ -5,7 +5,7 @@ import { Badge } from "@shared/ui/badges";
 import { Button } from "@shared/ui/buttons";
 import { Popover } from "@shared/ui/popover";
 
-import type { SamplingTimeline } from "../../model/sampling-timeline";
+import type { SamplingTimeline } from "../../model/derived/sampling-timeline";
 import { SamplingTimelineView } from "./SamplingTimelineView";
 
 interface Props {

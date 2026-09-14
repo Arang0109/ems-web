@@ -7,7 +7,7 @@ import { sampleGroupingOptions } from "@shared/model";
 import type { SampleGrouping } from "@shared/model";
 
 // Icon
-import { Clock, FlaskConical, Plus, Tag } from "lucide-react";
+import { Clock, FlaskConical, Gauge, Plus, Tag } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -97,6 +97,20 @@ export const RegisterMeasurementMethodForm = ({ open, onOpenChange, onSuccess }:
             error={fieldErrors?.samplingMinutes}
             helperText="이 방법을 쓰는 모든 측정항목에 적용됩니다."
             startIcon={<Clock />}
+          />
+          <InputGroup
+            id="suctionFlowRate"
+            type="number"
+            label="표준 흡인유량 (L/min)"
+            placeholder="예: 1.0"
+            value={form.suctionFlowRate}
+            onChange={(value) => handleChange("suctionFlowRate", value)}
+            min={0}
+            maxDecimals={3}
+            invalid={!!fieldErrors?.suctionFlowRate}
+            error={fieldErrors?.suctionFlowRate}
+            helperText="통칭 시료(VOCs·VOCs-T)는 이 값이 그 병의 흡인유량입니다. 항목별 채취 방법은 측정물질에서 덮어쓸 수 있습니다."
+            startIcon={<Gauge />}
           />
         </div>
       </FieldGroup>

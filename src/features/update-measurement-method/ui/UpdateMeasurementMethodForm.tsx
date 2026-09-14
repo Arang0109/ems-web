@@ -1,4 +1,4 @@
-import { Clock, FlaskConical, Tag } from "lucide-react";
+import { Clock, FlaskConical, Gauge, Tag } from "lucide-react";
 
 import { useUpdateMeasurementMethod } from "../model/hooks/use-update-measurement-method";
 import { useDeleteMeasurementMethod } from "../model/hooks/use-delete-measurement-method";
@@ -105,6 +105,20 @@ export const UpdateMeasurementMethodForm = ({ open, onOpenChange, method, onSucc
             error={fieldErrors?.samplingMinutes}
             helperText="비우면 미지정으로 저장됩니다. 이 방법을 쓰는 모든 측정항목에 적용됩니다."
             startIcon={<Clock />}
+          />
+          <InputGroup
+            id="suctionFlowRate"
+            type="number"
+            label="표준 흡인유량 (L/min)"
+            placeholder="예: 1.0"
+            value={form.suctionFlowRate}
+            onChange={(value) => handleChange("suctionFlowRate", value)}
+            min={0}
+            maxDecimals={3}
+            invalid={!!fieldErrors?.suctionFlowRate}
+            error={fieldErrors?.suctionFlowRate}
+            helperText="비우면 미지정으로 저장됩니다. 통칭 시료(VOCs·VOCs-T)는 이 값이 그 병의 흡인유량입니다."
+            startIcon={<Gauge />}
           />
         </div>
       </FieldGroup>

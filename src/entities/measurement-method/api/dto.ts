@@ -16,6 +16,8 @@ export type MeasurementMethodResponse = {
   mergedSampleName: string | null;
   /** 표준(계획) 채취시간, 분. 미지정이면 null */
   samplingMinutes: number | null;
+  /** 표준(계획) 흡인유량, L/min. 통칭 시료(VOCs·VOCs-T)의 유량은 이 값이 정한다. 미지정이면 null */
+  suctionFlowRate: number | null;
   sortOrder: number | null;
 };
 
@@ -28,6 +30,8 @@ export type MeasurementMethodRegisterRequest = {
   sampleGrouping: SampleGrouping;
   mergedSampleName: string | null;
   samplingMinutes: number | null;
+  /** 표준(계획) 흡인유량, L/min. 통칭 시료(VOCs·VOCs-T)의 유량은 이 값이 정한다. 미지정이면 null */
+  suctionFlowRate: number | null;
   sortOrder: number | null;
 };
 
@@ -41,4 +45,6 @@ export type MeasurementMethodUpdateRequest = {
   sampleGrouping: SampleGrouping | null;
   mergedSampleName: string | null;
   samplingMinutes: number | null;
+  /** 표준(계획) 흡인유량, L/min. 통칭 시료(VOCs·VOCs-T)의 유량은 이 값이 정한다. 미지정이면 null */
+  suctionFlowRate: number | null;
 };

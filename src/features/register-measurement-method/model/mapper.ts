@@ -18,5 +18,6 @@ export const toMeasurementMethodCreate = (form: MeasurementMethodRegisterForm): 
   sampleGrouping: form.sampleGrouping as SampleGrouping,
   mergedSampleName: form.sampleGrouping === "MERGED" ? (trimValue(form.mergedSampleName) || null) : null,
   samplingMinutes: toNumberOrNull(form.samplingMinutes),
+  suctionFlowRate: toNumberOrNull(form.suctionFlowRate),
   sortOrder: null,
 });

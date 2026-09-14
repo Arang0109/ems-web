@@ -11,6 +11,7 @@ const cartridge: MeasurementMethod = {
   sampleGrouping: "MERGED",
   mergedSampleName: "VOCs",
   samplingMinutes: 30,
+  suctionFlowRate: null,
   sortOrder: 80,
 };
 
@@ -21,6 +22,7 @@ describe("toMeasurementMethodUpdate", () => {
       sampleGrouping: "MERGED",
       mergedSampleName: "VOCs",
       samplingMinutes: 30,
+      suctionFlowRate: null,
     });
   });
 

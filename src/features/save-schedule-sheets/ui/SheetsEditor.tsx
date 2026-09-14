@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Calculator, FileCheck, History, Plus, Save, X } from "lucide-react";
+import { Calculator, Copy, FileCheck, History, Plus, Save, X } from "lucide-react";
 
 import type { ScheduleDetail, ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
 import { measurementCategoryOptions } from "@shared/model";
@@ -11,16 +11,17 @@ import { useConfirm, useUnsavedChangesGuard } from "@shared/ui/dialogs";
 import { StickyActionBar } from "@shared/ui/layout";
 import { ChipNav } from "@shared/ui/nav";
 
-import { buildSamplingTimeline } from "../model/sampling-timeline";
-import { getMissingRequiredFields } from "../model/required-fields";
-import type { SheetFieldPath } from "../model/required-fields";
-import { BASIC_INFO_SECTION, getVisibleSections } from "../model/section-progress";
-import type { EditorSectionId } from "../model/section-progress";
+import { buildSamplingTimeline } from "../model/derived/sampling-timeline";
+import { getMissingRequiredFields } from "../model/input/required-fields";
+import type { SheetFieldPath } from "../model/input/required-fields";
+import { BASIC_INFO_SECTION, getVisibleSections } from "../model/sections";
+import type { EditorSectionId } from "../model/sections";
 import { isParticleCategory } from "../model/types";
 import { useSaveSheets } from "../model/hooks/use-save-sheets";
 import { useBorrowedFields } from "../model/hooks/use-borrowed-fields";
 import { useLoadPreviousSheet } from "../model/hooks/use-load-previous-sheet";
 import { sectionDomId, useSectionNav } from "../model/hooks/use-section-nav";
+import { useSyncCommonSections } from "../model/hooks/use-sync-common-sections";
 import type { SheetFieldState } from "./sheet-field-state";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { SheetFormView } from "./SheetFormView";
@@ -89,6 +90,11 @@ export const SheetsEditor = ({
   );
 
   const confirm = useConfirm();
+
+  // 기록지를 추가하면 기상·수분·배출가스·측정점 온도·동정압은 앞 기록지와 같은 값이다 — 다시 적지 않고 가져온다.
+  const { canSync, handleSyncCommonSections, syncedKey } = useSyncCommonSections({
+    sheets, activeIndex, updateActiveSheet, confirm,
+  });
 
   /**
    * 저장을 한 번 누른 뒤에만 채워지는 "비어 있는 필수 칸" 집합.
@@ -218,6 +224,18 @@ export const SheetsEditor = ({
                 </div>
               )}
 
+              {/* 같은 회차의 앞 기록지에서 기상·수분·배출가스만 가져온다. 첫 기록지에는 가져올 곳이 없어 숨긴다. */}
+              {canSync && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSyncCommonSections}
+                  title="앞 기록지의 기상정보·수분량·배출가스와 측정점 온도·동정압(배출가스 온도·동압·정압·DGM 입/출구 온도)을 이 기록지에 채웁니다"
+                >
+                  <Copy size={17} />
+                  이전 기록지와 동기화
+                </Button>
+              )}
               <Button
                 type="button"
                 variant="outline"
@@ -247,7 +265,7 @@ export const SheetsEditor = ({
             // 이전 기록지 것으로 남는다. 카테고리는 중복 추가가 가능하므로 인덱스와 함께 쓴다.
             // 이전 기록 불러오기도 같은 이유로 key 를 바꾼다 — 인덱스·카테고리는 그대로인데
             // 내용만 통째로 갈리므로, loadedKey 가 없으면 노출 판정이 불러오기 전 값으로 남는다.
-            key={`${activeIndex}-${activeSheet.category}-${loadedKey}`}
+            key={`${activeIndex}-${activeSheet.category}-${loadedKey}-${syncedKey}`}
             sheet={activeSheet}
             previewCalc={previewCalc}
             externals={externals}

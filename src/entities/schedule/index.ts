@@ -57,5 +57,6 @@ export {
 export type { SheetCalcExternals, SheetCalcPreview, SheetCalcPointPreview, PitotCoefficient } from './lib/sheet-calc';
 export { calcNozzleRecommendations } from './lib/nozzle-recommend';
 export type { NozzleRecommendation } from './lib/nozzle-recommend';
+export { particulateSourceOf, isIsokineticMode } from './lib/particulate-source';
 
 export { scheduleKeys } from "./model/query-keys";

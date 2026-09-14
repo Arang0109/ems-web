@@ -11,6 +11,8 @@ export type PollutantTableRow = {
   method: string;
   /** 이 항목에 적용되는 채취시간 표기(`30분`). 항목별 오버라이드면 `60분 (항목)`. 미지정은 EMPTY */
   samplingMinutes: string;
+  /** 이 항목에 적용되는 흡인유량 표기(`1.5 L/min`). 항목별 오버라이드면 ` (항목)` 접미. 미지정은 EMPTY */
+  suctionFlowRate: string;
   phase: string;
   equipment: string;
   testMethod: string;

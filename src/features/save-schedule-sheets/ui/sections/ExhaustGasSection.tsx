@@ -2,9 +2,9 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
-import { EXHAUST_GAS_HINT } from "../../model/field-hints";
-import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
-import { fieldPath } from "../../model/required-fields";
+import { EXHAUST_GAS_HINT } from "../../model/input/field-hints";
+import type { ExhaustGasVisibility } from "../../model/input/measured-pollutants";
+import { fieldPath } from "../../model/input/required-fields";
 import type { ExhaustGasForm, GasColumnKey } from "../../model/types";
 import { GAS_READING_COUNT } from "../../model/types";
 import { visibleGasRows, type GasRow } from "./exhaust-gas-rows";

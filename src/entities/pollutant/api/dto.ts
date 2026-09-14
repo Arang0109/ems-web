@@ -31,10 +31,16 @@ export type PollutantResponse = {
   mergedSampleName: string | null,
   /** 항목별 채취시간 오버라이드(분). 없으면 null */
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   /** 측정방법의 표준 채취시간(분). 측정방법이 비어 있거나 미지정이면 null */
   methodSamplingMinutes: number | null,
+  /** 측정방법의 표준 흡인유량(L/min). 미지정은 null */
+  methodSuctionFlowRate: number | null,
   /** 이 항목에 실제 적용되는 채취시간(분). 통칭 채취면 방법 값, 아니면 `samplingMinutes ?? methodSamplingMinutes` */
   effectiveSamplingMinutes: number | null,
+  /** 이 항목에 실제 적용되는 흡인유량(L/min). 통칭 채취면 방법 값, 아니면 `suctionFlowRate ?? methodSuctionFlowRate` */
+  effectiveSuctionFlowRate: number | null,
   phase: PollutantPhase | null,
   /** 측정방식 분류 — 카탈로그 투영값. 회사 측정방법과 무관하게 항목을 묶는 축 */
   mode: MeasurementMode | null,
@@ -69,6 +75,8 @@ export type PollutantRegisterRequest = {
   catalogId: number,
   methodId: number,
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   nameKr: string | null,
   nameEn: string | null,
   equipment: string | null,
@@ -83,6 +91,8 @@ export type PollutantRegisterRequest = {
 export type PollutantUpdateRequest = {
   methodId: number | null,
   samplingMinutes: number | null,
+  /** 항목별 흡인유량 오버라이드(L/min). 없으면 null. 규칙은 samplingMinutes 와 같다 */
+  suctionFlowRate: number | null,
   nameKr: string | null,
   nameEn: string | null,
   equipment: string | null,

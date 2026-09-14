@@ -13,4 +13,5 @@ export const toMeasurementMethodRow = (method: MeasurementMethod): MeasurementMe
   sampleGrouping: SAMPLE_GROUPING_LABEL[method.sampleGrouping],
   mergedSampleName: method.mergedSampleName || EMPTY,
   samplingMinutes: method.samplingMinutes != null ? `${method.samplingMinutes}분` : EMPTY,
+  suctionFlowRate: method.suctionFlowRate != null ? `${method.suctionFlowRate} L/min` : EMPTY,
 });

@@ -10,5 +10,6 @@ export const measurementMethodCardConfig: MobileCardConfig<MeasurementMethodTabl
   fields: [
     { label: "기록지 통칭명", content: (row) => row.mergedSampleName },
     { label: "표준 채취시간", content: (row) => row.samplingMinutes },
+    { label: "표준 흡인유량", content: (row) => row.suctionFlowRate },
   ],
 };

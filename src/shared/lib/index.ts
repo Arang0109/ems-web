@@ -42,6 +42,7 @@ export {
   fromMinutes,
   maskTimeInput,
   normalizeTime,
+  MINUTES_PER_DAY,
 } from "./format/time";
 
 export {

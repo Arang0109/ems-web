@@ -4,8 +4,8 @@ import { IconButton } from "@shared/ui/buttons";
 import { useConfirm } from "@shared/ui/dialogs";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
-import { POINT_HINT } from "../../../model/field-hints";
-import { fieldPath } from "../../../model/required-fields";
+import { POINT_HINT } from "../../../model/input/field-hints";
+import { fieldPath } from "../../../model/input/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { FLOW_FIELDS } from "./point-fields";
 import type { FieldStateProps } from "../shell-props";

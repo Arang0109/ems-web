@@ -4,12 +4,12 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
 
-import { GAS_SAMPLE_HINT } from "../../model/field-hints";
-import type { GasSampleGroup } from "../../model/gaseous-rows";
-import type { SampleFieldKey } from "../../model/required-fields";
-import { fieldPath } from "../../model/required-fields";
-import type { IsokineticDisplay, SampleRules } from "../../model/sample-rules";
-import { isLockedSampleField } from "../../model/sample-rules";
+import { GAS_SAMPLE_HINT } from "../../model/input/field-hints";
+import type { GasSampleGroup } from "../../model/gaseous/gaseous-rows";
+import type { SampleFieldKey } from "../../model/types";
+import { fieldPath } from "../../model/input/required-fields";
+import type { IsokineticDisplay, SampleRules } from "../../model/gaseous/sample-rules";
+import { isLockedSampleField } from "../../model/gaseous/sample-rules";
 import type { SampleForm } from "../../model/types";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 
@@ -93,7 +93,7 @@ const GAS_FIELDS: GasField[] = [
   },
   {
     field: "gasMeterGaugePressure", label: "가스미터압", unit: "mmH₂O", type: "number", step: 0.1,
-    maxIntDigits: 3, maxDecimals: 1,   // 부호는 자릿수에 세지 않는다
+    maxIntDigits: 3, maxDecimals: 2,   // 부호는 자릿수에 세지 않는다
     width: 120, hint: GAS_SAMPLE_HINT.gasMeterGaugePressure,
   },
   {

@@ -12,6 +12,7 @@ export type MeasurementMethodRegisterForm = {
   sampleGrouping: SampleGrouping | "";
   mergedSampleName: string;
   samplingMinutes: string;
+  suctionFlowRate: string;
 };
 
 export const getDefaultForm = (): MeasurementMethodRegisterForm => ({
@@ -19,4 +20,5 @@ export const getDefaultForm = (): MeasurementMethodRegisterForm => ({
   sampleGrouping: "",
   mergedSampleName: "",
   samplingMinutes: "",
+  suctionFlowRate: "",
 });

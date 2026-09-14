@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { displayValue, roundHalfUp } from "@shared/lib";
 import { HelpTip } from "@shared/ui/tooltip";
 
-import { PARTICLE_HINT } from "../../../model/field-hints";
+import { PARTICLE_HINT } from "../../../model/input/field-hints";
 
 /** 채취시간 옆에 세우는 노즐 기준 — 세 값이 늘 함께 읽히므로 한 덩이로 넘긴다 */
 export interface NozzleBasis {

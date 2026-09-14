@@ -14,6 +14,7 @@ export type PollutantRegisterForm = {
   catalogId: string;
   methodId: string;
   samplingMinutes: string;
+  suctionFlowRate: string;
   nameKr: string;
   nameEn: string;
   equipment: string;
@@ -24,6 +25,7 @@ export const getDefaultForm = (): PollutantRegisterForm => ({
   catalogId: "",
   methodId: "",
   samplingMinutes: "",
+  suctionFlowRate: "",
   nameKr: "",
   nameEn: "",
   equipment: "",

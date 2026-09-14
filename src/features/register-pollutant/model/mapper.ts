@@ -18,6 +18,7 @@ export const toPollutantCreate = (
   catalogId: Number(form.catalogId),
   methodId: Number(form.methodId),
   samplingMinutes: toNumberOrNull(form.samplingMinutes),
+  suctionFlowRate: toNumberOrNull(form.suctionFlowRate),
   nameKr: trimValue(form.nameKr) || null,
   nameEn: trimValue(form.nameEn) || null,
   equipment: trimValue(form.equipment) || null,

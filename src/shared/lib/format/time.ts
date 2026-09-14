@@ -11,7 +11,7 @@ export const unformatTime = (value: string): string | null => {
 };
 
 /** 하루의 분 수 — 자정 순환의 계수 */
-const MINUTES_PER_DAY = 1440;
+export const MINUTES_PER_DAY = 1440;
 
 /**
  * `"HH:mm"` → 자정 기준 분(0~1439). 비었거나 파싱 불가면 `null`.

@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 
-import type { SheetSectionId } from "../section-progress";
-import { collectFieldPaths, readField, sectionOfPath } from "../required-fields";
-import type { SheetFieldPath } from "../required-fields";
+import type { SheetSectionId } from "../sections";
+import { collectFieldPaths, isFilled, readField, sectionOfPath } from "../input/required-fields";
+import type { SheetFieldPath } from "../input/required-fields";
 import type { SheetForm } from "../types";
 
 /** 불러온 시점의 시트와 출처 — 어느 회차에서 왔는지 배너가 밝힌다 */
@@ -62,7 +62,7 @@ export const useBorrowedFields = (sheet: SheetForm | null) => {
         if (samplesShifted && path.startsWith("samples.")) return false;
 
         const loaded = readField(snapshot, path);
-        return loaded.trim() !== "" && readField(sheet, path) === loaded;
+        return isFilled(loaded) && readField(sheet, path) === loaded;
       }),
     );
   }, [sheet, source, acknowledged]);
