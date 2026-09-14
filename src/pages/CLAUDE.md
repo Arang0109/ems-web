@@ -121,7 +121,10 @@ client/
 ├── contract/
 │   ├── index.ts
 │   └── ...
-└── pollutant/
+├── pollutant/
+│   ├── index.ts
+│   └── ...
+└── measurement-method/
     ├── index.ts
     └── ...
 ```
@@ -191,6 +194,7 @@ sub-domain/
 | `client/contract` | `/contracts/register` | ContractRegisterPage | ProtectedRoute |
 | `client/contract` | `/contracts/:contractId` | ContractDetailPage | ProtectedRoute |
 | `client/pollutant` | `/pollutants` | PollutantPage | ProtectedRoute |
+| `client/measurement-method` | `/measurement-methods` | MeasurementMethodPage | ProtectedRoute |
 | `equipment` | `/equipment` | EquipmentPage | ProtectedRoute |
 | `staff` | `/staff` | StaffPage | ProtectedRoute |
 | `schedule` | `/schedule` | SchedulePage | ProtectedRoute |

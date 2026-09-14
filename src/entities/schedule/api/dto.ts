@@ -1,6 +1,6 @@
 import type {
   MeasurementField, ScheduleStatus, MeasurementType, Grade, Shape, Orientation,
-  MeasurementMethod, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
+  SampleGrouping, MeasurementMode, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
   MeasurementCategory, WeatherCondition, WindDirection, InspectionType,
 } from "@shared/model";
 
@@ -215,6 +215,23 @@ export type AnalysisResultDto = {
   samplingEndedAt: string | null;
 };
 
+/**
+ * 측정 시점 측정방법 사본. 원장(`/measurement-methods`)에서 복사한 값이라 이후 고객사가 측정방법을
+ * 고쳐도 이 회차의 기록지는 바뀌지 않는다.
+ *
+ * `methodId` 는 원장 연결키다. 측정방법 승격(2026-09-14) 이전 문서는 마이그레이션이 enum 문자열을
+ * 이 사본으로 바꾼 것이라 null 이다 — 소비처는 `methodId ?? name` 으로 그룹을 식별한다.
+ * `samplingMinutes` 는 표준(계획) 채취시간이며 실측 시각과 다르다.
+ */
+export type MeasurementMethodSnapshotDto = {
+  methodId: number | null;
+  name: string;
+  sampleGrouping: SampleGrouping;
+  /** `MERGED` 일 때만 값이 있다 */
+  mergedSampleName: string | null;
+  samplingMinutes: number | null;
+};
+
 export type MeasurementItemSnapshotDto = {
   stackPollutantId: number;
   pollutantId: number;
@@ -228,15 +245,22 @@ export type MeasurementItemSnapshotDto = {
   nameEn: string;
   field: MeasurementField;
   /**
-   * 채취 방법(흡착관·카트리지·흡수액 등)과 입자상/가스상 구분.
-   * `method` 는 고객사가 물질을 채택할 때 정한 값이라 이관 전 채택분은 null 일 수 있고,
+   * 측정방법 사본(채취 단위·통칭 시료명·표준 채취시간)과 입자상/가스상 구분.
+   * `method` 는 고객사가 물질을 채택할 때 정한 측정방법이라 정해지지 않은 레거시 항목은 null 이고,
    * `phase` 는 `code` 와 같은 이유로 null 일 수 있다 — 카탈로그 도입 이전 스냅샷과 고객사 자체 물질.
    * 현장채취 가스상 표의 행 구성이 이 둘로 결정되므로 소비처는 null 분기를 반드시 다뤄야 한다.
    */
-  method: MeasurementMethod | null;
+  method: MeasurementMethodSnapshotDto | null;
   phase: PollutantPhase | null;
+  /** 측정방식 분류(카탈로그 전역 사실)의 사본. 회사 측정방법과 무관하게 항목을 묶는 축. 구 문서는 null */
+  mode: MeasurementMode | null;
   equipment: string;
   testMethod: string;
+  /**
+   * 이 항목에 적용되는 표준 채취시간(분). 항목별 오버라이드가 반영된 값이라 `method.samplingMinutes`(방법 기본값)와
+   * 다를 수 있다. 계획 기본값이며 실측 시각은 `analysis` 가 갖는다. 승격 이전 문서는 null.
+   */
+  samplingMinutes: number | null;
   cycle: MeasurementCycle;
   allowance: number | null;
   /** 측정 시점의 산소보정 적용 여부 — 측정시설 원장(stack-pollutant)에서 스냅샷된 값 */

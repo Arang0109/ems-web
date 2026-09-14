@@ -23,8 +23,9 @@ import {
 } from "../validator";
 import { getAssignedPollutants } from "../measured-pollutants";
 import {
-  buildGasSampleGroups, getUnassignedGroups, getUnresolvedItems, hydrateSheets,
+  buildGasSampleGroups, getUnassignedGroupsFor, getUnresolvedItems, hydrateSheets,
 } from "../gaseous-rows";
+import { buildSampleRules } from "../sample-rules";
 import type { UpdatedSections } from "../remote-sync";
 import { applyRemoteSheets } from "../remote-sync";
 import type { SheetBaseline } from "../conflict";
@@ -143,16 +144,23 @@ export const useSaveSheets = ({
     [snapshot?.items],
   );
 
-  // 아직 어느 기록지에도 적히지 않은 가스상 항목. 기록지 하나가 아니라 전체를 가로질러 판정하므로
-  // 첫 기록지에 몰아 적는 방식도, 칸이 넘쳐 다음 기록지로 넘기는 방식도 그대로 성립한다.
+  // 아직 어느 기록지에도 적히지 않은 가스상 항목 중 활성 기록지에 적을 수 있는 것. 배정 여부는 기록지 하나가
+  // 아니라 전체를 가로질러 판정하므로 첫 기록지에 몰아 적는 방식도, 칸이 넘쳐 다음 기록지로 넘기는 방식도
+  // 그대로 성립한다. 등속흡인 항목(비소화합물)만은 그 입자상 기록지에서만 미배정으로 보인다.
   const unassignedGroups = useMemo(
-    () => getUnassignedGroups(gasSampleGroups, sheets),
-    [gasSampleGroups, sheets],
+    () => (activeSheet ? getUnassignedGroupsFor(gasSampleGroups, sheets, activeSheet.category) : []),
+    [gasSampleGroups, sheets, activeSheet],
   );
 
   // 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목 — 화면에서 수동 추가를 안내한다.
   const unresolvedItems = useMemo(
     () => getUnresolvedItems(snapshot?.items ?? []),
+    [snapshot?.items],
+  );
+
+  // 가스상 행의 파생 규칙(등속흡인 잠금·종료시각 기본값). 행이 담은 항목에서 유도되므로 항목 스냅샷을 따라간다.
+  const sampleRules = useMemo(
+    () => buildSampleRules(snapshot?.items ?? []),
     [snapshot?.items],
   );
 
@@ -424,6 +432,8 @@ export const useSaveSheets = ({
     // 가스상 표에서 아직 적히지 않은 항목과, 자동으로 만들 수 없는 항목.
     unassignedGroups,
     unresolvedItems,
+    // 가스상 행의 파생 규칙 — 등속흡인 행 잠금과 시작시각 입력 시 종료시각 채우기의 근거.
+    sampleRules,
     // 저장을 한 번 눌렀는가 — 미입력 필수 칸의 빨강 표시를 켜는 스위치.
     showMissing,
 

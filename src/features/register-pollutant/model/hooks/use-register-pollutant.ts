@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 
 import { useRegisterPollutantAction, usePollutantCandidates } from "@entities/pollutant"
+import type { PollutantCandidate } from "@entities/pollutant";
+import { useMeasurementMethods } from "@entities/measurement-method";
 
 import { getDefaultForm } from "../types";
 import type { PollutantRegisterForm } from "../types";
@@ -16,6 +18,9 @@ interface Props {
   onSuccess: () => void;
 }
 
+const selectedCandidateOf = (candidates: PollutantCandidate[], catalogId: string) =>
+  candidates.find((candidate) => String(candidate.catalogId) === catalogId) ?? null;
+
 /**
  * 측정물질 채택.
  *
@@ -26,6 +31,8 @@ export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
   const { registerPollutant, isLoading } = useRegisterPollutantAction();
   const { data: candidates, isLoading: isCandidatesLoading } =
     usePollutantCandidates({ enabled: open });
+  // 측정방법은 열거값이 아니라 고객사가 등록해 둔 목록이다 — 없으면 먼저 측정방법 관리에서 만들어야 한다.
+  const { data: methods, isLoading: isMethodsLoading } = useMeasurementMethods({ enabled: open });
 
   const [form, setForm] = useState<PollutantRegisterForm>(getDefaultForm());
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof PollutantRegisterForm, string>>>();
@@ -39,9 +46,29 @@ export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
     [candidates],
   );
 
+  const methodOptions = useMemo(
+    () => methods.map((method) => ({ value: String(method.id), label: method.name })),
+    [methods],
+  );
+
+  /** 고른 측정방법 — 통칭 채취면 항목별 채취시간을 받지 않고, 아니면 표준값을 placeholder 로 보여 준다. */
+  const selectedMethod = useMemo(
+    () => methods.find((method) => String(method.id) === form.methodId) ?? null,
+    [methods, form.methodId],
+  );
+
+  /**
+   * 입자상 물질에 가스상 채취(NONE 이 아닌) 측정방법을 붙였는가. 막지 않고 경고만 한다 —
+   * 비소화합물(중금속 여지 + 흡수액)처럼 의도한 경우가 있어서다. 현장 기록지는 phase 가 아니라
+   * 이 선택을 그대로 따르므로, PAH 를 카트리지(통칭 채취)에 붙이면 VOCs 병에 섞인다.
+   */
+  const isParticulateWithGasMethod =
+    selectedCandidateOf(candidates, form.catalogId)?.phase === "PARTICLE"
+    && selectedMethod !== null && selectedMethod.sampleGrouping !== "NONE";
+
   /** 선택한 가이드 항목 — 표기명 placeholder 와 읽기 전용 정보 표시에 쓴다. */
   const selectedCandidate = useMemo(
-    () => candidates.find((candidate) => String(candidate.catalogId) === form.catalogId) ?? null,
+    () => selectedCandidateOf(candidates, form.catalogId),
     [candidates, form.catalogId],
   );
 
@@ -80,6 +107,10 @@ export const useRegisterPollutant = ({ open, onSuccess }: Props) => {
     candidateOptions,
     selectedCandidate,
     isCandidatesLoading,
+    methodOptions,
+    isMethodsLoading,
+    selectedMethod,
+    isParticulateWithGasMethod,
 
     fieldErrors,
 

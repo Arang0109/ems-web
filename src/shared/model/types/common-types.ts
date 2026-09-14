@@ -5,7 +5,7 @@ import {
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
   DOCUMENT_CATEGORY_LABEL, CONTRACT_AMOUNT_UNIT_LABEL,
-  MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL, MEASUREMENT_UNIT_LABEL,
+  SAMPLE_GROUPING_LABEL, MEASUREMENT_MODE_LABEL, POLLUTANT_PHASE_LABEL, MEASUREMENT_UNIT_LABEL,
 } from "@shared/config";
 
 export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
@@ -13,7 +13,12 @@ export const GRADE = ['TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4', 'TYPE_5'] as const
 export const ORIENTATION = ['VERTICAL', 'HORIZONTAL'] as const;
 export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
 export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
-export const MEASUREMENT_METHOD = ['DUST', 'HEAVY_METAL', 'MERCURY', 'FIELD_MEASUREMENT', 'ABSORPTION_SOLUTION', 'ADSORPTION_TUBE', 'TEDLAR_BAG', 'CARTRIDGE'] as const;
+// 측정방법의 채취 단위 — 가스상 시료 표에 행을 어떻게 적는가. 측정방법 자체는 enum 이 아니라
+// 고객사가 관리하는 데이터(entities/measurement-method)다.
+export const SAMPLE_GROUPING = ['NONE', 'PER_ITEM', 'MERGED'] as const;
+// 측정물질의 측정방식 분류 — 전 테넌트를 관통하는 카탈로그 사실. 회사 소유 측정방법과 축이 다르다:
+// 현장측정(가스분석기)·현장측정(THC)는 다른 측정방법이지만 둘 다 DIRECT_READING 이다.
+export const MEASUREMENT_MODE = ['DIRECT_READING', 'DUST', 'HEAVY_METAL', 'MERCURY', 'GAS_SAMPLING'] as const;
 export const POLLUTANT_PHASE = ['PARTICLE', 'GAS'] as const;
 // 측정 항목 농도의 단위
 export const MEASUREMENT_UNIT = ['PPM', 'MG_PER_SM3'] as const;
@@ -68,7 +73,8 @@ export type Grade = typeof GRADE[number];
 export type Orientation = typeof ORIENTATION[number];
 export type Shape = typeof SHAPE[number];
 export type MeasurementField = typeof MEASUREMENT_FIELD[number];
-export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
+export type SampleGrouping = typeof SAMPLE_GROUPING[number];
+export type MeasurementMode = typeof MEASUREMENT_MODE[number];
 export type PollutantPhase = typeof POLLUTANT_PHASE[number];
 export type MeasurementUnit = typeof MEASUREMENT_UNIT[number];
 export type MeasurementCycle = typeof MEASUREMENT_CYCLE[number];
@@ -225,9 +231,14 @@ export const windDirectionOptions = WIND_DIRECTION.map((direction) => ({
   label: WIND_DIRECTION_LABEL[direction],
 }));
 
-export const measurementMethodOptions = MEASUREMENT_METHOD.map((method) => ({
-  value: method,
-  label: MEASUREMENT_METHOD_LABEL[method],
+export const sampleGroupingOptions = SAMPLE_GROUPING.map((grouping) => ({
+  value: grouping,
+  label: SAMPLE_GROUPING_LABEL[grouping],
+}));
+
+export const measurementModeOptions = MEASUREMENT_MODE.map((mode) => ({
+  value: mode,
+  label: MEASUREMENT_MODE_LABEL[mode],
 }));
 
 export const pollutantPhaseOptions = POLLUTANT_PHASE.map((phase) => ({

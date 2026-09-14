@@ -68,6 +68,7 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
       { label: '팀 관리', path: '/staff' },
       { label: '측정장비 관리', path: '/equipment' },
       { label: "측정물질 관리", path: "/pollutants" },
+      { label: "측정방법 관리", path: "/measurement-methods" },
     ],
   },
   {

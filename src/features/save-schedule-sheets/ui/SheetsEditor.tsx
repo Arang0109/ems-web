@@ -50,7 +50,7 @@ export const SheetsEditor = ({
     handleSave, isDirty,
     isExportDialogOpen, samplingRecordTemplate, isExporting,
     setExportDialogOpen, handleExport,
-    isLoading, updatedSections, assignedPollutants, unassignedGroups, unresolvedItems, showMissing,
+    isLoading, updatedSections, assignedPollutants, unassignedGroups, unresolvedItems, sampleRules, showMissing,
   } = useSaveSheets({ scheduleId, snapshot, status, externals, onSaved, });
 
   const borrowed = useBorrowedFields(activeSheet);
@@ -253,6 +253,7 @@ export const SheetsEditor = ({
             externals={externals}
             assignedPollutants={assignedPollutants}
             unassignedGroups={unassignedGroups}
+            sampleRules={sampleRules}
             unresolvedItemNames={unresolvedItems.map((item) => item.nameKr)}
             fieldState={fieldState}
             editable={editable}

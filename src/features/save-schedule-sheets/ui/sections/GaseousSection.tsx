@@ -7,17 +7,29 @@ import { InputTable, type InputTableColumn } from "@shared/ui/table";
 import { GAS_SAMPLE_HINT } from "../../model/field-hints";
 import type { GasSampleGroup } from "../../model/gaseous-rows";
 import type { SampleFieldKey } from "../../model/required-fields";
-import { REQUIRED_SAMPLE_FIELDS, fieldPath } from "../../model/required-fields";
+import { fieldPath } from "../../model/required-fields";
+import type { IsokineticDisplay, SampleRules } from "../../model/sample-rules";
+import { isLockedSampleField } from "../../model/sample-rules";
 import type { SampleForm } from "../../model/types";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 
 interface Props extends SectionShellProps, FieldStateProps {
   samples: SampleForm[];
   /**
-   * 아직 어느 기록지에도 적히지 않은 측정항목. 판정이 기록지 전체를 가로지르므로
-   * 이 표에 없다는 뜻이 아니라 **어디에도 없다**는 뜻이다.
+   * 아직 어느 기록지에도 적히지 않은 측정항목 중 이 기록지에 적을 수 있는 것. 배정 판정은 기록지 전체를
+   * 가로지르므로 이 표에 없다는 뜻이 아니라 **어디에도 없다**는 뜻이다.
    */
   unassignedGroups: GasSampleGroup[];
+  /**
+   * 행의 파생 규칙. 등속흡인 행(비소화합물 흡수액)의 시각·흡인유량·채취량은 서버가 입자상 집계로
+   * 덮어쓰는 칸이라 여기서 잠근다 — 적어도 저장 응답이 되돌리므로 입력을 받는 척하면 안 된다.
+   */
+  sampleRules: SampleRules;
+  /**
+   * 등속흡인 행의 잠긴 칸에 보여 줄 값 — 이 기록지의 입자상 입력에서 실시간 파생한다. 폼 값 대신 표시만
+   * 바꾸므로 행을 지웠다 다시 넣어도, 입자상 값을 고쳐도 저장 전에 값이 보인다. 그 행이 아니면 null.
+   */
+  isokineticDisplayOf: (sample: SampleForm) => IsokineticDisplay | null;
   /** 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목명 */
   unresolvedItemNames: string[];
   editable: boolean;
@@ -66,17 +78,14 @@ const numericSpec = (f: GasField) =>
     ? { min: f.min, step: f.step, maxIntDigits: f.maxIntDigits, maxDecimals: f.maxDecimals }
     : {};
 
-/** 필수 별표는 손으로 적지 않는다 — 저장 검증·진행도 배지와 같은 목록에서 파생시킨다 */
-const isRequired = (field: SampleFieldKey): boolean => REQUIRED_SAMPLE_FIELDS.includes(field);
-
 /**
  * 입력 순서 = 현장 기록지의 기입 순서.
  * 항목명 → 채취시간 → 흡인 조건 → 채취량·적산값 → 시료번호.
  */
 const GAS_FIELDS: GasField[] = [
-  { field: "sampleName", label: "항목명", type: "text", width: 100 },
-  { field: "startTime", label: "채취 시작", type: "time", width: 110 },
-  { field: "endTime", label: "채취 종료", type: "time", width: 110 },
+  { field: "sampleName", label: "항목명", type: "text", width: 130 },
+  { field: "startTime", label: "채취 시작", type: "time", width: 130 },
+  { field: "endTime", label: "채취 종료", type: "time", width: 130 },
   {
     field: "suctionQuantity", label: "흡인유량", unit: "L/min", type: "number", min: 0, step: 0.1,
     maxIntDigits: 3, maxDecimals: 1,   // 채취 펌프 유량은 수 L/min — 세 자리면 이미 이상값이다
@@ -161,10 +170,16 @@ const MoveButtons = ({ title, index, total, onMove }: {
  * 채우려면 표 사이를 오간다)를 모두 써 봤고, 항목 간 대조와 한 항목 기입을 함께 만족하는 건 표 하나였다.
  */
 export const GaseousSection = ({
-  samples, unassignedGroups, unresolvedItemNames, editable,
+  samples, unassignedGroups, sampleRules, isokineticDisplayOf, unresolvedItemNames, editable,
   onSampleChange, onAddSample, onAddUnassignedSamples, onRemoveSample, onMoveSample,
   fieldTone, onFieldFocus, ...shell
 }: Props) => {
+  // 등속흡인 행의 잠긴 칸은 폼 값이 아니라 입자상 입력에서 파생한 값을 보여 준다.
+  const valueOf = (sample: SampleForm, field: SampleFieldKey): string => {
+    const derived = isokineticDisplayOf(sample);
+    return derived !== null && field in derived ? derived[field as keyof IsokineticDisplay] : sample[field];
+  };
+
   const columns: InputTableColumn<SampleForm>[] = [
     { kind: "label", align: "center", header: "No.", width: ROW_LABEL_WIDTH, render: (_, index) => index + 1 },
 
@@ -176,7 +191,6 @@ export const GaseousSection = ({
       header: (
         <>
           {f.unit ? `${f.label} (${f.unit})` : f.label}
-          {isRequired(f.field) && <span className="text-danger">*</span>}
         </>
       ),
       hintLabel: `${f.label} 설명`,
@@ -184,7 +198,9 @@ export const GaseousSection = ({
       width: f.width,
       type: f.type,
       ...numericSpec(f),
-      value: (sample) => sample[f.field],
+      value: (sample) => valueOf(sample, f.field),
+      // 등속흡인 행의 시각·유량·채취량은 서버가 입자상 집계로 채우는 칸 — 화면은 같은 값을 파생해 보여 준다.
+      disabled: (sample) => isLockedSampleField(f.field, sample.pollutantIds, sampleRules),
       tone: (_, index) => fieldTone(fieldPath.sample(index, f.field)),
       onFocus: (_, index) => onFieldFocus(fieldPath.sample(index, f.field)),
       onChange: (_, v, index) => onSampleChange(index, { [f.field]: v }),

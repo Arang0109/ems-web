@@ -14,6 +14,9 @@ export const defaultColumns = [
   columnHelper.accessor('nameKr', {
     header: '측정물질(한글)',
   }),
+  columnHelper.accessor('mode', {
+    header: '측정방식',
+  }),
   columnHelper.accessor('sortOrder', {
     header: '노출 순서',
   }),

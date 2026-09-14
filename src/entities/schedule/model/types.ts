@@ -4,7 +4,7 @@ import type {
   TeamSnapshotDto, TenantSnapshotDto, ClientSnapshotDto, WorkplaceSnapshotDto,
   StackSnapshotDto, FacilitySnapshotDto, PreventionSnapshotDto,
   EquipmentSnapshotDto, EquipmentSpecDto, ParticleSamplerSpecDto,
-  MeasurementItemSnapshotDto, AnalysisResultDto,
+  MeasurementItemSnapshotDto, MeasurementMethodSnapshotDto, AnalysisResultDto,
   SamplingSheetDto, SamplingSheetResponse, WeatherDataDto, MoistureDataDto, ExhaustGasDataDto,
   FlowRateDataDto, ParticulateSamplingDto, SamplingPointDto, IsokineticSamplingDto,
   GaseousSamplingDto, SheetRefDto,
@@ -49,6 +49,8 @@ export type EquipmentSnapshot = EquipmentSnapshotDto;
 export type EquipmentSpec = EquipmentSpecDto;
 export type ParticleSamplerSpec = ParticleSamplerSpecDto;
 export type MeasurementItemSnapshot = MeasurementItemSnapshotDto;
+// 측정항목 안에 놓인 측정방법 사본. null 이면 측정방법이 정해지지 않은 레거시 항목이다.
+export type MeasurementMethodSnapshot = MeasurementMethodSnapshotDto;
 // 측정항목 안에 놓인 실험실 분석 결과. null 이면 아직 분석 전이다.
 export type ItemAnalysisResult = AnalysisResultDto;
 

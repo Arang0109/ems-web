@@ -1,4 +1,4 @@
-import type { MeasurementField, PollutantPhase } from "@shared/model"
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model"
 
 /** `GET /platform/pollutant-catalog` 쿼리. 서버 기본값은 `includeInactive=false` 다. */
 export type PollutantCatalogListQuery = {
@@ -13,6 +13,8 @@ export type PollutantCatalogResponse = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   sortOrder: number | null,
   active: boolean
 }
@@ -29,6 +31,8 @@ export type PollutantCatalogRegisterRequest = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   sortOrder: number | null
 }
 
@@ -37,5 +41,7 @@ export type PollutantCatalogUpdateRequest = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   sortOrder: number | null
 }

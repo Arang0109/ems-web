@@ -80,7 +80,7 @@ export const BasicInfoSection = ({
           onChange={(v) => onChange("samplingEndedAt", v)}
         />
       </div>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
         {PERSON_FIELDS.map(({ name, label }) => (
           <UnitField
             key={name}

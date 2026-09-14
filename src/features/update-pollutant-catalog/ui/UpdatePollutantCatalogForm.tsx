@@ -11,8 +11,8 @@ import { Divider } from "@shared/ui/borders";
 import { Button } from "@shared/ui/buttons";
 import { StatusDot } from "@shared/ui/badges";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import { measurementFieldOptions, pollutantPhaseOptions } from "@shared/model";
-import type { MeasurementField, PollutantPhase } from "@shared/model";
+import { measurementFieldOptions, measurementModeOptions, pollutantPhaseOptions } from "@shared/model";
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -109,6 +109,19 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             options={pollutantPhaseOptions}
             value={form.phase}
             onValueChange={(value) => value && handleChange("phase", value as PollutantPhase)}
+          />
+        </div>
+
+        {/* 측정방식 분류 — 이미 채택한 고객사에도 조인으로 즉시 반영된다(field·phase 와 같은 투영값). */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="mode"
+            label="측정방식"
+            placeholder="측정방식 선택"
+            options={measurementModeOptions}
+            value={form.mode}
+            onValueChange={(value) => value && handleChange("mode", value as MeasurementMode)}
+            helperText="현장측정·먼지·중금속·수은·가스상 채취. 매체(흡수액·카트리지 등)는 고객사가 정합니다."
           />
         </div>
 

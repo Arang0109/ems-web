@@ -12,7 +12,7 @@ import { Dashboard } from "@pages/dashboard";
 import {
   ClientManagementPage, StackPage, StackDetailPage,
   ContractPage, ContractRegisterPage, ContractDetailPage,
-  PollutantPage,
+  PollutantPage, MeasurementMethodPage,
 } from "@pages/client";
 import { AdminMemberPage, AdminDocumentPage } from "@pages/admin";
 import { PlatformTenantPage, PlatformPollutantCatalogPage } from "@pages/platform";
@@ -54,6 +54,7 @@ const router = createBrowserRouter(
         <Route path="/stacks" element={<StackPage />} />
         <Route path="/stacks/:stackId" element={<StackDetailPage />} />
         <Route path="/pollutants" element={<PollutantPage />} />
+        <Route path="/measurement-methods" element={<MeasurementMethodPage />} />
         <Route path="/equipment" element={<EquipmentPage />} />
         <Route path="/staff" element={<StaffPage />} />
         <Route path="/schedule" element={<SchedulePage />} />

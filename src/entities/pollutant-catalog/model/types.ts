@@ -1,4 +1,4 @@
-import type { MeasurementField, PollutantPhase } from "@shared/model"
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model"
 
 /**
  * 법령에 근거한 측정물질 마스터. 모든 고객사가 공통으로 참조하는 전역 데이터라
@@ -18,6 +18,8 @@ export type PollutantCatalog = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   /** 선택 목록에서의 노출 순서. 미지정이면 null */
   sortOrder: number | null,
   /** 폐지되지 않았는지. false 면 고객사 선택 목록에서 감춰진다 */
@@ -29,6 +31,8 @@ export type PollutantCatalogCreate = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   sortOrder: number | null
 }
 
@@ -37,5 +41,7 @@ export type PollutantCatalogUpdate = {
   field: MeasurementField,
   nameKr: string,
   phase: PollutantPhase | null,
+  /** 측정방식 분류(현장측정·먼지·중금속·수은·가스상 채취). 전역 사실이라 가이드가 갖는다. 분류 도입 이전 항목은 null */
+  mode: MeasurementMode | null,
   sortOrder: number | null
 }

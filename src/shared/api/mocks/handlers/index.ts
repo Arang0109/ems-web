@@ -7,6 +7,7 @@ import { stackPollutantHandlers } from './stack-pollutant';
 import { contractHandlers } from './contract';
 import { pollutantHandlers } from './pollutants';
 import { pollutantCatalogHandlers } from './pollutant-catalog';
+import { measurementMethodHandlers } from './measurement-method';
 import { memberHandlers, roleHandlers } from './member';
 import { documentHandlers } from './document';
 import { equipmentHandlers } from './equipment';
@@ -32,6 +33,7 @@ const REGISTRY = {
   contract: contractHandlers,
   pollutant: pollutantHandlers,
   pollutantCatalog: pollutantCatalogHandlers,
+  measurementMethod: measurementMethodHandlers,
   member: memberHandlers,
   role: roleHandlers,
   document: documentHandlers,
@@ -59,6 +61,7 @@ const ENABLED: (keyof typeof REGISTRY)[] = [
   'contract',
   'pollutant',
   'pollutantCatalog',
+  'measurementMethod',
   'member',
   'role',
   'document',

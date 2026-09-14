@@ -7,7 +7,9 @@ export const validatePollutantRegisterFields = (form: PollutantRegisterForm) => 
   // 표기명은 비워 두면 가이드의 표준 국문명이 복사되므로 필수가 아니다.
   if (!form.catalogId) errors.catalogId = "측정물질을 선택해주세요.";
   // 측정방법은 가이드가 정하지 않고 고객사가 정한다 — 서버가 @NotNull 로 본다.
-  if (!form.method) errors.method = "측정방법을 선택해주세요.";
+  if (!form.methodId) errors.methodId = "측정방법을 선택해주세요.";
+  const minutes = form.samplingMinutes.trim();
+  if (minutes && !/^\d+$/.test(minutes)) errors.samplingMinutes = "채취시간은 0 이상의 정수(분)로 입력해주세요.";
 
   return errors;
 };

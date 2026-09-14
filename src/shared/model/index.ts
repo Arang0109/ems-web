@@ -4,7 +4,7 @@ export type { size, FieldTone } from './types/style-types';
 export { SIZE_STYLES } from './types/style-types';
 
 export {
-  CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, MEASUREMENT_METHOD,
+  CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, SAMPLE_GROUPING, MEASUREMENT_MODE,
   POLLUTANT_PHASE, MEASUREMENT_UNIT, MEASUREMENT_CYCLE,
   EQUIP_TYPE, EQUIP_STATUS, CHANGEABLE_EQUIP_STATUS, PITOT_TUBE_TYPE, EQUIP_SPEC_FIELD,
   INSPECTION_TYPE, INSPECTION_RESULT,
@@ -13,7 +13,7 @@ export {
   DOCUMENT_CATEGORY, CONTRACT_AMOUNT_UNIT,
   TENANT_STATUS, SUBSCRIPTION_PLAN, SUBSCRIPTION_PLAN_OPTIONS, USER_ROLES,
   documentCategoryOptions, contractAmountUnitOptions,
-  measurementMethodOptions, pollutantPhaseOptions, measurementUnitOptions,
+  sampleGroupingOptions, measurementModeOptions, pollutantPhaseOptions, measurementUnitOptions,
   toMeasurementUnit, measurementUnitText,
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
   equipTypeOptions, equipStatusOptions, pitotTubeTypeOptions, measurementCycleOptions,
@@ -24,7 +24,7 @@ export {
   measurementCategoryOptions, weatherConditionOptions, windDirectionOptions
 } from './types/common-types';
 export type {
-  ContractStatus, Grade, MeasurementField, Orientation, Shape, MeasurementMethod,
+  ContractStatus, Grade, MeasurementField, Orientation, Shape, SampleGrouping, MeasurementMode,
   PollutantPhase, MeasurementUnit, MeasurementCycle,
   EquipType, EquipStatus, ChangeableEquipStatus, PitotTubeType, EquipSpecField,
   InspectionType, InspectionResult,

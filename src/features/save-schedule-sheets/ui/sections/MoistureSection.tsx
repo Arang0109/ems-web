@@ -94,9 +94,7 @@ export const MoistureSection = ({
           readOnly
           value={formatNumber(calc?.ma, {minDecimals:2})}
         />)}
-        <div className="col-span-2">
-          {isMobile && <Divider />}
-        </div>
+        {isMobile && <div className="col-span-2"><Divider /></div>}
         <UnitField
           label="온도 - 입구" unit="°C" type="number" step={0.1}
           maxIntDigits={3} maxDecimals={1}
@@ -140,9 +138,7 @@ export const MoistureSection = ({
           readOnly
           value={formatNumber(calc?.tm_g, {minDecimals:1})}
         />)}
-        <div className="col-span-2">
-          {isMobile && <Divider />}
-        </div>
+        {isMobile && <div className="col-span-2"><Divider /></div>}
         <UnitField
           label="흡인량 - 전" unit="L" type="number" min={0} step={0.001}
           maxIntDigits={7} maxDecimals={3}

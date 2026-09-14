@@ -1,6 +1,6 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
-  MeasurementMethod, PollutantPhase, MeasurementUnit, MeasurementCycle,
+  SampleGrouping, MeasurementMode, PollutantPhase, MeasurementUnit, MeasurementCycle,
   EquipType, EquipStatus, PitotTubeType, EquipSpecField, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
@@ -40,15 +40,28 @@ export const MEASUREMENT_FIELD_LABEL: Record<MeasurementField, string> = {
   ODOR: '악취',
 };
 
-export const MEASUREMENT_METHOD_LABEL: Record<MeasurementMethod, string> = {
+/**
+ * 측정방법의 채취 단위. 현장 기록지의 가스상 시료 표에 행을 어떻게 적는지를 정한다 —
+ * `MERGED` 는 그 방법의 항목 전부를 한 병(통칭명)으로, `PER_ITEM` 은 항목마다 한 병, `NONE` 은 행 없음.
+ * `NONE` 은 "시료가 없다"가 아니다 — 먼지·중금속·수은은 입자상 시트에서 등속흡인으로 잡고,
+ * 현장측정은 직독식이라 시료가 없다. 공통점은 가스상 표에 적을 것이 없다는 것뿐이라 라벨도 그렇게 쓴다.
+ */
+export const SAMPLE_GROUPING_LABEL: Record<SampleGrouping, string> = {
+  NONE: '가스상 항목이 아님',
+  PER_ITEM: '항목별 채취',
+  MERGED: '통칭 채취',
+};
+
+/**
+ * 측정방식 분류(카탈로그 전역 사실). 가스상 채취의 매체(흡수액·흡착관·테드라백·카트리지)는 회사마다 갈려
+ * 여기 두지 않는다 — 그 넷은 전부 '가스상 채취'이고 매체는 회사 측정방법이 정한다.
+ */
+export const MEASUREMENT_MODE_LABEL: Record<MeasurementMode, string> = {
+  DIRECT_READING: '현장측정',
   DUST: '먼지',
   HEAVY_METAL: '중금속',
   MERCURY: '수은',
-  FIELD_MEASUREMENT: '현장측정',
-  ABSORPTION_SOLUTION: '흡수액',
-  ADSORPTION_TUBE: '흡착관',
-  TEDLAR_BAG: '테드라백',
-  CARTRIDGE: '카트리지'
+  GAS_SAMPLING: '가스상 채취',
 };
 
 export const POLLUTANT_PHASE_LABEL: Record<PollutantPhase, string> = {

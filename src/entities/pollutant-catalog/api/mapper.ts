@@ -11,6 +11,7 @@ export const toPollutantCatalog = (dto: PollutantCatalogResponse): PollutantCata
   field: dto.field,
   nameKr: dto.nameKr,
   phase: dto.phase,
+  mode: dto.mode,
   sortOrder: dto.sortOrder,
   active: dto.active,
 });
@@ -23,6 +24,7 @@ export const toRegisterRequest = (vo: PollutantCatalogCreate): PollutantCatalogR
   field: vo.field,
   nameKr: trimValue(vo.nameKr),
   phase: vo.phase,
+  mode: vo.mode,
   sortOrder: vo.sortOrder,
 });
 
@@ -30,5 +32,6 @@ export const toUpdateRequest = (vo: PollutantCatalogUpdate): PollutantCatalogUpd
   field: vo.field,
   nameKr: trimValue(vo.nameKr),
   phase: vo.phase,
+  mode: vo.mode,
   sortOrder: vo.sortOrder,
 });

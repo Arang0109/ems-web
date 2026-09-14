@@ -10,5 +10,6 @@ export const toPollutantCatalogUpdate = (
   field: form.field,
   nameKr: trimValue(form.nameKr),
   phase: form.phase || null,
+  mode: form.mode || null,
   sortOrder: toNumberOrNull(form.sortOrder),
 });

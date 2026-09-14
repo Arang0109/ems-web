@@ -1,18 +1,34 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementItemSnapshot } from "@entities/schedule";
-import type { MeasurementMethod, PollutantPhase } from "@shared/model";
+import type { MeasurementItemSnapshot, MeasurementMethodSnapshot } from "@entities/schedule";
+import type { PollutantPhase } from "@shared/model";
 
 import {
-  buildGasSampleGroups, getUnassignedGroups, getUnresolvedItems, hydrateSheets,
+  buildGasSampleGroups, getUnassignedGroups, getUnassignedGroupsFor, getUnresolvedItems, hydrateSheets,
+  isGroupAllowedOn,
 } from "./gaseous-rows";
 import type { SheetForm } from "./types";
 import { getDefaultSampleForm, getDefaultSheetForm } from "./types";
 
+/**
+ * 측정방법 사본 픽스처 — 기본 8종의 채취 단위를 그대로 옮긴 것이다.
+ * 규칙은 이제 enum 이 아니라 이 사본의 `sampleGrouping`·`mergedSampleName` 에서 나온다.
+ */
+const METHOD: Record<string, MeasurementMethodSnapshot> = {
+  DUST:                { methodId: 1, name: "먼지",     sampleGrouping: "NONE",     mergedSampleName: null,     samplingMinutes: null },
+  HEAVY_METAL:         { methodId: 2, name: "중금속",   sampleGrouping: "NONE",     mergedSampleName: null,     samplingMinutes: null },
+  MERCURY:             { methodId: 3, name: "수은",     sampleGrouping: "NONE",     mergedSampleName: null,     samplingMinutes: null },
+  FIELD_MEASUREMENT:   { methodId: 4, name: "현장측정", sampleGrouping: "NONE",     mergedSampleName: null,     samplingMinutes: null },
+  ABSORPTION_SOLUTION: { methodId: 5, name: "흡수액",   sampleGrouping: "PER_ITEM", mergedSampleName: null,     samplingMinutes: 40 },
+  ADSORPTION_TUBE:     { methodId: 6, name: "흡착관",   sampleGrouping: "MERGED",   mergedSampleName: "VOCs-T", samplingMinutes: 30 },
+  TEDLAR_BAG:          { methodId: 7, name: "테드라백", sampleGrouping: "PER_ITEM", mergedSampleName: null,     samplingMinutes: null },
+  CARTRIDGE:           { methodId: 8, name: "카트리지", sampleGrouping: "MERGED",   mergedSampleName: "VOCs",   samplingMinutes: 30 },
+};
+
 const item = (
   pollutantId: number,
   nameKr: string,
-  method: MeasurementMethod | null,
+  method: keyof typeof METHOD | MeasurementMethodSnapshot | null,
   phase: PollutantPhase | null,
   code: string | null = null,
 ): MeasurementItemSnapshot => ({
@@ -22,10 +38,12 @@ const item = (
   nameKr,
   nameEn: "",
   field: "AIR",
-  method,
+  method: typeof method === "string" ? METHOD[method] : method,
   phase,
+  mode: null,
   equipment: "",
   testMethod: "",
+  samplingMinutes: null,
   cycle: "SEMI_ANNUAL",
   allowance: null,
   oxygenApplicable: false,
@@ -53,8 +71,8 @@ describe("buildGasSampleGroups", () => {
     ]);
 
     expect(groups).toEqual([
-      { key: "ADSORPTION_TUBE", sampleName: "VOCs-T", pollutantIds: [1, 2] },
-      { key: "CARTRIDGE", sampleName: "VOCs", pollutantIds: [3, 4] },
+      { key: "method:6", sampleName: "VOCs-T", pollutantIds: [1, 2], particulateSource: null },
+      { key: "method:8", sampleName: "VOCs", pollutantIds: [3, 4], particulateSource: null },
     ]);
   });
 
@@ -70,17 +88,30 @@ describe("buildGasSampleGroups", () => {
     ]);
   });
 
-  // 이 규칙의 유일한 함정 — method 를 먼저 보면 입자상 카트리지가 VOCs 로 뭉친다
-  it("카트리지라도 입자상이면 VOCs 에 섞지 않는다 (PAH·벤지딘)", () => {
+  // phase 는 규칙이 아니다 — 입자상 시트에서 잡는 카트리지 항목(PAH)은 회사가 NONE 방법에 붙여 제외한다.
+  it("입자상 항목이라도 phase 가 아니라 붙인 측정방법의 채취 단위를 따른다 (PAH)", () => {
+    const particulateCartridge: MeasurementMethodSnapshot = {
+      methodId: 42, name: "카트리지(입자상)", sampleGrouping: "NONE", mergedSampleName: null, samplingMinutes: null,
+    };
     const groups = buildGasSampleGroups([
-      item(7, "다환방향족탄화수소류", "CARTRIDGE", "PARTICLE"),
-      item(8, "벤지딘", "CARTRIDGE", "PARTICLE"),
+      item(7, "다환방향족탄화수소류", particulateCartridge, "PARTICLE"),
+      item(8, "벤지딘", particulateCartridge, "PARTICLE"),
       item(9, "포름알데히드", "CARTRIDGE", "GAS"),
     ]);
 
     expect(groups).toEqual([
-      { key: "CARTRIDGE", sampleName: "VOCs", pollutantIds: [9] },
+      { key: "method:8", sampleName: "VOCs", pollutantIds: [9], particulateSource: null },
     ]);
+  });
+
+  // 회사가 입자상 항목을 통칭 채취 방법에 붙이면 그대로 뭉친다 — 그 어긋남은 측정물질 폼이 경고하고, 여기서 뒤집지 않는다.
+  it("입자상 항목을 통칭 채취 방법에 붙이면 회사 데이터대로 뭉친다", () => {
+    const groups = buildGasSampleGroups([
+      item(7, "다환방향족탄화수소류", "CARTRIDGE", "PARTICLE"),
+      item(9, "포름알데히드", "CARTRIDGE", "GAS"),
+    ]);
+
+    expect(groups).toEqual([{ key: "method:8", sampleName: "VOCs", pollutantIds: [7, 9], particulateSource: null }]);
   });
 
   it("테드라백 항목은 흡수액처럼 항목마다 한 행씩 만든다", () => {
@@ -103,29 +134,21 @@ describe("buildGasSampleGroups", () => {
     expect(groups).toEqual([]);
   });
 
-  // 비소화합물은 중금속 여지로 잡으면서 흡수액으로도 잡는다. 고객사가 method 를 HEAVY_METAL 로 두어도
-  // 흡수액 행은 있어야 하므로, 고객사가 바꿀 수 없는 code 를 기준으로 예외를 둔다.
-  it("비소화합물은 중금속(입자상)으로 잡아도 흡수액 행을 따로 만든다", () => {
+  // 비소화합물은 입자상(중금속 여지)이면서 흡수액도 한다. 코드·phase 예외 대신 고객사가 항목별 채취
+  // 측정방법을 붙여 표현하며, phase 가 PARTICLE 이어도 행이 생긴다.
+  it("비소화합물은 입자상이어도 항목별 채취 측정방법을 붙이면 흡수액 행이 생긴다", () => {
     const groups = buildGasSampleGroups([
-      item(20, "비소화합물", "HEAVY_METAL", "GAS", "AS"),
-      item(21, "비소화합물", "HEAVY_METAL", "PARTICLE", "AS"),
+      item(20, "비소화합물", "ABSORPTION_SOLUTION", "PARTICLE", "AS"),
     ]);
 
-    expect(groups.map((g) => g.sampleName)).toEqual(["비소화합물", "비소화합물"]);
-    expect(groups.map((g) => g.pollutantIds)).toEqual([[20], [21]]);
+    expect(groups.map((g) => [g.sampleName, g.pollutantIds])).toEqual([["비소화합물", [20]]]);
   });
 
-  it("code 가 없는 비소화합물은 이름으로 알아보고, 안내 대상에서도 뺀다", () => {
-    const items = [
-      item(20, "비소화합물", null, null),
-      item(22, "비소 화합물", null, null),
-    ];
-
-    expect(buildGasSampleGroups(items).map((g) => g.pollutantIds)).toEqual([[20], [22]]);
-    expect(getUnresolvedItems(items)).toEqual([]);
+  it("비소화합물을 중금속(가스상 표 없음) 측정방법에 두면 행을 만들지 않는다", () => {
+    expect(buildGasSampleGroups([item(21, "비소화합물", "HEAVY_METAL", "PARTICLE", "AS")])).toEqual([]);
   });
 
-  it("method·phase 가 없는 항목은 자동으로 만들지 않고 안내 대상으로 남긴다", () => {
+  it("측정방법이 없는 항목은 자동으로 만들지 않고 안내 대상으로 남긴다", () => {
     const items = [
       item(14, "고객사 자체 물질", null, null),
       item(15, "벤젠", "ADSORPTION_TUBE", "GAS"),
@@ -133,6 +156,39 @@ describe("buildGasSampleGroups", () => {
 
     expect(buildGasSampleGroups(items).map((g) => g.pollutantIds)).toEqual([[15]]);
     expect(getUnresolvedItems(items).map((i) => i.pollutantId)).toEqual([14]);
+  });
+
+  it("phase 가 없어도 측정방법이 있으면 그 채취 단위대로 행을 만든다", () => {
+    const items = [item(16, "구 스냅샷 물질", "ABSORPTION_SOLUTION", null)];
+
+    expect(buildGasSampleGroups(items).map((g) => g.pollutantIds)).toEqual([[16]]);
+    expect(getUnresolvedItems(items)).toEqual([]);
+  });
+
+  // 승격 이전 문서는 methodId 가 없다 — 이름이 같으면 같은 병이다.
+  it("원장 연결키가 없는 구 문서는 측정방법 이름으로 묶는다", () => {
+    const legacy: MeasurementMethodSnapshot = { ...METHOD.CARTRIDGE, methodId: null };
+    const groups = buildGasSampleGroups([
+      item(3, "포름알데히드", legacy, "GAS"),
+      item(4, "아세트알데히드", legacy, "GAS"),
+    ]);
+
+    expect(groups).toEqual([
+      { key: "method-name:카트리지", sampleName: "VOCs", pollutantIds: [3, 4], particulateSource: null },
+    ]);
+  });
+
+  // 규칙이 데이터에서 나오므로 고객사가 만든 방법도 같은 경로로 뭉친다.
+  it("고객사가 새로 만든 통칭 측정방법도 그 통칭명으로 묶는다", () => {
+    const custom: MeasurementMethodSnapshot = {
+      methodId: 42, name: "흡착관(저농도)", sampleGrouping: "MERGED", mergedSampleName: "VOCs-L", samplingMinutes: 60,
+    };
+    const groups = buildGasSampleGroups([
+      item(1, "벤젠", custom, "GAS"),
+      item(2, "톨루엔", custom, "GAS"),
+    ]);
+
+    expect(groups).toEqual([{ key: "method:42", sampleName: "VOCs-L", pollutantIds: [1, 2], particulateSource: null }]);
   });
 
   it("통칭 행을 그룹 첫 항목 자리에 놓아 측정항목 순서를 지킨다", () => {
@@ -200,5 +256,54 @@ describe("hydrateSheets", () => {
     const sheets = [sheetWith([sample([1], "VOCs-T"), sample([2], "암모니아")])];
 
     expect(hydrateSheets(sheets, groups)).toBe(sheets);
+  });
+});
+
+describe("등속흡인 그룹의 기록지 제한", () => {
+  // 비소화합물 — 중금속 여지로 잡으면서 흡수액도 하는 항목. 측정방식은 카탈로그가 정한 HEAVY_METAL 이다.
+  const arsenic = { ...item(5, "비소화합물", "ABSORPTION_SOLUTION", "PARTICLE", "AS"), mode: "HEAVY_METAL" as const };
+  const groups = buildGasSampleGroups([
+    item(1, "벤젠", "ADSORPTION_TUBE", "GAS"),
+    arsenic,
+  ]);
+  const heavyMetalSheet = (samples: SheetForm["samples"]): SheetForm => ({
+    ...getDefaultSheetForm("HEAVY_METAL"),
+    samples,
+  });
+
+  it("등속흡인 항목의 그룹은 그 입자상 기록지 카테고리를 출처로 갖는다", () => {
+    expect(groups.map((g) => g.particulateSource)).toEqual([null, "HEAVY_METAL"]);
+  });
+
+  it("비소화합물은 중금속 기록지에만 놓이고 정유량 그룹은 어디에나 놓인다", () => {
+    const [vocs, as] = groups;
+
+    expect(isGroupAllowedOn(as, "HEAVY_METAL")).toBe(true);
+    expect(isGroupAllowedOn(as, "GAS")).toBe(false);
+    expect(isGroupAllowedOn(as, "DUST")).toBe(false);
+    expect(isGroupAllowedOn(vocs, "GAS")).toBe(true);
+    expect(isGroupAllowedOn(vocs, "HEAVY_METAL")).toBe(true);
+  });
+
+  it("가스상 기록지가 먼저 와도 비소화합물은 건너뛰고 중금속 기록지에 채운다", () => {
+    const [gas, heavyMetal] = hydrateSheets([sheetWith([]), heavyMetalSheet([])], groups);
+
+    expect(gas.samples.map((s) => s.sampleName)).toEqual(["VOCs-T"]);
+    expect(heavyMetal.samples.map((s) => s.sampleName)).toEqual(["비소화합물"]);
+  });
+
+  it("중금속 기록지가 없으면 비소화합물은 미배정으로 남는다", () => {
+    const [gas] = hydrateSheets([sheetWith([])], groups);
+
+    expect(gas.samples.map((s) => s.sampleName)).toEqual(["VOCs-T"]);
+    expect(getUnassignedGroups(groups, [gas]).map((g) => g.sampleName)).toEqual(["비소화합물"]);
+  });
+
+  it("기록지별 미배정 목록은 그 기록지에 놓일 수 있는 것만 담는다", () => {
+    const sheets = [sheetWith([]), heavyMetalSheet([])];
+
+    expect(getUnassignedGroupsFor(groups, sheets, "GAS").map((g) => g.sampleName)).toEqual(["VOCs-T"]);
+    expect(getUnassignedGroupsFor(groups, sheets, "HEAVY_METAL").map((g) => g.sampleName))
+      .toEqual(["VOCs-T", "비소화합물"]);
   });
 });

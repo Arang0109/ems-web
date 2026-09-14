@@ -27,6 +27,8 @@ import { calcParticleSamplingMinutes } from "../model/derived-times";
 import { appendPoint, applyPointPatch, copyPreviousPointValues } from "../model/point-chain";
 import type { GasSampleGroup } from "../model/gaseous-rows";
 import { toSampleForm } from "../model/gaseous-rows";
+import type { SampleRules } from "../model/sample-rules";
+import { getIsokineticDisplay, getSampleEndTime } from "../model/sample-rules";
 import { checkMoistureWeightGain } from "../model/validator";
 import type { SheetFieldState } from "./sheet-field-state";
 import { WeatherSection } from "./sections/WeatherSection";
@@ -51,6 +53,7 @@ interface Props {
    * 이 기록지가 아니라 **측정계획 단위**의 목록이다.
    */
   unassignedGroups: GasSampleGroup[];
+  sampleRules: SampleRules;
   /** 카탈로그 투영값이 없어 자동으로 만들 수 없는 항목 — 수동 추가를 안내한다 */
   unresolvedItemNames: string[];
   /** 다른 사용자의 저장으로 방금 갱신된 섹션 — 어디가 바뀌었는지 짚어준다 */
@@ -77,7 +80,7 @@ const withAutoEndTime = (sheet: SheetForm): SheetForm => ({
 });
 
 export const SheetFormView = ({
-  sheet, previewCalc, externals, assignedPollutants, unassignedGroups, unresolvedItemNames,
+  sheet, previewCalc, externals, assignedPollutants, unassignedGroups, sampleRules, unresolvedItemNames,
   fieldState, editable, updatedSections,
   calcDrawerOpen, onCalcDrawerOpenChange, nav, onChange,
 }: Props) => {
@@ -200,10 +203,19 @@ export const SheetFormView = ({
       samplingPoints: copyPreviousPointValues(s.samplingPoints, index),
     }));
 
+  // 시작시각이 바뀌면 종료시각을 시작 + 표준 채취시간으로 따라 움직인다 — 입자상 섹션의 withAutoEndTime 과 같은 규약.
+  // 채취시간이 없는 항목·등속흡인 행(시각이 입자상 사본)은 getSampleEndTime 이 null 을 주므로 기존 값을 둔다.
+  const withSampleEndTime = (sample: SampleForm, patch: Partial<SampleForm>): SampleForm => {
+    const next = { ...sample, ...patch };
+    if (!("startTime" in patch)) return next;
+    const endTime = getSampleEndTime(next.startTime, next.pollutantIds, sampleRules);
+    return endTime === null ? next : { ...next, endTime };
+  };
+
   const patchSample = (index: number, patch: Partial<SampleForm>) =>
     onChange((s) => ({
       ...s,
-      samples: s.samples.map((sp, i) => (i === index ? { ...sp, ...patch } : sp)),
+      samples: s.samples.map((sp, i) => (i === index ? withSampleEndTime(sp, patch) : sp)),
     }));
 
   const addSample = () => onChange((s) => ({ ...s, samples: [...s.samples, getDefaultSampleForm()] }));
@@ -307,6 +319,8 @@ export const SheetFormView = ({
       <GaseousSection {...fieldProps} {...shellProps("gaseous")}
         samples={sheet.samples}
         unassignedGroups={unassignedGroups}
+        sampleRules={sampleRules}
+        isokineticDisplayOf={(sample) => getIsokineticDisplay(sample, sheet, previewCalc, sampleRules)}
         unresolvedItemNames={unresolvedItemNames}
         editable={editable}
         onSampleChange={patchSample}

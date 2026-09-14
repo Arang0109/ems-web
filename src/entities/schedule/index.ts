@@ -8,7 +8,7 @@ export type {
   ClientSnapshot, WorkplaceSnapshot, StackSnapshot,
   FacilitySnapshot, PreventionSnapshot,
   EquipmentSnapshot, EquipmentSpec, ParticleSamplerSpec,
-  MeasurementItemSnapshot, ItemAnalysisResult,
+  MeasurementItemSnapshot, MeasurementMethodSnapshot, ItemAnalysisResult,
   SamplingSheet, WeatherData, MoistureData, ExhaustGasData,
   FlowRateData, ParticulateSampling, SamplingPoint, IsokineticSampling, GaseousSampling,
   SheetSave, SheetRef,

@@ -6,8 +6,8 @@ import { useRegisterPollutantCatalog } from "../model/hooks/use-register-polluta
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import { measurementFieldOptions, pollutantPhaseOptions } from "@shared/model";
-import type { MeasurementField, PollutantPhase } from "@shared/model";
+import { measurementFieldOptions, measurementModeOptions, pollutantPhaseOptions } from "@shared/model";
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -81,6 +81,21 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             options={pollutantPhaseOptions}
             value={form.phase}
             onValueChange={(value) => value && handleChange("phase", value as PollutantPhase)}
+          />
+        </div>
+
+        {/* 측정방식 분류 — 회사 측정방법(채취 매체)이 아니라 물질의 전역 사실이다. 그룹핑·통계 축. */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="mode"
+            label="측정방식"
+            placeholder="측정방식 선택"
+            options={measurementModeOptions}
+            value={form.mode}
+            onValueChange={(value) => value && handleChange("mode", value as MeasurementMode)}
+            errorMessage={fieldErrors?.mode}
+            helperText="현장측정·먼지·중금속·수은·가스상 채취. 매체(흡수액·카트리지 등)는 고객사가 정합니다."
+            required
           />
         </div>
 
