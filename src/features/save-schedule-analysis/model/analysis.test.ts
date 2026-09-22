@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { AnalysisResult, MeasurementItemSnapshot } from "@entities/schedule";
+import type { AnalysisResult, SamplingItemSnapshot } from "@entities/schedule";
 
 import {
   toAnalysisResultsSave, toAnalysisRows, toReportDatesUpdate, toSamplingTimesSave,
@@ -12,7 +12,7 @@ import {
 } from "./types";
 import { validateAnalysisRows } from "./validator";
 
-const item = (pollutantId: number, nameKr: string): MeasurementItemSnapshot => ({
+const item = (pollutantId: number, nameKr: string): SamplingItemSnapshot => ({
   stackPollutantId: pollutantId + 900,
   pollutantId,
   code: null,
@@ -35,6 +35,7 @@ const item = (pollutantId: number, nameKr: string): MeasurementItemSnapshot => (
 const record = (
   pollutantId: number, value: number | null,
   times: { startedAt?: string | null; endedAt?: string | null } = {},
+  lab: { analysisMethod?: string | null; analysisEquipment?: string | null } = {},
 ): AnalysisResult => ({
   stackPollutantId: pollutantId + 900,
   pollutantId,
@@ -43,8 +44,8 @@ const record = (
   oxygenApplicable: true,
   analysisValue: value,
   unit: "ppm",
-  analysisMethod: "자외선형광법",
-  analysisEquipment: "NOx 분석기",
+  analysisMethod: lab.analysisMethod === undefined ? "자외선형광법" : lab.analysisMethod,
+  analysisEquipment: lab.analysisEquipment === undefined ? "NOx 분석기" : lab.analysisEquipment,
   // 같은 항목의 칸이지만 저장 경로가 갈라진다 — 표는 함께 그리고 요청만 나눈다
   samplingStartedAt: times.startedAt ?? null,
   samplingEndedAt: times.endedAt ?? null,
@@ -112,6 +113,24 @@ describe("toAnalysisRows", () => {
 
     expect(first.samplingStartedAt).toBe("09:30");
     expect(first.hasSavedValue).toBe(false);
+  });
+
+  // 채취시각만 먼저 저장하면 서버 기록의 방법·장비는 null 이다 — 원장 초기값이 지워지면 안 된다
+  it("저장된 기록의 방법·장비가 null 이면 원장 초기값을 유지한다", () => {
+    const [first] = toAnalysisRows(
+      [item(1, "먼지")],
+      [record(1, null, { startedAt: "09:30:00" }, { analysisMethod: null, analysisEquipment: null })],
+    );
+
+    expect(first.analysisMethod).toBe("ES 01301.1");
+    expect(first.analysisEquipment).toBe("자동가스분석기");
+  });
+
+  it("저장된 기록에 방법·장비가 있으면 그 값이 원장 초기값을 이긴다", () => {
+    const [first] = toAnalysisRows([item(1, "먼지")], [record(1, 12)]);
+
+    expect(first.analysisMethod).toBe("자외선형광법");
+    expect(first.analysisEquipment).toBe("NOx 분석기");
   });
 });
 

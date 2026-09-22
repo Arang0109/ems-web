@@ -2,6 +2,7 @@ import type {
   MeasurementField, ScheduleStatus, MeasurementType, Grade, Shape, Orientation,
   SampleGrouping, MeasurementMode, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
   MeasurementCategory, WeatherCondition, WindDirection, InspectionType,
+  TemplateIssueType, TemplateExpressionSource,
 } from "@shared/model";
 
 export type ScheduleListResponse = {
@@ -63,11 +64,22 @@ export type ScheduleResponse = {
 // 장비는 팀 아래(team.equipments), 채취 기록지는 채취 정보 아래(samplingData.sheets),
 // 실험분석 결과는 측정항목 안(items[].analysis)에 있다.
 export type ScheduleSnapshotDto = {
-  team: TeamSnapshotDto;
-  tenant: TenantSnapshotDto;
+  id: string;
+  scheduleId: number;
+  tenantId: number;
+  version: number;
+  
   client: ClientSnapshotDto;
+  tenant: TenantSnapshotDto;
+  team: TeamSnapshotDto;
   samplingData: SamplingSnapshotDto;
-  items: MeasurementItemSnapshotDto[];
+
+  items: SamplingItemSnapshotDto[];
+
+  // 이 회차의 커스텀 필드 값(키 → 값). 키는 고객사가 정의한 커스텀 필드(GET /schedules/custom-fields)이고
+  // 라벨은 그 정의에서 따로 받는다 — 응답에 라벨을 섞으면 정의의 사본이 된다.
+  // 필드 도입 전에 만들어진 문서는 null 로 온다.
+  customFields: Record<string, string> | null;
 };
 
 // 그 회차의 현장 채취 사실 — 채취 시각·현장 담당자·채취 기록지.
@@ -234,7 +246,7 @@ export type MeasurementMethodSnapshotDto = {
   suctionFlowRate: number | null;
 };
 
-export type MeasurementItemSnapshotDto = {
+export type SamplingItemSnapshotDto = {
   stackPollutantId: number;
   pollutantId: number;
   /**
@@ -613,6 +625,35 @@ export type ChangeTenantSnapshotRequest = {
   zipcode?: string | null;
   analyst: string | null;
   technicalManager: string | null;
+};
+
+// 회차 커스텀 필드 값 저장 — PUT /schedules/{id}/custom-fields
+// **전체 채택**이다 — 커스텀 필드 폼이 단독 소유하는 경로라 정의된 필드 전부를 보내며,
+// 요청에 없는 키와 빈 값은 "지웠다"로 읽는다. 키는 이 고객사에 정의된 것이어야 한다(아니면 400).
+// 값은 500자 이하. 계산 입력이 아니라 시트는 재계산되지 않고, 분석값 입력 단계 이후에도 고칠 수 있다.
+export type SaveScheduleCustomFieldsRequest = {
+  values: Record<string, string>;
+};
+
+// 채취기록부 템플릿 검사 결과 — POST /schedules/sampling-records/template-check
+// 템플릿을 채우지 않고 `${...}` 와 `jx:` 메모를 읽어 바인딩 계약에 없는 이름을 돌려준다.
+// 렌더링은 없는 이름을 오류 없이 빈칸으로 넘기므로, 양식을 등록하기 전에 이 검사로 오타를 잡는다.
+export type TemplateCheckResponse = {
+  valid: boolean;
+  issues: TemplateIssueResponse[];
+};
+
+export type TemplateIssueResponse = {
+  sheetName: string;
+  /** 셀 주소(예: "B3"). 시트 단위 문제(AREA_MISSING)면 null */
+  cell: string | null;
+  /** 셀 텍스트인지 메모 명령인지. 시트 단위 문제면 null */
+  source: TemplateExpressionSource | null;
+  /** 문제가 난 표현식 본문. 시트 단위 문제면 null */
+  expression: string | null;
+  /** 문제의 이름 — 미해결 경로는 실패 지점까지의 점 경로(예: "plan.clientNmae") */
+  name: string;
+  type: TemplateIssueType;
 };
 
 // 측정팀 스냅샷 수정 — PATCH /schedules/{id}/team

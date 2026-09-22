@@ -277,7 +277,8 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `equipment` | `useEquipments`, `useEquipmentDetail`, `useInspectionRecords` | `useRegisterEquipmentAction`, `useUpdateEquipmentAction`, `useDeleteEquipmentAction`, `useChangeEquipmentStatusAction`, `useRecordInspectionAction` |
 | `member` | `useMembers`, `useMemberDetail`, `useRoles` | `useRegisterMemberAction`, `useUpdateMemberAction`, `useDeleteMemberAction` |
 | `team` | `useTeams`, `useTeamDetail` | `useRegisterTeamAction`, `useUpdateTeamAction`, `useDeleteTeamAction` |
-| `schedule` | `useSchedules`, `useCanceledSchedules`, `useScheduleDetail`, `useScheduleAnalyses`, `useFetchScheduleDetail`(명령형), `useFetchScheduleAnalyses`(명령형) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateReportDatesAction`, `useChangeTenantAction`, `useChangeTeamAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction` |
+| `schedule` | `useSchedules`, `useCanceledSchedules`, `useScheduleDetail`, `useScheduleAnalyses`, `useFetchScheduleDetail`(명령형), `useFetchScheduleAnalyses`(명령형) | `useRegisterScheduleAction`, `useUpdateScheduleAction`, `useUpdateReportDatesAction`, `useChangeTenantAction`, `useChangeTeamAction`, `useChangeClientAction`, `useChangeItemsAction`, `useChangeEquipmentsAction`, `useSaveSheetsAction`, `useSaveCustomFieldsAction`, `useDeleteScheduleAction`, `useExportSamplingRecordsAction`, `useCheckSamplingRecordTemplateAction`(무효화 없음 — 파일을 올리는 요청형 조회) |
+| `schedule-custom-field` | `useScheduleCustomFields` | `useRegisterScheduleCustomFieldAction`, `useUpdateScheduleCustomFieldAction`, `useDeleteScheduleCustomFieldAction` |
 | `tenant` | `useTenants` | `useProvisionTenantAction` |
 | `chat` | `useChatRooms`, `useChatRoomDetail`, `useChatContacts`, `useChatUnreadCount`, `useChatMessages`(무한), `useChatAttachment`(blob) | `useSendChatMessageAction`(낙관), `useMarkChatRoomReadAction`, `useOpenChatRoomAction`, `useHideChatRoomAction`, `useDownloadChatAttachmentAction`, `useChatRealtime`(STOMP 구독) |
 | `auth` | — | `useAuth`(Context 훅). API: `signInApi`, `signOutApi` |
@@ -327,7 +328,8 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `equipment` | `Equipment`, `EquipmentCreate`, `EquipmentUpdate`, `EquipmentStatusChange`, `InspectionItem`, `InspectionItemInput`, `InspectionRecord`, `InspectionRecordCreate`, `EquipmentSpec` 및 종류별 Spec 타입 |
 | `member` | `Member`, `MemberCreate`, `MemberUpdate`, `Role` |
 | `team` | `Team`, `TeamCreate`, `TeamUpdate` |
-| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`) |
+| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleCustomFieldsSave`, `TemplateCheckResult`·`TemplateIssue`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`, `TemplateIssueDescription`) |
+| `schedule-custom-field` | `ScheduleCustomField`, `ScheduleCustomFieldCreate`, `ScheduleCustomFieldUpdate` |
 | `tenant` | `Tenant`, `TenantProvision`, `TenantAdminCreate` |
 | `chat` | `ChatRoom`, `ChatRoomListItem`, `ChatMessage`, `ChatMessagePage`, `ChatPeer`, `ChatContact`, `ChatAttachment`, `ChatAttachmentDownload`, `ChatDelivery`, `ChatMessageType` |
 

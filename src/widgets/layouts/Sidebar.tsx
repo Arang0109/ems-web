@@ -78,6 +78,7 @@ const MAIN_MENU_ITEMS: MenuItem[] = [
     subItems: [
       { label: "회원 관리", path: "/admin/members" },
       { label: "문서 관리", path: "/admin/documents" },
+      { label: "커스텀 필드", path: "/admin/custom-fields" },
     ],
   },
 ];

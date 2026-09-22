@@ -1,6 +1,6 @@
 import type {
   AnalysisResult, AnalysisResultsSave, SamplingTimesSave,
-  ReportDatesUpdate, TenantSnapshotUpdate, MeasurementItemSnapshot, ScheduleDetail,
+  ReportDatesUpdate, TenantSnapshotUpdate, SamplingItemSnapshot, ScheduleDetail,
 } from "@entities/schedule";
 import { toNumberOrNull, trimValue, unformatTime } from "@shared/lib";
 
@@ -14,7 +14,7 @@ import {
  * 항목 순서는 스냅샷을 따른다 — 측정정보 탭의 측정항목 순서와 어긋나면 대조가 어렵다.
  */
 export const toAnalysisRows = (
-  items: MeasurementItemSnapshot[],
+  items: SamplingItemSnapshot[],
   results: AnalysisResult[],
 ): AnalysisRowForm[] => {
   const resultByPollutantId = new Map(results.map((result) => [result.pollutantId, result]));

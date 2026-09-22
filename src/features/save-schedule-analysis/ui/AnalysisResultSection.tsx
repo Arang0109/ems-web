@@ -225,7 +225,8 @@ export const AnalysisResultSection = ({
               <div className="flex items-center gap-2">
                 {/*
                   기록지는 알데히드류를 VOCs 한 행으로 적지만 여기는 항목마다 한 줄이다.
-                  가져오면 그 한 행의 시각이 해당 항목들로 펴진다.
+                  가져오면 그 한 행의 시각이 해당 항목들로 펴진다. 입자상 항목은 시트 집계에서,
+                  현장측정 항목은 배출가스 분석기 시작시각 + 고정 측정시간(가스분석기 15분·THC 30분)에서 온다.
                 */}
                 <Button
                   size="sm" variant="outline" startIcon={ClipboardList}

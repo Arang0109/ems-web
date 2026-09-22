@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
-  AnalysisResult, MeasurementItemSnapshot, SamplingSheet,
+  AnalysisResult, SamplingItemSnapshot, SamplingSheet,
 } from "@entities/schedule";
 import {
   useScheduleAnalyses, useFetchScheduleAnalyses,
@@ -23,7 +23,7 @@ import {
 
 interface Params {
   scheduleId: number | null;
-  items: MeasurementItemSnapshot[];
+  items: SamplingItemSnapshot[];
   /** 현장 기록지 — 통칭 시료 행의 채취시각을 항목별로 펴 오는 데 쓴다 */
   sheets: SamplingSheet[];
   /** 저장 후 상위(측정계획 상세)를 재조회해 상태 배지·완료 버튼을 갱신한다. */
@@ -118,7 +118,8 @@ export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Para
    * 통칭 시료 한 행이 여러 항목으로 펴진다 — `VOCs` 09:00~10:00 은 포름알데히드·아세트알데히드
    * 두 행에 같은 시각으로 들어간다. 근거는 시료 행의 `pollutantIds` 이며, 그것이 없는
    * 옛 기록지·수동 행은 가져올 것이 없다. 입자상 기록지의 시각은 시료 행이 아니라 시트 집계에
-   * 있고 항목과의 대응은 측정항목의 `mode` 가 정하므로 `items` 를 함께 넘긴다.
+   * 있고 항목과의 대응은 측정항목의 `mode` 가 정하므로 `items` 를 함께 넘긴다. 현장측정 항목은
+   * 배출가스 분석기 시작시각 + 고정 측정시간(가스분석기 15분·THC 30분)이다.
    *
    * 덮어쓰기이므로 무엇이 바뀌는지 먼저 밝히고 확인받는다.
    */

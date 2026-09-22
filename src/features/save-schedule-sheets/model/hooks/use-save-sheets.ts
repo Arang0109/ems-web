@@ -128,6 +128,8 @@ export const useSaveSheets = ({
   const { recoverFromConflict, announceRecovered } = useSheetConflict({ scheduleId, fetchSchedule, confirm });
 
   const addSheet = (category: MeasurementCategory) => {
+    // 기록지는 카테고리당 한 장 — 기준선·삭제 목록이 카테고리를 키로 쓰므로 두 장이면 깨진다.
+    if (sheets.some((sheet) => sheet.category === category)) return;
     // 측정점 수는 굴뚝 치수 기반 규정 요구수로 자동 생성(치수 미입력이면 1개). 수동 조정 가능.
     const pointCount = calcRequiredPointCount(externals) ?? 1;
     // 새 기록지의 가스상 표도 측정항목으로 채운다. 아직 어느 기록지에도 없는 것만 들어간다.

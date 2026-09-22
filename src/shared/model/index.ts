@@ -31,6 +31,7 @@ export type {
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
+  TemplateIssueType, TemplateExpressionSource,
   AddressValue
 } from './types/common-types';
 

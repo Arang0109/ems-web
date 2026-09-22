@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementItemSnapshot, MeasurementMethodSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot, MeasurementMethodSnapshot } from "@entities/schedule";
 import type { PollutantPhase } from "@shared/model";
 
 import {
@@ -31,7 +31,7 @@ const item = (
   method: keyof typeof METHOD | MeasurementMethodSnapshot | null,
   phase: PollutantPhase | null,
   code: string | null = null,
-): MeasurementItemSnapshot => ({
+): SamplingItemSnapshot => ({
   stackPollutantId: pollutantId * 100,
   pollutantId,
   code,

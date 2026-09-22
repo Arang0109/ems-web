@@ -7,8 +7,6 @@ import type { MoistureForm, SamplingPointForm } from "../types";
 import {
   calcMoistureSamplingMinutes,
   calcParticleSamplingMinutes,
-  calcGasAnalyzerEndTime,
-  calcThcAnalyzerEndTime,
 } from "./derived-times";
 
 const point = (samplingTime: string): SamplingPointForm => ({
@@ -24,23 +22,6 @@ const moisture = (suctionVelocity: string): MoistureForm => ({
 /** 수분 파생에 필요한 vm_g 만 담은 최소 미리보기 */
 const previewWithVm = (vm_g: number | null): SheetCalcPreview =>
   ({ moisture: { vm_g } } as SheetCalcPreview);
-
-describe("calcGasAnalyzerEndTime / calcThcAnalyzerEndTime", () => {
-  it("가스분석기는 15분, THC 는 30분을 더한다", () => {
-    expect(calcGasAnalyzerEndTime("10:00")).toBe("10:15");
-    expect(calcThcAnalyzerEndTime("10:00")).toBe("10:30");
-  });
-
-  it("자정을 넘기면 순환한다", () => {
-    expect(calcGasAnalyzerEndTime("23:50")).toBe("00:05");
-    expect(calcThcAnalyzerEndTime("23:50")).toBe("00:20");
-  });
-
-  it("시작이 비면 null — 표시 대체값은 호출부가 정한다", () => {
-    expect(calcGasAnalyzerEndTime("")).toBeNull();
-    expect(calcThcAnalyzerEndTime("")).toBeNull();
-  });
-});
 
 describe("calcParticleSamplingMinutes", () => {
   it("지점별 채취시간을 합산한다", () => {

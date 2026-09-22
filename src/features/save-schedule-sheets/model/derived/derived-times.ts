@@ -15,19 +15,12 @@ import type { MoistureForm, SamplingPointForm, SheetForm } from "../types";
  * 그 규칙을 여기 한 곳에 모아 입력 화면·인쇄 미리보기·타임라인이 같은 값을 쓰게 한다.
  */
 
-/** 가스분석기 측정은 시작 후 15분 고정 (서버 `ExhaustGasData` 주석과 같은 규약) */
-export const GAS_ANALYZER_DURATION_MINUTES = 15;
-
-/** THC 분석기 측정은 시작 후 30분 고정 */
-export const THC_ANALYZER_DURATION_MINUTES = 30;
-
-/** 가스분석기 측정 종료시각. 시작이 비었으면 `null` — 표시용 대체값은 호출부가 정한다. */
-export const calcGasAnalyzerEndTime = (start: string): string | null =>
-  addMinutes(start, GAS_ANALYZER_DURATION_MINUTES);
-
-/** THC 측정 종료시각. 시작이 비었으면 `null`. */
-export const calcThcAnalyzerEndTime = (start: string): string | null =>
-  addMinutes(start, THC_ANALYZER_DURATION_MINUTES);
+// 분석기 고정 측정시간(가스분석기 15분·THC 30분)은 성적서 탭(항목별 채취시각 가져오기)도 쓰므로
+// entities/schedule/lib 에 있다. 이 슬라이스 안의 소비처가 여기서 가져가던 이름을 그대로 유지한다.
+export {
+  GAS_ANALYZER_DURATION_MINUTES, THC_ANALYZER_DURATION_MINUTES,
+  calcGasAnalyzerEndTime, calcThcAnalyzerEndTime,
+} from "@entities/schedule";
 
 /**
  * 입자상 총 채취시간(분) — 지점별 채취시간의 합.

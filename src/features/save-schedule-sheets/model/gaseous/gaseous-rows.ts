@@ -2,7 +2,7 @@
 // (sample-rules: 등속흡인 잠금·종료시각 기본값). 서버의 IsokineticSampleStep·SamplingEndTimeStep·
 // requireIsokineticRowsOnSourceSheet 와 같은 판정이어야 하므로 여기 한 곳에 모은다.
 
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import { toFormValue } from "@shared/lib";
 import type { MeasurementCategory } from "@shared/model";
 
@@ -55,7 +55,7 @@ export type GasSampleGroup = {
  * 통칭 행을 묶는 키. 원장 연결키(`methodId`)가 기준이지만, 측정방법 승격 이전 문서는 마이그레이션이
  * enum 문자열을 사본으로 바꾼 것이라 `methodId` 가 없다 — 그때는 이름으로 묶는다.
  */
-const methodKeyOf = (method: NonNullable<MeasurementItemSnapshot["method"]>): string =>
+const methodKeyOf = (method: NonNullable<SamplingItemSnapshot["method"]>): string =>
   method.methodId !== null ? `method:${method.methodId}` : `method-name:${method.name}`;
 
 /**
@@ -65,15 +65,15 @@ const methodKeyOf = (method: NonNullable<MeasurementItemSnapshot["method"]>): st
  * 측정방법이 null 인 항목(카탈로그 도입 이전 스냅샷·고객사 자체 물질·측정방법 미지정)은 자동으로
  * 만들지 않는다. 사용자가 직접 추가하도록 화면에서 안내만 한다.
  */
-const isGasSampling = (item: MeasurementItemSnapshot): boolean =>
+const isGasSampling = (item: SamplingItemSnapshot): boolean =>
   item.method !== null && item.method.sampleGrouping !== "NONE" && item.mode !== "DIRECT_READING";
 
 /**
  * 자동으로 만들 수 없어 사용자에게 알려야 하는 항목 — 측정방법이 비어 있다.
  */
 export const getUnresolvedItems = (
-  items: MeasurementItemSnapshot[],
-): MeasurementItemSnapshot[] =>
+  items: SamplingItemSnapshot[],
+): SamplingItemSnapshot[] =>
   items.filter((item) => item.method === null);
 
 /**
@@ -83,7 +83,7 @@ export const getUnresolvedItems = (
  * `items` 순서가 곧 성적서 표기 순서라 임의로 정렬하면 기록지와 성적서가 어긋난다.
  */
 export const buildGasSampleGroups = (
-  items: MeasurementItemSnapshot[],
+  items: SamplingItemSnapshot[],
 ): GasSampleGroup[] => {
   const groups: GasSampleGroup[] = [];
   const mergedIndexByKey = new Map<string, number>();

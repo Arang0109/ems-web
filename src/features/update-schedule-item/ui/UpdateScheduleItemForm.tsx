@@ -1,4 +1,4 @@
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Checkbox, FieldGroup, InputGroup, Select } from "@shared/ui/form";
 import { measurementCycleOptions } from "@shared/model";
@@ -9,7 +9,7 @@ import { useUpdateScheduleItem } from "../model/hooks/use-update-schedule-item";
 interface Props {
   scheduleId: number;
   /** 정정할 측정항목(이 회차 문서의 스냅샷) */
-  item: MeasurementItemSnapshot;
+  item: SamplingItemSnapshot;
   /** 측정시설 원장에 남아 있는 같은 항목의 id — 없으면(삭제된 항목) 원장 반영을 제안하지 않는다 */
   stackPollutantId: number | null;
   /** 측정시설의 기준산소농도(%) — null 이면 산소보정을 적용할 근거가 없어 묻지 않는다 */

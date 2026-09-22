@@ -55,6 +55,13 @@ export const WIND_DIRECTION = ['CALM', 'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE'
 
 // 문서(document) 분류 — 서버 global.common.enums.DocumentCategory 와 동일한 규격
 export const DOCUMENT_CATEGORY = ['SAMPLING_RECORD_TEMPLATE', 'CONTRACT', 'CERTIFICATE', 'ETC'] as const;
+// 채취기록부 템플릿 검사가 구분하는 문제 종류 — 서버 `TemplateIssueType`. 렌더링은 이 중 어느 것도
+// 실패로 보지 않고 빈칸으로 넘기므로(PARSE_ERROR 제외), 검사가 오타를 잡는 유일한 자리다.
+export const TEMPLATE_ISSUE_TYPE = [
+  'UNKNOWN_ROOT', 'UNKNOWN_PROPERTY', 'UNKNOWN_CUSTOM_KEY', 'PARSE_ERROR', 'AREA_MISSING',
+] as const;
+// 표현식이 있던 자리 — 셀 텍스트의 `${...}` 인지 셀 메모의 `jx:` 명령인지.
+export const TEMPLATE_EXPRESSION_SOURCE = ['CELL', 'COMMENT'] as const;
 
 // 계약(contract) — 계약금액 단위
 export const CONTRACT_AMOUNT_UNIT = ['MONTH', 'QUARTER', 'SEMI_ANNUAL', 'ANNUAL', 'TOTAL'] as const;
@@ -92,6 +99,8 @@ export type MeasurementCategory = typeof MEASUREMENT_CATEGORY[number];
 export type WeatherCondition = typeof WEATHER_CONDITION[number];
 export type WindDirection = typeof WIND_DIRECTION[number];
 export type DocumentCategory = typeof DOCUMENT_CATEGORY[number];
+export type TemplateIssueType = typeof TEMPLATE_ISSUE_TYPE[number];
+export type TemplateExpressionSource = typeof TEMPLATE_EXPRESSION_SOURCE[number];
 export type ContractAmountUnit = typeof CONTRACT_AMOUNT_UNIT[number];
 export type TenantStatus = typeof TENANT_STATUS[number];
 export type SubscriptionPlan = typeof SUBSCRIPTION_PLAN[number];

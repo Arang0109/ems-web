@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import { addDays } from 'date-fns';
 
 import { toDateKey } from '@shared/lib';
+import { definedCustomFieldKeys } from './schedule-custom-field';
 import { MEASUREMENT_CATEGORY_LABEL } from '@shared/config';
 import {
   canTransitionScheduleStatus, isTerminalScheduleStatus, canDeleteSchedule, canReopenSchedule,
@@ -86,6 +87,12 @@ type BasicInfoKey =
 
 type MockBasicInfo = Partial<Record<BasicInfoKey, string>>;
 const basicInfoStore: Record<number, MockBasicInfo> = {};
+
+// 회차별 커스텀 필드 값(키 → 값). 정의(`schedule-custom-field.ts`)를 지워도 여기 값은 남는다 — 서버와 같다.
+// id 1 은 값이 있는 상태, 나머지는 필드 도입 전 문서처럼 null 로 둔다.
+const customFieldValueStore: Record<number, Record<string, string> | null> = {
+  1: { siteCode: 'A-01', inspector: '홍길동' },
+};
 
 /**
  * 부분 갱신 경로의 공통 처리 — null·빈 문자열은 "기존 값 유지"다(서버 SnapshotMerge.keep 규칙).
@@ -282,6 +289,7 @@ const buildSnapshot = (schedule: MockSchedule) => ({
       // 실험분석 결과는 항목 안에 있다. 아직 분석 전이면 null 이며 정상 상태다.
       analysis: null,
     })),
+  customFields: customFieldValueStore[schedule.id] ?? null,
 });
 
 // 팀 스냅샷이 품는 이 회차의 장비. 서버가 유형별 슬롯 대신 목록 하나로 관리한다.
@@ -622,6 +630,65 @@ export const scheduleHandlers = [
   // 측정팀 스냅샷 수정 — 이 회차 측정자 표기만 바꾼다.
   http.patch(`${BASE_URL}/schedules/:id/team`, async ({ params, request }) =>
     patchBasicInfo(params.id, request, TEAM_MEMBER_KEYS, '측정팀 스냅샷 수정 성공')),
+
+  // 회차 커스텀 필드 값 저장 — 전체 채택. 빠진 키·빈 값은 지우고, 정의에 없는 키는 400.
+  http.put(`${BASE_URL}/schedules/:id/custom-fields`, async ({ params, request }) => {
+    const id = Number(params.id);
+    const schedule = schedules.find((s) => s.id === id);
+    if (!schedule) {
+      return HttpResponse.json({ status: false, message: '측정계획을 찾을 수 없습니다.', data: null }, { status: 404 });
+    }
+    if (isTerminalScheduleStatus(schedule.status)) {
+      return HttpResponse.json(
+        { status: false, message: '성적서 작성이 완료되었거나 취소된 측정계획은 수정할 수 없습니다.', data: null },
+        { status: 409 },
+      );
+    }
+
+    const body = (await request.json()) as { values?: Record<string, string> };
+    const values = body.values ?? {};
+    const defined = definedCustomFieldKeys();
+    const undefinedKeys = Object.keys(values).filter((key) => !defined.has(key)).sort();
+    if (undefinedKeys.length > 0) {
+      return HttpResponse.json(
+        { status: false, message: `정의되지 않은 커스텀 필드입니다. (${undefinedKeys.join(', ')})`, data: null },
+        { status: 400 },
+      );
+    }
+
+    customFieldValueStore[id] = Object.fromEntries(
+      Object.entries(values).filter(([, value]) => typeof value === 'string' && value.trim() !== ''),
+    );
+
+    return HttpResponse.json({ status: true, message: '커스텀 필드 값 저장 성공', data: buildScheduleResponse(schedule) });
+  }),
+
+  // 채취기록부 템플릿 검사 — 실제 xlsx 를 읽지는 않는다. 파일명으로 결과를 가른다:
+  // 이름에 'bad' 가 있으면 대표 문제 3종을, 아니면 통과를 돌려준다(화면 배선 확인용).
+  http.post(`${BASE_URL}/schedules/sampling-records/template-check`, async ({ request }) => {
+    const formData = await request.formData();
+    const template = formData.get('template');
+    if (!(template instanceof File)) {
+      return HttpResponse.json({ status: false, message: '템플릿 파일이 필요합니다.', data: null }, { status: 400 });
+    }
+    if (!template.name.toLowerCase().endsWith('.xlsx')) {
+      return HttpResponse.json(
+        { status: false, message: '엑셀 템플릿 처리에 실패했습니다. 템플릿의 jxls 문법을 확인해 주세요.', data: null },
+        { status: 422 },
+      );
+    }
+
+    const issues = template.name.toLowerCase().includes('bad')
+      ? [
+        { sheetName: 'Record', cell: 'B3', source: 'CELL', expression: 'plan.clientNmae', name: 'plan.clientNmae', type: 'UNKNOWN_PROPERTY' },
+        { sheetName: 'Record', cell: 'A6', source: 'COMMENT', expression: 'pointz', name: 'pointz', type: 'UNKNOWN_ROOT' },
+        { sheetName: 'Record', cell: 'D2', source: 'CELL', expression: 'custom.siteCod', name: 'custom.siteCod', type: 'UNKNOWN_CUSTOM_KEY' },
+        { sheetName: 'Notes', cell: null, source: null, expression: null, name: 'jx:area', type: 'AREA_MISSING' },
+      ]
+      : [];
+
+    return HttpResponse.json({ status: true, message: '템플릿 검사 성공', data: { valid: issues.length === 0, issues } });
+  }),
 
   // 성적서 작성 완료 확정 — 전이 규칙은 프론트·서버가 공유한다(허용되지 않는 전이는 400).
   http.post(`${BASE_URL}/schedules/:id/completion`, ({ params }) => {

@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react';
 
 import { useReorderItemsAction } from '@entities/schedule';
-import type { MeasurementItemSnapshot } from '@entities/schedule';
+import type { SamplingItemSnapshot } from '@entities/schedule';
 import { moveItem } from '@shared/lib';
 import { toast } from '@shared/ui/toasts';
 
 interface Props {
   scheduleId: number;
-  items: MeasurementItemSnapshot[];
+  items: SamplingItemSnapshot[];
   /** 저장이 거절됐을 때 서버의 실제 순서를 다시 받아오기 위한 재조회 */
   onRefetch: () => void;
 }
@@ -30,7 +30,7 @@ export const useReorderScheduleItems = ({ scheduleId, items, onRefetch }: Props)
   const { reorderItems, isLoading } = useReorderItemsAction();
 
   // 서버 목록 위에 얹는 낙관적 순서. null 이면 서버 목록을 그대로 쓴다.
-  const [optimistic, setOptimistic] = useState<MeasurementItemSnapshot[] | null>(null);
+  const [optimistic, setOptimistic] = useState<SamplingItemSnapshot[] | null>(null);
 
   // 항목 교체·정정 후 서버 목록이 갈리면 낙관적 순서를 버린다.
   // useEffect + setState 는 cascading render 를 만들므로, 렌더 중에 바로 조정한다.

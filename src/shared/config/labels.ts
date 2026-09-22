@@ -5,6 +5,7 @@ import type {
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
+  TemplateIssueType, TemplateExpressionSource,
 } from "../model";
 import type { DateRangePreset } from "../lib";
 import type { StatusTone } from "../ui/badges/tones";
@@ -208,6 +209,21 @@ export const DOCUMENT_CATEGORY_LABEL: Record<DocumentCategory, string> = {
   CONTRACT: '계약서',
   CERTIFICATE: '인증서',
   ETC: '기타',
+};
+
+/** 템플릿 검사 문제 종류. 고객이 양식을 고칠 수 있게 "무엇이 잘못됐는지"를 말한다. */
+export const TEMPLATE_ISSUE_TYPE_LABEL: Record<TemplateIssueType, string> = {
+  UNKNOWN_ROOT: '알 수 없는 변수',
+  UNKNOWN_PROPERTY: '없는 항목 이름',
+  UNKNOWN_CUSTOM_KEY: '정의되지 않은 커스텀 필드',
+  PARSE_ERROR: '표현식 문법 오류',
+  AREA_MISSING: 'jx:area 메모 없음',
+};
+
+/** 문제가 난 표현식의 위치 종류. */
+export const TEMPLATE_EXPRESSION_SOURCE_LABEL: Record<TemplateExpressionSource, string> = {
+  CELL: '셀',
+  COMMENT: '메모',
 };
 
 export const CONTRACT_AMOUNT_UNIT_LABEL: Record<ContractAmountUnit, string> = {

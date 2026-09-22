@@ -1,11 +1,9 @@
 import { useMemo, useState } from "react";
-import { Calculator, Copy, FileCheck, History, Plus, Save, X } from "lucide-react";
+import { Calculator, Copy, FileCheck, History, Save, X } from "lucide-react";
 
 import type { ScheduleDetail, ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
-import { measurementCategoryOptions } from "@shared/model";
 import type { FieldTone, MeasurementCategory, ScheduleStatus } from "@shared/model";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
-import { Select } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
 import { useConfirm, useUnsavedChangesGuard } from "@shared/ui/dialogs";
 import { StickyActionBar } from "@shared/ui/layout";
@@ -26,6 +24,7 @@ import type { SheetFieldState } from "./sheet-field-state";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { SheetFormView } from "./SheetFormView";
 import { LoadPreviousSheetDialog } from "./LoadPreviousSheetDialog";
+import { AddSheetPopover } from "./AddSheetPopover";
 import { SamplingTimelinePopover } from "./timeline/SamplingTimelinePopover";
 import { ReportPreviewModal } from "./report/ReportPreviewModal";
 import { ExportSamplingRecordsModal } from "./ExportSamplingRecordsModal";
@@ -63,7 +62,6 @@ export const SheetsEditor = ({
     scheduleId, activeSheet, updateActiveSheet, onLoaded: borrowed.mark,
   });
 
-  const [newCategory, setNewCategory] = useState<MeasurementCategory>("GAS");
   const [previewOpen, setPreviewOpen] = useState(false);
   // 계산값 드로어의 입구는 액션 바에 있고 표면은 SheetFormView 가 그린다 —
   // 그쪽이 배출가스 노출 판정·노즐 추정치를 이미 들고 있어 열림 상태만 위로 올린다.
@@ -178,19 +176,8 @@ export const SheetsEditor = ({
         )}
 
         {editable && (
-          <div className="ml-auto flex items-center gap-2">
-            <Select
-              className="w-32"
-              value={newCategory}
-              options={measurementCategoryOptions}
-              onValueChange={(v) => setNewCategory((v ?? "GAS") as MeasurementCategory)}
-            />
-            <Button
-              variant="default" aria-label="기록지 추가"
-              onClick={() => addSheet(newCategory)}
-            >
-              <Plus size={19} />
-            </Button>
+          <div className="ml-auto">
+            <AddSheetPopover existing={sheets.map((sheet) => sheet.category)} onAdd={addSheet} />
           </div>
         )}
       </div>
@@ -260,12 +247,12 @@ export const SheetsEditor = ({
             onChange={handleBasicInfoChange}
           />
           <SheetFormView
-            // 인덱스만으로는 부족하다 — 다른 사용자가 앞쪽 기록지를 지우면 같은 인덱스가 다른 기록지를
-            // 가리키게 되는데, 그때 리마운트되지 않으면 배출가스 입력칸 노출 판정 같은 내부 상태가
-            // 이전 기록지 것으로 남는다. 카테고리는 중복 추가가 가능하므로 인덱스와 함께 쓴다.
-            // 이전 기록 불러오기도 같은 이유로 key 를 바꾼다 — 인덱스·카테고리는 그대로인데
+            // 기록지는 카테고리당 한 장이라 카테고리가 곧 식별자다. 인덱스로 키를 잡으면
+            // 다른 사용자가 앞쪽 기록지를 지웠을 때 같은 인덱스가 다른 기록지를 가리키는데,
+            // 그때 리마운트되지 않으면 배출가스 입력칸 노출 판정 같은 내부 상태가 이전 기록지 것으로 남는다.
+            // 이전 기록 불러오기·동기화도 같은 이유로 key 를 바꾼다 — 카테고리는 그대로인데
             // 내용만 통째로 갈리므로, loadedKey 가 없으면 노출 판정이 불러오기 전 값으로 남는다.
-            key={`${activeIndex}-${activeSheet.category}-${loadedKey}-${syncedKey}`}
+            key={`${activeSheet.category}-${loadedKey}-${syncedKey}`}
             sheet={activeSheet}
             previewCalc={previewCalc}
             externals={externals}

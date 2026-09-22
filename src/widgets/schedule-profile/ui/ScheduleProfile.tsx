@@ -8,6 +8,7 @@ import { EquipmentInfo } from "./children/EquipmentInfo";
 import { SheetInput } from "./children/SheetInput";
 import { AnalysisInput } from "./children/AnalysisInput";
 import { ReportInfo } from "./children/ReportInfo";
+import { CustomFieldsInfo } from "./children/CustomFieldsInfo";
 
 export const ScheduleProfile = () => {
   const { scheduleId } = useParams<{ scheduleId: string }>();
@@ -74,7 +75,16 @@ export const ScheduleProfile = () => {
       // 본문이 섹션 카드로 구성되므로 탭의 카드 셸은 끈다.
       panel: false,
       content: (
-        <ReportInfo scheduleId={id} snapshot={snapshot} editable={editable} onRefetch={refetch} />
+        <ReportInfo scheduleId={id} snapshot={snapshot} status={status} editable={editable} onRefetch={refetch} />
+      ),
+    },
+    {
+      value: "custom",
+      label: "추가 항목",
+      // 본문이 섹션 카드로 구성되므로 탭의 카드 셸은 끈다.
+      panel: false,
+      content: (
+        <CustomFieldsInfo scheduleId={id} snapshot={snapshot} editable={editable} onRefetch={refetch} />
       ),
     },
     {

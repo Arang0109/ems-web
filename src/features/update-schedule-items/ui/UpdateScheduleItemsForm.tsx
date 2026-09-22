@@ -1,4 +1,4 @@
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Checkbox, FieldGroup } from "@shared/ui/form";
@@ -10,7 +10,7 @@ interface Props {
   /** 측정시설(원장)에 등록된 측정항목 — 선택 후보 */
   stackPollutants: StackPollutantListItem[];
   /** 이번 계획에 포함된 측정항목(스냅샷) */
-  items: MeasurementItemSnapshot[];
+  items: SamplingItemSnapshot[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementItemSnapshot, SheetCalcPreview } from "@entities/schedule";
+import type { SamplingItemSnapshot, SheetCalcPreview } from "@entities/schedule";
 import type { MeasurementMode } from "@shared/model";
 
 import {
@@ -12,7 +12,7 @@ import { getDefaultSampleForm, getDefaultSheetForm } from "../types";
 
 /** 규칙에 필요한 세 필드만 담은 최소 항목 */
 const item = (pollutantId: number, mode: MeasurementMode | null, samplingMinutes: number | null) =>
-  ({ pollutantId, mode, samplingMinutes } as MeasurementItemSnapshot);
+  ({ pollutantId, mode, samplingMinutes } as SamplingItemSnapshot);
 
 const ARSENIC = 31;   // HEAVY_METAL — 등속흡인
 const SO2 = 32;       // GAS_SAMPLING 30분

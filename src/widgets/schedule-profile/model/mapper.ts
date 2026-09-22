@@ -1,4 +1,4 @@
-import type { EquipmentSnapshot, EquipmentSpec, MeasurementItemSnapshot } from "@entities/schedule";
+import type { EquipmentSnapshot, EquipmentSpec, SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import {
   MEASUREMENT_FIELD_LABEL, GRADE_LABEL, SHAPE_LABEL, ORIENTATION_LABEL,
@@ -74,7 +74,7 @@ export const describeEquipmentSpec = (equip: EquipmentSnapshot): EquipmentSpecIt
 // 포함된 것(items)만 current 로 갈라 담는다. 원장을 아직 못 받아왔거나 원장에서
 // 사라진 항목도 누락되면 안 되므로 items 쪽을 한 번 더 훑어 보충한다.
 export const groupPollutantsByCycle = (
-  items: MeasurementItemSnapshot[],
+  items: SamplingItemSnapshot[],
   stackPollutants: StackPollutantListItem[],
   standardOxygen: number | null,
 ): PollutantCycleGroup[] => {
@@ -142,7 +142,7 @@ export const groupPollutantsByCycle = (
 // 성적서 탭용 측정항목 목록. 스냅샷 배열 순서가 곧 성적서의 표기 순서이므로 정렬하지 않고 그대로 옮긴다.
 // 측정주기로 묶지 않는 것도 같은 이유다 — 성적서 순서는 계획 전체에 대한 하나의 순서다.
 export const toReportItems = (
-  items: MeasurementItemSnapshot[],
+  items: SamplingItemSnapshot[],
   standardOxygen: number | null,
 ): ReportItem[] =>
   items.map((item) => ({

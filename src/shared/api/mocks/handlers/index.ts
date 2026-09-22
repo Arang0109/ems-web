@@ -12,6 +12,7 @@ import { memberHandlers, roleHandlers } from './member';
 import { documentHandlers } from './document';
 import { equipmentHandlers } from './equipment';
 import { teamHandlers } from './team';
+import { scheduleCustomFieldHandlers } from './schedule-custom-field';
 import { scheduleHandlers } from './schedule';
 import { chatHandlers } from './chat';
 
@@ -39,6 +40,8 @@ const REGISTRY = {
   document: documentHandlers,
   equipment: equipmentHandlers,
   team: teamHandlers,
+  // `/schedules/custom-fields` 는 `/schedules/:id` 보다 먼저 매칭돼야 하므로 schedule 앞에 둔다(flatMap 순서 = 등록 순서).
+  scheduleCustomField: scheduleCustomFieldHandlers,
   schedule: scheduleHandlers,
   chat: chatHandlers,
 } as const;
@@ -67,6 +70,7 @@ const ENABLED: (keyof typeof REGISTRY)[] = [
   'document',
   'equipment',
   'team',
+  'scheduleCustomField',
   'schedule',
   // 채팅 — 목록·페이징·전송·첨부까지는 목으로 확인된다. 다만 **실시간은 재현되지 않는다** —
   // MSW 가 이 설정으로 WebSocket 을 가로채지 않기 때문이다. 상대방발 메시지·읽음·접속 상태를

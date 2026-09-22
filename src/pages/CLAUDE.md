@@ -205,6 +205,7 @@ sub-domain/
 | `chat` | `/chat/:roomId` | ChatPage | ProtectedRoute |
 | `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
 | `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
+| `admin/custom-field` | `/admin/custom-fields` | AdminCustomFieldPage | **AdminRoute** |
 | `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
 | `platform/pollutant-catalog` | `/platform/pollutant-catalog` | PlatformPollutantCatalogPage | **PlatformRoute** |
 

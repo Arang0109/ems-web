@@ -5,6 +5,7 @@ import { downloadBlob } from "@shared/lib";
 import { toast } from "@shared/ui/toasts";
 
 import { useReportTemplate } from "./use-report-template";
+import { useTemplateCheck } from "./use-template-check";
 
 interface Params {
   scheduleId: number | null;
@@ -20,6 +21,14 @@ export const useExportReport = ({ scheduleId }: Params) => {
   const [isExporting, setIsExporting] = useState(false);
 
   const template = useReportTemplate({ enabled: isDialogOpen });
+
+  // 내려받기 전에 양식의 이름 오류를 잡는다. 선택한 문서·버전이 바뀌면 지난 결과는 감춘다.
+  const check = useTemplateCheck({
+    resolveTemplateFile: template.resolveTemplateFile,
+    selectionKey: template.documentId != null && template.selectedVersion
+      ? `${template.documentId}:${template.selectedVersion.versionNo}`
+      : null,
+  });
 
   const handleExport = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,6 +54,7 @@ export const useExportReport = ({ scheduleId }: Params) => {
     isDialogOpen,
     isExporting,
     template,
+    check,
 
     setIsDialogOpen,
     handleExport,

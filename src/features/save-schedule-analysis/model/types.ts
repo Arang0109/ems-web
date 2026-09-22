@@ -1,4 +1,4 @@
-import type { AnalysisResult, MeasurementItemSnapshot } from "@entities/schedule";
+import type { AnalysisResult, SamplingItemSnapshot } from "@entities/schedule";
 import { formatTime } from "@shared/lib";
 import { toMeasurementUnit, type MeasurementUnit } from "@shared/model";
 
@@ -86,7 +86,7 @@ export const isSamplingTimeChanged = (
 };
 
 /** 스냅샷 측정항목만으로 만든 빈 행(아직 분석 기록이 없는 항목). */
-export const toEmptyRow = (item: MeasurementItemSnapshot): AnalysisRowForm => ({
+export const toEmptyRow = (item: SamplingItemSnapshot): AnalysisRowForm => ({
   pollutantId: item.pollutantId,
   hasSavedValue: false,
   pollutantName: item.nameKr,
@@ -112,6 +112,8 @@ export const toSavedRow = (row: AnalysisRowForm, result: AnalysisResult): Analys
   analysisValue: result.analysisValue === null ? "" : String(result.analysisValue),
   // 예전 기록에는 enum 값이 아니라 표기('ppm')가 들어 있어 Select 가 고를 수 있는 값으로 되돌린다
   unit: toMeasurementUnit(result.unit),
-  analysisMethod: result.analysisMethod ?? "",
-  analysisEquipment: result.analysisEquipment ?? "",
+  // 채취시각만 먼저 저장하면 서버가 나머지 칸이 null 인 기록을 만든다 — 그 null 로 원장에서 채운
+  // 초기값(`toEmptyRow`)을 덮으면 실험실이 방법·장비를 매번 다시 적어야 한다.
+  analysisMethod: result.analysisMethod ?? row.analysisMethod,
+  analysisEquipment: result.analysisEquipment ?? row.analysisEquipment,
 });

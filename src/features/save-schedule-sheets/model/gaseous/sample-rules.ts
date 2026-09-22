@@ -1,4 +1,4 @@
-import type { MeasurementItemSnapshot, SheetCalcPreview } from "@entities/schedule";
+import type { SamplingItemSnapshot, SheetCalcPreview } from "@entities/schedule";
 import { particulateSourceOf } from "@entities/schedule";
 import { MINUTES_PER_DAY, addMinutes, roundHalfUp, toMinutes, toNumberOrNull } from "@shared/lib";
 import type { MeasurementCategory } from "@shared/model";
@@ -38,7 +38,7 @@ export const ISOKINETIC_DERIVED_FIELDS: readonly SampleFieldKey[] = [
   "startTime", "endTime", "suctionQuantity", "beforeVolume", "afterVolume", "samplingVolume",
 ];
 
-export const buildSampleRules = (items: MeasurementItemSnapshot[]): SampleRules =>
+export const buildSampleRules = (items: SamplingItemSnapshot[]): SampleRules =>
   new Map(items.map((item) => [
     item.pollutantId,
     { particulateSource: particulateSourceOf(item.mode), samplingMinutes: item.samplingMinutes },

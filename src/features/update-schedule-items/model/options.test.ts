@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 
 import { toItemGroups } from "./options";
@@ -29,10 +29,10 @@ const stackPollutant = (
 const snapshotItem = (
   pollutantId: number,
   nameKr: string,
-  cycle: MeasurementItemSnapshot["cycle"],
+  cycle: SamplingItemSnapshot["cycle"],
   allowance: number,
   oxygenApplicable = false,
-): MeasurementItemSnapshot => ({
+): SamplingItemSnapshot => ({
   stackPollutantId: pollutantId * 100,
   pollutantId,
   code: nameKr,

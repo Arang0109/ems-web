@@ -2,11 +2,13 @@ import { ArrowDown, ArrowUp, Download } from "lucide-react";
 
 import type { ScheduleSnapshot } from "@entities/schedule";
 import { ExportReportModal, useExportReport } from "@features/export-schedule-report";
+import { CompleteScheduleCard } from "@features/manage-schedule-lifecycle";
 import { useReorderScheduleItems } from "@features/update-schedule-items";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
 import { StickyActionBar } from "@shared/ui/layout";
+import type { ScheduleStatus } from "@shared/model";
 import { DragHandle, SortableList, type SortableControls } from "@shared/ui/sortable";
 
 import { toReportItems } from "../../model/mapper";
@@ -15,6 +17,7 @@ import type { ReportItem } from "../../model/types";
 interface Props {
   scheduleId: number;
   snapshot: ScheduleSnapshot;
+  status: ScheduleStatus | null;
   editable: boolean;
   onRefetch: () => void;
 }
@@ -26,11 +29,12 @@ interface Props {
  * 양식이 `items[0]`~`items[3]` 처럼 인덱스로 칸을 지목한다. 그래서 **항목 순서가 곧 지면 배치**이며,
  * 여기서 정한 순서가 그대로 저장돼 내보내기에 쓰인다.
  *
- * 탭이 다루는 것은 그 순서와 내보내기 둘뿐이다. 항목별 채취시간은 실험·분석 탭의 분석 결과 표로
- * 옮겼다 — 서버에서 채취시각과 분석값은 항목당 한 문서의 다른 칸이라, 화면을 나눠 두면 같은 행을
- * 두 탭에서 따로 열고 같은 목록을 두 번 조회하게 된다.
+ * 탭이 다루는 것은 그 순서와 내보내기, 그리고 성적서 작성 완료 확정이다. 문서를 내려받는 자리가
+ * 곧 성적서 작성이 끝나는 자리라 확정 카드를 여기 둔다(확정 자체는 생애주기 feature 소관).
+ * 항목별 채취시간은 실험·분석 탭의 분석 결과 표로 옮겼다 — 서버에서 채취시각과 분석값은 항목당
+ * 한 문서의 다른 칸이라, 화면을 나눠 두면 같은 행을 두 탭에서 따로 열고 같은 목록을 두 번 조회하게 된다.
  */
-export const ReportInfo = ({ scheduleId, snapshot, editable, onRefetch }: Props) => {
+export const ReportInfo = ({ scheduleId, snapshot, status, editable, onRefetch }: Props) => {
   const standardOxygen = snapshot.client.workplace.stack.standardOxygen;
 
   // 순서는 성적서의 지면 배치를 좌우하므로 낙관적으로 즉시 반영하고 바로 저장한다
@@ -47,7 +51,7 @@ export const ReportInfo = ({ scheduleId, snapshot, editable, onRefetch }: Props)
 
   // 완료된 계획의 문서를 다시 받는 것은 정상 동작이라 내보내기는 editable 과 무관하게 열어 둔다.
   // 성적서 export 가 아직 쓰이지 않아 이 버튼도 당분간 채취기록부 export 를 탄다(useExportReport 참고).
-  const { isDialogOpen, isExporting, template, setIsDialogOpen, handleExport } =
+  const { isDialogOpen, isExporting, template, check, setIsDialogOpen, handleExport } =
     useExportReport({ scheduleId });
 
   const renderRow = (item: ReportItem, controls: SortableControls | null) => (
@@ -123,6 +127,8 @@ export const ReportInfo = ({ scheduleId, snapshot, editable, onRefetch }: Props)
         )}
       </SectionAccordion>
 
+      <CompleteScheduleCard scheduleId={scheduleId} status={status} onSuccess={onRefetch} />
+
       {/* 현장 채취 탭과 같은 자리에 둔다 — 섹션을 접거나 끝까지 스크롤해도 다운로드가 늘 손에 닿는다.
           모달은 액션 바 밖(탭 본문 최상위)에 둬 아코디언의 접힘 상태와 무관하게 살아 있게 한다. */}
       <StickyActionBar className="rounded-t-panel">
@@ -141,6 +147,7 @@ export const ReportInfo = ({ scheduleId, snapshot, editable, onRefetch }: Props)
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         template={template}
+        check={check}
         isLoading={isExporting}
         onSubmit={handleExport}
       />

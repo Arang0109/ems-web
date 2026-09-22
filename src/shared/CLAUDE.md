@@ -657,15 +657,17 @@ api/
 └── mocks/
     ├── browser.ts    # MSW 브라우저 워커 설정
     ├── index.ts
-    └── handlers/     # 14개 도메인 핸들러
-        ├── index.ts            # 핸들러 통합 + on/off 마커
+    └── handlers/     # 17개 도메인 핸들러
+        ├── index.ts            # 핸들러 통합 + ENABLED 배열(on/off)
         ├── auth.ts             ├── member.ts
         ├── client.ts           ├── document.ts
         ├── contract.ts         ├── equipment.ts
         ├── dashboard.ts        ├── team.ts
         ├── stack.ts            ├── schedule.ts
-        ├── stack-pollutant.ts  ├── tenant.ts
-        ├── pollutants.ts       └── pollutant-catalog.ts
+        ├── stack-pollutant.ts  ├── schedule-custom-field.ts  # /schedules/custom-fields — schedule 보다 먼저 등록
+        ├── pollutants.ts       ├── tenant.ts
+        ├── pollutant-catalog.ts├── measurement-method.ts
+        └── chat.ts
 ```
 
 ### 에러는 문자열이지만, 409 는 예외다

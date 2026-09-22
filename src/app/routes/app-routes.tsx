@@ -14,7 +14,7 @@ import {
   ContractPage, ContractRegisterPage, ContractDetailPage,
   PollutantPage, MeasurementMethodPage,
 } from "@pages/client";
-import { AdminMemberPage, AdminDocumentPage } from "@pages/admin";
+import { AdminMemberPage, AdminDocumentPage, AdminCustomFieldPage } from "@pages/admin";
 import { PlatformTenantPage, PlatformPollutantCatalogPage } from "@pages/platform";
 import { EquipmentPage } from "@pages/equipment";
 import { StaffPage } from "@pages/staff";
@@ -81,6 +81,14 @@ const router = createBrowserRouter(
           element={
             <AdminRoute>
               <AdminDocumentPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/custom-fields"
+          element={
+            <AdminRoute>
+              <AdminCustomFieldPage />
             </AdminRoute>
           }
         />

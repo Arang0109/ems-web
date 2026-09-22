@@ -1,4 +1,4 @@
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { displayValue } from "@shared/lib";
 import { MEASUREMENT_CYCLE_LABEL } from "@shared/config";
@@ -16,7 +16,7 @@ import type { ScheduleItemGroup, ScheduleItemOption } from "./types";
  */
 export const toItemGroups = (
   stackPollutants: StackPollutantListItem[],
-  items: MeasurementItemSnapshot[],
+  items: SamplingItemSnapshot[],
 ): ScheduleItemGroup[] => {
   const itemByPollutantId = new Map(items.map((item) => [item.pollutantId, item]));
   const covered = new Set<number>();
