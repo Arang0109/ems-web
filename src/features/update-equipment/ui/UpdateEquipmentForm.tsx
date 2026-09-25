@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 
 import { useUpdateEquipment } from "../model/hooks/use-update-equipment";
 import { useDeleteEquipment } from "../model/hooks/use-delete-equipment";
@@ -6,6 +5,7 @@ import { SpecFields } from "./SpecFields";
 import { InspectionFields } from "./InspectionFields";
 
 import type { Equipment } from "@entities/equipment";
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import type { InspectionType } from "@shared/model";
 
 // UI
@@ -89,8 +89,7 @@ export const UpdateEquipmentForm = ({
             placeholder="장비명"
             value={form.equipmentName}
             onChange={(v) => handleChange('equipmentName', v)}
-            invalid={!!fieldErrors?.equipmentName}
-            error={fieldErrors?.equipmentName}
+            errorMessage={fieldErrors?.equipmentName}
             required
           />
         </div>
@@ -130,8 +129,8 @@ export const UpdateEquipmentForm = ({
           <DatePicker
             id="purchaseDate"
             label="구매일"
-            value={form.purchaseDate ? new Date(form.purchaseDate) : undefined}
-            onChange={(date) => handleChange('purchaseDate', date ? format(date, 'yyyy-MM-dd') : '')}
+            value={toPickerDate(form.purchaseDate)}
+            onChange={(date) => handleChange('purchaseDate', fromPickerDate(date))}
           />
         </div>
         <Textarea id="remark" label="비고" placeholder="비고"

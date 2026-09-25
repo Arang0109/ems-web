@@ -14,6 +14,7 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
 import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { useRemountKey } from "@shared/model";
+import { EmptyText } from "@shared/ui/feedback";
 
 import {
   fieldLabel, gradeLabel, shapeLabel, orientationLabel, describeDimension,
@@ -66,7 +67,7 @@ export const MeasurementInfo = ({
   );
 
   if (!snapshot) {
-    return <p className="py-8 text-center text-body-2 text-muted-ink">측정정보가 없습니다.</p>;
+    return <EmptyText>측정정보가 없습니다.</EmptyText>;
   }
 
   const { samplingData, team, client } = snapshot;

@@ -9,6 +9,7 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
 import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { useRemountKey } from "@shared/model";
+import { EmptyText } from "@shared/ui/feedback";
 
 interface Props {
   scheduleId: number;
@@ -51,13 +52,13 @@ export const CustomFieldsInfo = ({ scheduleId, snapshot, editable, onRefetch }: 
         defaultOpen
       >
         {error ? (
-          <p className="py-4 text-center text-body-2 text-danger">{error}</p>
+          <EmptyText size="sm" tone="danger">{error}</EmptyText>
         ) : isLoading && definitions.length === 0 ? (
-          <p className="py-4 text-center text-body-2 text-muted-ink">불러오는 중...</p>
+          <EmptyText size="sm">불러오는 중...</EmptyText>
         ) : definitions.length === 0 ? (
-          <p className="py-4 text-center text-body-2 text-muted-ink">
+          <EmptyText size="sm">
             정의된 커스텀 필드가 없습니다. 관리자 &gt; 커스텀 필드에서 항목을 정의하면 여기서 값을 입력할 수 있습니다.
-          </p>
+          </EmptyText>
         ) : (
           <DetailGrid>
             {definitions.map((definition) => (

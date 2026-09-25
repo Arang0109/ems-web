@@ -38,7 +38,7 @@ export const ClientTable = ({ onSuccess, onRowClick }: Props) => {
         title="의뢰기관 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'의뢰기관, 주소 검색 ...'} />
             <RegisterClientForm
               key={registerFormKey}
               open={registerModalOpen}

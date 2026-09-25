@@ -9,7 +9,9 @@ import type { MainRouteHandle } from "./route-handle";
 export const MainLayout = () => {
   // 화면에 꽉 차야 하는 페이지(채팅)는 라우트 `handle` 로 그렇다고 알린다.
   // 여백과 높이의 주인은 여전히 레이아웃이다 — 페이지가 되돌리지 않는다.
-  const isFill = useMatches().some((m) => (m.handle as MainRouteHandle | undefined)?.fill);
+  const handles = useMatches().map((m) => m.handle as MainRouteHandle | undefined);
+  const isFill = handles.some((h) => h?.fill);
+  const isDetail = handles.some((h) => h?.detail);
 
   return (
     <SidebarProvider className="flex justify-center">
@@ -24,8 +26,9 @@ export const MainLayout = () => {
           isFill ? "flex h-dvh flex-col overflow-hidden" : "min-h-screen",
         )}
       >
-        {/* 모바일 상단 바 — 브랜드 로고 + 더보기(⋯)로 사이드바 열기 */}
-        <SidebarMobileBar brand={APP_BRAND} />
+        {/* 모바일 상단 바 — 브랜드 로고 + 더보기(⋯)로 사이드바 열기.
+            상세 화면은 페이지 헤더가 메뉴 버튼을 대신 노출하므로 숨긴다. */}
+        {!isDetail && <SidebarMobileBar brand={APP_BRAND} />}
         {/* 모바일 좌우 여백은 피그마 MO 시안 기준 16px */}
         <div
           className={cn(
@@ -33,7 +36,10 @@ export const MainLayout = () => {
             // 여기서는 그만큼 대화 영역이 깎인다. min-h-0 이 없으면 flex 자식이 줄지 않는다.
             isFill
               ? "flex min-h-0 flex-1 flex-col px-4 py-4 md:px-7.5 md:py-6"
-              : "px-4 py-6 md:px-7.5 md:py-10",
+              : isDetail
+                // 상세 화면은 모바일 상단 여백을 없애 sticky 페이지 헤더가 화면 최상단에 붙게 한다
+                ? "px-4 pt-0 pb-6 md:px-7.5 md:py-10"
+                : "px-4 py-6 md:px-7.5 md:py-10",
           )}
         >
           <Outlet />

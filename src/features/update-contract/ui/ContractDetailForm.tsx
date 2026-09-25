@@ -4,6 +4,7 @@ import { toContractUpdateForm } from "../model/mapper";
 // Entitity
 import type { ContractDetail } from "@entities/contract";
 
+import { VAT_INCLUDED_LABEL } from "@shared/config";
 import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
 
 // UI
@@ -12,6 +13,7 @@ import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, Fi
 
 // Icon
 import { formatNumber, unformatNumber, toKoreanAmount } from "@shared/lib";
+import { ErrorText } from "@shared/ui/feedback";
 
 interface Props {
   /** 서버 상세 응답. Form 변환은 feature 내부 책임이다 (mapper 를 외부에 노출하지 않는다). */
@@ -36,7 +38,7 @@ export const ContractDetailForm = ({ contract, onSuccess }: Props) => {
           </Button>
         </div>
 
-        {error && <p className="text-body-2 text-destructive">{error}</p>}
+        <ErrorText>{error}</ErrorText>
 
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
@@ -121,8 +123,8 @@ export const ContractDetailForm = ({ contract, onSuccess }: Props) => {
             placeholder="선택"
             value={String(form.vatIncluded) as "true" | "false"}
             options={[
-              { value: "true", label: "포함" },
-              { value: "false", label: "미포함" },
+              { value: "true", label: VAT_INCLUDED_LABEL.true },
+              { value: "false", label: VAT_INCLUDED_LABEL.false },
             ]}
             onValueChange={(value) => value && handleChange("vatIncluded", value === "true")}
           />

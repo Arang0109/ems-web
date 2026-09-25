@@ -6,8 +6,9 @@ import type {
 import type { MeasurementMode } from "@shared/model";
 
 import {
-  applySamplingTimes, collectSamplingTimes, countAmbiguousPollutants, countSamplingTimeChanges,
-} from "./sampling-times";
+  applyFieldValues, applySamplingTimes, collectFieldValues, collectSamplingTimes,
+  countAmbiguousFieldValues, countAmbiguousPollutants, countFieldValueChanges, countSamplingTimeChanges,
+} from "./sheet-import";
 import type { AnalysisRowForm } from "./types";
 
 const sample = (over: Partial<GaseousSampling>): GaseousSampling => ({
@@ -254,5 +255,104 @@ describe("applySamplingTimes", () => {
 
   it("실제로 달라지는 행만 센다", () => {
     expect(countSamplingTimeChanges([row(31, "09:00", "10:00"), row(32)], times)).toBe(1);
+  });
+});
+
+describe("collectFieldValues — 배출가스 분석기 평균", () => {
+  const NOX = 2;
+  const SOX = 3;
+  const THC = 7;
+  const SO2 = 31;
+  const items = [
+    item(NOX, "DIRECT_READING", { code: "NOX" }),
+    item(SOX, "DIRECT_READING", { code: "SOX" }),
+    item(THC, "DIRECT_READING", { code: "THC" }),
+    item(SO2, "GAS_SAMPLING", { code: "SO2" }),
+  ];
+
+  // 서버는 avgNox/avgSox 를 채우지 않는다 — 저장된 회차 값에서 계산값 드로어와 같은 규칙으로 낸다
+  it("저장된 회차 값의 평균(소수 1자리 HALF_UP)을 그 현장측정 항목에 준다", () => {
+    const values = collectFieldValues([sheet([], {
+      exhaustGas: exhaust({ noxConcentration: [12, 12.5, 12.4], soxConcentration: [4, 5] }),
+    })], items);
+
+    expect(values.get(NOX)).toBe(12.3);
+    expect(values.get(SOX)).toBe(4.5);
+    expect(values.has(THC)).toBe(false);
+    expect(values.has(SO2)).toBe(false);
+  });
+
+  // 회차 값이 없는 성분까지 가져오면 실험실이 적어 둔 값을 빈 값으로 덮는다
+  it("회차 값이 없는 성분은 내지 않는다 — 블록이 없어도 마찬가지다", () => {
+    const values = collectFieldValues([sheet([], { exhaustGas: exhaust({ noxConcentration: [12.3] }) })], items);
+
+    expect(values.get(NOX)).toBe(12.3);
+    expect(values.has(SOX)).toBe(false);
+    expect(collectFieldValues([sheet([])], items).size).toBe(0);
+  });
+
+  it("mode 가 없는 구 문서 항목과 시료채취 항목은 받지 않는다", () => {
+    const values = collectFieldValues([sheet([], {
+      exhaustGas: exhaust({ noxConcentration: [12.3] }),
+    })], [item(NOX, null, { code: "NOX" }), item(SO2, "GAS_SAMPLING", { code: "NOX" })]);
+
+    expect(values.size).toBe(0);
+  });
+
+  it("code 가 없는 항목은 이름으로 가른다", () => {
+    const values = collectFieldValues([sheet([], {
+      exhaustGas: exhaust({ noxConcentration: [12.3] }),
+    })], [item(NOX, "DIRECT_READING", { nameKr: "질소산화물", nameEn: "NOx" })]);
+
+    expect(values.get(NOX)).toBe(12.3);
+  });
+
+  it("여러 기록지에 다른 평균이 있으면 먼저 나온 기록지를 쓰고 충돌로 센다", () => {
+    const sheets = [
+      sheet([], { exhaustGas: exhaust({ noxConcentration: [12.3] }) }),
+      sheet([], { category: "DUST", exhaustGas: exhaust({ noxConcentration: [20] }) }),
+    ];
+
+    expect(collectFieldValues(sheets, items).get(NOX)).toBe(12.3);
+    expect(countAmbiguousFieldValues(sheets, items)).toBe(1);
+  });
+
+  // 공통값 동기화로 회차 값이 복사돼 있으면 평균도 같다 — 정상 경로
+  it("여러 기록지에 같은 평균이면 충돌이 아니다", () => {
+    const sheets = [
+      sheet([], { exhaustGas: exhaust({ noxConcentration: [12.3] }) }),
+      sheet([], { category: "DUST", exhaustGas: exhaust({ noxConcentration: [12.3] }) }),
+    ];
+
+    expect(countAmbiguousFieldValues(sheets, items)).toBe(0);
+  });
+});
+
+describe("applyFieldValues", () => {
+  const NOX = 2;
+  const values = collectFieldValues(
+    [sheet([], { exhaustGas: exhaust({ noxConcentration: [12.3] }) })],
+    [item(NOX, "DIRECT_READING", { code: "NOX" })],
+  );
+
+  it("분석값과 단위(ppm)를 함께 앉힌다", () => {
+    const [next] = applyFieldValues([row(NOX)], values);
+
+    expect(next.analysisValue).toBe("12.3");
+    expect(next.unit).toBe("PPM");
+  });
+
+  it("기록지에 없는 항목의 행은 그대로 둔다", () => {
+    const untouched = { ...row(99), analysisValue: "7", unit: "MG_PER_SM3" as const };
+
+    expect(applyFieldValues([untouched], values)[0]).toBe(untouched);
+  });
+
+  it("값과 단위가 이미 같으면 바뀌는 행으로 세지 않는다", () => {
+    const same = { ...row(NOX), analysisValue: "12.3", unit: "PPM" as const };
+    const unitOnly = { ...row(NOX), analysisValue: "12.3" };
+
+    expect(countFieldValueChanges([same], values)).toBe(0);
+    expect(countFieldValueChanges([unitOnly], values)).toBe(1);
   });
 });

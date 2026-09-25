@@ -36,10 +36,10 @@ export const DocumentTable = ({ category }: Props) => {
 
   return (
     <div>
-      <div className="pb-4 border-b border-border">
+      <div className="pb-4 border-b border-rule">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h2 className="text-h3 text-foreground">{DOCUMENT_CATEGORY_LABEL[category]} 목록</h2>
+            <h2 className="text-h3 text-ink">{DOCUMENT_CATEGORY_LABEL[category]} 목록</h2>
           </div>
           <RegisterDocumentForm
             key={registerFormKey}
@@ -51,7 +51,7 @@ export const DocumentTable = ({ category }: Props) => {
       </div>
 
       <div className="flex items-center justify-start mt-3">
-        <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'문서명, 설명 검색 ...'} />
+        <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'문서명, 설명 검색 ...'} />
       </div>
 
       <div className="py-5 flex-1 flex flex-col">
@@ -65,7 +65,7 @@ export const DocumentTable = ({ category }: Props) => {
       </div>
 
       {!isLoading && !error && (
-        <TableFooterBar table={table} className="border-t border-border pt-3" />
+        <TableFooterBar table={table} className="border-t border-rule pt-3" />
       )}
 
       <DocumentDetailDialog

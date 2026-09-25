@@ -44,8 +44,8 @@ export const AddDocumentVersionForm = ({ documentId, open, onOpenChange, onSucce
           label="문서 파일"
           file={form.file}
           onChange={handleFileChange}
-          isInvalid={!!fieldErrors?.file}
-          helperText={fieldErrors?.file ?? '20MB 이하의 파일을 등록할 수 있습니다.'}
+          helperText='20MB 이하의 파일을 등록할 수 있습니다.'
+          errorMessage={fieldErrors?.file}
           required
         />
         <Textarea
@@ -56,7 +56,7 @@ export const AddDocumentVersionForm = ({ documentId, open, onOpenChange, onSucce
           onChange={(value) => handleChange('changeNote', value)}
           rows={2}
           maxLength={500}
-          helperText={fieldErrors?.changeNote}
+          errorMessage={fieldErrors?.changeNote}
         />
       </FieldGroup>
     </FormDialog>

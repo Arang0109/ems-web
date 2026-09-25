@@ -19,8 +19,8 @@ interface Props {
   timeFilledCount: number;
   onChange: (pollutantId: number, patch: Partial<AnalysisRowForm>) => void;
   onSave: () => void;
-  /** 현장 기록지의 통칭 시료 행에서 항목별 채취시각을 펴 온다 */
-  onImportSamplingTimes: () => void;
+  /** 저장된 현장 기록지에서 항목별 채취시각과 현장측정(NOx·SOx) 평균을 펴 온다 */
+  onImportFromSheets: () => void;
 }
 
 /** 입력을 받는 필드 — 나머지 행 정보는 읽기 전용이다 */
@@ -77,7 +77,7 @@ const oxygenText = (row: AnalysisRowForm): string =>
  */
 export const AnalysisResultSection = ({
   rows, fieldErrors, editable, isDirty, isLoading, filledCount, timeFilledCount,
-  onChange, onSave, onImportSamplingTimes,
+  onChange, onSave, onImportFromSheets,
 }: Props) => {
   const columns: InputTableColumn<AnalysisRowForm>[] = [
     {
@@ -207,7 +207,7 @@ export const AnalysisResultSection = ({
                       value={row[f.field]}
                       disabled={!editable}
                       onChange={(v: string) => onChange(row.pollutantId, { [f.field]: v })}
-                      error={f.control === "number" ? fieldErrors[row.pollutantId] : undefined}
+                      errorMessage={f.control === "number" ? fieldErrors[row.pollutantId] : undefined}
                     />
                   ))}
                 </div>
@@ -226,13 +226,14 @@ export const AnalysisResultSection = ({
                 {/*
                   기록지는 알데히드류를 VOCs 한 행으로 적지만 여기는 항목마다 한 줄이다.
                   가져오면 그 한 행의 시각이 해당 항목들로 펴진다. 입자상 항목은 시트 집계에서,
-                  현장측정 항목은 배출가스 분석기 시작시각 + 고정 측정시간(가스분석기 15분·THC 30분)에서 온다.
+                  현장측정 항목은 배출가스 분석기 시작시각 + 고정 측정시간(가스분석기 15분·THC 30분)에서 오고,
+                  NOx·SOx 의 분석값은 저장된 회차 값의 평균(계산값 드로어와 같은 규칙)에서 온다.
                 */}
                 <Button
                   size="sm" variant="outline" startIcon={ClipboardList}
-                  onClick={onImportSamplingTimes} disabled={isLoading}
+                  onClick={onImportFromSheets} disabled={isLoading}
                 >
-                  기록지 채취시각 가져오기
+                  기록지 값 가져오기
                 </Button>
                 <Button size="sm" startIcon={Save} onClick={onSave} disabled={!isDirty || isLoading}>
                   {isLoading ? "저장 중..." : "저장"}

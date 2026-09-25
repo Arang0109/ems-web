@@ -8,7 +8,6 @@ import type {
   TemplateIssueType, TemplateExpressionSource,
 } from "../model";
 import type { DateRangePreset } from "../lib";
-import type { StatusTone } from "../ui/badges/tones";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
   active: '정상',
@@ -96,23 +95,6 @@ export const SCHEDULE_STATUS_LABEL: Record<ScheduleStatus, string> = {
   ANALYZING: '분석값입력중',
   REPORT_COMPLETED: '성적서작성완료',
   CANCELED: '취소',
-};
-
-/**
- * 측정계획 상태의 표시 톤. 목록 배지·모바일 칩·상세 헤더가 공유한다.
- *
- * 네 진행 단계에 각각 다른 색을 준다 — 회색(대기) → 앰버(현장) → 파랑(실험실) → 초록(확정).
- * 진행 단계가 여럿이라 "진행 중"을 한 색으로 묶으면 목록에서 어느 단계인지 색으로 읽히지 않고,
- * 라벨을 끝까지 읽어야만 구분된다.
- *
- * 색상만으로 구분하지 않는다는 원칙은 그대로다 — `StatusDot` 이 점과 라벨을 항상 함께 그린다.
- */
-export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
-  SCHEDULED: 'pending',           // 회색 — 아직 시작 전
-  MEASURING: 'active',            // 앰버 — 현장 측정 진행
-  ANALYZING: 'info',              // 파랑 — 실험실 분석값 입력 진행
-  REPORT_COMPLETED: 'success',    // 초록 — 성적서까지 끝남
-  CANCELED: 'danger',             // 빨강 — 중단
 };
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {

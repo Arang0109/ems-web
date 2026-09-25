@@ -1,15 +1,16 @@
 import React from "react";
-import { X, ZoomIn, ZoomOut } from "lucide-react";
+import { ZoomIn, ZoomOut } from "lucide-react";
 
 import {
   Dialog as DialogPrimitive,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Button } from "@shared/ui/buttons";
+import { IconButton } from "@shared/ui/buttons";
+
+import { OverlayHeader } from "./OverlayHeader";
 
 interface Props {
   open: boolean;
@@ -70,30 +71,24 @@ const ImageViewerBody = ({
 
   return (
     <>
-      <header className="flex shrink-0 items-center gap-2 border-b border-rule px-3 py-2">
-        <DialogTitle className="min-w-0 flex-1 truncate text-body-1 text-ink">
-          {title}
-        </DialogTitle>
+      <OverlayHeader
+        actions={
+          <>
+            {toolbar}
+            <IconButton
+              size="icon-sm"
+              icon={isActualSize ? <ZoomOut size={18} /> : <ZoomIn size={18} />}
+              label={isActualSize ? "화면에 맞추기" : "원본 크기로 보기"}
+              onClick={toggleSize}
+            />
+          </>
+        }
+      >
+        <DialogTitle className="truncate text-body-1 text-ink">{title}</DialogTitle>
         <DialogDescription className="sr-only">
           이미지를 확대해서 봅니다. 이미지를 누르면 원본 크기와 화면 맞춤을 오갑니다.
         </DialogDescription>
-
-        {toolbar}
-
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={isActualSize ? "화면에 맞추기" : "원본 크기로 보기"}
-          onClick={toggleSize}
-        >
-          {isActualSize ? <ZoomOut size={18} /> : <ZoomIn size={18} />}
-        </Button>
-
-        {/* IconButton 은 여분 props 를 흘려보내지 않아 render 슬롯에서 닫기 핸들러를 잃는다 */}
-        <DialogClose render={<Button variant="ghost" size="icon-sm" aria-label="닫기" />}>
-          <X size={18} />
-        </DialogClose>
-      </header>
+      </OverlayHeader>
 
       <div
         className={cn(

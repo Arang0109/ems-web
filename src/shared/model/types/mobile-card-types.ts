@@ -30,9 +30,18 @@ export interface MobileCardField<TData> {
  * 자유롭게 구성할 수 있다. 미지정 위젯은 `deriveCardConfig` 의 자동 배치를 따른다.
  */
 export interface MobileCardConfig<TData> {
+  /** 제목 **위**에 얹는 배지 슬롯 — "오늘" 처럼 행을 한 단어로 표식할 때 */
+  badge?: CardContent<TData>;
   title?: CardContent<TData>;
+  /** 제목 타이포 덮어쓰기. 기본 `text-h3` — 제목이 카드의 키인 시안(예: 측정계획 `text-h2`)에서만 쓴다 */
+  titleClassName?: string;
   subtitle?: CardContent<TData>;
   status?: CardContent<TData>;
+  /**
+   * 카드 강조(브랜드 테두리). `isRowSelected`(선택 상태)와 **별개 축**이라
+   * 배경은 건드리지 않는다 — 둘이 동시에 걸려도 서로 구분된다.
+   */
+  highlight?: (row: TData) => boolean;
   /**
    * 헤더 우측 버튼 영역. 여러 개면 배열로 넘긴다.
    * 컬럼 id 를 주면 `RowActionCell` 같은 기존 액션 셀을 그대로 재사용할 수 있다.
@@ -45,4 +54,12 @@ export interface MobileCardConfig<TData> {
    */
   columns?: MobileCardColumns;
   fields?: MobileCardField<TData>[];
+  /**
+   * 본문을 직접 그린다. 지정하면 `fields` 그리드 대신 이 노드가 렌더된다.
+   *
+   * label/value 격자로 표현되지 않는 카드(좌측 상태 바·강조 값·행 액션)에만 쓴다 —
+   * 기본 표현은 어디까지나 `fields` 다. 카드 안쪽 여백은 셸이 주므로
+   * 본문은 내용만 그리고, 버튼을 둔다면 클릭 전파 차단도 본문이 책임진다.
+   */
+  body?: CardContent<TData>;
 }

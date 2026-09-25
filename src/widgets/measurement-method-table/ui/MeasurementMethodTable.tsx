@@ -39,7 +39,7 @@ export const MeasurementMethodTable = () => {
         title="측정방법 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={"측정방법, 통칭명 검색 ..."} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={"측정방법, 통칭명 검색 ..."} />
             <FillDefaultMeasurementMethodsButton currentCount={methodCount} />
             <RegisterMeasurementMethodForm
               key={registerFormKey}

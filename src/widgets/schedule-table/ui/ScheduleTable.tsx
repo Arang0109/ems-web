@@ -29,7 +29,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
   return (
     <div>
       {/* 모바일에서는 검색이 가용 폭을 채운다 (피그마 필터 바의 flex-1) */}
-      <Search className="w-full" filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색'} />
+      <Search className="w-full" value={globalFilter} onChange={setGlobalFilter} placeholder={'관리번호, 시설, 팀 검색'} />
       <div className="mt-3 flex items-center gap-2">
         <FilterSelect
           icon={Users}
@@ -38,6 +38,8 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
           onValueChange={filter.changeTeam}
           placeholder="전체 팀"
           ariaLabel="팀 필터"
+          /* 모바일 시안: 팀은 내용 폭, 남는 폭은 상태 필터가 채운다 */
+          className="shrink-0 md:flex-1"
         />
         <FilterSelect
           icon={Activity}
@@ -46,8 +48,10 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
           onValueChange={filter.changeStatus}
           placeholder="전체 상태"
           ariaLabel="상태 필터"
+          className="flex-1"
         />
         <ScheduleFilterPopover
+          label={filter.appliedRangeLabel}
           range={filter.draftRange}
           preset={filter.draftPreset}
           activeCount={filter.activeFilterCount}
@@ -56,6 +60,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
           onApply={filter.apply}
           onReset={filter.reset}
           onOpen={filter.syncDraft}
+          className=""
         />
       </div>
 

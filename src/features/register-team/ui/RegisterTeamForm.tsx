@@ -47,8 +47,7 @@ export const RegisterTeamForm = ({ open, onOpenChange, onSuccess }: Props) => {
           placeholder="팀 이름"
           value={form.name}
           onChange={(v) => handleChange('name', v)}
-          invalid={!!fieldErrors?.name}
-          error={fieldErrors?.name}
+          errorMessage={fieldErrors?.name}
           required
           startIcon={<Users />}
         />

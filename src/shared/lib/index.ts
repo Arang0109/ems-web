@@ -17,7 +17,6 @@ export {
   isPositiveNumber,
   isNonNegativeNumber,
 } from "./format/number";
-export type { FormatNumberOptions } from "./format/number";
 export {
   maskNumericInput,
   toggleNumericSign,
@@ -49,6 +48,8 @@ export {
   DATE_RANGE_PRESET,
   toDateKey,
   fromDateKey,
+  toPickerDate,
+  fromPickerDate,
   toPresetRange,
   isWithinDateRange,
   isSameDateRange,

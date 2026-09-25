@@ -51,8 +51,9 @@ export const SidebarNav = ({ groups, isActive, isSubActive, isOpen, onToggle }: 
 
   return (
     <SidebarContent className="px-2 py-2">
-      {groups.map((group) => (
-        <SidebarGroup className="p-0">
+      {/* 그룹엔 식별자가 없다 — 첫 항목 라벨이 그룹을 대표한다(메뉴 구성은 정적) */}
+      {groups.map((group, index) => (
+        <SidebarGroup key={group.items[0]?.label ?? index} className="p-0">
           <SidebarGroupContent>
             <SidebarMenu>
               {group.items.map((item) =>

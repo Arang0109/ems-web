@@ -43,8 +43,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             placeholder="예: NOX"
             value={form.code}
             onChange={(value) => handleChange("code", value.toUpperCase())}
-            invalid={!!fieldErrors?.code}
-            error={fieldErrors?.code}
+            errorMessage={fieldErrors?.code}
             // 등록 후에는 바꿀 수 없다 — 측정계획 스냅샷과 프론트 분기가 이 값에 의존한다
             helperText="등록 후에는 변경할 수 없습니다. 화학식·원소기호를 우선합니다."
             required
@@ -69,8 +68,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             placeholder="측정물질(한글)"
             value={form.nameKr}
             onChange={(value) => handleChange("nameKr", value)}
-            invalid={!!fieldErrors?.nameKr}
-            error={fieldErrors?.nameKr}
+            errorMessage={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
           />
@@ -107,8 +105,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
           placeholder="예: 200"
           value={form.sortOrder}
           onChange={(value) => handleChange("sortOrder", value)}
-          invalid={!!fieldErrors?.sortOrder}
-          error={fieldErrors?.sortOrder}
+          errorMessage={fieldErrors?.sortOrder}
           helperText="고객사 선택 목록에서의 정렬 기준입니다. 비우면 미지정입니다."
           startIcon={<ListOrdered />}
         />

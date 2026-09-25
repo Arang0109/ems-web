@@ -3,6 +3,7 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Checkbox, FieldGroup, InputGroup, Select } from "@shared/ui/form";
 import { measurementCycleOptions } from "@shared/model";
 import type { MeasurementCycle } from "@shared/model";
+import { Panel } from "@shared/ui/cards";
 
 import { useUpdateScheduleItem } from "../model/hooks/use-update-schedule-item";
 
@@ -63,8 +64,7 @@ export const UpdateScheduleItemForm = ({
           placeholder="비워 두면 '미지정'입니다"
           value={form.allowance}
           onChange={(value) => handleChange("allowance", value)}
-          error={fieldErrors?.allowance}
-          invalid={Boolean(fieldErrors?.allowance)}
+          errorMessage={fieldErrors?.allowance}
           helperText="비워 두면 초과 여부를 판정하지 않습니다(0 과 다릅니다)."
         />
 
@@ -83,13 +83,13 @@ export const UpdateScheduleItemForm = ({
             onChange={(value) => handleChange("oxygenApplicable", value)}
           />
         ) : (
-          <p className="text-body-4 text-muted-foreground">
+          <p className="text-body-4 text-muted-ink">
             이 측정시설에는 기준산소농도가 없어 산소보정을 적용할 수 없습니다.
             적용해야 한다면 <b>측정시설 정보</b>에서 기준산소농도를 먼저 채워 주세요.
           </p>
         )}
 
-        <div className="rounded-panel border border-rule bg-canvas p-3">
+        <Panel variant="inset">
           <Checkbox
             id="item-apply-to-stack"
             label={<span className="text-body-2 text-ink">측정지점 원장에도 반영</span>}
@@ -102,7 +102,7 @@ export const UpdateScheduleItemForm = ({
               ? "체크하면 측정지점의 측정항목까지 같은 값으로 수정해, 앞으로 세울 계획도 이 기준을 따릅니다. 이미 완료된 과거 회차는 그대로 유지됩니다."
               : "이 항목은 측정지점에서 이미 삭제되어 원장에 반영할 대상이 없습니다."}
           </p>
-        </div>
+        </Panel>
       </FieldGroup>
     </FormDialog>
   );

@@ -6,6 +6,8 @@ import { Button } from "@shared/ui/buttons";
 import { DateRangePicker, FilterPopover, type DateRange } from "@shared/ui/form";
 
 interface Props {
+  /** 트리거 라벨 — 적용된 기간 (`오늘`, `이번 주`, `8월 1일 ~ 8월 31일`) */
+  label: string;
   range: DateRange;
   preset: DateRangePreset | null;
   activeCount: number;
@@ -14,6 +16,7 @@ interface Props {
   onApply: () => void;
   onReset: () => void;
   onOpen: () => void;
+  className?: string;
 }
 
 /**
@@ -23,6 +26,7 @@ interface Props {
  * 값은 "적용"을 눌러야 목록에 반영된다.
  */
 export const ScheduleFilterPopover = ({
+  label,
   range,
   preset,
   activeCount,
@@ -31,8 +35,10 @@ export const ScheduleFilterPopover = ({
   onApply,
   onReset,
   onOpen,
+  className,
 }: Props) => (
   <FilterPopover
+    label={label}
     icon={Calendar}
     title="측정일 기간"
     ariaLabel="측정일 기간 필터"
@@ -40,6 +46,7 @@ export const ScheduleFilterPopover = ({
     onApply={onApply}
     onReset={onReset}
     onOpen={onOpen}
+    className={className}
   >
     <div className="flex flex-wrap gap-1.5">
       {DATE_RANGE_PRESET.map((option) => (

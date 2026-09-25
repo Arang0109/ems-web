@@ -11,5 +11,5 @@ export const StatusCell = ({ row }: CellContext<PollutantCatalogTableRow, unknow
 
 /** 코드는 물질을 특정하는 키라 본문 글씨보다 눈에 띄게 고정폭으로 둔다. */
 export const CodeCell = ({ getValue }: CellContext<PollutantCatalogTableRow, string>) => (
-  <span className="font-mono text-body-4 text-foreground">{getValue()}</span>
+  <span className="font-mono text-body-4 text-ink">{getValue()}</span>
 );

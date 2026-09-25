@@ -21,6 +21,36 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  // ─── FSD 레이어 경계 ─────────────────────────────────────────────────────────
+  // 아래 레이어는 위 레이어를 import 할 수 없다(app → pages → widgets → features → entities → shared).
+  // 같은 레이어의 다른 슬라이스도 금지다 — 필요하면 한 단 아래로 내린다.
+  // 관례로만 지켜지던 규칙이라(2026-09 기준 위반 0건) 새 코드가 깨지 않도록 린트로 고정한다.
+  // 비즈니스 코드는 shadcn 원본(`@/components/ui`)·`@shared/ui/primitives` 를 직접 쓰지 않는다 — shared/ui 래퍼를 쓴다.
+  ...[
+    { layer: 'shared', banned: ['@entities', '@features', '@widgets', '@pages', '@app'] },
+    { layer: 'entities', banned: ['@entities', '@features', '@widgets', '@pages', '@app'] },
+    { layer: 'features', banned: ['@features', '@widgets', '@pages', '@app'] },
+    { layer: 'widgets', banned: ['@widgets', '@pages', '@app'] },
+    { layer: 'pages', banned: ['@pages', '@app'] },
+  ].map(({ layer, banned }) => ({
+    files: [`src/${layer}/**/*.{ts,tsx}`],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            group: banned.map((alias) => `${alias}/*`),
+            message: `${layer} 레이어는 같은 레이어의 다른 슬라이스나 상위 레이어를 import 할 수 없다 (FSD). 슬라이스 안에서는 상대 경로를 쓴다.`,
+          },
+          ...(layer === 'shared'
+            ? []
+            : [{
+                group: ['@/components/ui/*', '@shared/ui/primitives', '@shared/ui/primitives/*'],
+                message: 'shadcn 원본·primitives 는 shared/ui 래퍼 안에서만 쓴다. @shared/ui/* 의 래퍼를 쓸 것.',
+              }]),
+        ],
+      }],
+    },
+  })),
   {
     // shadcn/ui CLI 가 생성하는 경로(ARCHITECTURE.md 의 FSD 예외).
     // 컴포넌트와 훅(useSidebar 등)을 한 파일에서 함께 내보내는 것이 shadcn 의 원본 구조라

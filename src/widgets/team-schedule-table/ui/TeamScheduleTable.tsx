@@ -14,9 +14,9 @@ export const TeamScheduleTable = () => {
   } = useTeamScheduleTable();
 
   return (
-    <Panel className="p-0 flex flex-col">
+    <Panel className="flex flex-col">
       <header className="flex flex-wrap items-center gap-3 bg-canvas p-2">
-        <h2 className="text-h3 text-foreground">
+        <h2 className="text-h3 text-ink">
           {teamName ? `${teamName} 오늘 일정` : '팀별 측정 일정'}
         </h2>
       </header>
@@ -29,7 +29,7 @@ export const TeamScheduleTable = () => {
           mobileCard={TeamScheduleCardConfig}
           emptyState={
             <TableEmptyState
-              icon={<Calendar size={22} className="text-muted-foreground" />}
+              icon={<Calendar size={22} className="text-muted-ink" />}
               label="오늘 예정된 측정 일정이 없습니다."
               subLabel={
                 teamName

@@ -33,4 +33,3 @@ export interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
-export const TOKEN_KEY = "accessToken";

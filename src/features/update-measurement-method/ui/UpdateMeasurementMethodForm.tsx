@@ -61,8 +61,7 @@ export const UpdateMeasurementMethodForm = ({ open, onOpenChange, method, onSucc
             placeholder="예: 카트리지"
             value={form.name}
             onChange={(value) => handleChange("name", value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
             required
             startIcon={<FlaskConical />}
           />
@@ -87,8 +86,7 @@ export const UpdateMeasurementMethodForm = ({ open, onOpenChange, method, onSucc
             value={form.mergedSampleName}
             onChange={(value) => handleChange("mergedSampleName", value)}
             disabled={!isMerged}
-            invalid={!!fieldErrors?.mergedSampleName}
-            error={fieldErrors?.mergedSampleName}
+            errorMessage={fieldErrors?.mergedSampleName}
             required={isMerged}
             startIcon={<Tag />}
           />
@@ -101,8 +99,7 @@ export const UpdateMeasurementMethodForm = ({ open, onOpenChange, method, onSucc
             onChange={(value) => handleChange("samplingMinutes", value)}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.samplingMinutes}
-            error={fieldErrors?.samplingMinutes}
+            errorMessage={fieldErrors?.samplingMinutes}
             helperText="비우면 미지정으로 저장됩니다. 이 방법을 쓰는 모든 측정항목에 적용됩니다."
             startIcon={<Clock />}
           />
@@ -115,8 +112,7 @@ export const UpdateMeasurementMethodForm = ({ open, onOpenChange, method, onSucc
             onChange={(value) => handleChange("suctionFlowRate", value)}
             min={0}
             maxDecimals={3}
-            invalid={!!fieldErrors?.suctionFlowRate}
-            error={fieldErrors?.suctionFlowRate}
+            errorMessage={fieldErrors?.suctionFlowRate}
             helperText="비우면 미지정으로 저장됩니다. 통칭 시료(VOCs·VOCs-T)는 이 값이 그 병의 흡인유량입니다."
             startIcon={<Gauge />}
           />

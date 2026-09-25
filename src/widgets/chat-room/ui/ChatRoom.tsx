@@ -4,6 +4,7 @@ import { ChatComposer, useRetryChatMessage } from "@features/send-chat-message";
 import { useChatRoom } from "../model/use-chat-room";
 import { ChatMessageList } from "./children/ChatMessageList";
 import { ChatRoomHeader } from "./children/ChatRoomHeader";
+import { Panel } from "@shared/ui/cards";
 
 interface Props {
   roomId: number;
@@ -35,10 +36,12 @@ export const ChatRoom = ({ roomId, myUserId, onLeave, className }: Props) => {
   const { retry } = useRetryChatMessage({ roomId });
 
   return (
-    <section
+    <Panel
+      as="section"
+      variant="outlined"
       aria-label="대화"
       className={cn(
-        "flex min-h-0 min-w-0 flex-col overflow-hidden rounded-panel bg-surface ring-1 ring-rule",
+        "flex min-h-0 min-w-0 flex-col",
         className,
       )}
     >
@@ -58,6 +61,6 @@ export const ChatRoom = ({ roomId, myUserId, onLeave, className }: Props) => {
       />
 
       <ChatComposer roomId={roomId} />
-    </section>
+    </Panel>
   );
 };

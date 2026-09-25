@@ -5,15 +5,12 @@ import type { DateRange } from "react-day-picker";
 
 import { Button } from "@shared/ui/buttons";
 import { Calendar } from "@shared/ui/primitives";
-import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Field, FieldLabel } from "@shared/ui/primitives";
+import { PopoverRoot, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
 
-import { InFieldLabel } from "./InFieldLabel";
+import { FieldMessages, InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import {
   IN_FIELD_CONTROL_HEIGHT,
   IN_FIELD_ICON_CLASS,
@@ -23,7 +20,7 @@ import {
 
 export type { DateRange };
 
-interface Props {
+interface Props extends FieldErrorProps {
   id?: string;
   label?: React.ReactNode;
   value?: DateRange;
@@ -52,10 +49,13 @@ export const DateRangePicker = ({
   disabled = false,
   required,
   helperText,
+  errorMessage,
+  invalid: invalidProp,
   className,
   inline = false,
   numberOfMonths,
 }: Props) => {
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
   const [open, setOpen] = React.useState(false);
   // 인필드 라벨은 트리거형에만 얹는다 — `inline` 은 달력 패널이라 얹을 칸이 없다
   const hasInFieldLabel = !!label && !inline;
@@ -75,13 +75,14 @@ export const DateRangePicker = ({
   const picker = inline ? (
     <div className={cn("rounded-panel border border-rule", className)}>{calendar}</div>
   ) : (
-    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverRoot open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <Button
             id={id}
             variant="outline"
             disabled={disabled}
+            aria-invalid={invalid || undefined}
             className={cn(
               "justify-between gap-3 font-normal",
               !value?.from && "text-muted-ink",
@@ -101,41 +102,43 @@ export const DateRangePicker = ({
             )}
             <CalendarDays
               size={hasInFieldLabel ? 16 : 19}
-              className={cn(hasInFieldLabel && cn("text-muted-foreground", IN_FIELD_ICON_CLASS))}
+              className={cn(hasInFieldLabel && cn("text-muted-ink", IN_FIELD_ICON_CLASS))}
             />
           </Button>
         }
       />
-      <PopoverContent className="w-auto p-0" align="end">
+      <PopoverContent className="p-0" align="end">
         {calendar}
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 
   if (!label) return picker;
 
   if (!hasInFieldLabel) {
     return (
-      <Field>
+      <Field data-invalid={invalid || undefined}>
         <FieldLabel htmlFor={id}>
           {label}
           {required && <span className="ml-1 text-danger">*</span>}
         </FieldLabel>
         {picker}
-        {helperText && <FieldDescription>{helperText}</FieldDescription>}
+        <FieldMessages helperText={helperText} errorMessage={errorMessage} />
       </Field>
     );
   }
 
   return (
-    <Field className="gap-1.5">
-      <div className="relative">
-        <InFieldLabel htmlFor={id} required={required} disabled={disabled} className="left-2.5">
-          {label}
-        </InFieldLabel>
-        {picker}
-      </div>
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-    </Field>
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+    >
+      {picker}
+    </InFieldShell>
   );
 };

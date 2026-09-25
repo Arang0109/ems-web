@@ -65,8 +65,7 @@ export const UpdateTeamForm = ({ open, onOpenChange, team, onSuccess }: Props) =
           placeholder="팀 이름"
           value={form.name}
           onChange={(v) => handleChange('name', v)}
-          invalid={!!fieldErrors?.name}
-          error={fieldErrors?.name}
+          errorMessage={fieldErrors?.name}
           required
           startIcon={<Users />}
         />

@@ -70,16 +70,16 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div className="flex gap-1">
           노즐 직경 :{" "}
-          <span className="text-body-4 text-primary">{basis.size} cm</span>
+          <span className="text-body-4 text-brand-primary">{basis.size} cm</span>
         </div>
 
         <div>
           채취 시간 :{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(basis.estimate?.samplingTime)}
           </span>{" "}
           분 이상, 지점 당{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(perPoint(basis.estimate?.samplingTime, basis.pointCount, 1))}
           </span>{" "}
           분 이상
@@ -87,7 +87,7 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div>
           실제 예상 채취량 :{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(basis.estimate?.Vm)}
           </span>{" "}
           m³
@@ -95,7 +95,7 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div>
           측정 지점 당 약{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(perPoint(basis.estimate?.Vm, basis.pointCount, 5))}
           </span>{" "}
           m³

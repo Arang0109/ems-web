@@ -12,7 +12,7 @@ interface Props {
 export const SidebarBrandHeader = ({ icon: Icon, title, subtitle }: Props) => (
   <SidebarHeader className="border-b border-sidebar-border px-4 py-3">
     <div className="flex items-center gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-nav bg-primary text-primary-foreground">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-nav bg-brand-primary text-surface">
         <Icon className="h-4 w-4" />
       </div>
       <div className="flex flex-col leading-tight">

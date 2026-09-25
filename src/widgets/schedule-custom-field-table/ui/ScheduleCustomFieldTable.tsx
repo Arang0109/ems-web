@@ -37,7 +37,7 @@ export const ScheduleCustomFieldTable = () => {
         title="커스텀 필드 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={"이름, 양식 이름 검색 ..."} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={"이름, 양식 이름 검색 ..."} />
             <RegisterScheduleCustomFieldForm
               key={registerFormKey}
               open={registerModalOpen}

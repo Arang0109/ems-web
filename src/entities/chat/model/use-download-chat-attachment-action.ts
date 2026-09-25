@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
-import { readBlobErrorMessage } from "@shared/api";
-import { parseAttachmentFilename } from "@shared/lib";
+import { unwrapBlob } from "@shared/api";
 
 import { chatApi } from "../api/api";
 import type { ChatAttachmentDownload } from "./types";
@@ -30,16 +29,10 @@ export const useDownloadChatAttachmentAction = () => {
 
       // 실패해도 blob 으로 도착한다(responseType 이 blob 이고, 인터셉터가 에러 응답을
       // resolve 로 되돌린다) — 본문을 읽어야 사유를 안다
-      if (res.status >= 400) {
-        const message = await readBlobErrorMessage(res.data);
-        throw new Error(message ?? "첨부 파일을 내려받지 못했습니다.");
-      }
-
-      return {
-        blob: res.data,
-        filename:
-          parseAttachmentFilename(res.headers["content-disposition"]) || fallbackFilename,
-      };
+      return unwrapBlob(res, {
+        fallbackMessage: "첨부 파일을 내려받지 못했습니다.",
+        fallbackFilename,
+      });
     },
   });
 

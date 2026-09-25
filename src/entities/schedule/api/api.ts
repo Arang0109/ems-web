@@ -36,7 +36,7 @@ export const scheduleApi = {
     return res.data;
   },
 
-  // 동시 편집 충돌(409)을 다른 실패와 구분해야 하므로 unwrap 을 거쳐 ApiError 로 던진다.
+  // 동시 편집 충돌(409)을 다른 실패와 구분해야 하므로 unwrap 을 거쳐 상태 코드가 실린 ApiResponseError 로 던진다.
   saveSheets: async (id: number, body: SaveSheetsRequest): Promise<ScheduleResponse> => {
     const res = await axiosPrivate.put<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/sheets`, body);
     return unwrap(res);
@@ -172,6 +172,7 @@ export const scheduleApi = {
     formData.append('template', template);
     // Content-Type을 직접 지정하면 multipart boundary가 빠지므로 헤더는 건드리지 않는다(export 와 같다).
     const res = await axiosPrivate.post('/schedules/sampling-records/template-check', formData);
+    console.log(res);
     return res.data;
   },
 

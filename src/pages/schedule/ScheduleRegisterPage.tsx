@@ -12,7 +12,7 @@ export const ScheduleRegisterPage = () => {
       backTo="/schedule"
     >
       <Panel>
-        <div className="px-5 pt-5 pb-4 border-b border-border">
+        <div className="px-5 pt-5 pb-4 border-b border-rule">
           <RegisterScheduleForm />
         </div>
       </Panel>

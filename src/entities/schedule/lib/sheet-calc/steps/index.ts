@@ -22,3 +22,4 @@ export const SHEET_CALC_STEPS: SheetCalcStep[] = [
 ];
 
 export { calcRequiredPointCount } from "./init-step";
+export { calcExhaustGasAverage } from "./exhaust-gas-step";

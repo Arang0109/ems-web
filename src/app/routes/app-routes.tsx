@@ -5,7 +5,7 @@ import { ProtectedRoute } from "./protected-route";
 import { AdminRoute } from "./admin-route";
 import { PlatformRoute } from "./platform-route";
 
-import { CHAT_ROUTE_HANDLE, MainLayout, PlatformLayout } from "@widgets/layouts";
+import { CHAT_ROUTE_HANDLE, DETAIL_ROUTE_HANDLE, MainLayout, PlatformLayout } from "@widgets/layouts";
 
 import { SignInPage } from "@pages/sign-in";
 import { Dashboard } from "@pages/dashboard";
@@ -61,7 +61,8 @@ const router = createBrowserRouter(
         <Route path="/schedule/register" element={<ScheduleRegisterPage />} />
         {/* :scheduleId 보다 먼저 둬야 "canceled"가 id로 잡히지 않는다 */}
         <Route path="/schedule/canceled" element={<CanceledSchedulePage />} />
-        <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} />
+        {/* 모바일에서 브랜드 바 대신 페이지 자체 sticky 헤더(제목 · 칩 · 탭)를 쓴다 */}
+        <Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} handle={DETAIL_ROUTE_HANDLE} />
 
         {/* 화면 높이에 맞춰야 하므로 `handle` 로 레이아웃에 알린다.
             데스크탑은 목록·대화를 한 화면에 두고, 모바일은 두 경로를 오간다. */}

@@ -64,8 +64,7 @@ export const UpdateScheduleCustomFieldForm = ({ open, onOpenChange, field, onSuc
             placeholder="예: 현장 코드"
             value={form.label}
             onChange={(value) => handleChange("label", value)}
-            invalid={!!fieldErrors?.label}
-            error={fieldErrors?.label}
+            errorMessage={fieldErrors?.label}
             required
             startIcon={<Tag />}
           />
@@ -81,8 +80,7 @@ export const UpdateScheduleCustomFieldForm = ({ open, onOpenChange, field, onSuc
             onChange={(value) => handleChange("sortOrder", value)}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.sortOrder}
-            error={fieldErrors?.sortOrder}
+            errorMessage={fieldErrors?.sortOrder}
             helperText="작은 수가 먼저 옵니다."
             startIcon={<ListOrdered />}
           />

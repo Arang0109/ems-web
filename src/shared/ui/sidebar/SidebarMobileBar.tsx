@@ -1,8 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
-
-import { useSidebar } from "@/components/ui/sidebar";
-import { IconButton } from "@shared/ui/buttons";
-
+import { SidebarMenuButton } from "./SidebarMenuButton";
 import type { SidebarBrand } from "./types";
 
 interface Props {
@@ -18,7 +14,6 @@ interface Props {
  * 데스크탑(`md` 이상)에서는 상시 사이드바가 있으므로 숨긴다.
  */
 export const SidebarMobileBar = ({ brand }: Props) => {
-  const { setOpenMobile } = useSidebar();
   const { icon: BrandIcon } = brand;
 
   return (
@@ -35,12 +30,7 @@ export const SidebarMobileBar = ({ brand }: Props) => {
         </div>
       </div>
 
-      <IconButton
-        icon={<MoreHorizontal className="size-4.75" />}
-        label="메뉴 열기"
-        onClick={() => setOpenMobile(true)}
-        className="shrink-0"
-      />
+      <SidebarMenuButton className="shrink-0" />
     </header>
   );
 };

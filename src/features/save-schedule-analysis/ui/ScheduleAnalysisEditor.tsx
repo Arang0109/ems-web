@@ -12,7 +12,7 @@ interface Props {
   /** 이 회차의 상세 — 진행 정보(일자·서명란 담당자)의 출처 */
   schedule: ScheduleDetail | null;
   items: SamplingItemSnapshot[];
-  /** 현장 기록지 — 채취시각 가져오기의 출처다 */
+  /** 저장된 현장 기록지 — 채취시각·현장측정 평균 가져오기의 출처다 */
   sheets: SamplingSheet[];
   editable: boolean;
   /** 저장 후 측정계획 상세 재조회 — 상태 배지·완료 버튼이 이 결과로 갱신된다. */
@@ -55,7 +55,7 @@ export const ScheduleAnalysisEditor = ({
         timeFilledCount={analysis.timeFilledCount}
         onChange={analysis.handleChange}
         onSave={analysis.handleSave}
-        onImportSamplingTimes={analysis.importSamplingTimes}
+        onImportFromSheets={analysis.importFromSheets}
       />
     </div>
   );

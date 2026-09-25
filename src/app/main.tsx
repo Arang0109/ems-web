@@ -5,7 +5,7 @@ import App from './App.tsx'
 
 async function bootstrap() {
   if (import.meta.env.VITE_ENABLE_MSW === 'true') {
-    const { worker } = await import('@shared/api/mocks');
+    const { worker } = await import('@app/mocks');
     await worker.start({
       onUnhandledRequest: 'bypass',
     });

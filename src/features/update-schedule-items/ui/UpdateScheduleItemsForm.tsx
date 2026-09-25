@@ -2,6 +2,7 @@ import type { SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Checkbox, FieldGroup } from "@shared/ui/form";
+import { Panel } from "@shared/ui/cards";
 
 import { useUpdateScheduleItems } from "../model/hooks/use-update-schedule-items";
 
@@ -48,7 +49,7 @@ export const UpdateScheduleItemsForm = ({
     >
       <FieldGroup>
         {!hasOptions && (
-          <p className="text-body-4 text-muted-foreground">
+          <p className="text-body-4 text-muted-ink">
             측정시설에 등록된 측정항목이 없습니다. <b>측정지점 상세</b>에서 먼저 항목을 등록해 주세요.
           </p>
         )}
@@ -58,7 +59,7 @@ export const UpdateScheduleItemsForm = ({
           const isAllSelected = ids.every((id) => selectedIds.has(id));
 
           return (
-            <div key={group.cycle} className="rounded-panel border border-rule bg-canvas p-3">
+            <Panel key={group.cycle} variant="inset">
               <div className="flex items-center justify-between border-b border-rule px-1 pb-2">
                 <p className="text-body-4 text-ink">
                   {group.label} :{" "}
@@ -102,7 +103,7 @@ export const UpdateScheduleItemsForm = ({
                   </div>
                 ))}
               </div>
-            </div>
+            </Panel>
           );
         })}
 
@@ -110,7 +111,7 @@ export const UpdateScheduleItemsForm = ({
           <p className="text-body-4 text-danger">{fieldErrors.pollutantIds}</p>
         )}
 
-        <p className="text-caption text-muted-foreground">
+        <p className="text-caption text-muted-ink">
           이미 포함된 항목의 허용기준은 측정 시점 값이 그대로 유지됩니다.
         </p>
       </FieldGroup>

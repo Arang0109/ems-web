@@ -36,7 +36,7 @@ export const PollutantTable = () => {
         title="측정물질 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정물질명, 측정장비 검색 ...'} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'측정물질명, 측정장비 검색 ...'} />
             <FilterSelect
               icon={Layers}
               options={fieldOptions}

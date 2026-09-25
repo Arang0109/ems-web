@@ -5,6 +5,7 @@ import { ContractDetailForm } from "@features/update-contract";
 
 import { PageLayout } from "@shared/ui/layout";
 import { Panel } from "@shared/ui/cards";
+import { ErrorText } from "@shared/ui/feedback";
 
 export const ContractDetailPage = () => {
   const { contractId } = useParams<{ contractId: string }>();
@@ -19,10 +20,10 @@ export const ContractDetailPage = () => {
       showBack
       backTo="/contracts"
     >
-      {loading && <p className="text-body-2 text-muted-foreground">불러오는 중...</p>}
-      {error && <p className="text-body-2 text-destructive">{error}</p>}
+      {loading && <p className="text-body-2 text-muted-ink">불러오는 중...</p>}
+      <ErrorText>{error}</ErrorText>
       {data && (
-        <Panel className="px-5 pt-5 pb-4 border-b border-border">
+        <Panel className="px-5 pt-5 pb-4 border-b border-rule">
           <ContractDetailForm key={data.id} contract={data} />
         </Panel>
       )}

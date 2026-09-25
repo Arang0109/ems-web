@@ -2,6 +2,13 @@ import { cn } from "@/lib/utils";
 
 import { BackButton } from "@shared/ui/buttons";
 import { PageTitle } from "@shared/ui/semantics";
+import { SidebarMenuButton } from "@shared/ui/sidebar";
+
+/**
+ * `stickyHeader` 헤더(제목줄 58px + 식별 칩 줄 25px)의 높이만큼 내려 붙이는 `top` 클래스.
+ * 헤더 바로 아래에 함께 고정돼야 하는 요소(탭 목록 등)에 `sticky` 와 같이 건다 — 모바일 전용.
+ */
+export const PAGE_STICKY_HEADER_OFFSET = "top-20.75";
 
 interface Props {
   title: string;
@@ -16,6 +23,17 @@ interface Props {
   onBackClick?: () => void;
   /** 제목 우측 액션 — 등록 버튼 등 */
   actions?: React.ReactNode;
+  /**
+   * 제목줄 우측 끝 더보기(⋯) 메뉴 버튼 — 모바일(md 미만)에서만 노출한다.
+   * 브랜드 상단 바를 숨기는 상세 화면(라우트 `DETAIL_ROUTE_HANDLE`)에서 사이드바 진입점을 대신한다.
+   */
+  showMenu?: boolean;
+  /**
+   * 모바일(md 미만)에서 제목 블록을 화면 상단에 고정한다 (MO 상세 시안).
+   * 제목줄(58px) 아래 줄에 `subtitle` 을 두고, 본문과의 간격을 없앤다 — 본문 첫 요소(탭 목록 등)는
+   * `sticky` + `PAGE_STICKY_HEADER_OFFSET` 으로 헤더 바로 아래에 이어 붙인다. 데스크탑은 기존 배치 그대로다.
+   */
+  stickyHeader?: boolean;
   /** 세로 간격 조정 (기본 `space-y-5`) */
   className?: string;
   children: React.ReactNode;
@@ -38,9 +56,43 @@ export const PageLayout = ({
   backTo,
   onBackClick,
   actions,
+  showMenu,
+  stickyHeader,
   className,
   children,
 }: Props) => {
+  const menuButton = showMenu && <SidebarMenuButton className="-mr-2 shrink-0 md:hidden" />;
+
+  if (stickyHeader) {
+    return (
+      <div className={cn("min-h-full md:space-y-5", className)}>
+        {/* -mx-4 px-4 : 레이아웃 좌우 여백을 넘어 전폭으로 깔아야 스크롤되는 본문이 옆으로 비치지 않는다 */}
+        <div className="sticky top-0 z-20 -mx-4 bg-surface px-4 backdrop-blur-[7px] md:static md:mx-0 md:bg-transparent md:px-0 md:backdrop-blur-none">
+          <div className="flex h-14.5 items-center gap-2 md:h-auto md:items-start md:gap-3">
+            {showBack && (
+              <BackButton to={backTo} onClick={onBackClick} className="-ml-2 md:hidden" />
+            )}
+
+            {/* 모바일은 subtitle 을 아래 줄로 내리므로 제목 옆에는 데스크탑에서만 둔다 */}
+            <PageTitle
+              title={title}
+              description={description}
+              subtitle={subtitle && <div className="hidden md:block">{subtitle}</div>}
+            />
+
+            {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
+            {menuButton}
+          </div>
+
+          {/* 높이를 고정해 두어야 PAGE_STICKY_HEADER_OFFSET 과 어긋나지 않는다 (데이터 로딩 전에도) */}
+          {subtitle && <div className="flex h-6.25 items-center md:hidden">{subtitle}</div>}
+        </div>
+
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className={cn("space-y-5 min-h-full", className)}>
       <div className="flex items-start gap-2 md:gap-3">
@@ -52,6 +104,7 @@ export const PageLayout = ({
         <PageTitle title={title} description={description} subtitle={subtitle} />
 
         {actions && <div className="ml-auto flex shrink-0 items-center gap-2">{actions}</div>}
+        {menuButton}
       </div>
 
       {children}

@@ -1,3 +1,5 @@
+import { format, isValid, parseISO } from 'date-fns';
+
 /**
  * `'2026-08-15'` → `'8월 15일'`
  *
@@ -13,43 +15,34 @@ export function formatMonthDay(date?: string | null): string {
   return `${Number(mm)}월 ${Number(dd)}일`;
 }
 
-export function formatDateTime(date?: string | Date | null): string {
-  if (!date) return '';
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
-  const d = new Date(date);
+/**
+ * 서버 날짜·시각 값 → `Date`. 해석할 수 없으면 `null`.
+ *
+ * 날짜만 있는 문자열(`LocalDate`)은 **로컬 자정**으로 읽는다 — `new Date('2026-08-15')` 는 UTC 자정이라
+ * 서쪽 시간대에서 전날이 된다. 시각이 붙은 `LocalDateTime` 은 오프셋이 없어 `new Date()` 가 로컬로 읽는다.
+ */
+const toLocalDate = (value: string | Date): Date | null => {
+  const d = typeof value === 'string' && DATE_ONLY.test(value) ? parseISO(value) : new Date(value);
+  return isValid(d) ? d : null;
+};
 
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
+/** 같은 규칙으로 해석하고 패턴만 다른 표시 함수를 만든다. 비었거나 해석 불가면 `''` */
+const dateFormatter = (pattern: string) => (value?: string | Date | null): string => {
+  if (!value) return '';
+  const d = toLocalDate(value);
+  return d ? format(d, pattern) : '';
+};
 
-  return `${yyyy}-${mm}-${dd} ${hh}시 ${min}분`;
-}
+/** `2026-08-15 14시 30분` */
+export const formatDateTime = dateFormatter("yyyy-MM-dd HH'시' mm'분'");
 
-export function formatDate(date?: string | Date | null): string {
-  if (!date) return '';
+/** `2026-08-15` */
+export const formatDate = dateFormatter('yyyy-MM-dd');
 
-  const d = new Date(date);
-
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-export function formatDateDot(date?: string | Date | null): string {
-  if (!date) return '';
-
-  const d = new Date(date);
-
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-
-  return `${yyyy}.${mm}.${dd}`;
-}
+/** `2026.08.15` */
+export const formatDateDot = dateFormatter('yyyy.MM.dd');
 // ─── 채팅 시각 표시 ──────────────────────────────────────────────────────────
 //
 // 서버가 주는 `LocalDateTime`(`'2026-09-08T14:03:11'`)은 오프셋이 없어 `new Date()` 가

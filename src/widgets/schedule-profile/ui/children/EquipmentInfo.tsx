@@ -10,6 +10,7 @@ import { Badge } from "@shared/ui/badges";
 import { IconButton } from "@shared/ui/buttons";
 import { DetailGrid, DetailRow } from "@shared/ui/form";
 import { useRemountKey } from "@shared/model";
+import { EmptyText } from "@shared/ui/feedback";
 
 import { describeEquipmentSpec, sortEquipmentsByType } from "../../model/mapper";
 import type { EquipmentSpecItem } from "../../model/types";
@@ -70,7 +71,7 @@ export const EquipmentInfo = ({ scheduleId, team, equipments, editable, onRefetc
       )}
 
       {sorted.length === 0 && (
-        <p className="py-8 text-center text-body-2 text-muted-ink">등록된 측정장비가 없습니다.</p>
+        <EmptyText>등록된 측정장비가 없습니다.</EmptyText>
       )}
 
       {sorted.map((equip) => (

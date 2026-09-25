@@ -1,9 +1,8 @@
 import React from "react";
-import { Maximize2, Minus, Plus, X } from "lucide-react";
+import { Maximize2, Minus, Plus } from "lucide-react";
 
 import {
   Dialog as DialogPrimitive,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -13,6 +12,7 @@ import { Button, IconButton } from "@shared/ui/buttons";
 import { useIsMobile } from "@shared/model";
 
 import { MOBILE_FULLSCREEN_CLASS } from "./dialog-size";
+import { OverlayHeader } from "./OverlayHeader";
 
 interface Props {
   open: boolean;
@@ -61,21 +61,10 @@ export const DocumentViewerDialog = ({
             : "h-[92vh] max-h-none w-[min(96vw,1400px)] max-w-none gap-0 p-0 sm:max-w-none",
         )}
       >
-        <header className="flex shrink-0 items-center gap-2 border-b border-rule px-3 py-2">
-          <div className="min-w-0 flex-1">
-            <DialogTitle className="truncate text-body-1 text-ink">{title}</DialogTitle>
-            {description && <DialogDescription className="sr-only">{description}</DialogDescription>}
-          </div>
-
-          {toolbar}
-
-          {/* IconButton 은 여분 props 를 흘려보내지 않아 render 슬롯에서 닫기 핸들러를 잃는다 */}
-          <DialogClose
-            render={<Button variant="ghost" size="icon-sm" aria-label="미리보기 닫기" />}
-          >
-            <X size={18} />
-          </DialogClose>
-        </header>
+        <OverlayHeader actions={toolbar} closeLabel="미리보기 닫기">
+          <DialogTitle className="truncate text-body-1 text-ink">{title}</DialogTitle>
+          {description && <DialogDescription className="sr-only">{description}</DialogDescription>}
+        </OverlayHeader>
 
         {/* 열릴 때만 마운트되므로 배율·스크롤 위치가 매번 초기화된다 */}
         <DocumentViewport documentWidth={documentWidth}>{children}</DocumentViewport>

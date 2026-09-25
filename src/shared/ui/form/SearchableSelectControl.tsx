@@ -1,14 +1,10 @@
 import { Combobox } from "@base-ui/react/combobox";
 import { CheckIcon, ChevronDownIcon, SearchIcon } from "lucide-react";
 
-import {
-  selectItemClassName,
-  selectPopupClassName,
-  selectTriggerClassName,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 import type { SelectOption } from "./Select";
+import { SELECT_ITEM_CLASS, SELECT_POPUP_CLASS, SELECT_TRIGGER_CLASS } from "./select-styles";
 
 interface Props {
   options: SelectOption<string>[];
@@ -68,7 +64,7 @@ export const SearchableSelectControl = ({
       data-slot="select-trigger"
       data-size={size}
       aria-invalid={invalid || undefined}
-      className={cn(selectTriggerClassName, "w-full", className)}
+      className={cn(SELECT_TRIGGER_CLASS, "w-full", className)}
     >
       {/* 트리거의 `*:data-[slot=select-value]:...` 규칙이 이 span 을 잡는다.
           Combobox.Value 는 자체 요소를 그리지 않으므로 여기서 감싼다. */}
@@ -79,7 +75,7 @@ export const SearchableSelectControl = ({
         render={
           <ChevronDownIcon
             data-slot="select-icon"
-            className="pointer-events-none size-4 text-muted-foreground"
+            className="pointer-events-none size-4 text-muted-ink"
           />
         }
       />
@@ -87,18 +83,18 @@ export const SearchableSelectControl = ({
 
     <Combobox.Portal>
       <Combobox.Positioner side="bottom" sideOffset={4} align="start" className="isolate z-50">
-        <Combobox.Popup data-slot="select-content" className={cn(selectPopupClassName, "flex flex-col")}>
-          <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-popover px-2.5">
-            <SearchIcon className="pointer-events-none size-4 shrink-0 text-muted-foreground" />
+        <Combobox.Popup data-slot="select-content" className={cn(SELECT_POPUP_CLASS, "flex flex-col")}>
+          <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-rule bg-surface px-2.5">
+            <SearchIcon className="pointer-events-none size-4 shrink-0 text-muted-ink" />
             <Combobox.Input
               placeholder={searchPlaceholder}
-              className="h-9 w-full bg-transparent text-body-3 outline-none placeholder:text-muted-foreground"
+              className="h-9 w-full bg-transparent text-body-3 outline-none placeholder:text-muted-ink"
             />
           </div>
 
           {/* Empty 는 목록이 비어도 **마운트를 유지해야** 스크린리더가 변화를 읽는다.
               조건부 렌더 대신 children 만 바뀌도록 둔다(Base UI 문서의 요구사항). */}
-          <Combobox.Empty className="text-center text-body-3 text-muted-foreground">
+          <Combobox.Empty className="text-center text-body-3 text-muted-ink">
             {/* 여백을 안쪽 span 이 들고 있어야 한다. 결과가 있을 때 Empty 는 children 만 비우고
                 요소는 남는데, 바깥에 패딩이 있으면 빈 칸이 팝업 위에 그대로 뜬다.
                 `display:none` 으로 감추는 방법은 쓰지 않는다 — 이 요소가 스크린리더에
@@ -125,8 +121,8 @@ export const SearchableSelectControl = ({
                 // `data-selected=""`(빈 문자열)로 내보내는데, 축약형 `data-selected:` 는
                 // Tailwind 가 `[data-selected=true]` 로 컴파일해 영영 맞지 않는다.
                 className={cn(
-                  selectItemClassName,
-                  "data-[highlighted]:bg-accent",
+                  SELECT_ITEM_CLASS,
+                  "data-[highlighted]:bg-brand-soft",
                   "data-[selected]:font-medium data-[selected]:text-brand-dark",
                   "data-[selected]:not-data-[highlighted]:bg-brand-soft",
                 )}

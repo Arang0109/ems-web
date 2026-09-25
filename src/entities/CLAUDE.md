@@ -231,20 +231,20 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 
 #### 409 충돌은 상태 코드를 보존해야 한다
 
-`schedule` 의 `saveSheets` 만 `unwrap`(`@shared/api`)을 거쳐 `ApiError` 를 던진다.
+`schedule` 의 `saveSheets` 만 `unwrap`(`@shared/api`)을 거쳐 상태 코드가 실린 `ApiResponseError` 를 던진다.
 `updateSchedule` 은 이름이 비슷해도 **일반 계약**이다 — 이름으로 일괄 판단하지 말 것.
 
 | 규칙 | 근거 |
 |------|------|
 | `mutationFn` 은 `unwrap` 을 그대로 쓴다 | `unwrapMessage` 로 바꾸면 상태 코드가 사라져 409 분기가 죽는다 |
 | **`onError` 에 전역 409 처리를 넣지 않는다** | 409 특례가 필요한 것은 동시 편집이 실제로 일어나는 `saveSheets` 뿐이다. `use-analysis-progress` 는 단순 toast 로 끝내며, 전역 처리는 그쪽 UX 를 바꾼다 |
-| 분기는 `err instanceof ApiError && err.isConflict` 로 좁힌다 | `instanceof Error` 로 넓히면 409 분기가 죽는다 |
+| 분기는 `err instanceof ApiResponseError && err.isConflict` 로 좁힌다 | `instanceof Error` 로 넓히면 409 분기가 죽는다 |
 
 ### 재시도 정책은 `shared/api/query-client.ts` 가 소유한다
 
 `axiosPrivate` 인터셉터가 에러 응답을 `Promise.resolve` 로 되돌리므로(401 재발급 흐름)
 업무 실패는 `unwrapMessage`/`unwrap` 이 던지는 시점에 드러난다. 그래서 기본 `retry: 3` 을 쓰면
-**권한 없음·검증 실패·409 를 3번씩 되묻게 된다.** `ApiResponseError`·`ApiError` 는 재시도하지 않고,
+**권한 없음·검증 실패·409 를 3번씩 되묻게 된다.** `ApiResponseError` 는 재시도하지 않고,
 요청 자체의 실패(네트워크 단절)만 재시도한다. mutation 은 `retry: false` 다.
 
 ✅ 허용

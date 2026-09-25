@@ -60,7 +60,7 @@ export interface FormDialogShellProps {
  * 실수 방지 장치 3가지(배경 클릭 차단 · 미저장 이탈 확인 · 엔터 암묵적 제출 차단)를
  * 여기서만 구현한다. 새 모달 표면을 만들 때 이 3가지를 다시 구현하지 말고 셸을 조합할 것.
  *
- * `@/components/ui/dialog`(shadcn 잔재)의 유일한 소비자이기도 하다.
+ * `@/components/ui/dialog`(shadcn 잔재)를 쓰는 셋 중 하나다(나머지는 Document·ImageViewerDialog).
  */
 export function FormDialogShell({
   triggerLabel,

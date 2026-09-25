@@ -3,6 +3,7 @@ import type { EquipmentRegisterForm } from "../../model/types";
 import { InputGroup, FieldGroup, Select } from "@shared/ui/form";
 import { equipTypeOptions } from "@shared/model";
 import type { EquipType } from "@shared/model";
+import { ErrorText } from "@shared/ui/feedback";
 
 import { STEP_GRID_3 } from "./step-props";
 
@@ -28,7 +29,7 @@ export const BasicInfoStep = ({ form, fieldErrors, onChange, onTypeChange }: Pro
           onValueChange={(v) => onTypeChange(v ?? '')}
           required
         />
-        {fieldErrors?.type && <p className="text-body-2 text-destructive">{fieldErrors.type}</p>}
+        <ErrorText>{fieldErrors?.type}</ErrorText>
       </div>
       <InputGroup
         id="equipmentName"
@@ -36,8 +37,7 @@ export const BasicInfoStep = ({ form, fieldErrors, onChange, onTypeChange }: Pro
         placeholder="장비명"
         value={form.equipmentName}
         onChange={(v) => onChange('equipmentName', v)}
-        invalid={!!fieldErrors?.equipmentName}
-        error={fieldErrors?.equipmentName}
+        errorMessage={fieldErrors?.equipmentName}
         required
       />
       <InputGroup id="managementNumber" label="관리번호" placeholder="관리번호"

@@ -15,7 +15,7 @@ import type { MoistureForm, SamplingPointForm, SheetForm } from "../types";
  * 그 규칙을 여기 한 곳에 모아 입력 화면·인쇄 미리보기·타임라인이 같은 값을 쓰게 한다.
  */
 
-// 분석기 고정 측정시간(가스분석기 15분·THC 30분)은 성적서 탭(항목별 채취시각 가져오기)도 쓰므로
+// 분석기 고정 측정시간(가스분석기 15분·THC 30분)은 성적서 탭(기록지 값 가져오기)도 쓰므로
 // entities/schedule/lib 에 있다. 이 슬라이스 안의 소비처가 여기서 가져가던 이름을 그대로 유지한다.
 export {
   GAS_ANALYZER_DURATION_MINUTES, THC_ANALYZER_DURATION_MINUTES,

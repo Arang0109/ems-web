@@ -13,7 +13,7 @@ export const ContractRegisterPage = () => {
       backTo="/contracts"
     >
       <Panel>
-        <div className="px-5 pt-5 pb-4 border-b border-border">
+        <div className="px-5 pt-5 pb-4 border-b border-rule">
           <RegisterContractForm />
         </div>
       </Panel>

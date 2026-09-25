@@ -6,7 +6,7 @@ import { isFilled } from "./required-fields";
 /**
  * 배출가스 정보 섹션의 조건부 필드 노출 규칙.
  *
- * 어느 항목이 THC·NOx·SOx 인가(code 우선·이름 별칭 폴백)는 성적서 탭의 채취시각 가져오기도 쓰므로
+ * 어느 항목이 THC·NOx·SOx 인가(code 우선·이름 별칭 폴백)는 성적서 탭의 기록지 값 가져오기도 쓰므로
  * entities/schedule/lib 에 있다. 이 슬라이스 안의 소비처가 여기서 가져가던 이름을 그대로 유지한다.
  */
 export type { ExhaustGasPollutant, AssignedPollutants } from "@entities/schedule";

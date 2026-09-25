@@ -7,7 +7,7 @@ import {
   calcSheetPreview, calcRequiredPointCount, useSaveSheetsAction, useFetchScheduleDetail,
 } from "@entities/schedule";
 import { useAuth } from "@entities/auth";
-import { ApiError } from "@shared/api";
+import { ApiResponseError } from "@shared/api";
 import type { MeasurementCategory, ScheduleStatus } from "@shared/model";
 import { SCHEDULE_STATUS_LABEL, ERROR_MESSAGE } from "@shared/config";
 import { useConfirm } from "@shared/ui/dialogs";
@@ -246,7 +246,7 @@ export const useSaveSheets = ({
       return { ok: true, advancedTo };
     } catch (err) {
       // 충돌은 다시 눌러서 풀리지 않는다 — 무엇이 어긋났는지 보여주고 사용자가 정하게 한다.
-      if (err instanceof ApiError && err.isConflict) {
+      if (err instanceof ApiResponseError && err.isConflict) {
         await applyConflictRecovery(err.message);
         return { ok: false };
       }

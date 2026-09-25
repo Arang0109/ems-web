@@ -5,6 +5,7 @@ import type { EquipmentSpecForm } from "../../model/types";
 import { InputGroup, Select } from "@shared/ui/form";
 import { pitotTubeTypeOptions } from "@shared/model";
 import { EQUIP_SPEC_FIELD_LABEL } from "@shared/config";
+import { ErrorText } from "@shared/ui/feedback";
 
 import { STEP_GRID_3 } from "./step-props";
 
@@ -37,7 +38,7 @@ const RemoveRowButton = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center justify-center text-muted-foreground hover:text-destructive"
+    className="inline-flex items-center justify-center text-muted-ink hover:text-danger"
     aria-label="행 삭제"
   >
     <Trash2 className="size-4" />
@@ -57,13 +58,13 @@ export const SpecStep = ({
   onDiameterChange,
 }: Props) => {
   if (!type) {
-    return <p className="text-body-2 text-muted-foreground">장비 종류를 먼저 선택하면 사양을 입력할 수 있습니다.</p>;
+    return <p className="text-body-2 text-muted-ink">장비 종류를 먼저 선택하면 사양을 입력할 수 있습니다.</p>;
   }
 
   return (
     <div className="space-y-4">
       {type === 'GAS_ANALYZER' && (
-        <p className="text-body-2 text-muted-foreground">가스분석기는 별도 사양 항목이 없습니다.</p>
+        <p className="text-body-2 text-muted-ink">가스분석기는 별도 사양 항목이 없습니다.</p>
       )}
 
       {type === 'PARTICLE_SAMPLER' && (
@@ -94,7 +95,7 @@ export const SpecStep = ({
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-body-4 text-foreground">{EQUIP_SPEC_FIELD_LABEL.coefficients}</span>
+              <span className="text-body-4 text-ink">{EQUIP_SPEC_FIELD_LABEL.coefficients}</span>
               <AddRowButton label={`${EQUIP_SPEC_FIELD_LABEL.coefficient} 추가`} onClick={onAddCoefficient} />
             </div>
             {spec.coefficients.map((c, i) => (
@@ -113,7 +114,7 @@ export const SpecStep = ({
       {type === 'NOZZLE' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-body-4 text-foreground">{EQUIP_SPEC_FIELD_LABEL.diameters}</span>
+            <span className="text-body-4 text-ink">{EQUIP_SPEC_FIELD_LABEL.diameters}</span>
             <AddRowButton label={`${EQUIP_SPEC_FIELD_LABEL.diameter} 추가`} onClick={onAddDiameter} />
           </div>
           {spec.diameters.map((d, i) => (
@@ -126,7 +127,7 @@ export const SpecStep = ({
         </div>
       )}
 
-      {error && <p className="text-body-2 text-destructive">{error}</p>}
+      <ErrorText>{error}</ErrorText>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { axiosPublic } from "@shared/api/axios-public";
+import { refreshAccessToken, tokenStorage } from "@shared/api";
 import type { MeasurementCategory, ScheduleStatus } from "@shared/model";
 
 /**
@@ -50,18 +50,12 @@ const discardBody = async (res: Response) => {
   }
 };
 
-const refreshAccessToken = async (): Promise<boolean> => {
-  try {
-    const res = await axiosPublic.post("/auth/refresh");
-    const accessToken = res.data?.data;
-    if (!accessToken) return false;
-
-    localStorage.setItem("accessToken", accessToken);
-    return true;
-  } catch {
-    return false;
-  }
-};
+/**
+ * 재발급은 공용 경로 하나로만 한다 — 따로 두면 HTTP 401 과 동시에 두 번 나가 한쪽 토큰이 무효가 되고,
+ * 채팅 WebSocket 이 듣는 `ACCESS_TOKEN_REFRESHED` 도 발행되지 않는다.
+ */
+const tryRefreshAccessToken = (): Promise<boolean> =>
+  refreshAccessToken().then(() => true, () => false);
 
 type Frame = { event: string; data: string };
 
@@ -138,7 +132,7 @@ export const subscribeScheduleStream = (
           `${import.meta.env.VITE_API_URL}/schedules/${scheduleId}/stream`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+              Authorization: tokenStorage.authorizationHeader(),
               Accept: "text/event-stream",
             },
             credentials: "include",
@@ -149,7 +143,7 @@ export const subscribeScheduleStream = (
         if (res.status === 401) {
           await discardBody(res);
           // 토큰 만료는 장시간 입력 화면에서 정상적으로 일어난다. 갱신하고 곧바로 다시 붙는다.
-          if (authRetries >= MAX_AUTH_RETRIES || !(await refreshAccessToken())) return;
+          if (authRetries >= MAX_AUTH_RETRIES || !(await tryRefreshAccessToken())) return;
           authRetries += 1;
           continue;
         }

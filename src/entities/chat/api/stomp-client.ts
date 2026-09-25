@@ -1,6 +1,6 @@
 import { Client } from "@stomp/stompjs";
 
-import { ACCESS_TOKEN_REFRESHED, refreshAccessToken } from "@shared/api";
+import { ACCESS_TOKEN_REFRESHED, refreshAccessToken, tokenStorage } from "@shared/api";
 
 import type {
   ChatMessageEvent,
@@ -102,7 +102,7 @@ export const subscribeChatStream = (handlers: ChatStreamHandlers): (() => void) 
     }
 
     client.connectHeaders = {
-      Authorization: `Bearer ${localStorage.getItem("accessToken") ?? ""}`,
+      Authorization: tokenStorage.authorizationHeader(),
     };
   };
 

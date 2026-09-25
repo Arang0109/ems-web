@@ -1,7 +1,6 @@
-export type { FieldErrorResponse, ApiResponseMessage } from './types/api-types';
+export type { ApiResponseMessage } from './types/api-types';
 
-export type { size, FieldTone } from './types/style-types';
-export { SIZE_STYLES } from './types/style-types';
+export type { FieldTone } from './types/style-types';
 
 export {
   CONTRACT_STATUS, GRADE, MEASUREMENT_FIELD, ORIENTATION, SHAPE, SAMPLE_GROUPING, MEASUREMENT_MODE,
@@ -17,10 +16,8 @@ export {
   toMeasurementUnit, measurementUnitText,
   measurementFieldOptions, gradeOptions, orientationOptions, shapeOptions,
   equipTypeOptions, equipStatusOptions, pitotTubeTypeOptions, measurementCycleOptions,
-  inspectionTypeOptions, inspectionResultOptions,
+  inspectionResultOptions,
   measurementTypeOptions, scheduleStatusOptions,
-  SCHEDULE_STATUS_TRANSITIONS, canTransitionScheduleStatus,
-  isTerminalScheduleStatus, canReopenSchedule, requiresAdminToReopenSchedule, canDeleteSchedule,
   measurementCategoryOptions, weatherConditionOptions, windDirectionOptions
 } from './types/common-types';
 export type {

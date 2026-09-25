@@ -45,7 +45,7 @@ export const UpdateScheduleCustomFieldsForm = ({
       onSubmit={handleSubmit}
     >
       {definitions.length === 0 ? (
-        <p className="text-caption text-muted-foreground">
+        <p className="text-caption text-muted-ink">
           정의된 커스텀 필드가 없습니다. 관리자가 관리자 &gt; 커스텀 필드에서 먼저 항목을 정의해야 합니다.
         </p>
       ) : (
@@ -59,8 +59,7 @@ export const UpdateScheduleCustomFieldsForm = ({
                 placeholder={`\${custom.${definition.key}}`}
                 value={form[definition.key] ?? ""}
                 onChange={(value) => handleChange(definition.key, value)}
-                invalid={!!fieldErrors?.[definition.key]}
-                error={fieldErrors?.[definition.key]}
+                errorMessage={fieldErrors?.[definition.key]}
                 helperText={`양식 이름: custom.${definition.key}`}
               />
             ))}

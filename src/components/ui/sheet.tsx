@@ -4,7 +4,8 @@ import * as React from "react"
 import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { IconButton } from "@shared/ui/buttons"
+import { SLIDE_BACKDROP_CLASS } from "@shared/ui/dialogs/overlay-classes"
 import { XIcon } from "lucide-react"
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
@@ -28,7 +29,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs dark:bg-black/50",
+        SLIDE_BACKDROP_CLASS,
         className
       )}
       {...props}
@@ -63,17 +64,14 @@ function SheetContent({
           <SheetPrimitive.Close
             data-slot="sheet-close"
             render={
-              <Button
-                variant="ghost"
-                className="absolute top-4 right-4"
+              <IconButton
                 size="icon-sm"
+                className="absolute top-4 right-4"
+                icon={<XIcon />}
+                label="닫기"
               />
             }
-          >
-            <XIcon
-            />
-            <span className="sr-only">Close</span>
-          </SheetPrimitive.Close>
+          />
         )}
       </SheetPrimitive.Popup>
     </SheetPortal>

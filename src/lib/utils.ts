@@ -19,8 +19,20 @@ const FONT_SIZES = [
   "caption",
 ] as const
 
+/**
+ * src/app/index.css 의 --radius-* · --shadow-* 커스텀 토큰.
+ * tailwind-merge 는 반경·그림자 테마로 t-shirt 이름(sm·md·lg…)만 알기 때문에,
+ * 등록하지 않으면 `rounded-nav rounded-full` 이 둘 다 남고 `shadow-panel` 은 그림자 **색**으로 오분류된다.
+ */
+const RADII = ["row-action", "button", "nav", "icon-tile", "panel", "dialog", "bubble"] as const
+const SHADOWS = ["panel", "panel-strong"] as const
+
 const twMerge = extendTailwindMerge({
   extend: {
+    theme: {
+      radius: [...RADII],
+      shadow: [...SHADOWS],
+    },
     classGroups: {
       "font-size": FONT_SIZES.map((size) => `text-${size}`),
     },

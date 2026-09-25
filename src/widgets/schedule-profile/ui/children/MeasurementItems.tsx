@@ -2,6 +2,7 @@ import { SquarePen } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { IconButton } from "@shared/ui/buttons";
+import { Panel } from "@shared/ui/cards";
 
 import type { PollutantChipItem, PollutantCycleGroup } from "../../model/types";
 
@@ -82,7 +83,7 @@ const ChipRow = ({
 const CycleGroupBox = ({
   group, onEditItem,
 }: { group: PollutantCycleGroup; onEditItem?: (pollutantId: number) => void }) => (
-  <div className="rounded-panel border border-rule bg-canvas p-3">
+  <Panel variant="inset">
     <p className="border-b border-rule px-1 pb-3 text-body-4 text-ink">
       {group.label} : <span className="text-brand-dark">{group.current.length + group.others.length}개</span>
     </p>
@@ -97,7 +98,7 @@ const CycleGroupBox = ({
         <ChipRow label="전체 측정 항목" items={group.others} selected={false} />
       )}
     </div>
-  </div>
+  </Panel>
 );
 
 export const MeasurementItems = ({ groups, onEditItem }: Props) => {

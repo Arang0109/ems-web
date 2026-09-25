@@ -47,8 +47,7 @@ export const RegisterScheduleCustomFieldForm = ({ open, onOpenChange, onSuccess 
             placeholder="예: siteCode"
             value={form.key}
             onChange={(value) => handleChange("key", value)}
-            invalid={!!fieldErrors?.key}
-            error={fieldErrors?.key}
+            errorMessage={fieldErrors?.key}
             helperText={`양식에서 \${custom.${form.key.trim() || "키"}} 로 씁니다. 영문자·숫자·밑줄만, 등록 후 변경 불가.`}
             required
             startIcon={<Braces />}
@@ -59,8 +58,7 @@ export const RegisterScheduleCustomFieldForm = ({ open, onOpenChange, onSuccess 
             placeholder="예: 현장 코드"
             value={form.label}
             onChange={(value) => handleChange("label", value)}
-            invalid={!!fieldErrors?.label}
-            error={fieldErrors?.label}
+            errorMessage={fieldErrors?.label}
             helperText="측정계획의 커스텀 필드 입력 칸에 보이는 이름입니다."
             required
             startIcon={<Tag />}
@@ -77,8 +75,7 @@ export const RegisterScheduleCustomFieldForm = ({ open, onOpenChange, onSuccess 
             onChange={(value) => handleChange("sortOrder", value)}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.sortOrder}
-            error={fieldErrors?.sortOrder}
+            errorMessage={fieldErrors?.sortOrder}
             helperText="작은 수가 먼저 옵니다. 비우면 목록 맨 뒤에 붙습니다."
             startIcon={<ListOrdered />}
           />

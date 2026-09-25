@@ -45,7 +45,7 @@ export const LoadPreviousSheetDialog = ({
       open={open}
       onOpenChange={onOpenChange}
       onSubmit={handleSubmit}
-      title="이전 기록지 데이터 불러오기"
+      title="이전 회차 기록 불러오기"
       description={
         "이전 기록지의 데이터를 현재 기록지에 적용합니다.\n" +
         "대기압을 뺀 기상 조건과 채취 시각은 새로 입력해야 합니다.\n" +

@@ -52,8 +52,7 @@ export const RegisterMeasurementMethodForm = ({ open, onOpenChange, onSuccess }:
             placeholder="예: 카트리지"
             value={form.name}
             onChange={(value) => handleChange("name", value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
             required
             startIcon={<FlaskConical />}
           />
@@ -79,8 +78,7 @@ export const RegisterMeasurementMethodForm = ({ open, onOpenChange, onSuccess }:
             value={form.mergedSampleName}
             onChange={(value) => handleChange("mergedSampleName", value)}
             disabled={!isMerged}
-            invalid={!!fieldErrors?.mergedSampleName}
-            error={fieldErrors?.mergedSampleName}
+            errorMessage={fieldErrors?.mergedSampleName}
             required={isMerged}
             startIcon={<Tag />}
           />
@@ -93,8 +91,7 @@ export const RegisterMeasurementMethodForm = ({ open, onOpenChange, onSuccess }:
             onChange={(value) => handleChange("samplingMinutes", value)}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.samplingMinutes}
-            error={fieldErrors?.samplingMinutes}
+            errorMessage={fieldErrors?.samplingMinutes}
             helperText="이 방법을 쓰는 모든 측정항목에 적용됩니다."
             startIcon={<Clock />}
           />
@@ -107,8 +104,7 @@ export const RegisterMeasurementMethodForm = ({ open, onOpenChange, onSuccess }:
             onChange={(value) => handleChange("suctionFlowRate", value)}
             min={0}
             maxDecimals={3}
-            invalid={!!fieldErrors?.suctionFlowRate}
-            error={fieldErrors?.suctionFlowRate}
+            errorMessage={fieldErrors?.suctionFlowRate}
             helperText="통칭 시료(VOCs·VOCs-T)는 이 값이 그 병의 흡인유량입니다. 항목별 채취 방법은 측정물질에서 덮어쓸 수 있습니다."
             startIcon={<Gauge />}
           />

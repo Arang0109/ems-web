@@ -60,15 +60,13 @@ export const MobileCardList = <TData,>({
   isRowSelected,
   className,
 }: Props<TData>) => {
-  const columns = table.getVisibleLeafColumns();
-
   const layout = useMemo(
     () => config ?? deriveCardConfig(table),
     // columns 는 config 미지정 시 기본 배치의 입력이다
-    [config, table, columns]
+    [config, table]
   );
 
-  const { title, subtitle, status, fields } = layout;
+  const { badge, title, titleClassName, subtitle, status, fields, body, highlight } = layout;
   const actions = useMemo(() => toArray(layout.actions), [layout.actions]);
   const gridColumns = layout.columns ?? 1;
 
@@ -107,8 +105,8 @@ export const MobileCardList = <TData,>({
       </div>
     );
 
-  const hasHeader = Boolean(title || subtitle || status || actions.length);
-  if (!hasHeader && !fields?.length) return null;
+  const hasHeader = Boolean(badge || title || subtitle || status || actions.length);
+  if (!hasHeader && !fields?.length && !body) return null;
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -130,6 +128,9 @@ export const MobileCardList = <TData,>({
           return flexRender(cell.column.columnDef.cell, cell.getContext());
         };
 
+        /* 배지는 행마다 있고 없고가 갈리므로(예: 오늘인 건만) 선언 유무가 아니라
+           실제로 그려진 결과를 보고 자리를 내준다 — 아니면 빈 배지 자리가 남는다 */
+        const badgeNode = badge ? render(badge, row) : null;
         const clickable = Boolean(onRowClick);
 
         return (
@@ -143,6 +144,8 @@ export const MobileCardList = <TData,>({
             onKeyDown={
               clickable
                 ? (e) => {
+                    // 카드 안 버튼(삭제 등)의 Enter·Space 는 그 버튼의 것이다 — 가로채면 행 이동이 된다
+                    if (e.target !== e.currentTarget) return;
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       onRowClick?.(row.original);
@@ -154,6 +157,8 @@ export const MobileCardList = <TData,>({
               'overflow-hidden rounded-panel border border-rule bg-surface shadow-panel',
               'focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand-primary/25',
               clickable && 'cursor-pointer active:bg-brand-soft',
+              /* 강조는 테두리·그림자만 건드린다 — 선택(brand-soft 면)과 축이 달라 겹쳐도 서로 읽힌다 */
+              highlight?.(row.original) && 'border-2 border-brand-primary shadow-panel-strong',
               isRowSelected?.(row.original) && 'border-brand-primary bg-brand-soft'
             )}
           >
@@ -162,9 +167,10 @@ export const MobileCardList = <TData,>({
               <div className="flex items-start justify-between gap-3 p-4">
                 {/* 제목 위 · 부제 아래. 한 줄에 나란히 두면 부제가 폭을 먼저 가져가
                     긴 제목이 곧바로 잘린다 */}
-                <div className="flex min-w-0 flex-col gap-0.5">
+                <div className="flex min-w-0 flex-col">
+                  {badgeNode && <span className="flex">{badgeNode}</span>}
                   {title && (
-                    <span className="line-clamp-2 text-h3 text-ink wrap-break-words">
+                    <span className={cn('line-clamp-2 text-h3 text-ink wrap-break-words', titleClassName)}>
                       {render(title, row)}
                     </span>
                   )}
@@ -191,32 +197,38 @@ export const MobileCardList = <TData,>({
               </div>
             )}
 
-            {fields && fields.length > 0 && (
-              <div
-                className={cn(
-                  'grid gap-x-4 gap-y-2 px-4 pt-3 pb-4',
-                  GRID_COLS[gridColumns],
-                  hasHeader && 'border-t border-rule'
-                )}
-              >
-                {fields.map((field, index) => (
-                  <div
-                    key={typeof field.content === 'string' ? field.content : index}
-                    className={cn(
-                      'min-w-0 p-3',
-                      /* 칸 구분선은 1열(= 세로 목록)에서만 의미가 있다.
-                         다열에서는 칸마다 밑줄이 격자처럼 보여 넣지 않는다 */
-                      gridColumns === 1 && 'border-b border-rule',
-                      field.span === 'full' ? 'col-span-full' : COL_SPAN[field.span ?? 1]
-                    )}
-                  >
-                    <p className="text-label text-muted-ink">{labelOf(field)}</p>
-                    <div className="mt-1 truncate text-body-1 text-ink">
-                      {render(field.content, row)}
+            {/* 본문을 직접 그리는 카드는 헤더와의 구분선을 두지 않는다 — 격자가 아니다 */}
+            {body ? (
+              <div className={cn('px-4 pb-4', !hasHeader && 'pt-4')}>{render(body, row)}</div>
+            ) : (
+              fields &&
+              fields.length > 0 && (
+                <div
+                  className={cn(
+                    'grid gap-x-4 gap-y-2 px-4 pt-3 pb-4',
+                    GRID_COLS[gridColumns],
+                    hasHeader && 'border-t border-rule'
+                  )}
+                >
+                  {fields.map((field, index) => (
+                    <div
+                      key={typeof field.content === 'string' ? field.content : index}
+                      className={cn(
+                        'min-w-0 p-3',
+                        /* 칸 구분선은 1열(= 세로 목록)에서만 의미가 있다.
+                           다열에서는 칸마다 밑줄이 격자처럼 보여 넣지 않는다 */
+                        gridColumns === 1 && 'border-b border-rule',
+                        field.span === 'full' ? 'col-span-full' : COL_SPAN[field.span ?? 1]
+                      )}
+                    >
+                      <p className="text-label text-muted-ink">{labelOf(field)}</p>
+                      <div className="mt-1 truncate text-body-1 text-ink">
+                        {render(field.content, row)}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )
             )}
           </div>
         );

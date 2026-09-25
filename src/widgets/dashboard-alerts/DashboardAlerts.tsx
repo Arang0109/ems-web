@@ -2,6 +2,7 @@ import {
   ContractExpiryWidget, InspectionDueWidget,
   type ExpiringContract, type InspectionDue,
 } from '@features/dashboard-summary';
+import { Panel } from '@shared/ui/cards';
 
 interface Props {
   contracts: ExpiringContract[];
@@ -14,12 +15,12 @@ interface Props {
  * 면·그림자를 이 열이 소유하고 내부 알림 패널은 테두리만 갖는다(중첩 그림자 방지).
  */
 export const DashboardAlerts = ({ contracts, equipments, isLoading }: Props) => (
-  <aside className="w-full shrink-0 overflow-hidden rounded-panel bg-surface shadow-panel ring-1 ring-rule lg:w-65">
+  <Panel as="aside" variant="elevated" className="w-full shrink-0 lg:w-65">
     <div className="p-4">
       <h2 className="text-h3 text-ink">주의가 필요한 항목</h2>
     </div>
 
     <ContractExpiryWidget contracts={contracts} isLoading={isLoading} />
     <InspectionDueWidget equipments={equipments} isLoading={isLoading} />
-  </aside>
+  </Panel>
 );

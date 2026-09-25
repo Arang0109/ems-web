@@ -1,6 +1,8 @@
 import { useNumericInput } from "@shared/model";
 import { cn } from "@/lib/utils";
 
+import { FIELD_INPUT_CLASS, fieldFrameClass, type FieldFrame } from "./field-frame";
+
 interface Props {
   id?: string;
   /** 확정값 (미입력은 `""`). 타이핑 중인 미완성 값은 내부에만 있다 */
@@ -18,7 +20,7 @@ interface Props {
   maxDecimals?: number;
 
   /** 테두리를 직접 그릴지 — 호스트(`UnitField`·표 셀)가 프레임을 소유하면 `"none"` */
-  frame?: "bordered" | "none";
+  frame?: FieldFrame;
   /** 어떤 항목의 값인지 — 입력창과 부호 버튼의 접근성 이름이 된다 */
   label?: string;
   placeholder?: string;
@@ -77,14 +79,7 @@ export const NumericField = ({
     <div
       className={cn(
         "flex min-w-0 items-stretch",
-        frame === "bordered"
-          ? [
-              "h-12 overflow-hidden rounded-button border border-rule-dark bg-surface md:h-9.5",
-              !disabled &&
-                "focus-within:border-brand-primary focus-within:ring-3 focus-within:ring-brand-primary/12",
-              disabled && "bg-rule/40",
-            ]
-          : "flex-1",
+        fieldFrameClass(frame, disabled),
         className,
       )}
     >
@@ -97,9 +92,7 @@ export const NumericField = ({
         disabled={disabled}
         readOnly={readOnly}
         className={cn(
-          "w-full min-w-0 bg-transparent px-3 text-ink outline-none",
-          "tabular-nums placeholder:text-muted-ink",
-          "disabled:cursor-not-allowed disabled:text-muted-ink",
+          FIELD_INPUT_CLASS,
           inputClassName,
         )}
       />

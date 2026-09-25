@@ -46,7 +46,7 @@ const VCell = ({
   children, colSpan, rowSpan,
 }: { children?: React.ReactNode; colSpan?: number; rowSpan?: number }) => (
   <td colSpan={colSpan} rowSpan={rowSpan}
-    className="border border-border p-1 text-center align-middle bg-surface">
+    className="border border-rule p-1 text-center align-middle bg-surface">
     {children}
   </td>
 );
@@ -334,14 +334,14 @@ export const ReportPreviewContent = ({
             <tr>
               <TableLabelCell colSpan={2}>합 계</TableLabelCell>
               <VCell colSpan={2}>{particleCalc?.totalSamplingTime ?? ""}</VCell>
-              <td colSpan={18} className="border border-border bg-muted/40" />
+              <td colSpan={18} className="border border-rule bg-canvas/40" />
               <VCell>{totalVm == null ? "" : formatNumber(litersOf(totalVm), {minDecimals:2})}</VCell>
             </tr>
 
             {/* 평균 행 */}
             <tr>
               <TableLabelCell colSpan={2}>평 균</TableLabelCell>
-              <td colSpan={2} className="border border-border bg-muted/40" />
+              <td colSpan={2} className="border border-rule bg-canvas/40" />
               <VCell colSpan={2}>{formatNumber(avgVacuum, { decimals: 1 })}</VCell>
               <VCell colSpan={2}>{formatNumber(quantity?.avgPs, { decimals: 1 })}</VCell>
               <VCell colSpan={2}>{formatNumber(quantity?.avgPv, { decimals: 1 })}</VCell>
@@ -351,7 +351,7 @@ export const ReportPreviewContent = ({
               <VCell colSpan={2}>{formatNumber(particleCalc?.avgOrificeDp, { decimals: 2 })}</VCell>
               <VCell colSpan={2}>{isParticle ? formatNumber(avgTs, { decimals: 1 }) : ""}</VCell>
               <VCell colSpan={2}>{formatNumber(avgFinalImpinger, { decimals: 1 })}</VCell>
-              <td colSpan={2} className="border border-border bg-muted/40" />
+              <td colSpan={2} className="border border-rule bg-canvas/40" />
             </tr>
 
             {/* ════════ [수분] ════════ */}

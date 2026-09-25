@@ -370,6 +370,8 @@ export type ExhaustGasDataDto = {
   // 계산결과
   standardGasDensity: number | null;        // 표준상태 배출가스밀도
   o2CorrectionFactor: number | null;        // 산소보정계수
+  // 아래 평균 5종은 서버 도메인에 필드만 있고 ApplyResultStep 이 채우지 않아 항상 null 이다.
+  // 평균이 필요하면 회차 값에서 `calcExhaustGasAverage`(lib/sheet-calc) 로 낸다.
   avgO2: number | null;
   avgCo2: number | null;
   avgCo: number | null;

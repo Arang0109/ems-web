@@ -97,8 +97,7 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             placeholder="측정물질(한글)"
             value={form.nameKr}
             onChange={(value) => handleChange("nameKr", value)}
-            invalid={!!fieldErrors?.nameKr}
-            error={fieldErrors?.nameKr}
+            errorMessage={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
           />
@@ -133,8 +132,7 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
           placeholder="예: 200"
           value={form.sortOrder}
           onChange={(value) => handleChange("sortOrder", value)}
-          invalid={!!fieldErrors?.sortOrder}
-          error={fieldErrors?.sortOrder}
+          errorMessage={fieldErrors?.sortOrder}
           helperText="고객사 선택 목록에서의 정렬 기준입니다. 비우면 미지정입니다."
           startIcon={<ListOrdered />}
         />

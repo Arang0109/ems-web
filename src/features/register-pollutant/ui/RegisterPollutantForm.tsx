@@ -80,17 +80,17 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
 
         {/* 가이드가 정하는 값이라 입력받지 않는다 — 무엇을 고른 것인지 확인만 시켜 준다. */}
         {selectedCandidate && (
-          <dl className="grid grid-cols-2 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
+          <dl className="grid grid-cols-2 gap-2 rounded-lg bg-canvas/40 p-3 text-body-4">
             <div>
-              <dt className="text-muted-foreground">측정분야</dt>
+              <dt className="text-muted-ink">측정분야</dt>
               <dd>{MEASUREMENT_FIELD_LABEL[selectedCandidate.field]}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">상</dt>
+              <dt className="text-muted-ink">상</dt>
               <dd>{selectedCandidate.phase ? POLLUTANT_PHASE_LABEL[selectedCandidate.phase] : EMPTY}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">측정방식</dt>
+              <dt className="text-muted-ink">측정방식</dt>
               <dd>{selectedCandidate.mode ? MEASUREMENT_MODE_LABEL[selectedCandidate.mode] : EMPTY}</dd>
             </div>
           </dl>
@@ -132,8 +132,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
             disabled={!selectedMethod || isMerged}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.samplingMinutes}
-            error={fieldErrors?.samplingMinutes}
+            errorMessage={fieldErrors?.samplingMinutes}
             startIcon={<Clock />}
           />
           {/* 항목별 흡인유량 — 흡수액은 물질마다 유량이 정해져 있다. 통칭 시료(VOCs·VOCs-T)는 측정방법이 정한다. */}
@@ -146,8 +145,7 @@ export const RegisterPollutantForm = ({ open, onOpenChange, onSuccess }: Props) 
             disabled={!selectedMethod || isMerged}
             min={0}
             maxDecimals={3}
-            invalid={!!fieldErrors?.suctionFlowRate}
-            error={fieldErrors?.suctionFlowRate}
+            errorMessage={fieldErrors?.suctionFlowRate}
             startIcon={<Gauge />}
           />
         </div>

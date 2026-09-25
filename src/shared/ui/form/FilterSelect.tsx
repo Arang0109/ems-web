@@ -4,6 +4,7 @@ import { CheckIcon, ChevronDownIcon, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { SelectOption } from "./Select";
+import { SELECT_ITEM_CLASS, SELECT_POPUP_CLASS } from "./select-styles";
 
 interface Props {
   options: SelectOption[];
@@ -55,7 +56,7 @@ export const FilterSelect = ({
     <SelectPrimitive.Trigger
       aria-label={ariaLabel}
       className={cn(
-        "inline-flex h-9 w-fit shrink-0 items-center gap-1 whitespace-nowrap select-none",
+        "inline-flex h-9 w-fit min-w-0 shrink-0 items-center gap-1 whitespace-nowrap select-none",
         "rounded-button border border-rule-dark bg-surface px-3",
         "text-body-4 text-ink-soft transition-colors hover:bg-brand-soft",
         // FOCUS — 초록 테두리 + 초록 링 (Button outline variant 와 동일)
@@ -69,7 +70,8 @@ export const FilterSelect = ({
       {Icon && <Icon />}
       <SelectPrimitive.Value
         placeholder={placeholder}
-        className="flex-1 text-left data-placeholder:text-muted-ink"
+        // 호출부가 폭을 제한하면(flex-1 등) 넘치는 라벨은 말줄임(…) 처리한다
+        className="min-w-0 flex-1 truncate text-left data-placeholder:text-muted-ink"
       />
       <SelectPrimitive.Icon render={<ChevronDownIcon />} />
     </SelectPrimitive.Trigger>
@@ -85,10 +87,8 @@ export const FilterSelect = ({
         className="isolate z-50"
       >
         <SelectPrimitive.Popup
-          className={cn(
-            "max-h-(--available-height) min-w-(--anchor-width) overflow-y-auto",
-            "rounded-nav border border-rule bg-surface p-1 shadow-panel",
-          )}
+          // 칩 폭보다 긴 항목이 잘리지 않게 폭은 내용에 맡기고 칩 폭을 하한으로만 둔다
+          className={cn(SELECT_POPUP_CLASS, "w-auto min-w-(--anchor-width) p-1")}
         >
           <SelectPrimitive.List>
             {options.map((opt) => (
@@ -96,12 +96,7 @@ export const FilterSelect = ({
                 key={opt.value}
                 value={opt.value}
                 disabled={opt.disabled}
-                className={cn(
-                  "relative flex w-full cursor-default items-center rounded-button py-1.5 pr-8 pl-2",
-                  "text-body-3 text-ink-soft outline-none select-none",
-                  "focus:bg-brand-soft focus:text-brand-dark",
-                  "data-disabled:pointer-events-none data-disabled:opacity-50",
-                )}
+                className={SELECT_ITEM_CLASS}
               >
                 <SelectPrimitive.ItemText className="flex-1 whitespace-nowrap">
                   {opt.label}

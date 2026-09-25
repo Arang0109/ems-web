@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   fromDateKey,
+  fromPickerDate,
   isSameDateRange,
   isWithinDateRange,
   matchDateRangePreset,
   toDateKey,
+  toPickerDate,
   toPresetRange,
 } from "./date-range";
 
@@ -34,11 +36,11 @@ describe("toPresetRange", () => {
     expect(toDateKey(range.to)).toBe("2026-08-31");
   });
 
-  it("year 은 해당 연의 365일 구간이다", () => {
+  it("year 는 해당 연의 1월 1일부터 12월 31일까지다", () => {
     const range = toPresetRange("year", TODAY);
 
-    expect(toDateKey(range.from)).toBe("2025-08-11");
-    expect(toDateKey(range.to)).toBe("2027-08-10");
+    expect(toDateKey(range.from)).toBe("2026-01-01");
+    expect(toDateKey(range.to)).toBe("2026-12-31");
   });
 });
 
@@ -131,5 +133,23 @@ describe("fromDateKey", () => {
 
   it("시각이 붙은 문자열은 날짜 키가 아니므로 null 이다", () => {
     expect(fromDateKey("2026-08-11T09:00:00")).toBeNull();
+  });
+});
+
+describe("DatePicker 변환", () => {
+  it("폼 날짜 문자열을 로컬 자정 Date 로 — 서버가 시각을 붙여도 같은 날이다", () => {
+    expect(toPickerDate("2026-08-11")).toEqual(new Date(2026, 7, 11));
+    expect(toPickerDate("2026-08-11T00:00:00")).toEqual(new Date(2026, 7, 11));
+  });
+
+  it("비었거나 잘못된 값은 undefined — DatePicker 가 빈 칸으로 보인다", () => {
+    expect(toPickerDate("")).toBeUndefined();
+    expect(toPickerDate(null)).toBeUndefined();
+    expect(toPickerDate("2026-02-31")).toBeUndefined();
+  });
+
+  it("고른 날짜는 yyyy-MM-dd 로, 지우면 빈 문자열로 돌아간다", () => {
+    expect(fromPickerDate(new Date(2026, 7, 11, 23, 59))).toBe("2026-08-11");
+    expect(fromPickerDate(undefined)).toBe("");
   });
 });

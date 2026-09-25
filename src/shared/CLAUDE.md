@@ -19,7 +19,18 @@
 - 비즈니스 도메인 로직 작성 금지
 - 특정 feature/entity에 종속된 코드 금지
 - 회사, 계약, 사업장 등 도메인 전용 타입 및 로직 작성 금지
-- 상위 레이어를(entities, fetures, widgets, pages) import하지 말 것
+- 상위 레이어를(entities, features, widgets, pages, app) import하지 말 것 — `eslint.config.js` 의 `no-restricted-imports` 가 막는다
+
+## shared/ui 는 디자인 시스템의 공개 API 다
+
+`.design-sync/entry.ts` 가 `shared/ui` 의 **모든 그룹 배럴을 그대로 export** 하고, `.design-sync/config.json` 의
+`componentSrcMap` 이 컴포넌트마다 **소스 경로**를 적어 둔다. 그래서:
+
+- 앱에서 쓰지 않는 컴포넌트·톤이라도 배럴에서 빼거나 지우면 공개 API 가 사라진다(`DetailViewButton`, `SidebarTrigger`,
+  Badge `solid`·`_nonline` 등이 이 이유로 남아 있다). 지우기 전에 `.design-sync/` 를 grep 한다.
+- 파일을 다른 폴더로 옮기면 `componentSrcMap` 경로도 함께 고쳐야 한다(`links/`·`semantics/`·`pagination/` 이 1회용이지만
+  폴더째 남아 있는 이유).
+- props 를 바꾸면 `.design-sync/previews/*.tsx` 도 함께 고친다 — 앱 `tsconfig` 에 포함되지 않아 `tsc` 가 잡지 못한다.
 
 ## 판단 기준
 
@@ -34,25 +45,27 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 
 | 디렉토리 | 내용 |
 |----------|------|
-| `badges/` | Badge(pill), StatusDot(운영 상태 점+텍스트), tones |
+| `badges/` | Badge(pill — 색은 `tones.ts` 에서 가져온다. `brand-solid` 톤·`size="sm"` 은 제목 위 작은 표식용), StatusDot(운영 상태 점+텍스트), tones |
 | `primitives/` | shadcn/ui 에서 이관한 저수준 프리미티브 (Field, InputGroup, Table, Pagination, Calendar, Label, Textarea) — **비즈니스 코드에서 직접 쓰지 말 것**, 각 카테고리 래퍼 경유 |
-| `accordion/` | SectionAccordion(섹션 카드 + 진행도 배지), SubAccordion(중첩 그룹) |
-| `borders/` | Divider 등 |
-| `buttons/` | IconButton, BackButton(뒤로가기 — `PageLayout` 이 사용), DetailViewButton 등 버튼 컴포넌트 |
-| `cards/` | Panel(카드 셸), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드) |
+| `accordion/` | SectionAccordion(섹션 카드 + 진행도 배지), SubAccordion(중첩 그룹), Collapsible(높이 애니메이션 접힘 + 접힌 동안 `inert`) |
+| `avatar/` | Avatar(이니셜 원형) |
+| `borders/` | Divider(`text` 로 가운데 문구, `className` 으로 배치 — 문구가 없어도 캡션 한 줄 높이를 차지한다) |
+| `buttons/` | Button, IconButton(나머지 props 를 `<button>` 까지 전달 — `render` 슬롯·dnd 리스너 가능, `label` 필수), BackButton(뒤로가기 — `PageLayout` 이 사용), DetailViewButton(앱에서는 미사용 — 디자인 시스템 공개 컴포넌트라 유지) |
+| `cards/` | Panel(카드 셸 — `variant`: `plain`·`elevated`(그림자+선)·`outlined`(선만)·`inset`(패널 안 캔버스 상자), `as` 로 section·aside), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드). **`rounded-panel bg-surface …` 를 손으로 조합하지 말고 variant 를 쓴다** |
 | `dialogs/` | `FormDialog`(폼 제출 모달), `StepFormDialog`(스텝 위저드 모달), `ConfirmProvider` + `useConfirm`(확인 다이얼로그), `useUnsavedChangesGuard`(미저장 이탈 방지). 앞의 둘은 비공개 `FormDialogShell` 위에 얹힌다. `DocumentViewerDialog`(고정폭 문서 뷰어)는 셸을 쓰지 않는다 — 아래 참조 |
 | `drawer/` | `Drawer` — 화면 가장자리에서 밀려 들어오는 오버레이(모바일 하단 바텀시트 / 데스크탑 사이드). 폼 제출 표면이 아니다 — 아래 참조 |
-| `feedback/` | EmptyText — 패널 안 한 줄 빈 상태·안내 문구 |
-| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`(단일 선택)+`MultiSelect`(칩형 다중 선택 — 아래 참조), `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`, `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(인필드 라벨+단위+상태 톤 — 아래 참조), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
+| `feedback/` | EmptyText(한 줄 빈 상태·로딩·불러오기 실패 — `size` sm/md/lg, `tone` muted/danger), ErrorText(칸에 묶이지 않은 폼·스텝 에러 한 줄, `role="alert"`), Callout(톤 배너 — `tone` neutral/info/warning/danger + `icon`·`title`·`action`). **배너·에러 문구를 raw 마크업으로 새로 만들지 않는다** |
+| `form/` | 폼 요소 — `InlineInput`, `InputGroup`, `Select`(단일 선택)+`MultiSelect`(칩형 다중 선택 — 아래 참조), `TextArea`, `Checkbox`, `HorizontalRadioGroup`, `DatePicker`, `DateRangePicker`, `FileInput`, `AddressInput`, `Search`(`value`/`onChange` — TanStack `setGlobalFilter` 를 그대로 꽂는다), `FieldGroup`, `DetailRow`+`DetailGrid`(읽기 전용 상세 — 모바일 좌/우 행, 데스크탑 고정폭 라벨 열), `SectionTitle`, `UnitField`(인필드 라벨+단위+상태 톤 — 아래 참조), `TimeField`(시각 입력 — 아래 참조), `NumericField`(숫자 입력 — 아래 참조), `CalcResultRow`(자동계산 행), `CalcResultGrid`(자동계산 결과 묶음 — 아래 참조). 테이블 필터 바는 `FilterSelect`(칩형 단일선택)와 `FilterPopover`(조건 묶음 + 적용/초기화). **`Input.tsx` 는 없다** — 단일 입력은 `InlineInput`/`InputGroup` 을 쓴다 |
 | `layout/` | PageLayout(페이지 셸 — 뒤로가기+제목+액션+본문), StickyActionBar(긴 폼 하단 고정 액션 바) |
 | `nav/` | `ChipNav`(가로 스크롤 pill 칩 — 섹션 바로가기), `StepNav`(스텝 위저드 인디케이터 — 번호·연결선·완료 상태) |
 | `links/` | Link |
 | `pagination/` | Pagination |
-| `semantics/` | PageTitle 등 시맨틱 요소 |
+| `popover/` | `Popover`(한 줄짜리 부유 패널), 조립형 `PopoverRoot`·`PopoverTrigger`·`PopoverContent`(트리거를 직접 꾸미는 입력 컨트롤용) |
+| `semantics/` | PageTitle |
 | `skeletons/` | Skeleton(자리표시 원자), SkeletonPanel(패널 단위 로딩) |
 | `table/` | TanStack Table 기반 공통 테이블. 아래 표 참조 |
-| `sidebar/` | AppSidebar, SidebarNav, SidebarBrandHeader, SidebarUserFooter, SidebarMobileBar |
-| `sortable/` | `SortableList`(세로 드래그 정렬 + 위/아래 이동), `DragHandle`. **`@dnd-kit/*` 을 직접 import 해도 되는 유일한 곳이다.** 아래 참조 |
+| `sidebar/` | AppSidebar, SidebarNav, SidebarBrandHeader, SidebarUserFooter, SidebarMobileBar, SidebarMenuButton, SidebarProvider·SidebarTrigger(shadcn sidebar 재노출) |
+| `sortable/` | `SortableList`(세로 드래그 정렬 + 위/아래 이동), `DragHandle`, `SortableOverlayLabel`(드래그 중 따라다니는 이름표 — `renderOverlay` 에 넣는다). **`@dnd-kit/*` 을 직접 import 해도 되는 유일한 곳이다.** 아래 참조 |
 | `theme/` | ThemeToggle (다크모드 전환. 색 토큰은 `app/index.css` 의 `.dark` — DESIGN-SYSTEM.md 참조) |
 | `tooltip/` | `Tooltip`(말풍선 — 임의 트리거에 병합), `HelpTip`(라벨 옆 도움말 아이콘). 아래 참조 |
 | `tabs/` | `Tabs` — 언더라인형 탭. 비활성 탭 본문은 기본적으로 **언마운트**되므로, 탭을 오가며 유지해야 할 입력 폼이 있으면 `keepMounted` 를 켠다 |
@@ -206,10 +219,11 @@ const handleDelete = async () => {
 |------|------|
 | 타이핑 | 숫자만 치면 콜론이 끼워진다 (`1430` → `14:30`). 포커스를 벗어나면 미완성 값이 확정된다 (`9` → `09:00`) |
 | 키보드 | ↑/↓ 5 분, Shift+↑/↓ 1 분. 빈 칸이면 현재 시각에서 시작. `Alt`·`Ctrl` 이 얹히면 증감하지 않고 표의 셀 이동에 넘긴다 |
-| 목록 | 시계 아이콘 → 시·분 팝오버(분은 5 분 간격 + 현재 값). `지금` 으로 현재 시각 |
+| 목록 | 시계 아이콘 → 시·분 팝오버(분은 1 분 간격). `지금` 으로 현재 시각 |
 | 값 계약 | `value`/`onChange` 는 확정된 `"HH:mm"` 과 `""` 뿐 — 타이핑 중인 미완성 값은 내부에만 있다 |
 
 **`type="time"` 을 넘기면 `UnitField`·`InlineInput`·`TableInputCell` 이 알아서 `TimeField` 로 렌더한다.**
+세 호스트의 time/number/text 분기는 `ValueInput` 하나가 맡는다 — 읽기 전용이면 마스킹 입력 대신 일반 입력을 그린다.
 호출부는 바꿀 것이 없다. `frame="none"` 은 호스트가 테두리를 소유할 때 쓰는 내부 옵션이다.
 
 ### 숫자 입력도 `<input type="number">` 가 아니라 `NumericField` 를 쓴다
@@ -304,6 +318,12 @@ const handleDelete = async () => {
 - 아이콘·± 버튼·시계 버튼은 라벨 높이만큼 내려 입력 글줄에 눈높이를 맞춘다.
   `UnitField` 는 값 영역(`input`/`Select` 트리거/`TimeField`·`NumericField` 루트)에
   같은 위 여백을 걸어 이를 한 번에 처리한다.
+- **에러는 모든 폼 컨트롤이 같은 두 prop 으로 받는다**(`form/field-error.ts`):
+  - `errorMessage` — 칸 아래 빨간 문구 + 라벨·테두리 빨강. 검증·서버 에러는 **항상 이것**으로 넘긴다.
+    `helperText` 에 에러를 섞어 넘기지 않는다(빨갛게 칠해지지 않는다). 안내와 에러가 둘 다 있으면 둘 다 보인다.
+  - `invalid` — 문구 없이 빨갛게만. 문구를 이미 다른 곳(토스트·폼 상단)에서 보여줄 때만 쓴다(예: 로그인).
+  `InputGroup`·`Select`·`MultiSelect`·`DatePicker`·`DateRangePicker`·`Textarea`·`FileInput` 이 같은 계약이다.
+  라벨·칸·문구 껍데기는 `InFieldShell` 한 곳에서 그린다.
 - `errorMessage` 는 라벨 줄이 아니라 **칸 아래** 빨간 `FieldDescription` 으로 내려간다.
   라벨 줄은 한 줄짜리 캡션이라 에러 문구까지 얹을 자리가 없다. 대신 라벨이 빨갛게 물들고
   트리거에 `aria-invalid` 가 걸려 테두리가 바뀐다.
@@ -414,7 +434,7 @@ open 상태를 직접 소유하고 트리거 클릭으로 토글한다(hover·�
 - 같은 문구를 필드마다 반복하지 말 것 — 그룹 단위 안내는 `SubAccordion` 의 `action` 슬롯에 하나만 단다
 
 **비즈니스 로직 코드에서 반드시 `@shared/ui/*`를 통해 사용할 것**
-(`@/components/ui/*` 직접 import 금지 — shadcn/ui 원본 컴포넌트 파일 내에서만 허용)
+(`@/components/ui/*`·`@shared/ui/primitives` 직접 import 는 **shared/ui 래퍼 안에서만** 허용 — 린트가 막는다)
 
 ### 셀에서 바로 편집하는 표는 `InputTable` 로 조립한다
 
@@ -514,6 +534,7 @@ model/
     ├── use-grid-navigation.ts # 입력 표의 셀 간 키보드 이동 (InputTable·전치 표가 공유)
     ├── use-table-state.ts  # 정렬·필터·페이지네이션 state
     ├── use-data-table.ts   # useTableState + useReactTable 배선 (테이블 위젯 표준)
+    ├── use-remount-key.ts  # 값이 바뀔 때 하위 폼을 key 로 리마운트 (effect 동기화 대신)
     ├── use-entity-query.ts    # useQuery 어댑터 — 엔티티 조회 훅의 공통 배선
     └── use-entity-mutation.ts # useMutation 어댑터 — 엔티티 액션 훅의 공통 배선
 ```
@@ -543,12 +564,9 @@ export type ContractStatus =
 UI에서 사용하는 표시 문자열은 별도의 레이블맵으로 관리한다.
 
 ```typescript
-export const CONTRACT_STATUS_LABEL: Record<
-  ContractStatus,
-  string
-> = {
-  active: '계약중',
-  expiringSoon: '만료 예정',
+export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
+  active: '정상',
+  expiringSoon: '만료 임박',
   expired: '만료',
 };
 ```
@@ -612,7 +630,7 @@ export const contractStatusOptions =
 | `formatBusinessNumber(s)` | `format/code` | `'2383248234'` → `'238-32-48234'` |
 | `formatPhoneNumber(s)` | `format/code` | `'01012345678'` → `'010-1234-5678'` |
 | `formatAddress(road, addr)` | `string/address` | 도로명+상세 주소 결합 |
-| `formatDateTime(s)`, `formatDate(s)` | `format/date` | 날짜/시간 표시 포맷 |
+| `formatDate(s)`, `formatDateDot(s)`, `formatDateTime(s)` | `format/date` | 날짜/시간 표시(`2026-08-15`·`2026.08.15`·`2026-08-15 14시 30분`). 날짜만 있는 값은 로컬 자정으로 읽고, 해석 불가면 `''` |
 | `formatMonthDay(s)` | `format/date` | `'8월 15일'` 형태 짧은 날짜 |
 | `formatNumber(n, o?)` | `format/number` | 천 단위 구분 표시 포맷(금액 한정 아님). `o` 는 `{ minDecimals, maxDecimals, decimals }` — `minDecimals` 는 모자란 소수 자리를 `0` 으로 채우고, `maxDecimals` 를 생략하면 로케일 기본값 3자리에서 반올림된다. `decimals` 는 둘을 같은 값으로 주는 축약 — **`toFixed(n)` 을 직접 쓰지 말고 이걸 쓴다** |
 | `displayValue(v, dash?)` | `format/number` | 없는 값(`null`·`undefined`·공백)을 `'-'` 로. 상세 화면·표 셀·기록지의 "미입력" 표기. `formatNumber` 와 이어 쓰면(`displayValue(formatNumber(v, { decimals: 2 }))`) 없음과 포맷된 값이 갈린다. 폼 초기값은 `toFormValue` 다 |
@@ -629,8 +647,9 @@ export const contractStatusOptions =
 | `maskCodeInput(s, n)`, `BUSINESS_NUMBER_DIGITS`, `PHONE_NUMBER_DIGITS` | `format/code` | 자릿수 코드 **입력** 정규화 — 숫자만 남기고 상한에서 자른다. 상수는 표시 묶음(`[3,2,5]`·`[3,4,4]`)의 합에서 파생한다. 폼에서 직접 부르지 않는다 — `InputGroup` 의 `code` 모드가 쓴다 |
 | `toNumber(s)`, `toNumberOrNull(s)` | `format/number` | Form 문자열 → `number`/`number \| null` 변환 |
 | `toFormValue(n)` | `format/number` | 위 둘의 **역방향** — Domain(`number \| null`) → Form `string` |
-| `toDateKey(d)` | `date/date-range` | `Date` → `'yyyy-MM-dd'` (구간 비교의 기준 표현) |
-| `toPresetRange(preset, today)` | `date/date-range` | `today`·`week`·`month`·`around30` → `{ from, to }` |
+| `toDateKey(d)`, `fromDateKey(s)` | `date/date-range` | `Date` ↔ `'yyyy-MM-dd'` (구간 비교·쿼리스트링의 기준 표현. `fromDateKey` 는 엄격 — 형식이 다르면 `null`) |
+| `toPickerDate(s)`, `fromPickerDate(d)` | `date/date-range` | 폼 날짜 문자열 ↔ `DatePicker` 값. **폼에서 `new Date('yyyy-MM-dd')`·`format(d, 'yyyy-MM-dd')` 를 직접 쓰지 않는다** — 전자는 UTC 로 읽혀 하루 밀린다 |
+| `toPresetRange(preset, today)` | `date/date-range` | `today`·`week`·`month`·`year`(올해 1/1~12/31) → `{ from, to }` |
 | `isWithinDateRange(v, range)` | `date/date-range` | 날짜/ISO 문자열이 구간에 드는지 (경계 포함) |
 | `isSameDateRange(a, b)`, `matchDateRangePreset(r, today)` | `date/date-range` | 구간 비교 · 프리셋 역판정(필터 칩 선택 표시) |
 | `trimValue(s)` | `string/trim-value` | 앞뒤 공백 제거 |
@@ -652,23 +671,14 @@ api/
 ├── axios-private.ts  # 인증 토큰 필요 요청용 (자동 헤더 추가)
 ├── query-client.ts   # QueryClient 인스턴스 + 기본 옵션(재시도 정책이 핵심)
 ├── blob-error.ts     # blob 응답의 에러 본문 읽기 (readBlobErrorMessage)
-├── api-error.ts      # 상태 코드를 보존하는 ApiError + unwrap (409 구분이 필요한 엔드포인트 전용)
-├── index.ts
-└── mocks/
-    ├── browser.ts    # MSW 브라우저 워커 설정
-    ├── index.ts
-    └── handlers/     # 17개 도메인 핸들러
-        ├── index.ts            # 핸들러 통합 + ENABLED 배열(on/off)
-        ├── auth.ts             ├── member.ts
-        ├── client.ts           ├── document.ts
-        ├── contract.ts         ├── equipment.ts
-        ├── dashboard.ts        ├── team.ts
-        ├── stack.ts            ├── schedule.ts
-        ├── stack-pollutant.ts  ├── schedule-custom-field.ts  # /schedules/custom-fields — schedule 보다 먼저 등록
-        ├── pollutants.ts       ├── tenant.ts
-        ├── pollutant-catalog.ts├── measurement-method.ts
-        └── chat.ts
+├── response.ts       # ApiResponseError(+ 선택적 HTTP status) · unwrapMessage · unwrap(409 구분 전용) · toErrorMessage
+├── token-storage.ts  # 인증 정보 localStorage 키의 유일한 소유자 + SESSION_EXPIRED 이벤트
+└── index.ts
 ```
+
+> MSW 목 핸들러는 shared 가 아니라 **`src/app/mocks/`** 에 있다 — 모든 도메인(entities 규칙 포함)을 알아야 하는
+> 코드라 최상위 레이어에 둔다. 응답 봉투는 `mocks/utils.ts` 의 `ok(data, message, init?)`·`fail(message, init?)`,
+> 주소는 `BASE_URL`(= `VITE_API_URL`)을 쓴다. 도메인은 `handlers/index.ts` 의 `ENABLED` 로 켜고 끈다.
 
 ### 에러는 문자열이지만, 409 는 예외다
 
@@ -677,18 +687,24 @@ api/
 호출부는 실패를 toast 하나로 처리한다 — 대부분의 실패는 그걸로 충분하다.
 
 **다르게 대응해야 하는 실패**(동시 편집 충돌 409 — 재시도해도 풀리지 않고 사용자의 선택이 필요하다)는
-상태 코드를 알아야 하므로 `unwrap(res)` 을 거쳐 `ApiError` 를 던진다.
+상태 코드를 알아야 하므로 `unwrap(res)` 을 거쳐 `status` 가 실린 `ApiResponseError` 를 던진다.
 
 ```ts
 // entities/schedule/api/api.ts — 이 계약을 쓰는 함수는 saveSheets 하나뿐이다
 saveSheets: async (id, body): Promise<ScheduleResponse> => {
   const res = await axiosPrivate.put<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/sheets`, body);
-  return unwrap(res);   // 실패면 ApiError(status, message) throw
+  return unwrap(res);   // 실패면 ApiResponseError(message, status) throw
 },
 ```
 
 전 API 를 한 번에 옮기지 않는 이유는 반환 타입(`ApiResponseMessage<T>` → `T`)이 바뀌어
 모든 액션 훅을 함께 고쳐야 하기 때문이다. **필요한 엔드포인트만 옮긴다.**
+
+### 서버로 보내는 날짜는 문자열이다
+
+서버의 날짜 필드는 `LocalDate` 다. 요청 DTO 에 `Date` 객체를 그대로 두면 JSON 이 UTC ISO(`2026-09-25T15:00:00.000Z`)가 되어
+Jackson 이 **UTC 기준 날짜(KST 로는 하루 전)** 로 저장한다. 폼·도메인 모델이 `Date` 를 쓰더라도 `api/mapper.ts` 에서
+`toDateKey` 로 바꿔 보낸다(예: `entities/contract/api/mapper.ts` + `mapper.test.ts`).
 
 ### 파일 다운로드 파이프라인
 
@@ -703,26 +719,13 @@ entities/*/model/use-xxx-download-action.ts   # AxiosResponse<Blob> 수신
 
 **엔티티는 DOM 을 만지지 않는다** — `{ blob, filename }` 만 반환하고 다운로드 트리거는 feature 가 한다.
 
-새 도메인 MSW 핸들러는 `handlers/` 하위에 도메인별 파일로 분리하고 `handlers/index.ts`에 통합합니다.
+새 도메인 MSW 핸들러는 `src/app/mocks/handlers/` 하위에 도메인별 파일로 분리하고 `handlers/index.ts`에 통합한다.
+파일이 커지면 도메인 폴더로 나눈다 — 예: `handlers/schedule/{fixtures,store,calc,responses,handlers}.ts`.
 
 ### 핸들러 on/off 관리 (`handlers/index.ts`)
 
-주석 방식으로 도메인별 활성화를 관리한다. 단순 주석 처리가 아닌 상태 마커로 맥락을 명시:
-
-```ts
-// 마커: [ACTIVE] 개발 중 | [READY] 구현 완료 비활성 | [WIP] 작성 중
-export const handlers = [
-  // [ACTIVE]   로그인(role 포함) — 관리자/플랫폼 운영자 콘솔 접근용
-  ...authHandlers,
-
-  // [READY]
-  ...contractHandlers,
-
-  // ... 나머지 도메인은 현재 전부 [ACTIVE]
-];
-```
-
-실제 목록·마커는 `handlers/index.ts` 를 직접 확인한다 (이 문서에 중복 기재하지 않는다).
+**주석으로 끄지 않는다.** `REGISTRY` 가 모든 도메인을 항상 참조하고, 켤 도메인은 `ENABLED` 목록으로만 정한다
+(주석으로 끄면 import 만 남아 `tsc -b` 가 미사용 import 로 막힌다). 실제 목록은 `handlers/index.ts` 를 직접 확인한다.
 
 백엔드 일부 API가 준비되는 시점에는 `VITE_MOCK_xxx=false` 환경변수 방식으로 전환을 검토한다.
 

@@ -1,8 +1,9 @@
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Info, Plus, Trash2 } from "lucide-react";
 
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { InputTable, type InputTableColumn } from "@shared/ui/table";
+import { Callout } from "@shared/ui/feedback";
 
 import { GAS_SAMPLE_HINT } from "../../model/input/field-hints";
 import type { GasSampleGroup } from "../../model/gaseous/gaseous-rows";
@@ -240,18 +241,18 @@ export const GaseousSection = ({
    * 판정을 전체로 넓혔기 때문이다. 첫 기록지에서 행을 지우면 여기에 다시 나타난다.
    */
   const unassignedBanner = unassignedGroups.length > 0 && editable ? (
-    <div
-      className="flex flex-wrap items-center justify-between gap-2 rounded-panel border border-info/30
-        bg-info-soft px-3 py-2"
+    <Callout
+      tone="info"
+      icon={Info}
+      action={
+        <Button type="button" variant="outline" size="sm" onClick={onAddUnassignedSamples}>
+          <Plus size={14} />이 기록지에 추가
+        </Button>
+      }
     >
-      <span className="text-body-3 text-info-ink">
-        측정항목 {unassignedGroups.length}건이 어느 기록지에도 등록되지 않았습니다. —{" "}
-        {unassignedGroups.map((group) => group.sampleName).join(", ")}
-      </span>
-      <Button type="button" variant="outline" size="sm" onClick={onAddUnassignedSamples}>
-        <Plus size={14} />이 기록지에 추가
-      </Button>
-    </div>
+      측정항목 {unassignedGroups.length}건이 어느 기록지에도 등록되지 않았습니다. —{" "}
+      {unassignedGroups.map((group) => group.sampleName).join(", ")}
+    </Callout>
   ) : null;
 
   // 카탈로그 투영값이 없어(구 스냅샷·고객사 자체 물질) 입자상인지조차 알 수 없는 항목.

@@ -1,7 +1,7 @@
 import type { ContractUpdate, ContractDetail } from "@entities/contract";
 import type { ContractUpdateForm } from "./types";
 
-import { trimValue, toNumber, toNumberOrNull, toFormValue } from "@shared/lib";
+import { trimValue, toNumber, toNumberOrNull, toFormValue, toPickerDate } from "@shared/lib";
 
 export const toContractUpdate = (form: ContractUpdateForm): ContractUpdate => ({
   contractName: trimValue(form.contractName),
@@ -23,9 +23,9 @@ export const toContractUpdateForm = (detail: ContractDetail): ContractUpdateForm
   workplaceName: detail.workplaceName,
   workplaceAddress: detail.workplaceAddress,
   contractName: detail.contractName,
-  contractDate: new Date(detail.contractDate),
-  startDate: new Date(detail.startDate),
-  completionDate: new Date(detail.completionDate),
+  contractDate: toPickerDate(detail.contractDate) ?? new Date(),
+  startDate: toPickerDate(detail.startDate) ?? new Date(),
+  completionDate: toPickerDate(detail.completionDate) ?? new Date(),
   contractAmount: toFormValue(detail.contractAmount),
   contractAmountUnit: detail.contractAmountUnit,
   vatIncluded: detail.vatIncluded,

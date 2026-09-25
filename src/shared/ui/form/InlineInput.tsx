@@ -4,8 +4,7 @@ import { Input as InputPrimitive } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { FieldTone } from "@shared/model";
 import { toneFrameClass } from "./field-tone";
-import { NumericField } from "./NumericField";
-import { TimeField } from "./TimeField";
+import { ValueInput } from "./ValueInput";
 
 interface InlineInputProps {
   id?: string;
@@ -72,53 +71,43 @@ export const InlineInput = ({
   return (
     <span className={cn("inline-flex min-w-0 items-center gap-1.5", className)}>
       {prefix && (
-        <span className="text-body-2 text-muted-foreground whitespace-nowrap">{prefix}</span>
+        <span className="text-body-2 text-muted-ink whitespace-nowrap">{prefix}</span>
       )}
-      {type === "time" ? (
-        // 네이티브 시각 위젯은 브라우저마다 폭·모양이 달라 인라인 배치가 무너진다
-        <TimeField
-          id={id}
-          value={String(value)}
-          onChange={(v) => onChange?.(v)}
-          label={typeof prefix === "string" ? prefix : undefined}
-          disabled={disabled}
-          className={cn(width, frameClass)}
-        />
-      ) : type === "number" && !readOnly ? (
-        // 모바일 숫자 키패드에는 `-` 가 없다 — 부호는 ± 버튼이 맡는다
-        <NumericField
-          id={id}
-          value={String(value)}
-          onChange={(v) => onChange?.(v)}
-          allowNegative={min === undefined || min < 0}
-          step={step}
-          maxIntDigits={maxIntDigits}
-          maxDecimals={maxDecimals}
-          label={typeof prefix === "string" ? prefix : undefined}
-          disabled={disabled}
-          placeholder={placeholder}
-          className={cn(width, frameClass)}
-          inputClassName="text-center"
-        />
-      ) : (
-        <InputPrimitive
-          id={id}
-          name={name}
-          type={type}
-          value={String(value)}
-          onChange={(e) => onChange?.(e.target.value)}
-          placeholder={placeholder}
-          disabled={disabled}
-          readOnly={readOnly}
-          required={required}
-          min={min}
-          max={max}
-          step={step}
-          className={cn(width, "text-center", frameClass)}
-        />
-      )}
+      <ValueInput
+        type={type}
+        id={id}
+        value={String(value)}
+        onChange={(v) => onChange?.(v)}
+        min={min}
+        step={step}
+        maxIntDigits={maxIntDigits}
+        maxDecimals={maxDecimals}
+        label={typeof prefix === "string" ? prefix : undefined}
+        placeholder={placeholder}
+        disabled={disabled}
+        readOnly={readOnly}
+        className={cn(width, frameClass)}
+        inputClassName={type === "number" ? "text-center" : undefined}
+        renderText={() => (
+          <InputPrimitive
+            id={id}
+            name={name}
+            type={type}
+            value={String(value)}
+            onChange={(e) => onChange?.(e.target.value)}
+            placeholder={placeholder}
+            disabled={disabled}
+            readOnly={readOnly}
+            required={required}
+            min={min}
+            max={max}
+            step={step}
+            className={cn(width, "text-center", frameClass)}
+          />
+        )}
+      />
       {suffix && (
-        <span className="text-body-2 text-muted-foreground whitespace-nowrap">{suffix}</span>
+        <span className="text-body-2 text-muted-ink whitespace-nowrap">{suffix}</span>
       )}
     </span>
   );

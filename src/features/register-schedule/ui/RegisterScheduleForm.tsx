@@ -1,7 +1,7 @@
-import { format } from "date-fns";
 
 import { useRegisterSchedule } from "../model/hooks/use-register-schedule";
 
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import { SectionTitle, DatePicker, InputGroup, Select, MultiSelect, FieldGroup } from "@shared/ui/form";
 import { Button } from "@shared/ui/buttons";
 import { measurementFieldOptions, measurementTypeOptions } from "@shared/model";
@@ -105,8 +105,8 @@ export const RegisterScheduleForm = () => {
           <DatePicker
             id="measureDate"
             label="측정 일자"
-            value={form.measureDate ? new Date(form.measureDate) : undefined}
-            onChange={(date) => handleChange("measureDate", date ? format(date, "yyyy-MM-dd") : "")}
+            value={toPickerDate(form.measureDate)}
+            onChange={(date) => handleChange("measureDate", fromPickerDate(date))}
             errorMessage={fieldErrors?.measureDate}
             required
           />
@@ -117,7 +117,7 @@ export const RegisterScheduleForm = () => {
             value={form.measurementField}
             options={measurementFieldOptions}
             onValueChange={(value) => handleChange("measurementField", value ?? "")}
-            helperText={fieldErrors?.measurementField}
+            errorMessage={fieldErrors?.measurementField}
             required
           />
           <Select

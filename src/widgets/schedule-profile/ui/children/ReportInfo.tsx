@@ -9,7 +9,7 @@ import { Button, IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
 import { StickyActionBar } from "@shared/ui/layout";
 import type { ScheduleStatus } from "@shared/model";
-import { DragHandle, SortableList, type SortableControls } from "@shared/ui/sortable";
+import { DragHandle, SortableList, SortableOverlayLabel, type SortableControls } from "@shared/ui/sortable";
 
 import { toReportItems } from "../../model/mapper";
 import type { ReportItem } from "../../model/types";
@@ -112,9 +112,7 @@ export const ReportInfo = ({ scheduleId, snapshot, status, editable, onRefetch }
             onReorder={handleReorder}
             className="space-y-2"
             renderOverlay={(item) => (
-              <div className="rounded-icon-tile bg-canvas px-3 py-2.5 text-body-4 text-ink shadow-lg ring-1 ring-rule md:px-4">
-                {item.name}
-              </div>
+              <SortableOverlayLabel>{item.name}</SortableOverlayLabel>
             )}
             renderItem={renderRow}
           />

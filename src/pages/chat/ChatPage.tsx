@@ -4,6 +4,7 @@ import { ChatContactPicker } from "@features/open-chat-room";
 import { useHideChatRoom } from "@features/hide-chat-room";
 import { PageLayout } from "@shared/ui/layout";
 import { TableEmptyState } from "@shared/ui/table";
+import { Panel } from "@shared/ui/cards";
 import { ChatRoom } from "@widgets/chat-room";
 import { ChatRoomList } from "@widgets/chat-room-list";
 
@@ -15,13 +16,13 @@ interface NoticeProps {
 }
 
 const Notice = ({ label, subLabel }: NoticeProps) => (
-  <div className="flex min-h-0 flex-1 items-center justify-center rounded-panel bg-surface ring-1 ring-rule">
+  <Panel variant="outlined" className="flex min-h-0 flex-1 items-center justify-center">
     <TableEmptyState
       icon={<MessageCircle className="size-6" />}
       label={label}
       subLabel={subLabel}
     />
-  </div>
+  </Panel>
 );
 
 export const ChatPage = () => {

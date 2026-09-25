@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { EmptyText } from "@shared/ui/feedback";
 import { Search } from "@shared/ui/form";
 import { Skeleton } from "@shared/ui/skeletons";
+import { Panel } from "@shared/ui/cards";
 
 import { useChatRoomList } from "../model/use-chat-room-list";
 import { ChatRoomRow } from "./children/ChatRoomRow";
@@ -45,17 +46,19 @@ export const ChatRoomList = ({ selectedRoomId, action, className }: Props) => {
   const { rows, isEmpty, query, setQuery, isLoading, error } = useChatRoomList();
 
   return (
-    <section
+    <Panel
+      as="section"
+      variant="outlined"
       aria-label="대화 목록"
       className={cn(
-        "flex min-h-0 flex-col rounded-panel bg-surface ring-1 ring-rule",
+        "flex min-h-0 flex-col",
         className,
       )}
     >
       <header className="flex shrink-0 items-center gap-2 border-b border-rule p-3">
         <Search
-          filter={query}
-          setFilter={setQuery}
+          value={query}
+          onChange={setQuery}
           placeholder="이름 검색 ..."
           className="max-w-none flex-1"
         />
@@ -91,6 +94,6 @@ export const ChatRoomList = ({ selectedRoomId, action, className }: Props) => {
           </ul>
         )}
       </div>
-    </section>
+    </Panel>
   );
 };

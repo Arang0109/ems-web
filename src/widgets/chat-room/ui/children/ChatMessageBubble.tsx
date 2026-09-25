@@ -20,8 +20,7 @@ interface Props {
  * 메시지 말풍선.
  *
  * **모서리(`rounded-bubble`)를 이 컴포넌트가 소유하고 `className` 으로 받지 않는다.**
- * Tailwind v4 의 CSS 테마 토큰은 tailwind-merge 가 읽지 못해, 호출부가 다른 radius 를
- * 얹으면 두 클래스가 모두 살아남아 어느 쪽이 이길지 선언 순서에 달리게 된다.
+ * 말풍선 모양은 채팅 화면 전체에서 한 가지여야 한다 — 다른 코너가 필요하면 variant 를 추가한다.
  */
 export const ChatMessageBubble = ({ entry, onRetry }: Props) => {
   const { message, isMine, timeLabel, isRead, showTime, isGroupStart } = entry;

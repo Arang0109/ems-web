@@ -50,9 +50,16 @@ export { useSaveSamplingTimesAction } from './model/use-save-sampling-times-acti
 export { useSaveAnalysisResultsAction } from './model/use-save-analysis-results-action';
 
 export {
+  canTransitionScheduleStatus, isTerminalScheduleStatus,
+  canReopenSchedule, requiresAdminToReopenSchedule, canDeleteSchedule,
+  SCHEDULE_STATUS_TONE,
+} from './lib/status';
+
+export {
   calcSheetPreview,
   getSheetCalcExternals,
   calcRequiredPointCount,
+  calcExhaustGasAverage,
   convertMmH2OToMmHg,
   toCelsius,
   convertPerHourToPerMinute,

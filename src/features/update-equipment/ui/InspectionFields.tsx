@@ -3,6 +3,7 @@ import type { InspectionType } from "@shared/model";
 
 import { InlineInput, Checkbox, SectionTitle } from "@shared/ui/form";
 import { INSPECTION_TYPE_LABEL } from "@shared/config";
+import { ErrorText } from "@shared/ui/feedback";
 
 interface Props {
   inspections: InspectionItemForm[];
@@ -27,16 +28,16 @@ const READONLY_FIELDS = [
 export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }: Props) => (
   <div className="space-y-4">
     <SectionTitle>검사 항목</SectionTitle>
-    <p className="text-body-2 text-muted-foreground">
+    <p className="text-body-2 text-muted-ink">
       최종 수검일과 다음 예정일은 검사 실시 기록으로 갱신됩니다. 여기서는 직접 수정할 수 없습니다.
     </p>
 
     {/* 모바일 — 검사 종류당 카드. id 는 아래 표와 겹치면 안 되므로 접두어로 가른다. */}
     <div className="space-y-3 md:hidden">
       {inspections.map((item, index) => (
-        <div key={item.type} className="space-y-3 rounded-panel border border-border p-4">
+        <div key={item.type} className="space-y-3 rounded-panel border border-rule p-4">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-body-4 text-foreground">{INSPECTION_TYPE_LABEL[item.type]}</span>
+            <span className="text-body-4 text-ink">{INSPECTION_TYPE_LABEL[item.type]}</span>
 
             {/* 검사 대상이 아닌 종류는 서버가 이력 기록을 거부하므로 진입 자체를 막는다. */}
             {item.enabled && (
@@ -77,8 +78,8 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
           <dl className="grid grid-cols-2 gap-2">
             {READONLY_FIELDS.map((f) => (
               <div key={f.key}>
-                <dt className="text-caption text-muted-foreground">{f.label}</dt>
-                <dd className="text-body-2 text-foreground">{item[f.key] || '—'}</dd>
+                <dt className="text-caption text-muted-ink">{f.label}</dt>
+                <dd className="text-body-2 text-ink">{item[f.key] || '—'}</dd>
               </div>
             ))}
           </dl>
@@ -90,7 +91,7 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
     <div className="hidden overflow-x-auto md:block">
       <table className="w-full min-w-[720px] border-collapse">
         <thead>
-          <tr className="border-b border-border text-body-4 text-muted-foreground">
+          <tr className="border-b border-rule text-body-4 text-muted-ink">
             <th className="py-2 text-left font-normal">검사 종류</th>
             <th className="py-2 text-left font-normal">대상</th>
             <th className="py-2 text-left font-normal">주기(개월)</th>
@@ -102,8 +103,8 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
         </thead>
         <tbody>
           {inspections.map((item, index) => (
-            <tr key={item.type} className="border-b border-border last:border-b-0">
-              <td className="py-3 text-body-2 text-foreground whitespace-nowrap">
+            <tr key={item.type} className="border-b border-rule last:border-b-0">
+              <td className="py-3 text-body-2 text-ink whitespace-nowrap">
                 {INSPECTION_TYPE_LABEL[item.type]}
               </td>
               <td className="py-3">
@@ -122,10 +123,10 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
                   placeholder="12"
                 />
               </td>
-              <td className="py-3 text-body-2 text-foreground whitespace-nowrap">
+              <td className="py-3 text-body-2 text-ink whitespace-nowrap">
                 {item.lastInspectedAt || '—'}
               </td>
-              <td className="py-3 text-body-2 text-muted-foreground whitespace-nowrap">
+              <td className="py-3 text-body-2 text-muted-ink whitespace-nowrap">
                 {item.nextDueDate || '—'}
               </td>
               <td className="py-3">
@@ -147,7 +148,7 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
                     이력 보기
                   </button>
                 ) : (
-                  <span className="text-body-2 text-muted-foreground">—</span>
+                  <span className="text-body-2 text-muted-ink">—</span>
                 )}
               </td>
             </tr>
@@ -156,6 +157,6 @@ export const InspectionFields = ({ inspections, error, onChange, onOpenHistory }
       </table>
     </div>
 
-    {error && <p className="text-body-2 text-destructive">{error}</p>}
+    <ErrorText>{error}</ErrorText>
   </div>
 );

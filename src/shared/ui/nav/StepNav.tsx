@@ -37,7 +37,7 @@ export const StepNav = ({ items, activeId, onSelect, ariaLabel, className }: Pro
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <nav aria-label={ariaLabel}>
-        <ol className="flex items-center gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ol className="flex items-center gap-1 overflow-x-auto scrollbar-none">
           {items.map((item, index) => {
             const isActive = item.id === activeId;
             const isDone = activeIndex !== -1 && index < activeIndex;
@@ -70,7 +70,7 @@ export const StepNav = ({ items, activeId, onSelect, ariaLabel, className }: Pro
                     className={cn(
                       "flex size-5 shrink-0 items-center justify-center rounded-full border text-caption",
                       isActive
-                        ? "border-brand-primary bg-brand-primary text-white"
+                        ? "border-brand-primary bg-brand-primary text-surface"
                         : isDone
                           ? "border-ink text-ink"
                           : "border-rule text-muted-ink",

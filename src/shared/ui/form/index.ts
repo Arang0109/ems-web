@@ -12,6 +12,7 @@ export { FilterPopover } from "./FilterPopover";
 export { UnitField } from "./UnitField";
 export { TimeField } from "./TimeField";
 export { NumericField } from "./NumericField";
+export { ValueInput } from "./ValueInput";
 export { CalcResultRow } from "./CalcResultRow";
 export { CalcResultGrid } from "./CalcResultGrid";
 export type { CalcResultItem } from "./CalcResultGrid";

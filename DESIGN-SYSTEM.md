@@ -54,6 +54,9 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 피그마 값이 바뀌면 원시 팔레트만 고친다. shadcn을 걷어낼 때는 shim 블록만 삭제한다.
 원시 팔레트는 `@theme` 에도 등록되어 `bg-canvas`, `text-ink-soft`, `border-rule-dark` 같은
 유틸리티로 바로 쓸 수 있다. **신규 코드는 shim(`bg-background`)이 아니라 팔레트 이름을 쓴다.**
+2026-09 에 shadcn 원본(`src/components/ui`)·`shared/ui/primitives` 를 뺀 전 소스의 shim 클래스 168건을
+팔레트 이름으로 치환했다(`text-muted-foreground` → `text-muted-ink` 등 — 별칭이라 색은 그대로).
+shim 을 쓰는 곳은 이제 그 두 곳뿐이다.
 
 ### 2. shadcn ≠ Base UI
 
@@ -217,10 +220,9 @@ Figma MCP 로 직접 조회한다. **레이어 이름으로 찾지 말고 노드
 | `rounded-bubble` | 14px | 채팅 말풍선 *(피그마 스펙 밖의 확장)* |
 | `rounded-full` | — | count 뱃지 · 아바타 |
 
-> ⚠️ **커스텀 `rounded-*` 는 호출부의 `className` 으로 덮어쓸 수 없다.** tailwind-merge 가
-> Tailwind v4 의 CSS 테마 토큰을 읽지 못해 충돌로 인식하지 않고 두 클래스를 모두 남긴다.
-> 그래서 `ChatMessageBubble` 은 `rounded-bubble` 을 **자기가 소유하고 radius 를 prop 으로
-> 받지 않는다.** 다른 코너가 필요하면 컴포넌트에 variant 를 추가한다.
+> 커스텀 `rounded-*`·`shadow-*` 토큰은 `src/lib/utils.ts` 의 `cn` 에 등록돼 있어 호출부 `className` 으로
+> 덮어쓸 수 있다(tailwind-merge 는 Tailwind v4 CSS 테마를 읽지 못하므로 **토큰을 추가하면 거기에도 등록**한다).
+> `ChatMessageBubble` 은 말풍선 모양을 한 가지로 고정하려고 `rounded-bubble` 을 자기가 소유한다.
 
 `--radius: 11px`(panel)로 두면 shadcn 내부 계산식이 저절로 맞는다:
 `calc(var(--radius) - 5px)` → 6px(button), `min(var(--radius-md), 8px)` → 6px(button).
@@ -406,21 +408,20 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | `select` | 199 | select |
 | `dialog` | 155 | dialog |
 | `sheet` | 135 | dialog |
-| `popover` | 88 | popover |
 | `tooltip` | 66 | tooltip |
 | `radio-group` | 36 | radio, radio-group |
 | `checkbox` | 27 | checkbox |
 | `separator` | 25 | separator |
-| `button` | 23 | button |
 | `input` | 20 | input |
 | `skeleton` | 13 | — |
 
-여기에 `src/components/variants/buttonVariants.ts`(47줄)가 붙어 총 1,555줄이다.
-이 파일은 `shared/ui/buttons/button-variants.ts` 와 **중복**이며, `components/ui/button.tsx`
-체인을 정리할 때 함께 삭제한다.
+`popover`·`button`(+ `components/variants/buttonVariants.ts`)은 **삭제 완료**했다 —
+팝오버는 `@shared/ui/popover` 의 조립형 파트(`PopoverRoot`·`PopoverTrigger`·`PopoverContent`)로,
+dialog·sheet·sidebar 의 버튼은 shared `Button`/`IconButton` 으로 옮겼다.
+select 의 생김새 상수는 `shared/ui/form/select-styles.ts` 로 옮겨 shadcn select 는 동작 조립만 남았다.
 
-> `sheet` `tooltip` `skeleton` `button` `input` `separator` 는 **전부 `sidebar.tsx` 가 물고 있다.**
-> sidebar 하나를 처리하면 6개가 함께 풀린다.
+> `sheet` `tooltip` `skeleton` `input` `separator` 는 **전부 `sidebar.tsx` 가 물고 있다.**
+> sidebar 하나를 처리하면 5개가 함께 풀린다.
 >
 > `tabs` (80줄)는 사용처가 0이라 **삭제 완료**했다.
 
@@ -543,9 +544,7 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 > ℹ️ Tailwind v4 는 `.md` 도 스캔한다. 문서에 팔레트 직색 클래스명을 그대로 적으면
 > 쓰이지 않는 유틸이 산출 CSS 에 생성되므로, 위처럼 풀어 쓴다.
 
-여기에 `components/variants/buttonVariants.ts` 의 emerald/amber/sky variant 가 남아 있으나
-**호출부가 0건**이고(`components/ui/button.tsx` 만 import, 해당 variant 지정 없음)
-이 파일은 shadcn 제거 4단계에서 통째로 없어지므로 손대지 않았다.
+(`components/variants/buttonVariants.ts` 의 emerald/amber/sky variant 는 파일째 삭제되었다.)
 
 > 완료분: `widgets/metrics/MeasurementChart.tsx`(차트 색 토큰화),
 > `shared/ui/cards/SummaryCard.tsx`(색 스킴 prop 자체가 제거되어 토큰만 사용),
@@ -567,7 +566,7 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 | **`IconButton` 기본 variant** | `ghost`(현재, 테두리 없음) / `outline`(피그마 ICON ONLY) — 테이블 행 12곳에 영향 |
 | **차트 시리즈 색상** | `--chart-2~5` 가 잠정값. `ContractChart` 가 다계열이면 초록 단색으로 구분 불가. `.dark` 는 `:root` 의 팔레트 참조를 그대로 상속하므로 여기서 확정하면 두 모드에 동시 반영된다 |
 | **`Danger Ink` 신설** | Warning 에는 텍스트용 `#a45108` 이 있으나 Danger 에는 없음 |
-| **모달 폭·백드롭·z-index 토큰화** | 폭 프리셋은 `shared/ui/dialogs/dialog-size.ts` 로 모였으나 여전히 로컬 상수다. 백드롭(`bg-black/10 dark:bg-black/50` + `backdrop-blur-xs`)은 `dialog`·`sheet`·`ConfirmDialog`·`Drawer` 4곳에 중복이고 z-index 는 네 곳 모두 `z-50` 리터럴 (`Drawer` 쪽은 `DRAWER_BACKDROP_CLASS` 로 이름은 붙여 뒀다) |
+| **모달 폭·백드롭·z-index 토큰화** | 폭 프리셋은 `shared/ui/dialogs/dialog-size.ts` 로 모였으나 여전히 로컬 상수다. 백드롭은 `shared/ui/dialogs/overlay-classes.ts`(`DIALOG_BACKDROP_CLASS`·`SLIDE_BACKDROP_CLASS`) 하나로 모였다. z-index 는 여전히 `z-50` 리터럴 |
 | **`fullScreenOnMobile` 전역 적용** | 현재 `StepFormDialog` 만 `true`. 나머지 `FormDialog` 28곳도 md 미만에서 전체화면으로 띄울지 — 모바일 1순위 원칙과는 맞으나 28개 화면의 시각 변화를 동반한다 |
 
 ### 4순위 — 정리
@@ -585,8 +584,7 @@ Base UI 를 쓰지 않는 순수 마크업 컴포넌트. **비즈니스 코드�
 - ~~**폼 입력 글씨 16px 문제**~~ — **완료(8단계).** `text-base md:text-sm` → `text-body-3`
 - ~~**기존 타입 오류 8건**~~ — **해소됨.** `features/update-schedule-client` 리팩터링 과정에서 정리되어
   2026-07-30 기준 `npx tsc -b --force` 오류 0건
-- **`ring-ring/50` 잔존 1곳** — `components/variants/buttonVariants.ts`
-  (나머지는 `ring-ring/12` 로 이미 정리됨. `Calendar.tsx` 에는 애초에 없었고 `tabs.tsx` 는 삭제됨)
+- ~~**`ring-ring/50` 잔존 1곳**~~ — **해소.** `components/variants/buttonVariants.ts` 삭제로 사라졌다
 - ~~`primitives/Calendar.tsx` · `components/ui/tabs.tsx`~~ —
   `components/variants/buttonVariants.ts`. 피그마의 12% 규정은 **입력 필드** 스펙이고 이 3개는
   입력 필드가 아니어서 8단계 범위에서 제외했다. 통일할지는 판단 필요

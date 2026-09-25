@@ -20,13 +20,14 @@ export const ScheduleProfileHeadline = () => {
 
   const stackName = data.snapshot?.client?.workplace?.stack?.name;
 
+  // 피그마 MO 시안의 pill 칩 — py-0.75 : 테두리 포함 높이 25px (PageLayout stickyHeader 칩 줄 높이와 맞춘다)
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-caption text-ink">{displayValue(stackName)}</span>
-      <span className="text-caption text-ink">|</span>
-      <span className="text-caption text-ink">{displayValue(data.referenceNumber)}</span>
-      <span className="text-caption text-ink">|</span>
-      <span className="text-caption text-ink">{displayValue(MEASUREMENT_FIELD_LABEL[data.measurementField])}</span>
+    <div className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-rule bg-canvas px-2 py-0.75">
+      <span className="text-label text-ink-soft">{displayValue(stackName)}</span>
+      <span className="text-caption text-muted-ink">|</span>
+      <span className="text-label text-ink-soft">{displayValue(data.referenceNumber)}</span>
+      <span className="text-caption text-muted-ink">|</span>
+      <span className="text-label text-ink-soft">{displayValue(MEASUREMENT_FIELD_LABEL[data.measurementField])}</span>
     </div>
   );
 };

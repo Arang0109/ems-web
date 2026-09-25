@@ -1,6 +1,5 @@
 import { useEntityMutation } from "@shared/model";
-import { readBlobErrorMessage, ApiResponseError } from "@shared/api";
-import { parseAttachmentFilename } from "@shared/lib";
+import { unwrapBlob } from "@shared/api";
 import { documentApi } from "../api/api";
 import type { DocumentDownload } from "./types";
 
@@ -30,23 +29,11 @@ export const useDownloadDocumentAction = () => {
       ? await documentApi.downloadDocument(documentId)
       : await documentApi.downloadDocumentVersion(documentId, versionNo);
 
-    // 성공 응답이 바이너리라 ApiResponseMessage.status로 성공 여부를 볼 수 없고,
-    // axiosPrivate 인터셉터가 에러 응답도 resolve로 넘기므로 HTTP status를 직접 판별한다.
-    if (res.status < 200 || res.status >= 300) {
-      const serverMessage = await readBlobErrorMessage(res.data);
-      throw new ApiResponseError(serverMessage ?? FALLBACK_MESSAGE[res.status] ?? "문서 다운로드에 실패했습니다.");
-    }
-
-    // axios 헤더 값 타입이 string으로 좁혀지지 않아 문자열일 때만 파싱한다.
-    const disposition = res.headers["content-disposition"];
-
-    return {
-      blob: res.data,
-      filename:
-        parseAttachmentFilename(typeof disposition === "string" ? disposition : undefined)
-        ?? fallbackFilename
-        ?? `문서-${documentId}`,
-    };
+    return unwrapBlob(res, {
+      fallbackMessage: "문서 다운로드에 실패했습니다.",
+      messageByStatus: FALLBACK_MESSAGE,
+      fallbackFilename: fallbackFilename ?? `문서-${documentId}`,
+    });
   }, { fallbackMessage: "문서 다운로드에 실패했습니다." });
 
   return { downloadDocument: run, isLoading, error };

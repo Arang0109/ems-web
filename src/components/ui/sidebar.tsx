@@ -5,7 +5,8 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { useIsMobile } from "@shared/model"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { IconButton } from "@shared/ui/buttons"
+import { PanelLeftIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -21,7 +22,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { PanelLeftIcon } from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -253,25 +253,23 @@ function SidebarTrigger({
   className,
   onClick,
   ...props
-}: React.ComponentProps<typeof Button>) {
+}: Omit<React.ComponentProps<typeof IconButton>, "icon" | "label">) {
   const { toggleSidebar } = useSidebar()
 
   return (
-    <Button
+    <IconButton
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      variant="ghost"
       size="icon-sm"
-      className={cn(className)}
+      icon={<PanelLeftIcon />}
+      label="사이드바 열고 닫기"
+      className={className}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
       {...props}
-    >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    />
   )
 }
 

@@ -3,6 +3,8 @@ import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge, type BadgeTone } from "@shared/ui/badges";
+import { Panel } from "../cards";
+import { Collapsible } from "./Collapsible";
 
 /** 헤더에 다는 강조 배지 하나 — 무엇을 알릴지는 호출부(도메인)가 정한다 */
 export interface SectionHighlight {
@@ -88,10 +90,11 @@ export const SectionAccordion = ({
   };
 
   return (
-    <section
+    <Panel
+      as="section"
+      variant="elevated"
       id={id}
       className={cn(
-        "overflow-hidden rounded-panel bg-surface shadow-panel ring-1 ring-rule",
         "scroll-mt-4",
         highlights?.length && HIGHLIGHT_RING[highlights[0].tone],
         className,
@@ -139,18 +142,13 @@ export const SectionAccordion = ({
         </button>
       </div>
 
-      <div
-        className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-        style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
-      >
-        <div className="overflow-hidden">
-          <div className="space-y-4 border-t border-rule px-4 pt-3 pb-4 md:px-5 md:pt-4 md:pb-5">
-            {description && <p className="text-body-3 text-muted-ink">{description}</p>}
-            {children}
-            {footer}
-          </div>
+      <Collapsible open={isOpen}>
+        <div className="space-y-4 border-t border-rule px-4 pt-3 pb-4 md:px-5 md:pt-4 md:pb-5">
+          {description && <p className="text-body-3 text-muted-ink">{description}</p>}
+          {children}
+          {footer}
         </div>
-      </div>
-    </section>
+      </Collapsible>
+    </Panel>
   );
 };

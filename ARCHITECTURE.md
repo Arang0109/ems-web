@@ -187,4 +187,3 @@ shared/model/types/common-types (공통 enum/type)
 | `features/{sign-in,sign-out}` | `entities/*/api/api.ts` 직접 호출 (entity 훅 부재가 원인) | 위 두 항목 해소 시 함께 정리 |
 | `features/{sign-in,sign-out}` | 훅이 슬라이스 루트 `hooks/` 에 위치 | `model/hooks/` 로 이동 |
 | `src/shared/ui/*`, `src/widgets/schedule-profile/**` | `@/lib/utils` 의 `cn` 직접 사용 | shadcn 관행으로 인정할지 `@shared/lib` 로 이전할지 미결정 |
-| `src/components/variants/buttonVariants.ts` | `shared/ui/buttons/button-variants.ts` 와 중복 | `components/ui/button.tsx` → `sheet`/`dialog`/`sidebar` 체인과 함께 정리 |

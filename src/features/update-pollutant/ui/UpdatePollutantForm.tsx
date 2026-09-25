@@ -66,25 +66,25 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
       <FieldGroup>
         <div className="flex items-center gap-2">
           <SectionTitle>측정물질 정보</SectionTitle>
-          <span className="text-body-4 text-muted-foreground">{pollutant.code}</span>
+          <span className="text-body-4 text-muted-ink">{pollutant.code}</span>
         </div>
 
         {/* 가이드 소유값 — 읽기 전용이다. */}
-        <dl className="grid grid-cols-2 gap-2 rounded-lg bg-muted/40 p-3 text-body-4">
+        <dl className="grid grid-cols-2 gap-2 rounded-lg bg-canvas/40 p-3 text-body-4">
           <div>
-            <dt className="text-muted-foreground">측정분야</dt>
+            <dt className="text-muted-ink">측정분야</dt>
             <dd>{MEASUREMENT_FIELD_LABEL[pollutant.field]}</dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">상</dt>
+            <dt className="text-muted-ink">상</dt>
             <dd>{pollutant.phase ? POLLUTANT_PHASE_LABEL[pollutant.phase] : EMPTY}</dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">측정방식</dt>
+            <dt className="text-muted-ink">측정방식</dt>
             <dd>{pollutant.mode ? MEASUREMENT_MODE_LABEL[pollutant.mode] : EMPTY}</dd>
           </div>
         </dl>
-        <p className="text-body-4 text-muted-foreground">
+        <p className="text-body-4 text-muted-ink">
           측정분야·상·측정방식은 법령 가이드가 정하므로 수정할 수 없습니다.
         </p>
 
@@ -120,8 +120,7 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
             disabled={isMerged}
             min={0}
             maxDecimals={0}
-            invalid={!!fieldErrors?.samplingMinutes}
-            error={fieldErrors?.samplingMinutes}
+            errorMessage={fieldErrors?.samplingMinutes}
             helperText={
               isMerged
                 ? "한 병으로 함께 채취하는 방법은 측정방법 관리에서 시간을 바꿉니다."
@@ -144,8 +143,7 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
             disabled={isMerged}
             min={0}
             maxDecimals={3}
-            invalid={!!fieldErrors?.suctionFlowRate}
-            error={fieldErrors?.suctionFlowRate}
+            errorMessage={fieldErrors?.suctionFlowRate}
             helperText={
               isMerged
                 ? "한 병으로 함께 채취하는 방법은 측정방법 관리에서 유량을 바꿉니다."
@@ -162,8 +160,7 @@ export const UpdatePollutantForm = ({ open, onOpenChange, pollutant, onSuccess }
             placeholder="측정물질(한글)"
             value={form.nameKr}
             onChange={(value) => handleChange("nameKr", value)}
-            invalid={!!fieldErrors?.nameKr}
-            error={fieldErrors?.nameKr}
+            errorMessage={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
           />

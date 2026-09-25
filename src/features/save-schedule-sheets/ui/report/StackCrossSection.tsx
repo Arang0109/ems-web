@@ -52,21 +52,21 @@ export const StackCrossSection = ({
     <svg viewBox={`0 0 ${VIEW} ${VIEW}`} className="mx-auto size-30" role="presentation">
       {isCircular ? (
         <circle cx={CENTER} cy={CENTER} r={OUTER}
-          className="fill-none stroke-border" strokeWidth={1.5} />
+          className="fill-none stroke-rule" strokeWidth={1.5} />
       ) : (
         <rect x={CENTER - halfWidth} y={CENTER - halfHeight}
           width={halfWidth * 2} height={halfHeight * 2}
-          className="fill-none stroke-border" strokeWidth={1.5} />
+          className="fill-none stroke-rule" strokeWidth={1.5} />
       )}
 
       {/* 측정선 — 측정공이 뚫리는 축 */}
       {isCircular && (
         <line x1={CENTER - OUTER} y1={CENTER} x2={CENTER + OUTER} y2={CENTER}
-          className="stroke-border" strokeWidth={0.6} strokeDasharray="3 2" />
+          className="stroke-rule" strokeWidth={0.6} strokeDasharray="3 2" />
       )}
 
       {xs.map((x, i) => (
-        <circle key={i} cx={x} cy={CENTER} r={POINT_RADIUS} className="fill-foreground" />
+        <circle key={i} cx={x} cy={CENTER} r={POINT_RADIUS} className="fill-ink" />
       ))}
     </svg>
   );

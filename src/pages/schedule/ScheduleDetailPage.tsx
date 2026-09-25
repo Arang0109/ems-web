@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
 
-import { ScheduleProfile, ScheduleProfileActions, ScheduleProfileHeadline } from "@widgets/schedule-profile";
+import { ScheduleProfile, ScheduleProfileHeadline } from "@widgets/schedule-profile";
 
 import { PageLayout } from "@shared/ui/layout";
 
@@ -17,8 +17,10 @@ export const ScheduleDetailPage = () => {
       subtitle={<ScheduleProfileHeadline />}
       showBack
       backTo={backTo}
+      // 모바일: 브랜드 바 대신 제목줄 ⋯ 메뉴 + 제목·칩·탭 상단 고정 (라우트 DETAIL_ROUTE_HANDLE 과 짝)
+      showMenu
+      stickyHeader
     >
-      <ScheduleProfileActions />
       <ScheduleProfile />
     </PageLayout>
   );

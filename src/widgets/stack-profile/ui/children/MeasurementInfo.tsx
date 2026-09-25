@@ -3,6 +3,7 @@ import { Plus, SquarePen, Trash2 } from "lucide-react";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
 import { useRemountKey } from "@shared/model";
+import { Panel } from "@shared/ui/cards";
 
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { RegisterStackPollutantForm } from "@features/register-stack-pollutant";
@@ -75,7 +76,7 @@ const CycleGroupBox = ({
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
 }) => (
-  <div className="rounded-panel border border-rule bg-canvas p-3">
+  <Panel variant="inset">
     <p className="border-b border-rule px-1 pb-3 text-body-4 text-ink">
       {group.label} : <span className="text-brand-dark">{group.items.length}개</span>
     </p>
@@ -91,7 +92,7 @@ const CycleGroupBox = ({
         />
       ))}
     </div>
-  </div>
+  </Panel>
 );
 
 export const MeasurementInfo = ({

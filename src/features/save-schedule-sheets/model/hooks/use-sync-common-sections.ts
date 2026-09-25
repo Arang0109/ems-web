@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import type { useConfirm } from "@shared/ui/dialogs";
@@ -30,14 +30,17 @@ export const useSyncCommonSections = ({ sheets, activeIndex, updateActiveSheet, 
   const active = sheets[activeIndex] ?? null;
   const canSync = source !== null && active !== null;
 
+  // 버튼·배너가 "어디서" 가져오는지 이름으로 말한다 (예: "먼지 기록지")
+  const sourceLabel = source ? `${MEASUREMENT_CATEGORY_LABEL[source.category]} 기록지` : "";
+  // 이미 적어 둔 값이 있으면 제안 배너 대신 작은 버튼만 남긴다
+  const hasValues = useMemo(() => (active ? hasCommonSectionValues(active) : false), [active]);
+
   const handleSyncCommonSections = async () => {
     if (!source || !active) return;
 
-    const sourceLabel = `${MEASUREMENT_CATEGORY_LABEL[source.category]} 기록지`;
-
-    if (hasCommonSectionValues(active)) {
+    if (hasValues) {
       const isConfirmed = await confirm({
-        title: "이전 기록지 값으로 덮어쓸까요?",
+        title: `${sourceLabel} 값으로 덮어쓸까요?`,
         description: `${sourceLabel}의 기상정보·수분량·배출가스와 측정점 온도·동정압(배출가스 온도·동압·정압·DGM 입/출구 온도)을 가져옵니다.\n이 기록지에 적어 둔 그 값들은 사라집니다.`,
         confirmLabel: "가져오기",
         cancelLabel: "취소",
@@ -51,5 +54,5 @@ export const useSyncCommonSections = ({ sheets, activeIndex, updateActiveSheet, 
     toast.success(`${sourceLabel}의 기상정보·수분량·배출가스·측정점 온도·동정압을 가져왔습니다. 확인 후 저장하세요.`);
   };
 
-  return { canSync, handleSyncCommonSections, syncedKey };
+  return { canSync, sourceLabel, hasValues, handleSyncCommonSections, syncedKey };
 };

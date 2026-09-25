@@ -6,6 +6,7 @@ import type {
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { IconButton } from "@shared/ui/buttons";
 import { DocumentViewerDialog } from "@shared/ui/dialogs";
+import { EmptyText } from "@shared/ui/feedback";
 
 import type { ScheduleBasicInfoForm, SheetForm } from "../../model/types";
 import { REPORT_DOCUMENT_WIDTH, ReportPreviewContent } from "./ReportPreviewContent";
@@ -64,7 +65,7 @@ export const ReportPreviewModal = ({
         <ReportPreviewContent sheet={sheet} preview={preview} schedule={schedule} snapshot={snapshot}
           basicInfoForm={basicInfoForm} externals={externals} />
       ) : (
-        <p className="py-6 text-center text-body-2 text-muted-ink">미리보기할 기록지가 없습니다.</p>
+        <EmptyText>미리보기할 기록지가 없습니다.</EmptyText>
       )}
     </DocumentViewerDialog>
   );

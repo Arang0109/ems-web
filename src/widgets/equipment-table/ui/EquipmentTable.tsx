@@ -39,13 +39,13 @@ export const EquipmentTable = ({ type }: Props) => {
   const inspectionFormKey = useRemountKey(inspectionModalOpen);
 
   return (
-    <Panel className="p-0 flex flex-col">
+    <Panel className="flex flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-panel p-2">
         <div className="flex items-baseline gap-2">
-          <h2 className="text-h3 text-foreground">{EQUIP_TYPE_LABEL[type]} 목록</h2>
+          <h2 className="text-h3 text-ink">{EQUIP_TYPE_LABEL[type]} 목록</h2>
         </div>
         <div className="flex items-center justify-end gap-2">
-          <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'관리번호, 장비명 검색 ...'} />
+          <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'관리번호, 장비명 검색 ...'} />
           <RegisterEquipmentForm
             key={registerFormKey}
             open={registerModalOpen}

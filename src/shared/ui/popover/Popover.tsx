@@ -3,6 +3,42 @@ import { Popover as PopoverPrimitive } from "@base-ui/react/popover";
 
 import { cn } from "@/lib/utils";
 
+/** 부유 패널 표면 — 조립형(`PopoverContent`)과 한 줄짜리(`Popover`)가 같은 생김새를 쓴다 */
+const POPOVER_SURFACE_CLASS = cn(
+  "rounded-panel bg-surface text-ink shadow-panel ring-1 ring-rule outline-none",
+  "origin-(--transform-origin)",
+  "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
+  "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+);
+
+/**
+ * 조립형 파트 — 트리거를 `render` 로 직접 꾸며야 하는 입력 컨트롤(DatePicker·TimeField·FilterPopover)용.
+ * 폭·안쪽 여백은 기본값을 두지 않는다. 필드에 붙는 팝업이라 간격(`sideOffset`)은 한 줄짜리보다 좁다.
+ */
+export const PopoverRoot = (props: PopoverPrimitive.Root.Props) => <PopoverPrimitive.Root {...props} />;
+export const PopoverTrigger = (props: PopoverPrimitive.Trigger.Props) => <PopoverPrimitive.Trigger {...props} />;
+
+export const PopoverContent = ({
+  className,
+  align = "center",
+  side = "bottom",
+  sideOffset = 4,
+  ...props
+}: PopoverPrimitive.Popup.Props &
+  Pick<PopoverPrimitive.Positioner.Props, "align" | "side" | "sideOffset">) => (
+  <PopoverPrimitive.Portal>
+    <PopoverPrimitive.Positioner
+      align={align}
+      side={side}
+      sideOffset={sideOffset}
+      collisionPadding={12}
+      className="isolate z-50"
+    >
+      <PopoverPrimitive.Popup className={cn(POPOVER_SURFACE_CLASS, className)} {...props} />
+    </PopoverPrimitive.Positioner>
+  </PopoverPrimitive.Portal>
+);
+
 interface Props {
   /**
    * 팝오버를 붙일 트리거 요소. 별도 래퍼 DOM 없이 이 요소에 동작이 병합되므로
@@ -24,8 +60,7 @@ interface Props {
    * 팝업(popup)에 덧붙일 클래스.
    *
    * **기본 폭을 주지 않는다** — 내용에 따라 필요한 폭이 크게 다르므로 호출부가 정한다.
-   * 코너(`rounded-panel`)는 덮어쓸 수 없다: tailwind-merge 가 Tailwind v4 CSS 테마를
-   * 읽지 못해 커스텀 `rounded-*` 를 충돌로 인식하지 않고 두 클래스를 모두 남긴다.
+   * 코너(`rounded-panel`)도 여기서 덮어쓸 수 있다.
    */
   className?: string;
 }
@@ -33,9 +68,7 @@ interface Props {
 /**
  * 부유 패널 팝오버.
  *
- * shadcn 래퍼(@/components/ui/popover)를 거치지 않고 Base UI 동작 레이어를 직접 사용한다 —
- * 그쪽은 면·글씨·코너가 전부 shim 토큰(`bg-popover`·`rounded-md`)이라 신규 코드 규약에
- * 맞추려면 어차피 전부 덮어써야 하고, 그러고 나면 남는 건 포지셔닝뿐이다.
+ * Base UI 동작 레이어를 직접 사용한다(shadcn popover 는 걷어냈다).
  * 표면 스타일은 `ConfirmDialog` 와 같은 팔레트 어휘를 쓴다.
  *
  * 짧은 문구 안내는 `Tooltip`(어두운 말풍선)을, 조건 묶음 + 적용/초기화가 필요한 필터는
@@ -69,13 +102,7 @@ export const Popover = ({
         >
           <PopoverPrimitive.Popup
             aria-labelledby={title ? titleId : undefined}
-            className={cn(
-              "rounded-panel bg-surface p-4 text-ink shadow-panel ring-1 ring-rule outline-none",
-              "origin-(--transform-origin)",
-              "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
-              "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-              className,
-            )}
+            className={cn(POPOVER_SURFACE_CLASS, "p-4", className)}
           >
             {title && (
               <p id={titleId} className="mb-3 text-body-4 text-ink">

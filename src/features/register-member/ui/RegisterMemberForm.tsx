@@ -40,8 +40,7 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
             placeholder="아이디"
             value={form.username}
             onChange={(value) => handleChange("username", value)}
-            invalid={!!fieldErrors?.username}
-            error={fieldErrors?.username}
+            errorMessage={fieldErrors?.username}
             required
             startIcon={<User2Icon />}
           />
@@ -52,8 +51,7 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
             placeholder="비밀번호"
             value={form.password}
             onChange={(value) => handleChange("password", value)}
-            invalid={!!fieldErrors?.password}
-            error={fieldErrors?.password}
+            errorMessage={fieldErrors?.password}
             required
             startIcon={<KeyRound />}
           />
@@ -65,8 +63,7 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
             placeholder="이름"
             value={form.name}
             onChange={(value) => handleChange("name", value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
             required
             startIcon={<User2Icon />}
           />
@@ -106,8 +103,7 @@ export const RegisterMemberForm = ({ open, onOpenChange, onSuccess }: Props) => 
             placeholder="이메일"
             value={form.email}
             onChange={(value) => handleChange("email", value)}
-            invalid={!!fieldErrors?.email}
-            error={fieldErrors?.email}
+            errorMessage={fieldErrors?.email}
             startIcon={<MailIcon />}
           />
         </div>

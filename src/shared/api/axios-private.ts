@@ -2,6 +2,8 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { axiosPublic } from '@shared/api/axios-public';
 import type { ApiResponseMessage } from '@shared/model';
 
+import { SESSION_EXPIRED, tokenStorage } from './token-storage';
+
 export const axiosPrivate = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
@@ -9,15 +11,12 @@ export const axiosPrivate = axios.create({
 
 axiosPrivate.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = tokenStorage.getAccessToken();
     if (accessToken && config.headers) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
 );
 
 /**
@@ -50,7 +49,7 @@ export const refreshAccessToken = (): Promise<string> => {
         const accessToken = response.data.data;
         if (!accessToken) throw new Error('재발급 응답에 accessToken이 없습니다.');
 
-        localStorage.setItem('accessToken', accessToken);
+        tokenStorage.setAccessToken(accessToken);
         window.dispatchEvent(new Event(ACCESS_TOKEN_REFRESHED));
         return accessToken;
       })
@@ -83,11 +82,9 @@ axiosPrivate.interceptors.response.use(
 
         return axiosPrivate(originalRequest);
       } catch (refreshError) {
-        // 재발급까지 실패 = 세션 종료. 저장된 인증 정보를 모두 비우고 로그인 화면으로 돌린다
-        // (accessToken만 지우면 authUser가 남아 다음 로그인 전까지 옛 사용자 정보가 보인다).
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('authUser');
-        window.location.href = '/';
+        // 재발급까지 실패 = 세션 종료. 저장된 인증 정보를 비우고 알린다 — 화면 이동은 AuthProvider 가 한다.
+        tokenStorage.clear();
+        window.dispatchEvent(new Event(SESSION_EXPIRED));
         return Promise.reject(refreshError);
       }
     }
