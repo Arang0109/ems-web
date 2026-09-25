@@ -189,6 +189,45 @@ docker compose up -d backend
 
 ---
 
+## 디스크가 차서 배포가 실패할 때
+
+원격 적용 단계에서 이렇게 멈추면 EC2 루트 볼륨(20G)이 가득 찬 것이다.
+
+```
+mkdir /var/lib/docker/tmp/docker-import-...: no space left on device
+오류: 원격 적용 실패
+```
+
+범인은 대개 **컨테이너 로그**다. `json-file` 드라이버는 기본이 무제한이라
+`/var/lib/docker/containers/<id>/<id>-json.log` 가 끝없이 자란다. 실제로 백엔드
+10.8G + 프론트 1G 가 쌓여 루트가 100% 가 된 적이 있다(백엔드는 `show-sql: true`
+때문에 실행 SQL 전문을 전부 찍고 있었다).
+
+```bash
+# 1) 어디가 찼는지 — /data(데이터 볼륨)가 아니라 / 를 본다
+ssh -i <키> ec2-user@<IP> "df -h /; sudo du -xh --max-depth=1 /var/lib/docker | sort -h"
+
+# 2) 로그 파일 크기 확인
+ssh -i <키> ec2-user@<IP>   "sudo find /var/lib/docker/containers -name '*-json.log' -printf '%s %p
+' | sort -rn"
+
+# 3) 비우기 — rm 이 아니라 truncate 다. 데몬이 파일을 잡고 있어 지워도 공간이 안 돌아온다.
+ssh -i <키> ec2-user@<IP>   "sudo find /var/lib/docker/containers -name '*-json.log' -exec truncate -s 0 {} +"
+
+# 4) 재발 방지는 compose 에 이미 들어 있다 — 컨테이너를 다시 만들어야 적용된다
+ssh -i <키> ec2-user@<IP> "cd /home/ec2-user/ems && docker compose up -d --force-recreate"
+```
+
+`docker-compose.yml` 의 `x-logging` 앵커가 모든 서비스에 `max-size: 50m` ×
+`max-file: 3` 을 건다(서비스당 최대 150M). `SPRING_JPA_SHOW_SQL=false` 도 함께 넣어
+SQL 덤프를 막는다. **로그 상한은 기존 컨테이너에 소급 적용되지 않는다** — 설정을
+바꾼 뒤 `--force-recreate` 로 다시 만들어야 한다.
+
+전송한 tar 가 `/tmp` 에 남아 있을 수도 있지만 EC2 의 `/tmp` 는 tmpfs(메모리)라
+루트 볼륨과 무관하다. 지워도 디스크는 늘지 않는다.
+
+---
+
 ## 참고
 
 - 프론트 Dockerfile은 `npm ci` 대신 `npm install` 을 쓴다(Windows lockfile의 arm64

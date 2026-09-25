@@ -3,6 +3,15 @@
 # 시크릿은 같은 디렉토리의 .env 파일에서 주입 (.env.example 참고).
 # 메모리 캡은 mem_limit 을 쓴다 (deploy.resources.limits 도 Compose V2에서 동작하지만 더 장황하다).
 
+# 컨테이너 로그는 반드시 상한을 둔다. json-file 드라이버의 기본값은 무제한이라
+# /var/lib/docker/containers 가 루트 볼륨(20G)을 통째로 채우고, 그러면 배포의
+# docker load 가 "no space left on device" 로 실패한다. 실제로 그렇게 멈춘 적이 있다.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+
 services:
   frontend:
     image: ems-web:arm64
@@ -11,12 +20,16 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    logging: *logging
     mem_limit: 128m
 
   backend:
     image: ems-server:arm64
     environment:
       JAVA_TOOL_OPTIONS: "-Xms256m -Xmx640m"
+      # application.yaml 은 show-sql: true 라 실행 SQL 전문이 stdout 으로 쏟아진다.
+      # 개발 서버에서 이 로그만 10GB 가 쌓여 루트 볼륨을 채운 적이 있다 — 여기서 끈다.
+      SPRING_JPA_SHOW_SQL: "false"
       # MySQL 8 caching_sha2_password + 비-SSL 연결에는 allowPublicKeyRetrieval 필요.
       # application.yaml의 spring.datasource.url을 통째로 덮어씀(재빌드 없이 적용).
       SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ems?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8"
@@ -64,6 +77,7 @@ services:
       - redis
       - mongo
     restart: unless-stopped
+    logging: *logging
     mem_limit: 1024m
 
   mysql:
@@ -80,6 +94,7 @@ services:
     volumes:
       - /data/mysql:/var/lib/mysql
     restart: unless-stopped
+    logging: *logging
     mem_limit: 512m
 
   redis:
@@ -95,6 +110,7 @@ services:
     volumes:
       - /data/redis:/data
     restart: unless-stopped
+    logging: *logging
     mem_limit: 192m
 
   mongo:
@@ -105,4 +121,5 @@ services:
     volumes:
       - /data/mongo:/data/db
     restart: unless-stopped
+    logging: *logging
     mem_limit: 512m
