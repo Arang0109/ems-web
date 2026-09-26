@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 
 import { toItemGroups } from "./options";
@@ -29,20 +29,23 @@ const stackPollutant = (
 const snapshotItem = (
   pollutantId: number,
   nameKr: string,
-  cycle: MeasurementItemSnapshot["cycle"],
+  cycle: SamplingItemSnapshot["cycle"],
   allowance: number,
   oxygenApplicable = false,
-): MeasurementItemSnapshot => ({
+): SamplingItemSnapshot => ({
   stackPollutantId: pollutantId * 100,
   pollutantId,
   code: nameKr,
   nameKr,
   nameEn: nameKr,
   field: "AIR",
-  method: "FIELD_MEASUREMENT",
+  method: { methodId: 4, name: "현장측정", sampleGrouping: "NONE", mergedSampleName: null, samplingMinutes: null, suctionFlowRate: null },
   phase: "GAS",
+  mode: "DIRECT_READING",
   equipment: "가스분석기",
   testMethod: "ES 01310",
+  samplingMinutes: null,
+  suctionFlowRate: null,
   cycle,
   allowance,
   oxygenApplicable,

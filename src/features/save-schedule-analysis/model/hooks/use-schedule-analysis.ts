@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type {
-  AnalysisResult, MeasurementItemSnapshot, SamplingSheet,
+  AnalysisResult, SamplingItemSnapshot, SamplingSheet,
 } from "@entities/schedule";
 import {
   useScheduleAnalyses, useFetchScheduleAnalyses,
@@ -18,13 +18,14 @@ import {
 } from "../types";
 import { validateAnalysisRows } from "../validator";
 import {
-  applySamplingTimes, collectSamplingTimes, countAmbiguousPollutants, countSamplingTimeChanges,
-} from "../sampling-times";
+  applyFieldValues, applySamplingTimes, collectFieldValues, collectSamplingTimes,
+  countAmbiguousFieldValues, countAmbiguousPollutants, countFieldValueChanges, countSamplingTimeChanges,
+} from "../sheet-import";
 
 interface Params {
   scheduleId: number | null;
-  items: MeasurementItemSnapshot[];
-  /** 현장 기록지 — 통칭 시료 행의 채취시각을 항목별로 펴 오는 데 쓴다 */
+  items: SamplingItemSnapshot[];
+  /** 저장된 현장 기록지 — 채취시각과 현장측정 평균을 항목별로 펴 오는 데 쓴다 */
   sheets: SamplingSheet[];
   /** 저장 후 상위(측정계획 상세)를 재조회해 상태 배지·완료 버튼을 갱신한다. */
   onSaved?: () => void;
@@ -113,43 +114,58 @@ export const useScheduleAnalysis = ({ scheduleId, items, sheets, onSaved }: Para
   const timeFilledCount = rows.filter(hasSamplingTime).length;
 
   /**
-   * 현장 기록지의 채취시각을 표로 가져온다.
+   * 저장된 현장 기록지의 값을 표로 가져온다 — 채취시각과 현장측정(NOx·SOx) 평균.
    *
    * 통칭 시료 한 행이 여러 항목으로 펴진다 — `VOCs` 09:00~10:00 은 포름알데히드·아세트알데히드
    * 두 행에 같은 시각으로 들어간다. 근거는 시료 행의 `pollutantIds` 이며, 그것이 없는
-   * 옛 기록지·수동 행은 가져올 것이 없다.
+   * 옛 기록지·수동 행은 가져올 것이 없다. 입자상 기록지의 시각은 시료 행이 아니라 시트 집계에
+   * 있고 항목과의 대응은 측정항목의 `mode` 가 정하므로 `items` 를 함께 넘긴다. 현장측정 항목은
+   * 배출가스 분석기 시작시각 + 고정 측정시간(가스분석기 15분·THC 30분)이고, 분석값은 저장된
+   * 회차 값의 평균(ppm — 현장 채취 탭의 계산값 드로어와 같은 규칙)이다.
+   *
+   * 출처는 <b>저장된</b> 기록지다. 현장 채취 탭에서 아직 저장하지 않은 값은 여기 없다 —
+   * 그 값은 동시편집 병합·충돌 복구로 되돌려질 수 있어, 성적서에 앉힐 근거가 못 된다.
    *
    * 덮어쓰기이므로 무엇이 바뀌는지 먼저 밝히고 확인받는다.
    */
-  const importSamplingTimes = async () => {
-    const times = collectSamplingTimes(sheets);
-    const changes = countSamplingTimeChanges(rows, times);
+  const importFromSheets = async () => {
+    const times = collectSamplingTimes(sheets, items);
+    const values = collectFieldValues(sheets, items);
+    const timeChanges = countSamplingTimeChanges(rows, times);
+    const valueChanges = countFieldValueChanges(rows, values);
 
-    if (changes === 0) {
+    if (timeChanges + valueChanges === 0) {
       toast.info(
-        times.size === 0
-          ? "기록지에서 가져올 채취시각이 없습니다. 가스상 물질 표에 채취시각을 먼저 입력하세요."
-          : "기록지의 채취시각이 이미 표에 반영돼 있습니다.",
+        times.size === 0 && values.size === 0
+          ? "기록지에서 가져올 값이 없습니다. 현장 채취 탭에서 기록지를 먼저 저장하세요."
+          : "기록지의 값이 이미 표에 반영돼 있습니다.",
       );
       return;
     }
 
-    const ambiguous = countAmbiguousPollutants(sheets);
+    const ambiguous = countAmbiguousPollutants(sheets, items) + countAmbiguousFieldValues(sheets, items);
+    const changed = [
+      timeChanges > 0 ? `채취시각 ${timeChanges}개` : "",
+      valueChanges > 0 ? `분석값 ${valueChanges}개` : "",
+    ].filter(Boolean).join(", ");
     const isConfirmed = await confirm({
-      title: "기록지의 채취시각을 가져올까요?",
-      description: `${changes}개 항목의 채취시각이 기록지 값으로 바뀝니다.`
+      title: "기록지의 값을 가져올까요?",
+      description: `${changed} 항목이 기록지 값으로 바뀝니다.`
         + (ambiguous > 0
           ? `
 
-${ambiguous}개 항목은 여러 기록지에 서로 다른 시각으로 적혀 있어 먼저 적힌 기록지의 값을 씁니다.`
-          : ""),
+${ambiguous}개 항목은 여러 기록지에 서로 다른 값으로 적혀 있어 먼저 적힌 기록지의 값을 씁니다.`
+          : "")
+        + `
+
+저장된 기록지 값을 가져옵니다. 현장 채취 탭에서 아직 저장하지 않은 값은 포함되지 않습니다.`,
       confirmLabel: "가져오기",
       cancelLabel: "취소",
     });
     if (!isConfirmed) return;
 
-    setRows((prev) => applySamplingTimes(prev, times));
-    toast.success(`${changes}개 항목의 채취시각을 가져왔습니다. 저장해야 반영됩니다.`);
+    setRows((prev) => applyFieldValues(applySamplingTimes(prev, times), values));
+    toast.success(`${changed} 항목을 가져왔습니다. 저장해야 반영됩니다.`);
   };
 
   const handleChange = (pollutantId: number, patch: Partial<AnalysisRowForm>) => {
@@ -207,6 +223,6 @@ ${ambiguous}개 항목은 여러 기록지에 서로 다른 시각으로 적혀 
     error,
     handleChange,
     handleSave,
-    importSamplingTimes,
+    importFromSheets,
   };
 };

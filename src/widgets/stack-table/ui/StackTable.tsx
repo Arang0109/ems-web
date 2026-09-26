@@ -33,23 +33,23 @@ export const StackTable = ({
   const registerFormKey = useRemountKey(registerModalOpen);
 
   return (
-    <Panel className="p-0 flex flex-col">
+    <Panel className="flex flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-canvas p-2">
         <div className="flex items-baseline gap-2">
-          <h2 className="text-h3 text-foreground">측정지점(굴뚝) 목록</h2>
+          <h2 className="text-h3 text-ink">측정지점(굴뚝) 목록</h2>
             {selectedWorkplace ? (
               <p className="mt-0.5 text-label text-brand-primary truncate">
                 {selectedWorkplace.name}
               </p>
             ) : (
-              <p className="mt-0.5 text-caption text-muted-foreground">
+              <p className="mt-0.5 text-caption text-muted-ink">
                 사업장을 선택해주세요
               </p>
             )}
             
         </div>
         <div className="flex items-center justify-end gap-2">
-          <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'측정지점, 측정분야 검색 ...'} />
+          <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'측정지점, 측정분야 검색 ...'} />
           <RegisterStackForm
             key={registerFormKey}
             workplace={selectedWorkplace}
@@ -64,7 +64,7 @@ export const StackTable = ({
       <div className="bg-canvas">
         {!selectedWorkplace ? (
           <TableEmptyState
-            icon={<Building2 size={22} className="text-muted-foreground" />}
+            icon={<Building2 size={22} className="text-muted-ink" />}
             label='측정지점 정보 없음'
             subLabel={<span>위쪽에서 사업장을 선택하면<br />측정지점 목록이 표시됩니다.</span>}
           />

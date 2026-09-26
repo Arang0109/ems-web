@@ -6,8 +6,8 @@ import {
   parseISO,
   startOfMonth,
   startOfWeek,
-  subDays,
-  addDays,
+  startOfYear,
+  endOfYear,
 } from "date-fns";
 
 /**
@@ -26,8 +26,6 @@ export type DateRangePreset = (typeof DATE_RANGE_PRESET)[number];
 /** 주 시작 요일 — 국내 업무 달력 기준 월요일 */
 const WEEK_STARTS_ON = 1;
 
-/** 전후 N일 프리셋의 기준일 앞뒤 일수 */
-const AROUND_DAYS = 30;
 
 /** `Date` → `yyyy-MM-dd`. 서버 날짜 문자열과 같은 표현으로 맞춰 시간·타임존 영향을 없앤다. */
 export const toDateKey = (date: Date): string => format(date, "yyyy-MM-dd");
@@ -47,6 +45,18 @@ export const fromDateKey = (key: string | null | undefined): Date | null => {
   return isValid(parsed) && toDateKey(parsed) === key ? parsed : null;
 };
 
+/**
+ * 폼이 들고 있는 날짜 문자열(서버 `LocalDate`, 미입력은 `""`) → `DatePicker` 의 `value`.
+ *
+ * 앞 10자만 읽는다 — 서버가 시각을 붙여 보내도(`2026-08-01T00:00:00`) 날짜는 같다.
+ * `new Date(key)` 를 쓰지 않는 이유는 `fromDateKey` 와 같다(UTC 로 읽혀 하루 밀린다).
+ */
+export const toPickerDate = (key: string | null | undefined): Date | undefined =>
+  fromDateKey(key?.slice(0, 10)) ?? undefined;
+
+/** `DatePicker` 의 `onChange` 값 → 폼 날짜 문자열. 지우면 `""` */
+export const fromPickerDate = (date: Date | undefined): string => (date ? toDateKey(date) : "");
+
 /** 프리셋을 기준일(`today`) 기준의 실제 구간으로 변환한다. */
 export const toPresetRange = (preset: DateRangePreset, today: Date): DateRangeValue => {
   switch (preset) {
@@ -60,7 +70,7 @@ export const toPresetRange = (preset: DateRangePreset, today: Date): DateRangeVa
     case "month":
       return { from: startOfMonth(today), to: endOfMonth(today) };
     case "year":
-      return { from: subDays(today, AROUND_DAYS), to: addDays(today, AROUND_DAYS) };
+      return { from: startOfYear(today), to: endOfYear(today) };
   }
 };
 

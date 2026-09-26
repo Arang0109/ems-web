@@ -10,9 +10,6 @@ export const defaultColumns = [
   columnHelper.accessor('field', {
     header: '측정 분야',
   }),
-  columnHelper.accessor('code', {
-    header: '항목 코드',
-  }),
   columnHelper.accessor('nameKr', {
     header: '측정물질(한글)',
   }),
@@ -20,8 +17,19 @@ export const defaultColumns = [
     header: '측정물질(영어)',
     enableSorting: false,
   }),
+  columnHelper.accessor('mode', {
+    header: '측정방식',
+  }),
   columnHelper.accessor('method', {
     header: '측정 방법',
+  }),
+  columnHelper.accessor('samplingMinutes', {
+    header: '채취시간',
+    enableSorting: false,
+  }),
+  columnHelper.accessor('suctionFlowRate', {
+    header: '흡인유량',
+    enableSorting: false,
   }),
   columnHelper.accessor('equipment', {
     header: '측정 장비',

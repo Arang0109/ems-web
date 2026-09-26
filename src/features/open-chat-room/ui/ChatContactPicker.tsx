@@ -64,8 +64,8 @@ export const ChatContactPicker = () => {
       >
         <div className="space-y-3">
           <Search
-            filter={query}
-            setFilter={setQuery}
+            value={query}
+            onChange={setQuery}
             placeholder="이름, 부서 검색 ..."
             className="max-w-none"
           />

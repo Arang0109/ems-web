@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 
-import { useScheduleDetail } from "@entities/schedule";
-import { isTerminalScheduleStatus } from "@shared/model";
+import { isTerminalScheduleStatus, useScheduleDetail } from "@entities/schedule";
 import { getSheetCalcExternals } from "@entities/schedule";
 import type { SheetCalcExternals } from "@entities/schedule";
 import { useStackPollutants } from "@entities/stack-pollutant";

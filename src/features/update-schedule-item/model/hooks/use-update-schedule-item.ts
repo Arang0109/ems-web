@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { useUpdateItemAction } from "@entities/schedule";
-import type { MeasurementItemSnapshot } from "@entities/schedule";
+import type { SamplingItemSnapshot } from "@entities/schedule";
 import { useUpdateStackPollutantAction } from "@entities/stack-pollutant";
 import { toFormValue } from "@shared/lib";
 import { toast } from "@shared/ui/toasts";
@@ -13,7 +13,7 @@ import { validateScheduleItemFields } from "../validator";
 interface Props {
   scheduleId: number;
   /** 이 회차 문서에 담긴 측정항목(스냅샷) — 폼의 초기값 */
-  item: MeasurementItemSnapshot;
+  item: SamplingItemSnapshot;
   /**
    * 측정시설 원장에 남아 있는 같은 항목의 id. 원장에서 이미 삭제된 항목이면 null 이며,
    * 그 경우 원장 반영을 제안하지 않는다(수정할 원본이 없다).

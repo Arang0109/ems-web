@@ -43,8 +43,7 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
           value={form.name}
           onChange={(value) => handleChange("name", value)}
           helperText="사업자등록증상에 기재된 상호"
-          invalid={!!fieldErrors?.name}
-          error={fieldErrors?.name}
+          errorMessage={fieldErrors?.name}
           required
           startIcon={<Building2 />}
         />
@@ -57,8 +56,7 @@ export const RegisterClientForm = ({ open, onOpenChange, onSuccess }: Props) => 
             value={form.bizNumber}
             onChange={(value) => handleChange("bizNumber", value)}
             startIcon={<Hash />}
-            invalid={!!fieldErrors?.bizNumber}
-            error={fieldErrors?.bizNumber}
+            errorMessage={fieldErrors?.bizNumber}
           />
           <InputGroup
             id="representative"

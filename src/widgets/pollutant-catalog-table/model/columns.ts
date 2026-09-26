@@ -2,24 +2,20 @@ import { createColumnHelper } from '@tanstack/react-table';
 
 import { RowActionCell } from '@shared/ui/table';
 
-import { CodeCell, StatusCell } from '../ui/Cells';
+import { StatusCell } from '../ui/Cells';
 import type { PollutantCatalogTableRow } from './types';
 
 const columnHelper = createColumnHelper<PollutantCatalogTableRow>();
 
 export const defaultColumns = [
-  columnHelper.accessor('code', {
-    header: '코드',
-    cell: CodeCell,
-  }),
   columnHelper.accessor('field', {
     header: '측정 분야',
   }),
   columnHelper.accessor('nameKr', {
     header: '측정물질(한글)',
   }),
-  columnHelper.accessor('method', {
-    header: '측정 방법',
+  columnHelper.accessor('mode', {
+    header: '측정방식',
   }),
   columnHelper.accessor('sortOrder', {
     header: '노출 순서',

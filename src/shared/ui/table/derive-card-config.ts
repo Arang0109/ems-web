@@ -29,6 +29,7 @@ export const deriveCardConfig = <TData,>(table: Table<TData>): MobileCardConfig<
     }
 
     const header = column.columnDef.header;
+    
     fields.push({
       label: typeof header === 'string' ? header : column.id,
       content: column.id,

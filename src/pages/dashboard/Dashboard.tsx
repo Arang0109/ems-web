@@ -8,6 +8,9 @@ import { TeamScheduleTable } from '@widgets/team-schedule-table';
 import { useIsMobile } from '@shared/model';
 import { PageLayout } from '@shared/ui/layout';
 import { SkeletonPanel } from '@shared/ui/skeletons';
+import { Callout } from '@shared/ui/feedback';
+
+import { TriangleAlert } from 'lucide-react';
 
 /**
  * 대시보드.
@@ -30,9 +33,9 @@ export const Dashboard = () => {
       <div className="flex flex-col items-start gap-5 lg:flex-row lg:justify-between">
         <section className="w-full grow space-y-5">
           {error && (
-            <div className="bg-danger-soft border border-danger text-danger text-body-2 rounded-icon-tile px-4 py-3">
+            <Callout role="alert" tone="danger" icon={TriangleAlert}>
               {error}
-            </div>
+            </Callout>
           )}
           <TeamScheduleTable />
 

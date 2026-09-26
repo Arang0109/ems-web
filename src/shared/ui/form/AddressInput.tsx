@@ -1,14 +1,19 @@
+import { useId } from 'react';
 import { useKakaoPostcode } from '@clroot/react-kakao-postcode';
 
 import { Field, FieldLabel } from '@shared/ui/primitives';
-import { InputGroup } from '@shared/ui/form';
-import { Button } from "@shared/ui/buttons";
+import { IconButton } from "@shared/ui/buttons";
 import type { AddressValue } from '@shared/model';
 
 import { Hash, MapPinned, House, Search } from 'lucide-react';
 
+import { InputGroup } from './InputGroup';
+
 interface Props {
+  /** 상세주소 입력의 id — 바깥 라벨이 여기로 걸린다. 미지정 시 자동 생성 */
   id?: string;
+  /** 필드 라벨. 기본 `주소` */
+  label?: React.ReactNode;
   placeholder?: string;
   value: AddressValue;
   onChange?: (value: AddressValue) => void;
@@ -16,10 +21,15 @@ interface Props {
 
 export const AddressInput = ({
   id,
+  label = '주소',
   placeholder,
   value,
   onChange,
 }: Props) => {
+  // 한 화면에 주소 입력이 둘 이상이어도(예: 본사·사업장) id 가 겹치지 않게 한다
+  const baseId = useId();
+  const detailId = id ?? `${baseId}-detail`;
+
   const { status, error, open } = useKakaoPostcode({
     onComplete: (address) => {
       onChange?.({
@@ -34,33 +44,32 @@ export const AddressInput = ({
 
   return (
     <div className='grid gap-4'>
-      <FieldLabel htmlFor={id}>
-        주소
+      <FieldLabel htmlFor={detailId}>
+        {label}
       </FieldLabel>
       <Field orientation="horizontal">
         <InputGroup
-          id="zipcode"
+          id={`${baseId}-zipcode`}
           value={value.zipcode}
           startIcon={<Hash />}
           readOnly
         />
         <InputGroup
-          id="roadAddress"
+          id={`${baseId}-road`}
           value={value.roadAddress}
           startIcon={<MapPinned />}
           readOnly
         />
-        <Button
-          type='button'
+        <IconButton
           variant="soft"
+          icon={<Search />}
+          label="주소 검색"
           onClick={() => open()}
-          startIcon={Search}
-          >
-        </Button>
+        />
       </Field>
       <Field orientation="horizontal">
         <InputGroup
-          id={id}
+          id={detailId}
           value={value.detailAddress}
           onChange={(e) => onChange?.({ ...value, detailAddress: e })}
           placeholder={placeholder}

@@ -77,6 +77,12 @@ export type SampleForm = {
   samplingVolume: string;
 };
 
+/**
+ * 시료 행에서 **사용자가 적는 칸**. `pollutantIds` 는 입력값이 아니라 행에 딸린 링크이므로 제외한다 —
+ * 경로로 칸을 읽는 쪽(`input/required-fields`)이 배열을 문자열로 읽어 값 있는 칸으로 잡지 않도록.
+ */
+export type SampleFieldKey = Exclude<keyof SampleForm, "pollutantIds">;
+
 // 입자상 시트 단위 입력 — nozzleSize는 UI상 시트당 1개 선택이며 저장 시 전 측정점에 동일 기입된다.
 export type ParticleForm = {
   nozzleSize: string;               // 노즐경 (cm)

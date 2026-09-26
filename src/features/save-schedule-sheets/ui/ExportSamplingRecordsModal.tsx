@@ -71,17 +71,17 @@ export const ExportSamplingRecordsModal = ({
 
       {/* 양식이 아예 없으면 어디서 등록하는지까지 알려준다. */}
       {!hasDocuments && !isDocumentsLoading && !loadError && (
-        <p className="mt-3 text-caption text-muted-foreground">
+        <p className="mt-3 text-caption text-muted-ink">
           등록된 채취기록부 양식이 없습니다. 관리자 문서 관리에서 먼저 양식을 등록해 주세요.
         </p>
       )}
 
       {(loadError || templateError) && (
-        <p className="mt-3 text-caption text-destructive">{loadError ?? templateError}</p>
+        <p className="mt-3 text-caption text-danger">{loadError ?? templateError}</p>
       )}
 
       {/* 기록지 종류만큼 파일이 만들어져 ZIP으로 묶이므로 미리 알린다. */}
-      <p className="mt-3 text-caption text-muted-foreground">
+      <p className="mt-3 text-caption text-muted-ink">
         기록지 종류별로 엑셀 파일이 생성되어 ZIP으로 압축된 뒤 내려받아집니다.
       </p>
     </FormDialog>

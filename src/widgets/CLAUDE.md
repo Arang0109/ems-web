@@ -23,10 +23,10 @@ widget-name/
 └── ComponentName.tsx   # ui/ 없이 루트에 위치 허용
 ```
 
-### 패턴 B — 테이블 위젯 (14개)
+### 패턴 B — 테이블 위젯 (16개)
 
 `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `contract-table`,
-`pollutant-table`, `document-table`, `equipment-table`, `member-table`, `team-table`,
+`pollutant-table`, `measurement-method-table`, `schedule-custom-field-table`, `document-table`, `equipment-table`, `member-table`, `team-table`,
 `team-schedule-table`, `schedule-table`, `tenant-table`, `pollutant-catalog-table`
 
 ```

@@ -23,6 +23,8 @@ interface Props {
    */
   keepMounted?: boolean;
   className?: string;
+  /** 탭 목록(List)에 덧붙일 클래스 — 상단 고정(sticky) 등 */
+  listClassName?: string;
 }
 
 /**
@@ -32,7 +34,7 @@ interface Props {
  * (스타일 레이어만 걷어내고 포커스·키보드 내비게이션·ARIA 는 그대로 유지).
  * 활성 탭은 브랜드 글씨 + 하단 2px 바로 표시한다.
  */
-export const Tabs = ({ options, contentPanel = true, keepMounted = false, className }: Props) => {
+export const Tabs = ({ options, contentPanel = true, keepMounted = false, className, listClassName }: Props) => {
   const defaultValue = options[0]?.value;
 
   return (
@@ -40,17 +42,29 @@ export const Tabs = ({ options, contentPanel = true, keepMounted = false, classN
       defaultValue={defaultValue}
       className={cn("flex flex-col", className)}
     >
-      <TabsPrimitive.List className="flex border-b border-rule">
+      {/* 좁은 화면에서 탭이 넘치면 가로로 스크롤한다 (스크롤바는 숨김).
+          스크롤 컨테이너는 border 영역에 걸친 자식을 잘라내므로, 하단 구분선은 border 대신
+          inset 그림자로 긋고 활성 바는 bottom-0 에 둬 구분선 위를 덮는다. */}
+      <TabsPrimitive.List
+        className={cn(
+          "flex overflow-x-auto shadow-[inset_0_-1px_0_var(--color-rule)]",
+          "scrollbar-none",
+          listClassName,
+        )}
+      >
         {options.map((opt) => (
           <TabsPrimitive.Tab
             key={opt.value}
             value={opt.value}
+            // 화면 밖에 걸친 탭을 누르면 전부 보이도록 가로로 당겨 온다
+            onClick={(e) => e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" })}
             className={cn(
               "relative flex-1 px-3 py-3.5 text-body-4 whitespace-nowrap text-muted-ink transition-colors",
               "outline-none hover:text-ink-soft",
-              "focus-visible:ring-3 focus-visible:ring-brand-primary/25",
+              // ring-inset : 바깥 링은 스크롤 컨테이너에 잘린다
+              "focus-visible:ring-3 focus-visible:ring-inset focus-visible:ring-brand-primary/25",
               "data-active:text-brand-primary",
-              "after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-brand-primary",
+              "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-brand-primary",
               "after:opacity-0 after:transition-opacity data-active:after:opacity-100",
             )}
           >

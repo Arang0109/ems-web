@@ -1,9 +1,11 @@
-import { addMonths, format } from "date-fns";
+import { addMonths } from "date-fns";
 
 import type { InspectionItemForm } from "../../model/types";
 
+import { toDateKey, toPickerDate, fromPickerDate } from "@shared/lib";
 import { InlineInput, Checkbox, DatePicker } from "@shared/ui/form";
 import { INSPECTION_TYPE_LABEL } from "@shared/config";
+import { ErrorText } from "@shared/ui/feedback";
 
 interface Props {
   inspections: InspectionItemForm[];
@@ -17,19 +19,20 @@ const previewNextDueDate = (item: InspectionItemForm): string => {
   if (!item.enabled || !item.lastInspectedAt) return '—';
   const cycle = Number(item.cycleMonths);
   if (!Number.isFinite(cycle) || cycle <= 0) return '—';
-  return format(addMonths(new Date(item.lastInspectedAt), cycle), 'yyyy-MM-dd');
+  const last = toPickerDate(item.lastInspectedAt);
+  return last ? toDateKey(addMonths(last, cycle)) : '—';
 };
 
 export const InspectionStep = ({ inspections, error, onChange }: Props) => (
   <div className="space-y-4">
-    <p className="text-body-2 text-muted-foreground">
+    <p className="text-body-2 text-muted-ink">
       정도검사·교정·일반시험은 서로 배타적이지 않습니다. 이 장비가 받는 검사만 대상으로 체크해주세요.
     </p>
 
     <div className="overflow-x-auto">
       <table className="w-full min-w-[720px] border-collapse">
         <thead>
-          <tr className="border-b border-border text-body-4 text-muted-foreground">
+          <tr className="border-b border-rule text-body-4 text-muted-ink">
             <th className="py-2 text-left font-normal">검사 종류</th>
             <th className="py-2 text-left font-normal">대상</th>
             <th className="py-2 text-left font-normal">주기(개월)</th>
@@ -40,8 +43,8 @@ export const InspectionStep = ({ inspections, error, onChange }: Props) => (
         </thead>
         <tbody>
           {inspections.map((item, index) => (
-            <tr key={item.type} className="border-b border-border last:border-b-0">
-              <td className="py-3 text-body-2 text-foreground whitespace-nowrap">
+            <tr key={item.type} className="border-b border-rule last:border-b-0">
+              <td className="py-3 text-body-2 text-ink whitespace-nowrap">
                 {INSPECTION_TYPE_LABEL[item.type]}
               </td>
               <td className="py-3">
@@ -63,13 +66,13 @@ export const InspectionStep = ({ inspections, error, onChange }: Props) => (
               <td className="py-3 pr-2 min-w-[180px]">
                 <DatePicker
                   id={`inspection-last-${item.type}`}
-                  value={item.lastInspectedAt ? new Date(item.lastInspectedAt) : undefined}
-                  onChange={(date) => onChange(index, 'lastInspectedAt', date ? format(date, 'yyyy-MM-dd') : '')}
+                  value={toPickerDate(item.lastInspectedAt)}
+                  onChange={(date) => onChange(index, 'lastInspectedAt', fromPickerDate(date))}
                   disabled={!item.enabled}
                   placeholder="선택"
                 />
               </td>
-              <td className="py-3 text-body-2 text-muted-foreground whitespace-nowrap">
+              <td className="py-3 text-body-2 text-muted-ink whitespace-nowrap">
                 {previewNextDueDate(item)}
               </td>
               <td className="py-3">
@@ -86,6 +89,6 @@ export const InspectionStep = ({ inspections, error, onChange }: Props) => (
       </table>
     </div>
 
-    {error && <p className="text-body-2 text-destructive">{error}</p>}
+    <ErrorText>{error}</ErrorText>
   </div>
 );

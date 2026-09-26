@@ -69,8 +69,7 @@ export const RegisterStackForm = ({
             value={form.stackName}
             onChange={(value) => handleChange("stackName", value)}
             startIcon={<Factory />}
-            invalid={!!fieldErrors?.stackName}
-            error={fieldErrors?.stackName}
+            errorMessage={fieldErrors?.stackName}
           />
           <InputGroup
             id="semsNumber"
@@ -103,8 +102,7 @@ export const RegisterStackForm = ({
             placeholder="예: 4"
             value={form.standardOxygen}
             onChange={(value) => handleChange("standardOxygen", value)}
-            invalid={!!fieldErrors?.standardOxygen}
-            error={fieldErrors?.standardOxygen}
+            errorMessage={fieldErrors?.standardOxygen}
             helperText="해당 없으면 비워두세요"
           />
         </div>

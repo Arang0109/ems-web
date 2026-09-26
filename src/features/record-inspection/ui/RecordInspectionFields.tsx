@@ -1,7 +1,7 @@
-import { format } from "date-fns";
 
 import type { InspectionRecordForm } from "../model/types";
 
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import { InputGroup, Select, DatePicker, Textarea, SectionTitle } from "@shared/ui/form";
 import { inspectionResultOptions } from "@shared/model";
 
@@ -19,17 +19,18 @@ export const RecordInspectionFields = ({ form, fieldErrors, onChange }: Props) =
       <DatePicker
         id="inspectedAt"
         label="검사 실시일"
-        value={form.inspectedAt ? new Date(form.inspectedAt) : undefined}
-        onChange={(date) => onChange('inspectedAt', date ? format(date, 'yyyy-MM-dd') : '')}
+        value={toPickerDate(form.inspectedAt)}
+        onChange={(date) => onChange('inspectedAt', fromPickerDate(date))}
         required
-        helperText={fieldErrors?.inspectedAt}
+        errorMessage={fieldErrors?.inspectedAt}
       />
       <DatePicker
         id="validUntil"
         label="유효기간 만료일"
-        value={form.validUntil ? new Date(form.validUntil) : undefined}
-        onChange={(date) => onChange('validUntil', date ? format(date, 'yyyy-MM-dd') : '')}
-        helperText={fieldErrors?.validUntil ?? '성적서에 만료일이 적혀 있으면 입력하세요. 다음 예정일로 지정됩니다.'}
+        value={toPickerDate(form.validUntil)}
+        onChange={(date) => onChange('validUntil', fromPickerDate(date))}
+        helperText='성적서에 만료일이 적혀 있으면 입력하세요. 다음 예정일로 지정됩니다.'
+        errorMessage={fieldErrors?.validUntil}
       />
     </div>
 

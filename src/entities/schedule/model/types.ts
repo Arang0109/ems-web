@@ -4,12 +4,12 @@ import type {
   TeamSnapshotDto, TenantSnapshotDto, ClientSnapshotDto, WorkplaceSnapshotDto,
   StackSnapshotDto, FacilitySnapshotDto, PreventionSnapshotDto,
   EquipmentSnapshotDto, EquipmentSpecDto, ParticleSamplerSpecDto,
-  MeasurementItemSnapshotDto, AnalysisResultDto,
+  SamplingItemSnapshotDto, MeasurementMethodSnapshotDto, AnalysisResultDto,
   SamplingSheetDto, SamplingSheetResponse, WeatherDataDto, MoistureDataDto, ExhaustGasDataDto,
   FlowRateDataDto, ParticulateSamplingDto, SamplingPointDto, IsokineticSamplingDto,
   GaseousSamplingDto, SheetRefDto,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
-  AnalysisResultResponse,
+  AnalysisResultResponse, TemplateCheckResponse, TemplateIssueResponse,
 } from "../api/dto";
 
 export type ScheduleListItem = ScheduleListResponse;
@@ -48,7 +48,9 @@ export type PreventionSnapshot = PreventionSnapshotDto;
 export type EquipmentSnapshot = EquipmentSnapshotDto;
 export type EquipmentSpec = EquipmentSpecDto;
 export type ParticleSamplerSpec = ParticleSamplerSpecDto;
-export type MeasurementItemSnapshot = MeasurementItemSnapshotDto;
+export type SamplingItemSnapshot = SamplingItemSnapshotDto;
+// 측정항목 안에 놓인 측정방법 사본. null 이면 측정방법이 정해지지 않은 레거시 항목이다.
+export type MeasurementMethodSnapshot = MeasurementMethodSnapshotDto;
 // 측정항목 안에 놓인 실험실 분석 결과. null 이면 아직 분석 전이다.
 export type ItemAnalysisResult = AnalysisResultDto;
 
@@ -192,6 +194,17 @@ export type ScheduleItemUpdate = {
   allowance: number | null;
   oxygenApplicable: boolean;
 };
+
+// 회차 커스텀 필드 값 저장. 커스텀 필드 폼이 단독 소유하는 일괄 저장이라 **전체 채택**이다 —
+// 정의된 필드 전부를 보내며, 빠진 키와 빈 값은 "지웠다"다. 키는 고객사 커스텀 필드 정의의 `key`.
+export type ScheduleCustomFieldsSave = {
+  values: Record<string, string>;
+};
+
+// 채취기록부 템플릿 검사 결과. 응답 구조가 화면과 같아 DTO를 도메인으로 채택한다.
+// `valid` 면 이름 오류가 없다(값이 비어 빈칸이 되는 것은 검사 대상이 아니다).
+export type TemplateCheckResult = TemplateCheckResponse;
+export type TemplateIssue = TemplateIssueResponse;
 
 // 채취기록지 내려받기 결과 — 서버가 만든 ZIP과 Content-Disposition에서 얻은 파일명.
 export type SamplingRecordsExport = {

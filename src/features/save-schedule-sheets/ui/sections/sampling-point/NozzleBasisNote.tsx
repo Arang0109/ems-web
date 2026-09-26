@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { displayValue, roundHalfUp } from "@shared/lib";
 import { HelpTip } from "@shared/ui/tooltip";
 
-import { PARTICLE_HINT } from "../../../model/field-hints";
+import { PARTICLE_HINT } from "../../../model/input/field-hints";
 
 /** 채취시간 옆에 세우는 노즐 기준 — 세 값이 늘 함께 읽히므로 한 덩이로 넘긴다 */
 export interface NozzleBasis {
@@ -70,16 +70,16 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div className="flex gap-1">
           노즐 직경 :{" "}
-          <span className="text-body-4 text-primary">{basis.size} cm</span>
+          <span className="text-body-4 text-brand-primary">{basis.size} cm</span>
         </div>
 
         <div>
           채취 시간 :{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(basis.estimate?.samplingTime)}
           </span>{" "}
           분 이상, 지점 당{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(perPoint(basis.estimate?.samplingTime, basis.pointCount, 1))}
           </span>{" "}
           분 이상
@@ -87,7 +87,7 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div>
           실제 예상 채취량 :{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(basis.estimate?.Vm)}
           </span>{" "}
           m³
@@ -95,7 +95,7 @@ export const NozzleBasisNote = ({ basis, className }: Props) => (
 
         <div>
           측정 지점 당 약{" "}
-          <span className="text-body-4 text-primary">
+          <span className="text-body-4 text-brand-primary">
             {displayValue(perPoint(basis.estimate?.Vm, basis.pointCount, 5))}
           </span>{" "}
           m³

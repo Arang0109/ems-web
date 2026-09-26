@@ -1,13 +1,13 @@
 import React from "react";
 
-import { Field, FieldDescription } from "@shared/ui/primitives";
 import { Textarea as TextareaPrimitive } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
-import { InFieldLabel } from "./InFieldLabel";
+import { InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import { IN_FIELD_VALUE_CLASS, inFieldPlaceholder } from "./in-field";
 
-interface TextareaProps {
+interface TextareaProps extends FieldErrorProps {
   id?: string;
   label?: React.ReactNode;
 
@@ -39,8 +39,11 @@ export const Textarea = ({
   required,
   maxLength,
   helperText,
+  errorMessage,
+  invalid: invalidProp,
 }: TextareaProps) => {
   const hasLabel = !!label;
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
 
   const textarea = (
     <TextareaPrimitive
@@ -54,6 +57,7 @@ export const Textarea = ({
       readOnly={readOnly}
       required={required}
       maxLength={maxLength}
+      aria-invalid={invalid || undefined}
       // 라벨이 얹힌 첫 줄만큼 글줄을 내린다 — 여러 줄이라 높이는 `rows`·내용이 정한다
       className={cn(hasLabel && cn(IN_FIELD_VALUE_CLASS, "pb-2"))}
     />
@@ -62,14 +66,16 @@ export const Textarea = ({
   if (!hasLabel) return textarea;
 
   return (
-    <Field className="gap-1.5">
-      <div className="relative">
-        <InFieldLabel htmlFor={id} required={required} disabled={disabled} className="left-2.5">
-          {label}
-        </InFieldLabel>
-        {textarea}
-      </div>
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-    </Field>
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+    >
+      {textarea}
+    </InFieldShell>
   );
 };

@@ -14,6 +14,16 @@ const calcO2CorrectionFactor = (o2: number, standardOxygen: number): number | nu
   return denominator === 0 ? null : roundHalfUp((21 - standardOxygen) / denominator, 5);
 };
 
+/**
+ * NOx·SOx 회차 값의 평균(ppm, 소수 1자리 HALF_UP). 회차가 하나도 없으면 null.
+ *
+ * 서버는 이 평균을 저장하지 않는다 — `ExhaustGasData.avgNox`·`avgSox` 필드는 있지만 `ApplyResultStep` 이
+ * 채우지 않아 응답에서 항상 null 이다. 그래서 현장 채취 탭의 계산값 드로어와 성적서 탭의 기록지 값
+ * 가져오기가 모두 여기서 같은 규칙으로 낸다 — 두 화면이 각자 평균내면 반올림이 어긋난다.
+ */
+export const calcExhaustGasAverage = (values: number[] | null | undefined): number | null =>
+  isEmpty(values) ? null : averageTreatNullAsZero(values, 1);
+
 export const exhaustGasStep: SheetCalcStep = (ctx, { sheet, ext }) => {
   const exhaustGas = sheet.exhaustGas;
   if (!exhaustGas) return;
@@ -42,6 +52,6 @@ export const exhaustGasStep: SheetCalcStep = (ctx, { sheet, ext }) => {
   }
 
   // NOx/SOx 평균은 서버 미저장 — 표시 전용
-  if (!isEmpty(exhaustGas.noxConcentration)) ctx.noxAvg = averageTreatNullAsZero(exhaustGas.noxConcentration, 1);
-  if (!isEmpty(exhaustGas.soxConcentration)) ctx.soxAvg = averageTreatNullAsZero(exhaustGas.soxConcentration, 1);
+  ctx.noxAvg = calcExhaustGasAverage(exhaustGas.noxConcentration);
+  ctx.soxAvg = calcExhaustGasAverage(exhaustGas.soxConcentration);
 };

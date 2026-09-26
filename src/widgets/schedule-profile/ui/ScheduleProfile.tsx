@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 
 import { Tabs } from "@shared/ui/tabs";
+import { EmptyText } from "@shared/ui/feedback";
 
 import { useScheduleProfile } from "../model/use-schedule-profile";
 import { MeasurementInfo } from "./children/MeasurementInfo";
@@ -8,6 +9,8 @@ import { EquipmentInfo } from "./children/EquipmentInfo";
 import { SheetInput } from "./children/SheetInput";
 import { AnalysisInput } from "./children/AnalysisInput";
 import { ReportInfo } from "./children/ReportInfo";
+import { CustomFieldsInfo } from "./children/CustomFieldsInfo";
+import { TAB_LIST_STICKY_CLASS } from "./sticky-layout";
 
 export const ScheduleProfile = () => {
   const { scheduleId } = useParams<{ scheduleId: string }>();
@@ -18,12 +21,12 @@ export const ScheduleProfile = () => {
   // 최초 로드에서만 화면을 비운다. 저장 후 재조회(refetch)에서도 비우면 탭·스크롤·
   // 열어둔 섹션이 전부 초기화되어, 측정 데이터 탭에서 저장할 때마다 측정정보 탭으로 튕긴다.
   if (isLoading && !snapshot) {
-    return <p className="py-12 text-center text-body-2 text-muted-ink">불러오는 중...</p>;
+    return <EmptyText size="lg">불러오는 중...</EmptyText>;
   }
   // 같은 이유로, 보여줄 스냅샷이 이미 있으면 재조회 실패로 화면을 갈아엎지 않는다
   // (저장 자체의 실패는 저장 경로가 toast 로 알린다).
   if (!snapshot) {
-    return <p className="py-12 text-center text-body-2 text-danger">{error ?? "측정계획을 찾을 수 없습니다."}</p>;
+    return <EmptyText size="lg" tone="danger">{error ?? "측정계획을 찾을 수 없습니다."}</EmptyText>;
   }
 
   const tabOptions = [
@@ -74,7 +77,16 @@ export const ScheduleProfile = () => {
       // 본문이 섹션 카드로 구성되므로 탭의 카드 셸은 끈다.
       panel: false,
       content: (
-        <ReportInfo scheduleId={id} snapshot={snapshot} editable={editable} onRefetch={refetch} />
+        <ReportInfo scheduleId={id} snapshot={snapshot} status={status} editable={editable} onRefetch={refetch} />
+      ),
+    },
+    {
+      value: "custom",
+      label: "추가 항목",
+      // 본문이 섹션 카드로 구성되므로 탭의 카드 셸은 끈다.
+      panel: false,
+      content: (
+        <CustomFieldsInfo scheduleId={id} snapshot={snapshot} editable={editable} onRefetch={refetch} />
       ),
     },
     {
@@ -96,5 +108,7 @@ export const ScheduleProfile = () => {
 
   // 제목 옆 식별 정보·생애주기 액션은 페이지 셸 슬롯에 들어간다 (ScheduleProfileHeadline·ScheduleProfileActions).
   // 측정 데이터 탭에서 작성하던 기록지가 탭을 옮겨도 남아 있어야 한다 (탭 본문 언마운트 방지).
-  return <Tabs options={tabOptions} keepMounted />;
+  // 모바일은 탭 목록이 페이지 헤더(PageLayout stickyHeader) 바로 아래에 함께 고정된다.
+  // 전폭(-mx-4 px-4)으로 깔아 하단 보더·배경이 화면 끝까지 닿게 한다. 위치·높이는 sticky-layout 참고.
+  return <Tabs options={tabOptions} keepMounted listClassName={TAB_LIST_STICKY_CLASS} />;
 };

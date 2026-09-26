@@ -8,10 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
-import { InFieldLabel } from "./InFieldLabel";
+import { InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import {
   IN_FIELD_CONTROL_HEIGHT,
   IN_FIELD_SELECT_CLASS,
@@ -35,7 +35,7 @@ export interface SelectGroupOption<T extends string = string> {
   options: SelectOption<T>[];
 }
 
-interface SelectBaseProps<T extends string> {
+interface SelectBaseProps<T extends string> extends FieldErrorProps {
   // NoInfer: value 는 T 추론에 참여하지 않고 options 에서 정해진 T 로 "검사만" 받는다.
   // 이게 없으면 라벨(string)을 넘겼을 때 T 가 string 으로 넓어져 위반을 놓친다.
   // `""` 는 이 코드베이스의 "미선택" 표현이다(매칭되는 item 이 없어 placeholder 가 뜬다).
@@ -46,7 +46,6 @@ interface SelectBaseProps<T extends string> {
   placeholder?: string;
   label?: React.ReactNode;
   helperText?: string;
-  errorMessage?: string;
 
   id?: string;
   disabled?: boolean;
@@ -95,6 +94,7 @@ export const Select = <T extends string = string>({
   label,
   helperText,
   errorMessage,
+  invalid: invalidProp,
   id,
   disabled,
   required,
@@ -102,7 +102,7 @@ export const Select = <T extends string = string>({
   size = "default",
 }: SelectProps<T>) => {
   const hasLabel = !!label;
-  const invalid = !!errorMessage;
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
   const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
   const controlClassName = cn("w-full", hasLabel && LABELED_TRIGGER_CLASS, className);
 
@@ -179,23 +179,18 @@ export const Select = <T extends string = string>({
 
   if (!hasLabel) return select;
 
+  // 라벨은 트리거 위에 얹힌다 — 글줄 시작점은 트리거 좌패딩(pl-2.5)에 맞춘다
   return (
-    <Field data-invalid={invalid || undefined} className="gap-1.5">
-      {/* 라벨은 트리거 위에 얹힌다 — 글줄 시작점은 트리거 좌패딩(pl-2.5)에 맞춘다 */}
-      <div className="relative">
-        <InFieldLabel
-          htmlFor={id}
-          required={required}
-          invalid={invalid}
-          disabled={disabled}
-          className="left-2.5"
-        >
-          {label}
-        </InFieldLabel>
-        {select}
-      </div>
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
-    </Field>
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+    >
+      {select}
+    </InFieldShell>
   );
 };

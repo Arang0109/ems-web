@@ -1,7 +1,7 @@
 import type { FieldTone } from "@shared/model";
 
-import type { SheetFieldPath } from "../model/required-fields";
-import type { SheetSectionId } from "../model/section-progress";
+import type { SheetFieldPath } from "../model/input/required-fields";
+import type { SheetSectionId } from "../model/sections";
 
 /**
  * 칸 단위 강조의 판정 창구.

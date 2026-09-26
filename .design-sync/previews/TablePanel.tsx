@@ -11,7 +11,7 @@ export const Full = () => {
       subtitle="한국환경공단 · 2026년 1분기"
       actions={
         <>
-          <Search filter={filter} setFilter={setFilter} placeholder="의뢰기관, 주소 검색 ..." />
+          <Search value={filter} onChange={setFilter} placeholder="의뢰기관, 주소 검색 ..." />
           <Button startIcon={Plus}>의뢰기관 등록</Button>
         </>
       }

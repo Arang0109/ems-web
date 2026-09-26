@@ -1,6 +1,7 @@
 export { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 export { AppSidebar } from "./AppSidebar";
 export { SidebarBrandHeader } from "./SidebarBrandHeader";
+export { SidebarMenuButton } from "./SidebarMenuButton";
 export { SidebarMobileBar } from "./SidebarMobileBar";
 export { SidebarNav } from "./SidebarNav";
 export { SidebarUserFooter } from "./SidebarUserFooter";

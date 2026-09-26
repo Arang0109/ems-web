@@ -11,9 +11,9 @@ import {
   BUSINESS_NUMBER_DIGITS, PHONE_NUMBER_DIGITS,
   formatBusinessNumber, formatPhoneNumber, maskCodeInput,
 } from "@shared/lib";
-import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
-import { InFieldLabel } from "./InFieldLabel";
+import { InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import {
   IN_FIELD_CONTROL_HEIGHT,
   IN_FIELD_VALUE_CLASS,
@@ -39,7 +39,7 @@ const CODE_SPEC = {
   { format: (v: string) => string; digits: number; inputMode: "numeric" | "tel" }
 >;
 
-interface InputGroupProps<T = string> {
+interface InputGroupProps<T = string> extends FieldErrorProps {
   id?: string;
   type?: string;
   placeholder?: string;
@@ -74,9 +74,6 @@ interface InputGroupProps<T = string> {
    * 매 키 입력이 곧바로 확정값이다. `code` 가 있으면 `type` 은 무시된다.
    */
   code?: CodeKind;
-
-  invalid?: boolean;
-  error?: string;
 
   startIcon?: React.ReactNode;
   endIcon?: React.ReactNode;
@@ -152,12 +149,13 @@ export const InputGroup = <T extends string | number>({
   maxIntDigits,
   maxDecimals,
   code,
-  invalid,
-  error,
+  errorMessage,
+  invalid: invalidProp,
   startIcon,
   endIcon,
 }: InputGroupProps<T>) => {
   const hasLabel = !!label;
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
 
   const effectivePlaceholder = hasLabel
     ? (inFieldPlaceholder(placeholder, label) ?? "")
@@ -165,22 +163,9 @@ export const InputGroup = <T extends string | number>({
 
   const input = (
     <InputGroupPrimitive className={cn(hasLabel && LABELED_GROUP_CLASS)}>
-      {hasLabel && (
-        <InFieldLabel
-          htmlFor={id}
-          required={required}
-          invalid={invalid}
-          disabled={disabled}
-          // 아이콘이 있으면 아이콘 애드온 폭(24px)+입력 좌패딩(6px)만큼 들여 글줄 시작점에 맞춘다
-          className={startIcon ? "left-7.5" : "left-2.5"}
-        >
-          {label}
-        </InFieldLabel>
+      {startIcon && (
+        <InputGroupAddon className={cn(invalid && "text-danger")}>{startIcon}</InputGroupAddon>
       )}
-      {startIcon && 
-        <InputGroupAddon
-          className={error? 'text-destructive' : ""}
-        >{startIcon}</InputGroupAddon>}
       {code && !readOnly ? (
         /*
           자릿수 코드 — 표시는 끊어 보여주고 상태는 숫자만 남긴다.
@@ -195,7 +180,7 @@ export const InputGroup = <T extends string | number>({
           onChange={(e) => onChange?.(maskCodeInput(e.target.value, CODE_SPEC[code].digits) as T)}
           placeholder={effectivePlaceholder}
           disabled={disabled}
-          aria-invalid={invalid}
+          aria-invalid={invalid || undefined}
           className={cn(hasLabel && LABELED_CONTROL_CLASS)}
         />
       ) : type === "number" && !readOnly ? (
@@ -209,7 +194,7 @@ export const InputGroup = <T extends string | number>({
           maxDecimals={maxDecimals}
           placeholder={effectivePlaceholder}
           disabled={disabled}
-          aria-invalid={invalid}
+          aria-invalid={invalid || undefined}
           className={cn(hasLabel && LABELED_CONTROL_CLASS)}
         />
       ) : (
@@ -221,7 +206,7 @@ export const InputGroup = <T extends string | number>({
           placeholder={effectivePlaceholder}
           disabled={disabled}
           readOnly={readOnly}
-          aria-invalid={invalid}
+          aria-invalid={invalid || undefined}
 
           min={min}
           max={max}
@@ -236,10 +221,18 @@ export const InputGroup = <T extends string | number>({
   if (!hasLabel) return input;
 
   return (
-    <Field data-invalid={invalid} className="gap-1.5">
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+      // 아이콘이 있으면 아이콘 애드온 폭(24px)+입력 좌패딩(6px)만큼 들여 글줄 시작점에 맞춘다
+      labelClassName={startIcon ? "left-7.5" : "left-2.5"}
+    >
       {input}
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-      {error && <FieldDescription className="text-destructive">{error}</FieldDescription>}
-    </Field>
+    </InFieldShell>
   );
 };

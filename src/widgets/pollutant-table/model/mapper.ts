@@ -2,9 +2,7 @@ import type { Pollutant } from '@entities/pollutant';
 
 import type { PollutantTableRow } from './types';
 
-import {
-  MEASUREMENT_FIELD_LABEL, MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL,
-} from '@shared/config';
+import { MEASUREMENT_FIELD_LABEL, MEASUREMENT_MODE_LABEL, POLLUTANT_PHASE_LABEL } from '@shared/config';
 
 /** 가이드가 비워 둘 수 있는 항목의 표시 자리. 빈 칸으로 두면 열이 무너져 보인다. */
 const EMPTY = '—';
@@ -15,7 +13,14 @@ export const toPollutantRow = (col: Pollutant): PollutantTableRow => ({
   field: MEASUREMENT_FIELD_LABEL[col.field],
   nameKr: col.nameKr,
   nameEn: col.nameEn || EMPTY,
-  method: col.method ? MEASUREMENT_METHOD_LABEL[col.method] : EMPTY,
+  mode: col.mode ? MEASUREMENT_MODE_LABEL[col.mode] : EMPTY,
+  method: col.methodName || EMPTY,
+  samplingMinutes: col.effectiveSamplingMinutes == null
+    ? EMPTY
+    : `${col.effectiveSamplingMinutes}분${col.samplingMinutes != null && col.sampleGrouping !== 'MERGED' ? ' (항목)' : ''}`,
+  suctionFlowRate: col.effectiveSuctionFlowRate == null
+    ? EMPTY
+    : `${col.effectiveSuctionFlowRate} L/min${col.suctionFlowRate != null && col.sampleGrouping !== 'MERGED' ? ' (항목)' : ''}`,
   phase: col.phase ? POLLUTANT_PHASE_LABEL[col.phase] : EMPTY,
   equipment: col.equipment || EMPTY,
   testMethod: col.testMethod || EMPTY,

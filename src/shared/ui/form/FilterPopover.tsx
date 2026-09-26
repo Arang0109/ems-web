@@ -1,14 +1,8 @@
 import React from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { Badge } from "@shared/ui/badges";
 import { Button } from "@shared/ui/buttons";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { PopoverRoot, PopoverContent, PopoverTrigger } from "../popover";
 
 interface Props {
   /** 트리거 아이콘 — 테이블 필터 바에서는 `ListFilter` */
@@ -70,7 +64,7 @@ export const FilterPopover = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
+    <PopoverRoot open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger
         render={
           <Button
@@ -81,16 +75,11 @@ export const FilterPopover = ({
             className={className}
           >
             {label}
-            {isActive && (
-              <Badge tone="brand" className="h-5 min-w-5 px-1.5">
-                {activeCount}
-              </Badge>
-            )}
           </Button>
         }
       />
 
-      <PopoverContent align="end" className={cn("flex w-fit min-w-64 flex-col gap-3 p-4")}>
+      <PopoverContent align="end" className="flex w-fit min-w-64 flex-col gap-3 p-4">
         {title && <p className="text-body-4 text-ink">{title}</p>}
 
         {children}
@@ -104,6 +93,6 @@ export const FilterPopover = ({
           </Button>
         </div>
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 };

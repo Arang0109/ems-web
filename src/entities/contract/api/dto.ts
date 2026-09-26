@@ -44,9 +44,9 @@ export type ContractRegisterRequest = {
   workplaceId: number;               // 사업장 ID
   contractName: string;              // 용역명
 
-  contractDate: Date;             // 계약일자
-  startDate: Date;                // 착수일자
-  completionDate: Date;           // 완수일자
+  contractDate: string;             // 계약일자
+  startDate: string;                // 착수일자
+  completionDate: string;           // 완수일자
 
   contractAmount: number;           // 계약금액
   contractAmountUnit: ContractAmountUnit;
@@ -64,9 +64,9 @@ export type ContractRegisterRequest = {
 export type ContractUpdateRequest = {
   contractName: string;              // 용역명
 
-  contractDate: Date;             // 계약일자
-  startDate: Date;                // 착수일자
-  completionDate: Date;           // 완수일자
+  contractDate: string;             // 계약일자
+  startDate: string;                // 착수일자
+  completionDate: string;           // 완수일자
 
   contractAmount: number;           // 계약금액
   contractAmountUnit: ContractAmountUnit;

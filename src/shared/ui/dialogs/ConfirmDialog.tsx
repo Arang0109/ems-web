@@ -4,6 +4,7 @@ import { TriangleAlert } from "lucide-react";
 import { Button } from "@shared/ui/buttons";
 
 import type { ConfirmOptions } from "./confirm-context";
+import { DIALOG_BACKDROP_CLASS } from "./overlay-classes";
 
 interface Props {
   open: boolean;
@@ -24,7 +25,7 @@ export const ConfirmDialog = ({ open, options, onConfirm, onCancel }: Props) => 
   return (
     <AlertDialog.Root open={open} onOpenChange={(next) => !next && onCancel()}>
       <AlertDialog.Portal>
-        <AlertDialog.Backdrop className="fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 dark:bg-black/50" />
+        <AlertDialog.Backdrop className={DIALOG_BACKDROP_CLASS} />
         <AlertDialog.Popup className="fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-6 rounded-dialog bg-surface p-6 text-ink ring-1 ring-rule duration-100 outline-none sm:max-w-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95">
           <div className="flex gap-3">
             {isDanger && (

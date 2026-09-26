@@ -5,6 +5,7 @@ import type { EquipmentSpecForm } from "../model/types";
 import { InputGroup, Select, SectionTitle } from "@shared/ui/form";
 import { pitotTubeTypeOptions } from "@shared/model";
 import { EQUIP_SPEC_FIELD_LABEL } from "@shared/config";
+import { ErrorText } from "@shared/ui/feedback";
 
 type SpecScalarField = 'totalVolume' | 'orificeDp' | 'yd' | 'pitotTubeType';
 
@@ -35,7 +36,7 @@ const RemoveRowButton = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
     onClick={onClick}
-    className="inline-flex items-center justify-center text-muted-foreground hover:text-destructive"
+    className="inline-flex items-center justify-center text-muted-ink hover:text-danger"
     aria-label="행 삭제"
   >
     <Trash2 className="size-4" />
@@ -61,7 +62,7 @@ export const SpecFields = ({
       <SectionTitle>사양</SectionTitle>
 
       {type === 'GAS_ANALYZER' && (
-        <p className="text-body-2 text-muted-foreground">가스분석기는 별도 사양 항목이 없습니다.</p>
+        <p className="text-body-2 text-muted-ink">가스분석기는 별도 사양 항목이 없습니다.</p>
       )}
 
       {type === 'PARTICLE_SAMPLER' && (
@@ -92,7 +93,7 @@ export const SpecFields = ({
           />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-body-4 text-foreground">{EQUIP_SPEC_FIELD_LABEL.coefficients}</span>
+              <span className="text-body-4 text-ink">{EQUIP_SPEC_FIELD_LABEL.coefficients}</span>
               <AddRowButton label={`${EQUIP_SPEC_FIELD_LABEL.coefficient} 추가`} onClick={onAddCoefficient} />
             </div>
             {spec.coefficients.map((c, i) => (
@@ -111,7 +112,7 @@ export const SpecFields = ({
       {type === 'NOZZLE' && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-body-4 text-foreground">{EQUIP_SPEC_FIELD_LABEL.diameters}</span>
+            <span className="text-body-4 text-ink">{EQUIP_SPEC_FIELD_LABEL.diameters}</span>
             <AddRowButton label={`${EQUIP_SPEC_FIELD_LABEL.diameter} 추가`} onClick={onAddDiameter} />
           </div>
           {spec.diameters.map((d, i) => (
@@ -124,7 +125,7 @@ export const SpecFields = ({
         </div>
       )}
 
-      {error && <p className="text-body-2 text-destructive">{error}</p>}
+      <ErrorText>{error}</ErrorText>
     </div>
   );
 };

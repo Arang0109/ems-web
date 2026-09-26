@@ -1,10 +1,13 @@
 import React, { useRef } from "react";
 import { X } from "lucide-react";
 
-import { Field, FieldLabel, FieldDescription } from "@shared/ui/primitives";
+import { Field, FieldLabel } from "@shared/ui/primitives";
 import { Button } from "@shared/ui/buttons";
 
-interface Props {
+import { FieldMessages } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
+
+interface Props extends FieldErrorProps {
   id?: string;
   label?: React.ReactNode;
 
@@ -18,8 +21,6 @@ interface Props {
   disabled?: boolean;
   required?: boolean;
   helperText?: string;
-
-  isInvalid?: boolean;
 }
 
 // 파일 선택 입력. <input type="file">은 보안상 값을 코드로 지정할 수 없어
@@ -35,8 +36,10 @@ export const FileInput = ({
   disabled = false,
   required,
   helperText,
-  isInvalid,
+  errorMessage,
+  invalid: invalidProp,
 }: Props) => {
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,11 +49,11 @@ export const FileInput = ({
   };
 
   return (
-    <Field data-invalid={isInvalid || undefined}>
+    <Field data-invalid={invalid || undefined}>
       {label && (
         <FieldLabel htmlFor={id}>
           {label}
-          {required && <span className="ml-1 text-destructive">*</span>}
+          {required && <span className="ml-1 text-danger">*</span>}
         </FieldLabel>
       )}
 
@@ -66,7 +69,7 @@ export const FileInput = ({
           {buttonLabel}
         </Button>
 
-        <span className="min-w-0 flex-1 truncate text-body-2 text-muted-foreground">
+        <span className="min-w-0 flex-1 truncate text-body-2 text-muted-ink">
           {file?.name ?? placeholder}
         </span>
 
@@ -93,7 +96,7 @@ export const FileInput = ({
         onChange={handleChange}
       />
 
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
+      <FieldMessages helperText={helperText} errorMessage={errorMessage} />
     </Field>
   );
 };

@@ -8,8 +8,8 @@ import { Badge } from "@shared/ui/badges";
 import { Button } from "@shared/ui/buttons";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
 
-import { POINT_HINT } from "../../../model/field-hints";
-import { fieldPath } from "../../../model/required-fields";
+import { POINT_HINT } from "../../../model/input/field-hints";
+import { fieldPath } from "../../../model/input/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
 import {

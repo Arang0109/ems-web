@@ -16,7 +16,18 @@ export type MainRouteHandle = {
    * 페이지는 `h-full min-h-0` 로 그 높이를 받아 쓴다.
    */
   fill?: boolean;
+  /**
+   * 페이지가 자체 sticky 헤더(뒤로가기 · 제목 · 메뉴 · 탭)를 갖는 상세 화면 (모바일 전용 규격).
+   *
+   * 켜면 모바일(md 미만)에서 브랜드 상단 바를 숨기고,
+   * 상단 여백을 없애 페이지 헤더가 화면 최상단에 붙게 한다. 데스크탑은 기존 규격 그대로다.
+   * 브랜드 바의 메뉴(⋯) 버튼은 페이지 헤더가 대신 노출한다 (`PageLayout` 의 `showMenu`).
+   */
+  detail?: boolean;
 };
 
 /** 채팅 화면 — 대화 목록과 말풍선이 각자 스크롤한다 */
 export const CHAT_ROUTE_HANDLE: MainRouteHandle = { fill: true };
+
+/** 상세 화면 — 제목줄 · 식별 칩 · 탭이 상단에 고정된다 (측정계획 상세) */
+export const DETAIL_ROUTE_HANDLE: MainRouteHandle = { detail: true };

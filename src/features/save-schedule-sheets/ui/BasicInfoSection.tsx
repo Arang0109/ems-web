@@ -3,8 +3,8 @@ import type { SectionHighlight } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
 import { SectionAccordion } from "@shared/ui/accordion";
 
-import { REQUIRED_BASIC_INFO_FIELDS, getMissingBasicInfoFields } from "../model/required-fields";
-import { getProgressTone } from "../model/section-progress";
+import { REQUIRED_BASIC_INFO_FIELDS, getMissingBasicInfoFields } from "../model/input/required-fields";
+import { getProgressTone } from "../model/input/section-progress";
 import type { ScheduleBasicInfoForm } from "../model/types";
 
 interface Props {
@@ -80,7 +80,7 @@ export const BasicInfoSection = ({
           onChange={(v) => onChange("samplingEndedAt", v)}
         />
       </div>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 md:grid-cols-2 xl:grid-cols-4">
         {PERSON_FIELDS.map(({ name, label }) => (
           <UnitField
             key={name}

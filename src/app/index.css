@@ -5,6 +5,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 가로로 넘치는 칩·탭 줄의 스크롤바를 감춘다(스크롤 자체는 된다). 세 브라우저 계열의 방식이 다 달라 묶어 둔다. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   * {
     margin: 0;
@@ -201,6 +210,8 @@
   /* ─── 피그마 카드 그림자 (영속) ────────────────────────────────
      예) shadow-panel — 섹션 카드·패널의 기본 입체감 */
   --shadow-panel: 0 2px 8px 0 rgba(18, 31, 24, 0.06);
+  /* 강조 카드(예: 오늘 측정 건) — 목록에서 한 장을 띄워 올린다 */
+  --shadow-panel-strong: 0 2px 10px 0 rgba(18, 31, 24, 0.24);
 
   /* ─── shadcn 호환 shim (t-shirt 램프를 스펙 값으로 재지정) ───────
      shadcn 제거 시 이 7줄을 삭제하면 된다. */

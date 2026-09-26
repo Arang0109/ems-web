@@ -1,7 +1,8 @@
 import type { CellContext } from '@tanstack/react-table';
 
+import { SCHEDULE_STATUS_TONE } from '@entities/schedule';
 import { StatusDot } from '@shared/ui/badges';
-import { SCHEDULE_STATUS_LABEL, SCHEDULE_STATUS_TONE } from '@shared/config';
+import { SCHEDULE_STATUS_LABEL } from '@shared/config';
 import type { ScheduleStatus } from '@shared/model';
 
 import type { TeamScheduleTableRow } from '../model/types';

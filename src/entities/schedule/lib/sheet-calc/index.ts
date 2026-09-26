@@ -6,7 +6,7 @@ export type { PitotCoefficient, SheetCalcExternals, SheetCalcPointPreview, Sheet
 export type { SheetCalcContext } from "./context";
 
 export { runSheetCalc, calcSheetPreview } from "./run";
-export { calcRequiredPointCount } from "./steps";
+export { calcRequiredPointCount, calcExhaustGasAverage } from "./steps";
 export { getSheetCalcExternals } from "./externals";
 
 // 같은 lib 안의 파생 계산(nozzle-recommend)이 공유하는 상수

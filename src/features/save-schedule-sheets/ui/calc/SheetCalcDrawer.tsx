@@ -10,11 +10,12 @@ import { Button } from "@shared/ui/buttons";
 import { Drawer } from "@shared/ui/drawer";
 import { CalcResultGrid, InputGroup, UnitField } from "@shared/ui/form";
 import { Tabs } from "@shared/ui/tabs";
+import { Callout } from "@shared/ui/feedback";
 
-import { PARTICLE_HINT } from "../../model/field-hints";
-import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
-import type { NozzleMissingGroup } from "../../model/nozzle-estimate";
-import type { SheetSectionId } from "../../model/section-progress";
+import { PARTICLE_HINT } from "../../model/input/field-hints";
+import type { ExhaustGasVisibility } from "../../model/input/measured-pollutants";
+import type { NozzleMissingGroup } from "../../model/derived/nozzle-estimate";
+import type { SheetSectionId } from "../../model/sections";
 import type { ParticleForm, SamplingPointForm } from "../../model/types";
 import { exhaustGasAvgItems } from "../sections/exhaust-gas-rows";
 import { buildPointGroups, pointAverageItems } from "../sections/sampling-point/point-results";
@@ -97,14 +98,7 @@ export const SheetCalcDrawer = ({
    * 산정 결과가 일부 나와도(예: 한 지점 온도만 비어 평균이 틀어진 경우) 경고는 유지한다.
    */
   const missingBanner = hasMissing && (
-    <section
-      role="alert"
-      className="space-y-2 rounded-panel border border-danger/40 bg-danger-soft px-3 py-2.5"
-    >
-      <p className="flex items-center gap-1.5 text-body-4 text-danger">
-        <TriangleAlert size={16} aria-hidden />
-        노즐 산정에 필요한 입력이 빠졌습니다
-      </p>
+    <Callout role="alert" tone="danger" icon={TriangleAlert} title="노즐 산정에 필요한 입력이 빠졌습니다">
       <ul className="space-y-1.5">
         {missingInputs.map((group) => (
           <li key={group.label} className="flex items-start justify-between gap-2">
@@ -122,7 +116,7 @@ export const SheetCalcDrawer = ({
           </li>
         ))}
       </ul>
-    </section>
+    </Callout>
   );
 
   const calcContent = (
@@ -199,8 +193,8 @@ export const SheetCalcDrawer = ({
           min={0}
           step={0.1}
           // 희망 흡입량은 통상 1 Sm³ 안팎이다 — 세 자리면 이미 이상값이다
-          maxIntDigits={3}
-          maxDecimals={1}
+          maxIntDigits={1}
+          maxDecimals={5}
           onChange={onTargetVolumeChange}
         />
 

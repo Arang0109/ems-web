@@ -1,7 +1,7 @@
 import { SquarePen } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { IconButton } from "@shared/ui/buttons";
+import { ItemTile, ItemTileGrid, ItemTileGroup } from "@shared/ui/cards";
 
 import type { PollutantChipItem, PollutantCycleGroup } from "../../model/types";
 
@@ -15,8 +15,8 @@ interface Props {
 }
 
 /**
- * 오염물질 칩 — 이름 + 허용기준 + 산소보정.
- * 이번 계획에 포함된 항목(selected)은 Soft 면 + 브랜드 테두리로 구분한다.
+ * 오염물질 타일 — 이름 + 허용기준 + 산소보정.
+ * 이번 계획에 포함된 항목(selected)은 브랜드 톤, 나머지는 한 단 물러선 중립 톤이다.
  *
  * 산소보정은 적용하는 항목에만 표시한다 — 대부분의 항목이 미적용이라
  * "미적용"까지 적으면 칩마다 의미 없는 줄이 하나씩 늘어난다.
@@ -24,80 +24,28 @@ interface Props {
  * 정정 버튼은 이번 계획에 포함된 항목에만 붙는다. 포함되지 않은 항목은 이 계획의
  * 측정 조건이라 할 것이 없어(스냅샷에 없다) 고칠 대상 자체가 없다.
  */
-const PollutantChip = ({
+const PollutantTile = ({
   item, selected, onEdit,
 }: { item: PollutantChipItem; selected: boolean; onEdit?: () => void }) => (
-  <div
-    className={cn(
-      "flex items-start gap-2 rounded-panel border px-3 py-2",
-      selected ? "border-brand-primary bg-brand-soft" : "border-rule-dark bg-surface",
-    )}
-  >
-    <div className="min-w-0">
-      <p className={cn("text-body-1", selected ? "text-brand-dark" : "text-ink-soft")}>{item.name}</p>
-      <p className="text-caption text-brand-dark">
-        허용기준 : {item.allowance}
-        {item.oxygenApplicable && (
-          <span className="text-brand-dark">({item.standardOxygen})</span>
-        )}
+  <ItemTile
+    title={item.name}
+    tone={selected ? "brand" : "neutral"}
+    description={
+      <p>
+        허용기준:{item.allowance}
+        {item.oxygenApplicable && <span> ({item.standardOxygen})</span>}
       </p>
-    </div>
-
-    {onEdit && (
+    }
+    actions={onEdit && (
       <IconButton
-        icon={<SquarePen size={15} />}
+        icon={<SquarePen size={19} />}
         label={`${item.name} 측정조건 정정`}
         variant="ghost"
         size="icon-sm"
         onClick={onEdit}
       />
     )}
-  </div>
-);
-
-const ChipRow = ({
-  label, items, selected, onEditItem,
-}: {
-  label: string;
-  items: PollutantChipItem[];
-  selected: boolean;
-  onEditItem?: (pollutantId: number) => void;
-}) => (
-  <div className="space-y-2">
-    <p className="text-label text-muted-ink">{label}</p>
-    <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <PollutantChip
-          key={item.key}
-          item={item}
-          selected={selected}
-          onEdit={onEditItem && (() => onEditItem(item.pollutantId))}
-        />
-      ))}
-    </div>
-  </div>
-);
-
-/** 측정주기별 묶음 상자 — 헤더에 주기명과 건수, 본문에 현재/나머지 항목 칩 */
-const CycleGroupBox = ({
-  group, onEditItem,
-}: { group: PollutantCycleGroup; onEditItem?: (pollutantId: number) => void }) => (
-  <div className="rounded-panel border border-rule bg-canvas p-3">
-    <p className="border-b border-rule px-1 pb-3 text-body-4 text-ink">
-      {group.label} : <span className="text-brand-dark">{group.current.length + group.others.length}개</span>
-    </p>
-
-    <div className="space-y-3 pt-2">
-      {group.current.length > 0 && (
-        <div className={cn(group.others.length > 0 && "border-b border-rule-dark pb-3")}>
-          <ChipRow label="현재 측정 항목" items={group.current} selected onEditItem={onEditItem} />
-        </div>
-      )}
-      {group.others.length > 0 && (
-        <ChipRow label="전체 측정 항목" items={group.others} selected={false} />
-      )}
-    </div>
-  </div>
+  />
 );
 
 export const MeasurementItems = ({ groups, onEditItem }: Props) => {
@@ -106,9 +54,33 @@ export const MeasurementItems = ({ groups, onEditItem }: Props) => {
   }
 
   return (
-    <div className="space-y-3">
+    <div>
       {groups.map((group) => (
-        <CycleGroupBox key={group.cycle} group={group} onEditItem={onEditItem} />
+        <ItemTileGroup
+          key={group.cycle}
+          title={group.label}
+          count={group.current.length + group.others.length}
+        >
+          {group.current.length > 0 && (
+            <ItemTileGrid label="현재 측정 항목">
+              {group.current.map((item) => (
+                <PollutantTile
+                  key={item.key}
+                  item={item}
+                  selected
+                  onEdit={onEditItem && (() => onEditItem(item.pollutantId))}
+                />
+              ))}
+            </ItemTileGrid>
+          )}
+          {group.others.length > 0 && (
+            <ItemTileGrid label="전체 측정 항목">
+              {group.others.map((item) => (
+                <PollutantTile key={item.key} item={item} selected={false} />
+              ))}
+            </ItemTileGrid>
+          )}
+        </ItemTileGroup>
       ))}
     </div>
   );

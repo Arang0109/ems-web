@@ -6,10 +6,8 @@ import { useRegisterPollutantCatalog } from "../model/hooks/use-register-polluta
 import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import {
-  measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions,
-} from "@shared/model";
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
+import { measurementFieldOptions, measurementModeOptions, pollutantPhaseOptions } from "@shared/model";
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -45,8 +43,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             placeholder="예: NOX"
             value={form.code}
             onChange={(value) => handleChange("code", value.toUpperCase())}
-            invalid={!!fieldErrors?.code}
-            error={fieldErrors?.code}
+            errorMessage={fieldErrors?.code}
             // 등록 후에는 바꿀 수 없다 — 측정계획 스냅샷과 프론트 분기가 이 값에 의존한다
             helperText="등록 후에는 변경할 수 없습니다. 화학식·원소기호를 우선합니다."
             required
@@ -63,6 +60,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             required
           />
         </div>
+        {/* 측정방법은 카탈로그가 갖지 않는다 — 업체마다 다를 수 있어 고객사가 채택할 때 정한다. */}
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="nameKr"
@@ -70,20 +68,9 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
             placeholder="측정물질(한글)"
             value={form.nameKr}
             onChange={(value) => handleChange("nameKr", value)}
-            invalid={!!fieldErrors?.nameKr}
-            error={fieldErrors?.nameKr}
+            errorMessage={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
-          />
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Select
-            id="method"
-            label="측정방법"
-            placeholder="측정방법 선택"
-            options={measurementMethodOptions}
-            value={form.method}
-            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
           />
           <Select
             id="phase"
@@ -95,6 +82,21 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
           />
         </div>
 
+        {/* 측정방식 분류 — 회사 측정방법(채취 매체)이 아니라 물질의 전역 사실이다. 그룹핑·통계 축. */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="mode"
+            label="측정방식"
+            placeholder="측정방식 선택"
+            options={measurementModeOptions}
+            value={form.mode}
+            onValueChange={(value) => value && handleChange("mode", value as MeasurementMode)}
+            errorMessage={fieldErrors?.mode}
+            helperText="현장측정·먼지·중금속·수은·가스상 채취. 매체(흡수액·카트리지 등)는 고객사가 정합니다."
+            required
+          />
+        </div>
+
         <Divider />
 
         <InputGroup
@@ -103,8 +105,7 @@ export const RegisterPollutantCatalogForm = ({ open, onOpenChange, onSuccess }: 
           placeholder="예: 200"
           value={form.sortOrder}
           onChange={(value) => handleChange("sortOrder", value)}
-          invalid={!!fieldErrors?.sortOrder}
-          error={fieldErrors?.sortOrder}
+          errorMessage={fieldErrors?.sortOrder}
           helperText="고객사 선택 목록에서의 정렬 기준입니다. 비우면 미지정입니다."
           startIcon={<ListOrdered />}
         />

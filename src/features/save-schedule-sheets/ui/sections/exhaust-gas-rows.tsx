@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import type { SheetCalcPreview } from "@entities/schedule";
 import type { CalcResultItem } from "@shared/ui/form";
 
-import { EXHAUST_GAS_HINT } from "../../model/field-hints";
-import type { ExhaustGasVisibility } from "../../model/measured-pollutants";
+import { EXHAUST_GAS_HINT } from "../../model/input/field-hints";
+import type { ExhaustGasVisibility } from "../../model/input/measured-pollutants";
 import type { GasColumnKey } from "../../model/types";
 
 /**

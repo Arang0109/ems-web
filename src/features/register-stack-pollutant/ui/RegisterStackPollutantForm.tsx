@@ -36,9 +36,9 @@ const GRID_COLS = "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_2.5re
 const GRID_COLS_WITH_OXYGEN =
   "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_4rem_2.5rem]";
 
-const HEADER_CLASS = "hidden gap-2 px-1 text-label text-muted-foreground md:grid md:items-center";
+const HEADER_CLASS = "hidden gap-2 px-1 text-label text-muted-ink md:grid md:items-center";
 const ROW_CLASS =
-  "grid grid-cols-1 gap-3 rounded-lg border border-border p-3 md:gap-2 md:rounded-none md:border-0 md:p-0 md:items-center";
+  "grid grid-cols-1 gap-3 rounded-lg border border-rule p-3 md:gap-2 md:rounded-none md:border-0 md:p-0 md:items-center";
 const CELL_CLASS = "flex min-w-0 flex-col gap-1";
 
 export const RegisterStackPollutantForm = ({
@@ -93,13 +93,13 @@ export const RegisterStackPollutantForm = ({
         </div>
 
         {!hasPollutants && (
-          <p className="text-body-4 text-muted-foreground">
+          <p className="text-body-4 text-muted-ink">
             등록된 측정물질이 없습니다. <b>측정물질 조회/관리</b>에서 먼저 물질을 등록해 주세요.
           </p>
         )}
 
         {hasStandardOxygen && (
-          <p className="text-body-4 text-muted-foreground">
+          <p className="text-body-4 text-muted-ink">
             이 측정시설의 기준산소농도는 <b>{standardOxygen}%</b> 입니다.
             산소보정을 적용할 항목만 체크하세요.
           </p>
@@ -117,7 +117,7 @@ export const RegisterStackPollutantForm = ({
         {rows.map((row, index) => (
           <div key={index} className={`${ROW_CLASS} ${gridCols}`}>
             <div className={CELL_CLASS}>
-              <span className="text-label text-muted-foreground md:hidden">오염물질</span>
+              <span className="text-label text-muted-ink md:hidden">오염물질</span>
               <Select
                 id={`pollutant-${index}`}
                 searchable
@@ -129,7 +129,7 @@ export const RegisterStackPollutantForm = ({
               />
             </div>
             <div className={CELL_CLASS}>
-              <span className="text-label text-muted-foreground md:hidden">측정 주기</span>
+              <span className="text-label text-muted-ink md:hidden">측정 주기</span>
               <Select
                 id={`cycle-${index}`}
                 placeholder="주기 선택"
@@ -139,7 +139,7 @@ export const RegisterStackPollutantForm = ({
               />
             </div>
             <div className={CELL_CLASS}>
-              <span className="text-label text-muted-foreground md:hidden">허용 기준</span>
+              <span className="text-label text-muted-ink md:hidden">허용 기준</span>
               <InputGroup
                 id={`allowance-${index}`}
                 placeholder="허용 기준"
@@ -165,7 +165,7 @@ export const RegisterStackPollutantForm = ({
                 type="button"
                 onClick={() => handleRemoveRow(index)}
                 disabled={rows.length === 1}
-                className="inline-flex items-center gap-1 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-1 text-muted-ink hover:text-danger disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="행 삭제"
               >
                 <Trash2 className="size-4" />

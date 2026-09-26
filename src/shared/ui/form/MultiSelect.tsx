@@ -8,14 +8,14 @@ import {
   SelectLabel,
   SelectTrigger,
 } from "@/components/ui/select";
-import { Field, FieldDescription } from "@shared/ui/primitives";
 import { cn } from "@/lib/utils";
 
-import { InFieldLabel } from "./InFieldLabel";
+import { InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import { IN_FIELD_SELECT_CLASS, inFieldPlaceholder } from "./in-field";
 import type { SelectOption, SelectGroupOption } from "./Select";
 
-interface BaseProps<T extends string> {
+interface BaseProps<T extends string> extends FieldErrorProps {
   // NoInfer: value 는 T 추론에 참여하지 않고 options 에서 정해진 T 로 "검사만" 받는다.
   // `Select` 와 같은 근거다 — 다만 미선택은 `""` 가 아니라 **빈 배열**이다.
   value: NoInfer<T>[];
@@ -26,7 +26,6 @@ interface BaseProps<T extends string> {
   emptyText?: string;
   label?: React.ReactNode;
   helperText?: string;
-  errorMessage?: string;
 
   id?: string;
   disabled?: boolean;
@@ -40,7 +39,7 @@ interface BaseProps<T extends string> {
  * 오른쪽 ✓ 하나로는 어디까지 골랐는지 훑기 어렵다.
  *
  * **강조(지금 커서가 있는 줄)와 선택(이미 고른 줄)은 동시에 성립하므로 속성을 갈라 놓는다** —
- * 강조는 공유 클래스(`selectItemClassName` 의 `focus:`)가 면과 글자를 통째로 가져가고,
+ * 강조는 공유 클래스(`SELECT_ITEM_CLASS` 의 `focus:`)가 면과 글자를 통째로 가져가고,
  * 선택은 **강조가 없을 때만** 면·글자를 칠한다. 겹치는 자리를 남기면 클래스 생성 순서에 따라
  * 이겼다 졌다 한다. 강조 중에도 남는 단서는 `font-medium` 과 ✓ 두 가지다
  * (색만으로 구분하지 않는다 — DESIGN-SYSTEM.md 의 상태 표기 원칙).
@@ -98,6 +97,7 @@ export const MultiSelect = <T extends string = string>({
   label,
   helperText,
   errorMessage,
+  invalid: invalidProp,
   id,
   disabled,
   required,
@@ -105,7 +105,7 @@ export const MultiSelect = <T extends string = string>({
   size = "default",
 }: Props<T>) => {
   const hasLabel = !!label;
-  const invalid = !!errorMessage;
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
   const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
 
   // 칩 라벨·빈 목록 판정은 평탄화한 배열에서 한다 (`Select.tsx` 의 `items` 와 같은 관용구).
@@ -160,7 +160,7 @@ export const MultiSelect = <T extends string = string>({
             칩만 줄바꿈되게 하려면 래퍼가 필요하다. */}
         <span data-slot="select-value" className="flex flex-1 flex-wrap items-center gap-1.5">
           {value.length === 0 ? (
-            <span className="text-muted-foreground">{effectivePlaceholder}</span>
+            <span className="text-muted-ink">{effectivePlaceholder}</span>
           ) : (
             value.map((v) => {
               const text = labelOf(v);
@@ -197,7 +197,7 @@ export const MultiSelect = <T extends string = string>({
       {/* 기본값(true)은 고른 항목을 커서에 맞춰 팝업이 트리거를 덮는 동작이라 다중 선택에 맞지 않는다. */}
       <SelectContent align="start" alignItemWithTrigger={false}>
         {items.length === 0 ? (
-          <div className="px-2 py-6 text-center text-body-3 text-muted-foreground">{emptyText}</div>
+          <div className="px-2 py-6 text-center text-body-3 text-muted-ink">{emptyText}</div>
         ) : groups ? (
           // 그룹 사이를 여백(`SelectGroup` 의 p-1)만으로 가르면 묶음이 읽히지 않는다.
           // 두 번째 묶음부터 구분선을 얹는다 — `SelectSeparator` 를 형제로 끼우면
@@ -218,21 +218,16 @@ export const MultiSelect = <T extends string = string>({
   if (!hasLabel) return control;
 
   return (
-    <Field data-invalid={invalid || undefined} className="gap-1.5">
-      <div className="relative">
-        <InFieldLabel
-          htmlFor={id}
-          required={required}
-          invalid={invalid}
-          disabled={disabled}
-          className="left-2.5"
-        >
-          {label}
-        </InFieldLabel>
-        {control}
-      </div>
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
-    </Field>
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+    >
+      {control}
+    </InFieldShell>
   );
 };

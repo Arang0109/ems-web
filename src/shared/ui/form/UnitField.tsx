@@ -1,5 +1,5 @@
 import React from "react";
-import { History } from "lucide-react";
+import { History, TriangleAlert } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { FieldTone } from "@shared/model";
@@ -7,9 +7,8 @@ import { HelpTip } from "@shared/ui/tooltip";
 import { toneFrameClass } from "./field-tone";
 import { InFieldLabel } from "./InFieldLabel";
 import { IN_FIELD_SELECT_CLASS, IN_FIELD_VALUE_CLASS } from "./in-field";
-import { NumericField } from "./NumericField";
 import { Select, type SelectOption } from "./Select";
-import { TimeField } from "./TimeField";
+import { ValueInput } from "./ValueInput";
 
 interface Props {
   label: React.ReactNode;
@@ -156,6 +155,9 @@ export const UnitField = ({
           {activeTone === "info" && (
             <History size={14} aria-hidden className="pointer-events-none absolute top-1.5 right-1.5 z-10 text-info" />
           )}
+          {activeTone === "danger" && (
+            <TriangleAlert size={14} aria-hidden className="pointer-events-none absolute top-1.5 right-1.5 z-10 text-danger" />
+          )}
 
           <InFieldLabel
             htmlFor={fieldId}
@@ -203,54 +205,44 @@ export const UnitField = ({
                 <Select options={options} {...selectProps} />
               );
             })()
-          ) : type === "time" && !readOnly ? (
-            /* 네이티브 시각 위젯은 브라우저마다 폭·모양이 달라 프레임과 어긋난다 */
-            <TimeField
+          ) : (
+            <ValueInput
+              type={type}
               id={fieldId}
               value={value}
               onChange={(v) => onChange?.(v)}
-              frame="none"
-              disabled={disabled}
-              label={typeof label === "string" ? label : hintLabel}
-              className={LABELED_VALUE_CLASS}
-              inputClassName={valueText}
-            />
-          ) : type === "number" && !readOnly ? (
-            /* 모바일 숫자 키패드에는 `-` 가 없다 — 부호는 ± 버튼이 맡는다 */
-            <NumericField
-              id={fieldId}
-              value={value}
-              onChange={(v) => onChange?.(v)}
-              allowNegative={min === undefined || min < 0}
+              min={min}
               step={step}
               maxIntDigits={maxIntDigits}
               maxDecimals={maxDecimals}
               frame="none"
               disabled={disabled}
+              readOnly={readOnly}
               placeholder={placeholder}
               label={typeof label === "string" ? label : hintLabel}
               className={LABELED_VALUE_CLASS}
               inputClassName={valueText}
-            />
-          ) : (
-            <input
-              id={fieldId}
-              type={type}
-              value={value}
-              aria-invalid={activeTone === "danger" || undefined}
-              placeholder={placeholder}
-              disabled={disabled}
-              readOnly={readOnly}
-              min={min}
-              max={max}
-              step={step}
-              onChange={(e) => onChange?.(e.target.value)}
-              className={cn(
-                "w-full min-w-0 bg-transparent px-3 outline-none",
-                "placeholder:text-muted-ink disabled:cursor-not-allowed disabled:text-muted-ink",
-                readOnly ? "text-ink-soft" : "text-ink",
-                LABELED_VALUE_CLASS,
-                valueText,
+              renderText={() => (
+                <input
+                  id={fieldId}
+                  type={type}
+                  value={value}
+                  aria-invalid={activeTone === "danger" || undefined}
+                  placeholder={placeholder}
+                  disabled={disabled}
+                  readOnly={readOnly}
+                  min={min}
+                  max={max}
+                  step={step}
+                  onChange={(e) => onChange?.(e.target.value)}
+                  className={cn(
+                    "w-full min-w-0 bg-transparent px-3 outline-none",
+                    "placeholder:text-muted-ink disabled:cursor-not-allowed disabled:text-muted-ink",
+                    readOnly ? "text-ink-soft" : "text-ink",
+                    LABELED_VALUE_CLASS,
+                    valueText,
+                  )}
+                />
               )}
             />
           )}

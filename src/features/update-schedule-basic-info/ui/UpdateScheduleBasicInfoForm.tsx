@@ -1,6 +1,6 @@
-import { format } from "date-fns";
 
 import type { ScheduleDetail } from "@entities/schedule";
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import { FormDialog } from "@shared/ui/dialogs";
 import { DatePicker, FieldGroup, InputGroup, Select } from "@shared/ui/form";
 import { measurementTypeOptions } from "@shared/model";
@@ -15,10 +15,6 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }
-
-// sampledAt 은 LocalDate("yyyy-MM-dd") 이므로 시간대 해석 없이 DatePicker 와 주고받는다.
-const toDate = (value: string): Date | undefined => (value ? new Date(value) : undefined);
-const toDateValue = (date: Date | undefined): string => (date ? format(date, "yyyy-MM-dd") : "");
 
 export const UpdateScheduleBasicInfoForm = ({
   scheduleId, schedule, open, onOpenChange, onSuccess,
@@ -55,9 +51,9 @@ export const UpdateScheduleBasicInfoForm = ({
             id="schedule-measure-date"
             label="측정일자"
             required
-            value={toDate(form.measureDate)}
-            onChange={(date) => handleChange("measureDate", toDateValue(date))}
-            helperText={fieldErrors?.measureDate}
+            value={toPickerDate(form.measureDate)}
+            onChange={(date) => handleChange("measureDate", fromPickerDate(date))}
+            errorMessage={fieldErrors?.measureDate}
           />
 
           <Select

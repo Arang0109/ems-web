@@ -21,7 +21,7 @@ export const SkeletonPanel = ({
   bodyClassName = "h-40",
   className,
 }: Props) => (
-  <Panel className={cn("p-4 space-y-3 shadow-panel ring-1 ring-rule", className)}>
+  <Panel variant="elevated" className={cn("p-4 space-y-3", className)}>
     {withHeader && (
       <div className="space-y-2">
         <Skeleton className="h-4 w-1/3" />

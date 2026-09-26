@@ -3,8 +3,10 @@ import { Clock3 } from "lucide-react";
 
 import { fromMinutes, maskTimeInput, normalizeTime, toMinutes } from "@shared/lib";
 import { Button } from "@shared/ui/buttons";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverRoot, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
+
+import { FIELD_INPUT_CLASS, fieldFrameClass, type FieldFrame } from "./field-frame";
 
 interface Props {
   id?: string;
@@ -13,7 +15,7 @@ interface Props {
   onChange: (value: string) => void;
 
   /** 테두리를 직접 그릴지 — 호스트(`UnitField`·표 셀)가 프레임을 소유하면 `"none"` */
-  frame?: "bordered" | "none";
+  frame?: FieldFrame;
   /** 어떤 항목의 시각인지 — 입력창과 시계 버튼의 접근성 이름이 된다 */
   label?: string;
   placeholder?: string;
@@ -159,14 +161,7 @@ export const TimeField = ({
     <div
       className={cn(
         "flex min-w-0 items-stretch",
-        frame === "bordered"
-          ? [
-              "h-12 overflow-hidden rounded-button border border-rule-dark bg-surface md:h-9.5",
-              !disabled &&
-                "focus-within:border-brand-primary focus-within:ring-3 focus-within:ring-brand-primary/12",
-              disabled && "bg-rule/40",
-            ]
-          : "flex-1",
+        fieldFrameClass(frame, disabled),
         className,
       )}
     >
@@ -185,14 +180,12 @@ export const TimeField = ({
         onBlur={() => commit(normalizeTime(text))}
         onKeyDown={handleKeyDown}
         className={cn(
-          "w-full min-w-0 bg-transparent px-3 text-ink outline-none",
-          "tabular-nums placeholder:text-muted-ink",
-          "disabled:cursor-not-allowed disabled:text-muted-ink",
+          FIELD_INPUT_CLASS,
           inputClassName,
         )}
       />
 
-      <Popover open={open} onOpenChange={setOpen}>
+      <PopoverRoot open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           render={
             <button
@@ -210,7 +203,7 @@ export const TimeField = ({
           }
         />
 
-        <PopoverContent className="w-auto gap-0 p-2" align="end">
+        <PopoverContent className="p-2" align="end">
           <div className="flex gap-1">
             <div className={columnClass} role="listbox" aria-label="시">
               {HOURS.map((hour) => (
@@ -254,7 +247,7 @@ export const TimeField = ({
             </Button>
           </div>
         </PopoverContent>
-      </Popover>
+      </PopoverRoot>
     </div>
   );
 };

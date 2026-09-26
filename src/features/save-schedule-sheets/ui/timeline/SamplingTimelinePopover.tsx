@@ -5,7 +5,9 @@ import { Badge } from "@shared/ui/badges";
 import { Button } from "@shared/ui/buttons";
 import { Popover } from "@shared/ui/popover";
 
-import type { SamplingTimeline } from "../../model/sampling-timeline";
+import { ACTION_TILE_CLASS, ACTION_TILE_ICON_CLASS } from "../action-bar";
+
+import type { SamplingTimeline } from "../../model/derived/sampling-timeline";
 import { SamplingTimelineView } from "./SamplingTimelineView";
 
 interface Props {
@@ -36,10 +38,17 @@ export const SamplingTimelinePopover = ({ timeline }: Props) => {
       className="w-[min(92vw,42rem)] max-h-[70vh] overflow-y-auto select-text"
       content={<SamplingTimelineView timeline={timeline} />}
     >
-      <Button type="button" variant="soft" startIcon={Clock}>
+      <Button type="button" variant="soft" className={ACTION_TILE_CLASS}>
+        <Clock className={ACTION_TILE_ICON_CLASS} />
         타임라인
+        {/* 모바일 타일은 두 줄이라 배지를 모서리에 띄운다 */}
         {issueCount > 0 && (
-          <Badge tone={worstLevel === "danger" ? "danger" : "warning"}>{issueCount}</Badge>
+          <Badge
+            tone={worstLevel === "danger" ? "danger" : "warning"}
+            className="absolute -top-1.5 -right-1 md:static"
+          >
+            {issueCount}
+          </Badge>
         )}
       </Button>
     </Popover>

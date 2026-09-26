@@ -2,6 +2,8 @@ import type { ScheduleStatus } from "@shared/model";
 import type { ScheduleDetail, ScheduleSnapshot, SheetCalcExternals } from "@entities/schedule";
 import { SheetsEditor } from "@features/save-schedule-sheets";
 
+import { BELOW_TAB_LIST_STICKY_CLASS, SHEET_SECTION_SCROLL_MARGIN_CLASS } from "../sticky-layout";
+
 interface Props {
   scheduleId: number | null;
   /** 기록지 미리보기가 쓰는 계획 메타(관리번호·채취일자) — 스냅샷에는 사본이 없다. */
@@ -25,5 +27,8 @@ export const SheetInput = ({
     editable={editable}
     externals={externals}
     onSaved={onSaved}
+    // 기록지 셀렉트 · 섹션 바로가기 바를 페이지 헤더 · 탭 목록 아래에 이어 고정한다 (모바일)
+    navStickyClassName={BELOW_TAB_LIST_STICKY_CLASS}
+    sectionScrollMarginClassName={SHEET_SECTION_SCROLL_MARGIN_CLASS}
   />
 );

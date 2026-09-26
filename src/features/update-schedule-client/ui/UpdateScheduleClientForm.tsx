@@ -50,8 +50,7 @@ export const UpdateScheduleClientForm = ({
           placeholder="측정대행 의뢰기관"
           value={form.name}
           onChange={(value) => handleChange("name", value)}
-          invalid={!!fieldErrors?.name}
-          error={fieldErrors?.name}
+          errorMessage={fieldErrors?.name}
           startIcon={<Building2 />}
         />
 
@@ -63,8 +62,7 @@ export const UpdateScheduleClientForm = ({
             code="business"
             value={form.bizNumber}
             onChange={(value) => handleChange("bizNumber", value)}
-            invalid={!!fieldErrors?.bizNumber}
-            error={fieldErrors?.bizNumber}
+            errorMessage={fieldErrors?.bizNumber}
             startIcon={<Hash />}
           />
           <InputGroup
@@ -96,8 +94,7 @@ export const UpdateScheduleClientForm = ({
             placeholder="측정대상 사업장"
             value={form.workplaceName}
             onChange={(value) => handleChange("workplaceName", value)}
-            invalid={!!fieldErrors?.workplaceName}
-            error={fieldErrors?.workplaceName}
+            errorMessage={fieldErrors?.workplaceName}
             startIcon={<Building2 />}
           />
           <InputGroup
@@ -107,8 +104,7 @@ export const UpdateScheduleClientForm = ({
             code="business"
             value={form.workplaceBizNumber}
             onChange={(value) => handleChange("workplaceBizNumber", value)}
-            invalid={!!fieldErrors?.workplaceBizNumber}
-            error={fieldErrors?.workplaceBizNumber}
+            errorMessage={fieldErrors?.workplaceBizNumber}
             startIcon={<Hash />}
           />
           <Select

@@ -8,5 +8,5 @@ import type { PollutantCatalogTableRow } from './types';
  */
 export const pollutantCatalogCardConfig: MobileCardConfig<PollutantCatalogTableRow> = {
   title: (row) => `${row.nameKr} (${row.code})`,
-  subtitle: (row) => `${row.field} | ${row.method} | ${row.statusLabel}`,
+  subtitle: (row) => `${row.field} | ${row.statusLabel}`,
 };

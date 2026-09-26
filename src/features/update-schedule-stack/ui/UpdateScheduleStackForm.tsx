@@ -49,8 +49,7 @@ export const UpdateScheduleStackForm = ({
           placeholder="측정시설명"
           value={form.name}
           onChange={(value) => handleChange("name", value)}
-          invalid={!!fieldErrors?.name}
-          error={fieldErrors?.name}
+          errorMessage={fieldErrors?.name}
           startIcon={<Factory />}
         />
 
@@ -61,8 +60,7 @@ export const UpdateScheduleStackForm = ({
             placeholder="SEMS 번호"
             value={form.semsNumber}
             onChange={(value) => handleChange("semsNumber", value)}
-            invalid={!!fieldErrors?.semsNumber}
-            error={fieldErrors?.semsNumber}
+            errorMessage={fieldErrors?.semsNumber}
             startIcon={<Hash />}
           />
           <Select
@@ -90,8 +88,7 @@ export const UpdateScheduleStackForm = ({
             placeholder="기준산소농도"
             value={form.standardOxygen}
             onChange={(value) => handleChange("standardOxygen", value)}
-            invalid={!!fieldErrors?.standardOxygen}
-            error={fieldErrors?.standardOxygen}
+            errorMessage={fieldErrors?.standardOxygen}
           />
           <InputGroup
             id="height"
@@ -99,8 +96,7 @@ export const UpdateScheduleStackForm = ({
             placeholder="측정공 높이"
             value={form.height}
             onChange={(value) => handleChange("height", value)}
-            invalid={!!fieldErrors?.height}
-            error={fieldErrors?.height}
+            errorMessage={fieldErrors?.height}
           />
           <Select
             id="orientation"
@@ -124,8 +120,7 @@ export const UpdateScheduleStackForm = ({
             placeholder={form.shape === "CIRCULAR" ? "지름" : "가로 길이"}
             value={form.horizontalLength}
             onChange={(value) => handleChange("horizontalLength", value)}
-            invalid={!!fieldErrors?.horizontalLength}
-            error={fieldErrors?.horizontalLength}
+            errorMessage={fieldErrors?.horizontalLength}
           />
 
           {form.shape === "RECTANGULAR" && (
@@ -135,8 +130,7 @@ export const UpdateScheduleStackForm = ({
               placeholder="세로 길이"
               value={form.verticalLength}
               onChange={(value) => handleChange("verticalLength", value)}
-              invalid={!!fieldErrors?.verticalLength}
-              error={fieldErrors?.verticalLength}
+              errorMessage={fieldErrors?.verticalLength}
             />
           )}
         </div>

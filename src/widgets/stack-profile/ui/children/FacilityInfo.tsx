@@ -9,7 +9,7 @@ import { SectionAccordion, SubAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
 import { DetailGrid, DetailRow } from "@shared/ui/form";
-import { DragHandle, SortableList, type SortableControls } from "@shared/ui/sortable";
+import { DragHandle, SortableList, SortableOverlayLabel, type SortableControls } from "@shared/ui/sortable";
 import { useRemountKey } from "@shared/model";
 
 
@@ -128,9 +128,7 @@ export const FacilityInfo = ({ stackId, facilities, onRefetch }: Props) => {
             className="space-y-4"
             // 카드가 펼쳐진 채로 크므로 드래그 중 미리보기는 제목 줄만 축약해서 띄운다
             renderOverlay={(facility) => (
-              <div className="rounded-icon-tile bg-canvas px-3 py-2.5 text-body-4 text-ink shadow-lg ring-1 ring-rule md:px-4">
-                {facility.name.trim() || "(이름 없음)"}
-              </div>
+              <SortableOverlayLabel>{facility.name.trim() || "(이름 없음)"}</SortableOverlayLabel>
             )}
             renderItem={renderCard}
           />

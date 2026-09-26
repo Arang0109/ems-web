@@ -1,3 +1,5 @@
+import type { AxiosResponse } from "axios";
+
 import { ERROR_MESSAGE } from "@shared/config";
 import type { ApiResponseMessage } from "@shared/model";
 
@@ -8,12 +10,21 @@ import type { ApiResponseMessage } from "@shared/model";
  * 메시지만 화면에 그대로 내보내고, 그 밖의 에러는 표준 문구로 바꾼다 — axios 내부 문구가
  * 사용자에게 노출되면 무슨 일이 났는지 알 수 없는 영어 문장이 토스트에 뜬다.
  *
- * 상태 코드까지 구분해야 하는 경로는 이것이 아니라 {@link ApiError}(`unwrap`)를 쓴다.
+ * `status` 는 HTTP 상태 코드다. `unwrap`(axios 응답 전체를 받는 경로)만 채운다 — 409(충돌)처럼
+ * 다른 실패와 다르게 대응해야 하는 엔드포인트가 쓴다. 본문만 받는 `unwrapMessage` 에는 없다.
  */
 export class ApiResponseError extends Error {
-  constructor(message: string) {
+  readonly status?: number;
+
+  constructor(message: string, status?: number) {
     super(message);
     this.name = "ApiResponseError";
+    this.status = status;
+  }
+
+  /** 다른 사용자가 먼저 저장했거나 현재 상태에서 허용되지 않는 요청 */
+  get isConflict() {
+    return this.status === 409;
   }
 }
 
@@ -29,6 +40,18 @@ export const unwrapMessage = <T>(
 ): T => {
   if (!res.status) throw new ApiResponseError(res.message || fallbackMessage);
   return res.data;
+};
+
+/**
+ * `unwrapMessage` 의 상태 코드 보존판 — axios 응답 전체를 받아, 실패면 HTTP 상태 코드를 실어 던진다.
+ * 인터셉터가 에러 응답을 resolve 로 되돌려 호출부에는 상태 코드가 `res.status` 에만 남기 때문이다.
+ * 상태 코드로 분기할 엔드포인트에서만 쓴다.
+ */
+export const unwrap = <T>(res: AxiosResponse<ApiResponseMessage<T>>): T => {
+  if (!res.data?.status) {
+    throw new ApiResponseError(res.data?.message || ERROR_MESSAGE.NETWORK, res.status);
+  }
+  return res.data.data;
 };
 
 /** 화면에 내보낼 실패 문구. 서버가 준 문구만 그대로 쓰고 나머지는 표준 문구로 덮는다. */

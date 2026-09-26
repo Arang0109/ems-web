@@ -1,16 +1,15 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@shared/ui/buttons";
 
 import {
-  DRAWER_BACKDROP_CLASS,
   DRAWER_POPUP_CLASS,
   DRAWER_SAFE_AREA_CLASS,
   DRAWER_SIDE_CLASS,
   type DrawerSide,
 } from "./drawer-size";
+import { OverlayHeader } from "../dialogs/OverlayHeader";
+import { SLIDE_BACKDROP_CLASS } from "../dialogs/overlay-classes";
 
 interface Props {
   open: boolean;
@@ -30,9 +29,7 @@ interface Props {
   /**
    * 표면(popup)에 덧붙일 클래스 — 주로 폭 조정용.
    *
-   * 코너(`rounded-t-dialog`)는 덮어쓸 수 없다: tailwind-merge 가 Tailwind v4 CSS 테마를
-   * 읽지 못해 커스텀 `rounded-*` 를 충돌로 인식하지 않고 두 클래스를 모두 남긴다
-   * (`shared/ui/popover/Popover.tsx` 와 같은 제약).
+   * 코너(`rounded-t-dialog`)도 여기서 덮어쓸 수 있다.
    */
   className?: string;
 }
@@ -46,7 +43,7 @@ interface Props {
  *
  * shadcn 래퍼를 거치지 않고 Base UI 동작 레이어를 직접 쓴다 — `shared/ui/popover/Popover`
  * 와 같은 판단이다. 잔재 `components/ui/sheet.tsx` 가 같은 물건이지만 면·글씨·코너가 전부
- * shim 토큰(`bg-popover`·`rounded-md`)이라 신규 코드 규약에 맞추려면 어차피 전부 덮어써야 하고,
+ * shim 토큰(`bg-surface`·`rounded-md`)이라 신규 코드 규약에 맞추려면 어차피 전부 덮어써야 하고,
  * 그러고 나면 남는 건 포지셔닝뿐이다. (`sheet.tsx` 는 `components/ui/sidebar.tsx` 가 아직
  * 물고 있어 남겨 둔다 — DESIGN-SYSTEM.md 의 sidebar 정리 단계에서 함께 사라질 파일이다.)
  *
@@ -69,7 +66,7 @@ export const Drawer = ({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop className={DRAWER_BACKDROP_CLASS} />
+        <Dialog.Backdrop className={SLIDE_BACKDROP_CLASS} />
 
         <Dialog.Popup
           data-side={side}
@@ -84,23 +81,16 @@ export const Drawer = ({
             <div aria-hidden className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-rule" />
           )}
 
-          <header className="flex shrink-0 items-start gap-2 border-b border-rule px-4 py-3">
-            <div className="min-w-0 flex-1">
-              <Dialog.Title className="truncate font-heading text-body-1 text-ink">
-                {title}
-              </Dialog.Title>
-              {description && (
-                <Dialog.Description className="mt-1 text-body-3 text-muted-ink">
-                  {description}
-                </Dialog.Description>
-              )}
-            </div>
-
-            {/* IconButton 은 여분 props 를 흘려보내지 않아 render 슬롯에서 닫기 핸들러를 잃는다 */}
-            <Dialog.Close render={<Button variant="ghost" size="icon-sm" aria-label={`${title} 닫기`} />}>
-              <X size={18} />
-            </Dialog.Close>
-          </header>
+          <OverlayHeader className="items-start px-4 py-3" closeLabel={`${title} 닫기`}>
+            <Dialog.Title className="truncate font-heading text-body-1 text-ink">
+              {title}
+            </Dialog.Title>
+            {description && (
+              <Dialog.Description className="mt-1 text-body-3 text-muted-ink">
+                {description}
+              </Dialog.Description>
+            )}
+          </OverlayHeader>
 
           {/* 내용이 길면 이 영역만 스크롤되어 헤더/푸터가 잘리지 않는다 */}
           <div

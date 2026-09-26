@@ -5,7 +5,12 @@ import { FormDialog } from "@shared/ui/dialogs";
 import { Divider } from "@shared/ui/borders";
 import { FieldGroup, FileInput, InputGroup, SectionTitle, Select, Textarea } from "@shared/ui/form";
 
+import { Button } from "@shared/ui/buttons";
+import { SearchCheck } from "lucide-react";
+
 import { useRegisterDocument } from "../model/hooks/use-register-document";
+import { useTemplateCheck } from "../model/hooks/use-template-check";
+import { TemplateCheckResult } from "./TemplateCheckResult";
 
 interface Props {
   open: boolean;
@@ -31,6 +36,10 @@ export const RegisterDocumentForm = ({ open, onOpenChange, defaultCategory, onSu
     },
   });
 
+  // 채취기록부 양식은 등록 전에 이름 오류를 잡을 수 있다 — 렌더링은 없는 이름을 빈칸으로 넘겨 버린다.
+  const isSamplingRecordTemplate = form.category === 'SAMPLING_RECORD_TEMPLATE';
+  const check = useTemplateCheck({ file: isSamplingRecordTemplate ? form.file : null });
+
   return (
     <FormDialog
       triggerLabel="문서 등록"
@@ -51,8 +60,7 @@ export const RegisterDocumentForm = ({ open, onOpenChange, defaultCategory, onSu
             placeholder="문서명"
             value={form.name}
             onChange={(value) => handleChange('name', value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
             required
           />
           <Select
@@ -74,7 +82,7 @@ export const RegisterDocumentForm = ({ open, onOpenChange, defaultCategory, onSu
           onChange={(value) => handleChange('description', value)}
           rows={2}
           maxLength={500}
-          helperText={fieldErrors?.description}
+          errorMessage={fieldErrors?.description}
         />
 
         <Divider />
@@ -85,10 +93,28 @@ export const RegisterDocumentForm = ({ open, onOpenChange, defaultCategory, onSu
           label="문서 파일"
           file={form.file}
           onChange={handleFileChange}
-          isInvalid={!!fieldErrors?.file}
-          helperText={fieldErrors?.file ?? '20MB 이하의 파일을 등록할 수 있습니다.'}
+          helperText='20MB 이하의 파일을 등록할 수 있습니다.'
+          errorMessage={fieldErrors?.file}
           required
         />
+        {isSamplingRecordTemplate && (
+          <div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              startIcon={SearchCheck}
+              onClick={check.handleCheck}
+              disabled={!form.file || isLoading || check.isChecking}
+            >
+              {check.isChecking ? "검사 중..." : "양식 검사"}
+            </Button>
+            <p className="mt-1 text-caption text-muted-ink">
+              양식의 ${'{'}...{'}'} 이름이 시스템·커스텀 필드에 있는지 등록 전에 확인합니다.
+            </p>
+            {check.result && <TemplateCheckResult result={check.result} />}
+          </div>
+        )}
         <Textarea
           id="changeNote"
           label="변경 사유"
@@ -97,7 +123,7 @@ export const RegisterDocumentForm = ({ open, onOpenChange, defaultCategory, onSu
           onChange={(value) => handleChange('changeNote', value)}
           rows={2}
           maxLength={500}
-          helperText={fieldErrors?.changeNote}
+          errorMessage={fieldErrors?.changeNote}
         />
       </FieldGroup>
     </FormDialog>

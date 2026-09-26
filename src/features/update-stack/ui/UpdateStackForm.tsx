@@ -50,8 +50,7 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             value={form.name}
             onChange={(value) => handleChange("name", value)}
             startIcon={<Factory />}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
           />
           <InputGroup
             id="semsNumber"
@@ -84,8 +83,7 @@ export const UpdateStackForm = ({ open, onOpenChange, stack, onSuccess }: Props)
             placeholder="예: 4"
             value={form.standardOxygen}
             onChange={(value) => handleChange("standardOxygen", value)}
-            invalid={!!fieldErrors?.standardOxygen}
-            error={fieldErrors?.standardOxygen}
+            errorMessage={fieldErrors?.standardOxygen}
           />
         </div>
 

@@ -4,8 +4,8 @@ import type { FieldTone } from "@shared/model";
 import type { SectionHighlight } from "@shared/ui/accordion";
 import type { BadgeTone } from "@shared/ui/badges";
 
-import type { SheetFieldPath } from "../../model/required-fields";
-import type { SectionProgress } from "../../model/section-progress";
+import type { SheetFieldPath } from "../../model/input/required-fields";
+import type { SectionProgress } from "../../model/input/section-progress";
 
 /**
  * SheetFormView 가 각 섹션 카드에 주입하는 공통 셸 props.

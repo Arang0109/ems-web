@@ -6,12 +6,12 @@ import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField, CalcResultRow } from "@shared/ui/form";
 import { formatNumber } from "@shared/lib";
 
-import { MOISTURE_HINT } from "../../model/field-hints";
-import { fieldPath } from "../../model/required-fields";
+import { MOISTURE_HINT } from "../../model/input/field-hints";
+import { fieldPath } from "../../model/input/required-fields";
 import type { MoistureForm } from "../../model/types";
 import {
-  checkMoistureWeightGain, describeMoistureWeightGain, getMoistureWeightGain,
-} from "../../model/validator";
+  checkMoistureWeightGain, describeMoistureWeightGain, calcMoistureWeightGain,
+} from "../../model/input/validator";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 import { Divider } from "@shared/ui/borders";
 
@@ -40,7 +40,7 @@ export const MoistureSection = ({
   // 법정 허용 범위를 벗어난 채취는 수분량 산정에 쓸 수 없다. 값을 고쳐 될 일이 아니라 다시
   // 채취해야 하므로, 저장을 막는 대신 입력한 자리에서 바로 알린다.
   const weightIssue = checkMoistureWeightGain(moisture);
-  const weightGain = getMoistureWeightGain(moisture);
+  const weightGain = calcMoistureWeightGain(moisture);
   
   const isMobile = useIsMobile();
 
@@ -94,9 +94,7 @@ export const MoistureSection = ({
           readOnly
           value={formatNumber(calc?.ma, {minDecimals:2})}
         />)}
-        <div className="col-span-2">
-          {isMobile && <Divider />}
-        </div>
+        {isMobile && <Divider className="col-span-2" />}
         <UnitField
           label="온도 - 입구" unit="°C" type="number" step={0.1}
           maxIntDigits={3} maxDecimals={1}
@@ -140,9 +138,7 @@ export const MoistureSection = ({
           readOnly
           value={formatNumber(calc?.tm_g, {minDecimals:1})}
         />)}
-        <div className="col-span-2">
-          {isMobile && <Divider />}
-        </div>
+        {isMobile && <Divider className="col-span-2" />}
         <UnitField
           label="흡인량 - 전" unit="L" type="number" min={0} step={0.001}
           maxIntDigits={7} maxDecimals={3}

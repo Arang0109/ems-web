@@ -6,8 +6,8 @@ import { displayValue } from "@shared/lib";
 import { useGridNavigation } from "@shared/model";
 import { TableLabelCell, TableInputCell, TableResultCell } from "@shared/ui/table";
 
-import { POINT_HINT } from "../../../model/field-hints";
-import { fieldPath } from "../../../model/required-fields";
+import { POINT_HINT } from "../../../model/input/field-hints";
+import { fieldPath } from "../../../model/input/required-fields";
 import type { SamplingPointForm } from "../../../model/types";
 import { NozzleBasisNote, type NozzleBasis } from "./NozzleBasisNote";
 import { NOZZLE_BASIS_AFTER } from "./point-fields";

@@ -1,5 +1,6 @@
 import { useRegisterContract } from "../model/hooks/use-register-contract";
 
+import { VAT_INCLUDED_LABEL } from '@shared/config';
 import { contractAmountUnitOptions, type ContractAmountUnit } from "@shared/model";
 
 import { SectionTitle, DatePicker, InputGroup, Select, Textarea, InlineInput, FieldGroup } from "@shared/ui/form";
@@ -100,8 +101,8 @@ export const RegisterContractForm = () => {
               placeholder="선택"
               value={String(form.vatIncluded) as 'true' | 'false'}
               options={[
-                { value: 'true', label: '포함' },
-                { value: 'false', label: '미포함' },
+                { value: 'true', label: VAT_INCLUDED_LABEL.true },
+                { value: 'false', label: VAT_INCLUDED_LABEL.false },
               ]}
               onValueChange={(value) => value && handleChange("vatIncluded", value === 'true')}
             />

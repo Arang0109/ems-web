@@ -61,10 +61,10 @@ export const SamplingPointSection = ({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-col text-body-3">
           <p className="flex items-center gap-1 text-body-3 text-ink">
-            연도 단면적 <span className="text-body-4 text-primary">{displayValue(preview?.quantity?.area)}</span>m³
+            연도 단면적 <span className="text-body-4 text-brand-primary">{displayValue(preview?.quantity?.area)}</span>m³
           </p>
           <p className="flex items-center gap-1 text-body-3 text-ink">
-            규정 요구 측정점 수 <span className="text-body-4 text-primary">{displayValue(preview?.samplingPointCnt)}</span>
+            규정 요구 측정점 수 <span className="text-body-4 text-brand-primary">{displayValue(preview?.samplingPointCnt)}</span>
           </p>
         </div>
         {editable && (

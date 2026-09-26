@@ -18,7 +18,7 @@ export interface PreviousSheetResult {
 }
 
 /**
- * 타입 B(수동 호출): 사용자가 "이전 기록 불러오기"를 누를 때만 조회한다.
+ * 타입 B(수동 호출): 사용자가 "이전 회차 기록 불러오기"를 누를 때만 조회한다.
  *
  * `sourceScheduleId` 로 어느 회차에서 가져올지 지정한다. 생략하면 가장 최근 회차다.
  * 고를 수 있는 회차는 `usePreviousSheetCandidates` 로 받는다.

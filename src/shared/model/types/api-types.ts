@@ -3,8 +3,3 @@ export type ApiResponseMessage<T> = {
   message: string;
   data: T;
 }
-
-export type FieldErrorResponse = {
-  field: string;
-  message: string;
-}

@@ -23,6 +23,7 @@ FSD 최상위 레이어 — 앱 초기화와 라우팅만 담당합니다.
 ```
 app/
 ├── main.tsx              # Vite 앱 진입점, MSW 초기화
+├── mocks/                # MSW 목 핸들러 — 개발 전용(VITE_ENABLE_MSW), 동적 import 라 프로덕션 번들에 없다
 ├── App.tsx               # 루트 컴포넌트
 ├── index.css             # Tailwind v4 @theme inline — 디자인 토큰 정의
 ├── providers/

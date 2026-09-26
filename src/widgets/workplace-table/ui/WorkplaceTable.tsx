@@ -67,7 +67,7 @@ export const WorkplaceTable = ({
         <div className="bg-canvas">
           {!selectedClient ? (
             <TableEmptyState
-              icon={<Building2 size={22} className="text-muted-foreground" />}
+              icon={<Building2 size={22} className="text-muted-ink" />}
               label='사업장 정보 없음'
               subLabel={<span>왼쪽에서 의뢰기관을 선택하면<br />해당 사업장 목록이 표시됩니다.</span>}
             />

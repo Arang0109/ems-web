@@ -1,6 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
 
-import { ApiError } from "./api-error";
 import { ApiResponseError } from "./response";
 
 /**
@@ -20,9 +19,7 @@ export const queryClient = new QueryClient({
       // 목록이 흔들린다. 갱신은 mutation 의 무효화가 책임진다.
       refetchOnWindowFocus: false,
       retry: (failureCount, error) =>
-        error instanceof ApiResponseError || error instanceof ApiError
-          ? false
-          : failureCount < 2,
+        error instanceof ApiResponseError ? false : failureCount < 2,
     },
     mutations: {
       // 등록·저장·파일 생성을 자동 재시도하면 중복 부수효과가 난다.

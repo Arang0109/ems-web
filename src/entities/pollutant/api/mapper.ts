@@ -7,8 +7,8 @@ import type { Pollutant, PollutantCandidate, PollutantCreate, PollutantUpdate } 
 
 /**
  * 자유 입력 문자열은 `''` 로 접어 화면·폼이 null 분기를 하지 않게 한다.
- * 반면 `method`·`phase` 는 열거값이라 빈 문자열 자리가 없어 null 을 그대로 둔다 —
- * 폼에서는 `Select` 의 미선택(`''`)으로 옮긴다.
+ * 반면 `methodId`·`sampleGrouping`·`phase`·`samplingMinutes` 는 id·열거값·수치라 빈 문자열 자리가 없어
+ * null 을 그대로 둔다 — 폼에서는 `Select` 의 미선택(`''`)으로 옮긴다.
  */
 export const toPollutant = (dto: PollutantResponse): Pollutant => ({
   id: dto.id,
@@ -17,8 +17,18 @@ export const toPollutant = (dto: PollutantResponse): Pollutant => ({
   field: dto.field,
   nameKr: dto.nameKr,
   nameEn: dto.nameEn ?? '',
-  method: dto.method,
+  methodId: dto.methodId,
+  methodName: dto.methodName ?? '',
+  sampleGrouping: dto.sampleGrouping,
+  mergedSampleName: dto.mergedSampleName ?? '',
+  samplingMinutes: dto.samplingMinutes,
+  suctionFlowRate: dto.suctionFlowRate,
+  methodSamplingMinutes: dto.methodSamplingMinutes,
+  methodSuctionFlowRate: dto.methodSuctionFlowRate,
+  effectiveSamplingMinutes: dto.effectiveSamplingMinutes,
+  effectiveSuctionFlowRate: dto.effectiveSuctionFlowRate,
   phase: dto.phase,
+  mode: dto.mode,
   equipment: dto.equipment ?? '',
   testMethod: dto.testMethod ?? '',
 });
@@ -30,8 +40,8 @@ export const toPollutantCandidate = (dto: PollutantCandidateResponse): Pollutant
   code: dto.code,
   field: dto.field,
   nameKr: dto.nameKr,
-  method: dto.method,
   phase: dto.phase,
+  mode: dto.mode,
   sortOrder: dto.sortOrder,
 });
 
@@ -45,6 +55,9 @@ const trimOrNull = (value: string | null): string | null =>
 
 export const toRegisterRequest = (vo: PollutantCreate): PollutantRegisterRequest => ({
   catalogId: vo.catalogId,
+  methodId: vo.methodId,
+  samplingMinutes: vo.samplingMinutes,
+  suctionFlowRate: vo.suctionFlowRate,
   nameKr: trimOrNull(vo.nameKr),
   nameEn: trimOrNull(vo.nameEn),
   equipment: trimOrNull(vo.equipment),
@@ -52,6 +65,9 @@ export const toRegisterRequest = (vo: PollutantCreate): PollutantRegisterRequest
 });
 
 export const toUpdateRequest = (vo: PollutantUpdate): PollutantUpdateRequest => ({
+  methodId: vo.methodId,
+  samplingMinutes: vo.samplingMinutes,
+  suctionFlowRate: vo.suctionFlowRate,
   nameKr: trimOrNull(vo.nameKr),
   nameEn: trimOrNull(vo.nameEn),
   equipment: trimOrNull(vo.equipment),

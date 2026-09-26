@@ -1,7 +1,7 @@
 import { UnitField, CalcResultRow } from "@shared/ui/form";
 
-import { PARTICLE_HINT } from "../../../model/field-hints";
-import { fieldPath } from "../../../model/required-fields";
+import { PARTICLE_HINT } from "../../../model/input/field-hints";
+import { fieldPath } from "../../../model/input/required-fields";
 import type { ParticleForm } from "../../../model/types";
 import { FIELD_GRID, type FieldStateProps } from "../shell-props";
 

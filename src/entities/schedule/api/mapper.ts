@@ -8,6 +8,7 @@ import type {
   PreviousSheetResponse,
   PreviousSheetCandidateResponse,
   AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
+  SaveScheduleCustomFieldsRequest, TemplateCheckResponse,
 } from "./dto";
 import type {
   ScheduleCreate, ScheduleDetail, SheetSave, SheetRef, SamplingInfoSave,
@@ -15,6 +16,7 @@ import type {
   ReportDatesUpdate, TenantSnapshotUpdate, TeamSnapshotUpdate,
   ScheduleItemsUpdate, ScheduleItemUpdate, PreviousSheet, PreviousSheetCandidate,
   AnalysisResult, SamplingTimesSave, AnalysisResultsSave,
+  ScheduleCustomFieldsSave, TemplateCheckResult,
 } from "../model/types";
 
 // Domain(number) → DTO(number): 재변환 없이 passthrough.
@@ -170,3 +172,10 @@ export const toSaveSamplingTimesRequest = (vo: SamplingTimesSave): SaveSamplingT
     samplingEndedAt: item.samplingEndedAt,
   })),
 });
+
+// 전체 채택 페이로드 — 폼이 이미 정의된 키 전부를 담아 보내므로 그대로 싣는다.
+export const toSaveCustomFieldsRequest = (vo: ScheduleCustomFieldsSave): SaveScheduleCustomFieldsRequest => ({
+  values: { ...vo.values },
+});
+
+export const toTemplateCheckResult = (dto: TemplateCheckResponse): TemplateCheckResult => dto;

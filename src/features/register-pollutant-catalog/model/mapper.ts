@@ -16,7 +16,7 @@ export const toPollutantCatalogCreate = (
   code: trimValue(form.code).toUpperCase(),
   field: form.field,
   nameKr: trimValue(form.nameKr),
-  method: form.method || null,
   phase: form.phase || null,
+  mode: form.mode || null,
   sortOrder: toNumberOrNull(form.sortOrder),
 });

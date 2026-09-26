@@ -1,1 +1,1 @@
-export { Popover } from "./Popover";
+export { Popover, PopoverRoot, PopoverTrigger, PopoverContent } from "./Popover";

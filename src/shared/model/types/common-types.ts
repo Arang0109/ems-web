@@ -1,11 +1,11 @@
 import {
   MEASUREMENT_FIELD_LABEL, GRADE_LABEL, ORIENTATION_LABEL, SHAPE_LABEL,
   EQUIP_TYPE_LABEL, EQUIP_STATUS_LABEL, PITOT_TUBE_TYPE_LABEL, MEASUREMENT_CYCLE_LABEL,
-  INSPECTION_TYPE_LABEL, INSPECTION_RESULT_LABEL,
+  INSPECTION_RESULT_LABEL,
   MEASUREMENT_TYPE_LABEL, SCHEDULE_STATUS_LABEL,
   MEASUREMENT_CATEGORY_LABEL, WEATHER_CONDITION_LABEL, WIND_DIRECTION_LABEL,
   DOCUMENT_CATEGORY_LABEL, CONTRACT_AMOUNT_UNIT_LABEL,
-  MEASUREMENT_METHOD_LABEL, POLLUTANT_PHASE_LABEL, MEASUREMENT_UNIT_LABEL,
+  SAMPLE_GROUPING_LABEL, MEASUREMENT_MODE_LABEL, POLLUTANT_PHASE_LABEL, MEASUREMENT_UNIT_LABEL,
 } from "@shared/config";
 
 export const CONTRACT_STATUS = ['active', 'expiringSoon', 'expired'] as const;
@@ -13,7 +13,12 @@ export const GRADE = ['TYPE_1', 'TYPE_2', 'TYPE_3', 'TYPE_4', 'TYPE_5'] as const
 export const ORIENTATION = ['VERTICAL', 'HORIZONTAL'] as const;
 export const SHAPE = ['CIRCULAR', 'RECTANGULAR'] as const;
 export const MEASUREMENT_FIELD = ['AIR', 'WATER', 'NOISE_VIBRATION', 'ODOR'] as const;
-export const MEASUREMENT_METHOD = ['DUST', 'HEAVY_METAL', 'MERCURY', 'FIELD_MEASUREMENT', 'ABSORPTION_SOLUTION', 'ADSORPTION_TUBE', 'TEDLAR_BAG', 'CARTRIDGE'] as const;
+// 측정방법의 채취 단위 — 가스상 시료 표에 행을 어떻게 적는가. 측정방법 자체는 enum 이 아니라
+// 고객사가 관리하는 데이터(entities/measurement-method)다.
+export const SAMPLE_GROUPING = ['NONE', 'PER_ITEM', 'MERGED'] as const;
+// 측정물질의 측정방식 분류 — 전 테넌트를 관통하는 카탈로그 사실. 회사 소유 측정방법과 축이 다르다:
+// 현장측정(가스분석기)·현장측정(THC)는 다른 측정방법이지만 둘 다 DIRECT_READING 이다.
+export const MEASUREMENT_MODE = ['DIRECT_READING', 'DUST', 'HEAVY_METAL', 'MERCURY', 'GAS_SAMPLING'] as const;
 export const POLLUTANT_PHASE = ['PARTICLE', 'GAS'] as const;
 // 측정 항목 농도의 단위
 export const MEASUREMENT_UNIT = ['PPM', 'MG_PER_SM3'] as const;
@@ -50,6 +55,13 @@ export const WIND_DIRECTION = ['CALM', 'N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE'
 
 // 문서(document) 분류 — 서버 global.common.enums.DocumentCategory 와 동일한 규격
 export const DOCUMENT_CATEGORY = ['SAMPLING_RECORD_TEMPLATE', 'CONTRACT', 'CERTIFICATE', 'ETC'] as const;
+// 채취기록부 템플릿 검사가 구분하는 문제 종류 — 서버 `TemplateIssueType`. 렌더링은 이 중 어느 것도
+// 실패로 보지 않고 빈칸으로 넘기므로(PARSE_ERROR 제외), 검사가 오타를 잡는 유일한 자리다.
+export const TEMPLATE_ISSUE_TYPE = [
+  'UNKNOWN_ROOT', 'UNKNOWN_PROPERTY', 'UNKNOWN_CUSTOM_KEY', 'PARSE_ERROR', 'AREA_MISSING',
+] as const;
+// 표현식이 있던 자리 — 셀 텍스트의 `${...}` 인지 셀 메모의 `jx:` 명령인지.
+export const TEMPLATE_EXPRESSION_SOURCE = ['CELL', 'COMMENT'] as const;
 
 // 계약(contract) — 계약금액 단위
 export const CONTRACT_AMOUNT_UNIT = ['MONTH', 'QUARTER', 'SEMI_ANNUAL', 'ANNUAL', 'TOTAL'] as const;
@@ -68,7 +80,8 @@ export type Grade = typeof GRADE[number];
 export type Orientation = typeof ORIENTATION[number];
 export type Shape = typeof SHAPE[number];
 export type MeasurementField = typeof MEASUREMENT_FIELD[number];
-export type MeasurementMethod = typeof MEASUREMENT_METHOD[number];
+export type SampleGrouping = typeof SAMPLE_GROUPING[number];
+export type MeasurementMode = typeof MEASUREMENT_MODE[number];
 export type PollutantPhase = typeof POLLUTANT_PHASE[number];
 export type MeasurementUnit = typeof MEASUREMENT_UNIT[number];
 export type MeasurementCycle = typeof MEASUREMENT_CYCLE[number];
@@ -86,6 +99,8 @@ export type MeasurementCategory = typeof MEASUREMENT_CATEGORY[number];
 export type WeatherCondition = typeof WEATHER_CONDITION[number];
 export type WindDirection = typeof WIND_DIRECTION[number];
 export type DocumentCategory = typeof DOCUMENT_CATEGORY[number];
+export type TemplateIssueType = typeof TEMPLATE_ISSUE_TYPE[number];
+export type TemplateExpressionSource = typeof TEMPLATE_EXPRESSION_SOURCE[number];
 export type ContractAmountUnit = typeof CONTRACT_AMOUNT_UNIT[number];
 export type TenantStatus = typeof TENANT_STATUS[number];
 export type SubscriptionPlan = typeof SUBSCRIPTION_PLAN[number];
@@ -119,62 +134,6 @@ export const scheduleStatusOptions = SCHEDULE_STATUS.map((status) => ({
   label: SCHEDULE_STATUS_LABEL[status],
 }));
 
-/**
- * 측정계획 상태에서 넘어갈 수 있는 다음 상태. 서버 `ScheduleStatus.canTransitionTo()` 와 같은 규칙으로,
- * 단계 건너뛰기와 되돌리기를 허용하지 않는다. 성적서작성완료·취소는 종단 상태다.
- *
- * 업무 단계는 측정예정 → 측정중 → 인계완료 → 분석값입력중 → 분석완료 → 성적서작성완료 6단계지만,
- * 인계완료와 분석값입력중이 같은 시점이고 분석완료와 성적서작성완료도 같은 시점이라
- * 각각 하나로 합쳐 `ANALYZING`·`REPORT_COMPLETED` 로 표현한다.
- *
- * 전진(측정중·분석값입력중)은 채취 시작시각·실측값 입력, 시료접수일 입력 시 서버가 자동으로 처리하므로,
- * 화면이 실제로 노출하는 것은 사용자가 확정하는 종료 전이(성적서작성완료·취소)뿐이다.
- * 최종 판정은 서버가 하며, 여기서는 액션 노출 여부만 판단한다.
- *
- * 종단 상태의 재개방은 이 표가 아니라 `canReopenSchedule` 이 판정한다 — 예외 경로이므로
- * 일반 전이에 섞지 않는다(서버 `ScheduleStatus.canReopen()` 과 동일한 분리).
- */
-export const SCHEDULE_STATUS_TRANSITIONS: Record<ScheduleStatus, readonly ScheduleStatus[]> = {
-  SCHEDULED: ['MEASURING', 'CANCELED'],
-  MEASURING: ['ANALYZING', 'CANCELED'],
-  ANALYZING: ['REPORT_COMPLETED', 'CANCELED'],
-  REPORT_COMPLETED: [],
-  CANCELED: [],
-};
-
-export const canTransitionScheduleStatus = (from: ScheduleStatus, to: ScheduleStatus): boolean =>
-  SCHEDULE_STATUS_TRANSITIONS[from].includes(to);
-
-/** 더 이상 전진하지 않는 종단 상태인지 여부. 서버 `ScheduleStatus.isTerminal()` 과 같은 규칙이다. */
-export const isTerminalScheduleStatus = (status: ScheduleStatus): boolean =>
-  status === 'REPORT_COMPLETED' || status === 'CANCELED';
-
-/**
- * 종단 상태를 되돌려 다시 작업 가능하게 만들 수 있는지 여부. 서버 `ScheduleStatus.canReopen()` 과 같다.
- * 돌아갈 단계는 서버가 저장된 측정 데이터에서 재도출하므로 화면이 정하지 않는다.
- */
-export const canReopenSchedule = (status: ScheduleStatus): boolean => isTerminalScheduleStatus(status);
-
-/**
- * 재개방에 관리자 권한이 필요한 상태인지 여부. 서버 `ScheduleStatus.requiresAdminToReopen()` 과 같다.
- *
- * 성적서작성완료는 대외 확정이라 관리자만 되돌린다.
- * 취소는 실수로 걸면 이미 입력한 측정 데이터가 잠기므로 담당자가 즉시 되돌릴 수 있어야 한다.
- */
-export const requiresAdminToReopenSchedule = (status: ScheduleStatus): boolean =>
-  status === 'REPORT_COMPLETED';
-
-/**
- * 측정계획을 삭제(감춤)할 수 있는지 여부. 서버 `ScheduleStatus.canDelete()` 와 같은 규칙이다.
- *
- * 삭제는 "애초에 잘못 등록됨"을 목록에서 감추는 조작이라 실측 데이터가 없는 '측정예정'에서 허용된다.
- * '취소'도 감출 수 있는데, 취소 건에는 사유를 남겨 둬야 할 것과 잘못 만들어져 지워야 할 것이
- * 섞여 있어 취소 목록에서 골라내야 하기 때문이다.
- * 진행 중(측정중·분석값입력중)인 계획은 취소를 먼저 거쳐야 한다.
- */
-export const canDeleteSchedule = (status: ScheduleStatus): boolean =>
-  status === 'SCHEDULED' || status === 'CANCELED';
-
 export const orientationOptions = ORIENTATION.map((orientation) => ({
   value: orientation,
   label: ORIENTATION_LABEL[orientation],
@@ -200,11 +159,6 @@ export const pitotTubeTypeOptions = PITOT_TUBE_TYPE.map((type) => ({
   label: PITOT_TUBE_TYPE_LABEL[type],
 }));
 
-export const inspectionTypeOptions = INSPECTION_TYPE.map((type) => ({
-  value: type,
-  label: INSPECTION_TYPE_LABEL[type],
-}));
-
 export const inspectionResultOptions = INSPECTION_RESULT.map((result) => ({
   value: result,
   label: INSPECTION_RESULT_LABEL[result],
@@ -225,9 +179,14 @@ export const windDirectionOptions = WIND_DIRECTION.map((direction) => ({
   label: WIND_DIRECTION_LABEL[direction],
 }));
 
-export const measurementMethodOptions = MEASUREMENT_METHOD.map((method) => ({
-  value: method,
-  label: MEASUREMENT_METHOD_LABEL[method],
+export const sampleGroupingOptions = SAMPLE_GROUPING.map((grouping) => ({
+  value: grouping,
+  label: SAMPLE_GROUPING_LABEL[grouping],
+}));
+
+export const measurementModeOptions = MEASUREMENT_MODE.map((mode) => ({
+  value: mode,
+  label: MEASUREMENT_MODE_LABEL[mode],
 }));
 
 export const pollutantPhaseOptions = POLLUTANT_PHASE.map((phase) => ({

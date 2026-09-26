@@ -1,13 +1,13 @@
 import type {
   ContractStatus, Grade, Orientation, Shape, MeasurementField,
-  MeasurementMethod, PollutantPhase, MeasurementUnit, MeasurementCycle,
+  SampleGrouping, MeasurementMode, PollutantPhase, MeasurementUnit, MeasurementCycle,
   EquipType, EquipStatus, PitotTubeType, EquipSpecField, InspectionType, InspectionResult,
   ScheduleStatus, MeasurementType,
   MeasurementCategory, WeatherCondition, WindDirection,
   DocumentCategory, ContractAmountUnit, TenantStatus, SubscriptionPlan, UserRole,
+  TemplateIssueType, TemplateExpressionSource,
 } from "../model";
 import type { DateRangePreset } from "../lib";
-import type { StatusTone } from "../ui/badges/tones";
 
 export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
   active: '정상',
@@ -40,15 +40,28 @@ export const MEASUREMENT_FIELD_LABEL: Record<MeasurementField, string> = {
   ODOR: '악취',
 };
 
-export const MEASUREMENT_METHOD_LABEL: Record<MeasurementMethod, string> = {
+/**
+ * 측정방법의 채취 단위. 현장 기록지의 가스상 시료 표에 행을 어떻게 적는지를 정한다 —
+ * `MERGED` 는 그 방법의 항목 전부를 한 병(통칭명)으로, `PER_ITEM` 은 항목마다 한 병, `NONE` 은 행 없음.
+ * `NONE` 은 "시료가 없다"가 아니다 — 먼지·중금속·수은은 입자상 시트에서 등속흡인으로 잡고,
+ * 현장측정은 직독식이라 시료가 없다. 공통점은 가스상 표에 적을 것이 없다는 것뿐이라 라벨도 그렇게 쓴다.
+ */
+export const SAMPLE_GROUPING_LABEL: Record<SampleGrouping, string> = {
+  NONE: '가스상 항목이 아님',
+  PER_ITEM: '항목별 채취',
+  MERGED: '통칭 채취',
+};
+
+/**
+ * 측정방식 분류(카탈로그 전역 사실). 가스상 채취의 매체(흡수액·흡착관·테드라백·카트리지)는 회사마다 갈려
+ * 여기 두지 않는다 — 그 넷은 전부 '가스상 채취'이고 매체는 회사 측정방법이 정한다.
+ */
+export const MEASUREMENT_MODE_LABEL: Record<MeasurementMode, string> = {
+  DIRECT_READING: '현장측정',
   DUST: '먼지',
   HEAVY_METAL: '중금속',
   MERCURY: '수은',
-  FIELD_MEASUREMENT: '현장측정',
-  ABSORPTION_SOLUTION: '흡수액',
-  ADSORPTION_TUBE: '흡착관',
-  TEDLAR_BAG: '테드라백',
-  CARTRIDGE: '카트리지'
+  GAS_SAMPLING: '가스상 채취',
 };
 
 export const POLLUTANT_PHASE_LABEL: Record<PollutantPhase, string> = {
@@ -82,23 +95,6 @@ export const SCHEDULE_STATUS_LABEL: Record<ScheduleStatus, string> = {
   ANALYZING: '분석값입력중',
   REPORT_COMPLETED: '성적서작성완료',
   CANCELED: '취소',
-};
-
-/**
- * 측정계획 상태의 표시 톤. 목록 배지·모바일 칩·상세 헤더가 공유한다.
- *
- * 네 진행 단계에 각각 다른 색을 준다 — 회색(대기) → 앰버(현장) → 파랑(실험실) → 초록(확정).
- * 진행 단계가 여럿이라 "진행 중"을 한 색으로 묶으면 목록에서 어느 단계인지 색으로 읽히지 않고,
- * 라벨을 끝까지 읽어야만 구분된다.
- *
- * 색상만으로 구분하지 않는다는 원칙은 그대로다 — `StatusDot` 이 점과 라벨을 항상 함께 그린다.
- */
-export const SCHEDULE_STATUS_TONE: Record<ScheduleStatus, StatusTone> = {
-  SCHEDULED: 'pending',           // 회색 — 아직 시작 전
-  MEASURING: 'active',            // 앰버 — 현장 측정 진행
-  ANALYZING: 'info',              // 파랑 — 실험실 분석값 입력 진행
-  REPORT_COMPLETED: 'success',    // 초록 — 성적서까지 끝남
-  CANCELED: 'danger',             // 빨강 — 중단
 };
 
 export const MEASUREMENT_TYPE_LABEL: Record<MeasurementType, string> = {
@@ -195,6 +191,21 @@ export const DOCUMENT_CATEGORY_LABEL: Record<DocumentCategory, string> = {
   CONTRACT: '계약서',
   CERTIFICATE: '인증서',
   ETC: '기타',
+};
+
+/** 템플릿 검사 문제 종류. 고객이 양식을 고칠 수 있게 "무엇이 잘못됐는지"를 말한다. */
+export const TEMPLATE_ISSUE_TYPE_LABEL: Record<TemplateIssueType, string> = {
+  UNKNOWN_ROOT: '알 수 없는 변수',
+  UNKNOWN_PROPERTY: '없는 항목 이름',
+  UNKNOWN_CUSTOM_KEY: '정의되지 않은 커스텀 필드',
+  PARSE_ERROR: '표현식 문법 오류',
+  AREA_MISSING: 'jx:area 메모 없음',
+};
+
+/** 문제가 난 표현식의 위치 종류. */
+export const TEMPLATE_EXPRESSION_SOURCE_LABEL: Record<TemplateExpressionSource, string> = {
+  CELL: '셀',
+  COMMENT: '메모',
 };
 
 export const CONTRACT_AMOUNT_UNIT_LABEL: Record<ContractAmountUnit, string> = {

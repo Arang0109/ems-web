@@ -89,15 +89,39 @@ export const useLoadPreviousSheet = ({
       return;
     }
 
-    // 스냅샷은 화면에 실제로 들어간 값이어야 한다 — 카테고리만 현재 기록지 것으로 맞춘다
+    // 가스상 물질 표는 불러오지 않는다 — 행은 이번 회차 측정항목에서 만들어지고(hydrateSheets),
+    // 시각·시료번호·측정값은 전부 회차 고유값이다. 서버(SheetReuse)가 시각·시료번호를 비워 주긴 하지만
+    // 그 빈 값이 이미 적어 둔 칸을 덮는다.
+    // 스냅샷은 화면에 실제로 들어간 값이어야 한다 — 카테고리는 현재 기록지 것으로 맞추고 시료는 비운다
     // (version 은 입력 칸이 아니라 강조 판정에 쓰이지 않는다).
-    const loaded: SheetForm = { ...fromSheet(previous.sheet), category: activeSheet.category };
+    const loaded: SheetForm = { ...fromSheet(previous.sheet), category: activeSheet.category, samples: [] };
     const sourceLabel = describePreviousSource(previous);
 
     updateActiveSheet((current) => ({
       ...loaded,
       category: current.category,
       version: current.version,
+      weather: {
+        ...loaded.weather,
+        temperature: current.weather.temperature,
+        humidity: current.weather.humidity,
+        weatherCondition: current.weather.weatherCondition,
+        windDirection: current.weather.windDirection,
+        windSpeed: current.weather.windSpeed
+      },
+      exhaustGas: {
+        ...loaded.exhaustGas,
+        gasAnalyzerStartTime: current.exhaustGas.gasAnalyzerStartTime,
+        thcAnalyzerStartTime: current.exhaustGas.thcAnalyzerStartTime
+      },
+      samples: current.samples,
+      particle: {
+        ...loaded.particle,
+        samplingStartTime: current.particle.samplingStartTime,
+        samplingEndTime: current.particle.samplingEndTime,
+        thimbleFilter: current.particle.thimbleFilter,
+        bgThimbleFilter: current.particle.bgThimbleFilter
+      }
     }));
     onLoaded?.(loaded, sourceLabel);
     setLoadedKey((prev) => prev + 1);

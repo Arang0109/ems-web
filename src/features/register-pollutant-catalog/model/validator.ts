@@ -14,6 +14,7 @@ export const validatePollutantCatalogRegisterFields = (form: PollutantCatalogReg
   }
 
   if (!form.nameKr.trim()) errors.nameKr = "측정물질명(한글)을 입력해주세요.";
+  if (!form.mode) errors.mode = "측정방식을 선택해주세요.";
 
   if (form.sortOrder.trim() && !/^\d+$/.test(form.sortOrder.trim())) {
     errors.sortOrder = "노출 순서는 0 이상의 정수로 입력해주세요.";

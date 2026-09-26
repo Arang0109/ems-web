@@ -11,10 +11,8 @@ import { Divider } from "@shared/ui/borders";
 import { Button } from "@shared/ui/buttons";
 import { StatusDot } from "@shared/ui/badges";
 import { FieldGroup, InputGroup, SectionTitle, Select } from "@shared/ui/form";
-import {
-  measurementFieldOptions, measurementMethodOptions, pollutantPhaseOptions,
-} from "@shared/model";
-import type { MeasurementField, MeasurementMethod, PollutantPhase } from "@shared/model";
+import { measurementFieldOptions, measurementModeOptions, pollutantPhaseOptions } from "@shared/model";
+import type { MeasurementField, MeasurementMode, PollutantPhase } from "@shared/model";
 
 interface Props {
   open: boolean;
@@ -91,6 +89,7 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             required
           />
         </div>
+        {/* 측정방법은 카탈로그가 갖지 않는다 — 업체마다 다를 수 있어 고객사가 채택할 때 정한다. */}
         <div className="grid md:grid-cols-2 gap-4">
           <InputGroup
             id="nameKr"
@@ -98,20 +97,9 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
             placeholder="측정물질(한글)"
             value={form.nameKr}
             onChange={(value) => handleChange("nameKr", value)}
-            invalid={!!fieldErrors?.nameKr}
-            error={fieldErrors?.nameKr}
+            errorMessage={fieldErrors?.nameKr}
             required
             startIcon={<Hash />}
-          />
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <Select
-            id="method"
-            label="측정방법"
-            placeholder="측정방법 선택"
-            options={measurementMethodOptions}
-            value={form.method}
-            onValueChange={(value) => value && handleChange("method", value as MeasurementMethod)}
           />
           <Select
             id="phase"
@@ -123,6 +111,19 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
           />
         </div>
 
+        {/* 측정방식 분류 — 이미 채택한 고객사에도 조인으로 즉시 반영된다(field·phase 와 같은 투영값). */}
+        <div className="grid md:grid-cols-2 gap-4">
+          <Select
+            id="mode"
+            label="측정방식"
+            placeholder="측정방식 선택"
+            options={measurementModeOptions}
+            value={form.mode}
+            onValueChange={(value) => value && handleChange("mode", value as MeasurementMode)}
+            helperText="현장측정·먼지·중금속·수은·가스상 채취. 매체(흡수액·카트리지 등)는 고객사가 정합니다."
+          />
+        </div>
+
         <Divider />
 
         <InputGroup
@@ -131,8 +132,7 @@ export const UpdatePollutantCatalogForm = ({ open, onOpenChange, catalog, onSucc
           placeholder="예: 200"
           value={form.sortOrder}
           onChange={(value) => handleChange("sortOrder", value)}
-          invalid={!!fieldErrors?.sortOrder}
-          error={fieldErrors?.sortOrder}
+          errorMessage={fieldErrors?.sortOrder}
           helperText="고객사 선택 목록에서의 정렬 기준입니다. 비우면 미지정입니다."
           startIcon={<ListOrdered />}
         />

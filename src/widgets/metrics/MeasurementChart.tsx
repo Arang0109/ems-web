@@ -110,7 +110,7 @@ export const MeasurementChart = ({ stats }: Props) => {
   };
 
   return (
-    <Panel className="p-0 flex flex-col">
+    <Panel className="flex flex-col">
       <header className="flex flex-wrap items-center justify-between gap-3 bg-canvas p-2">
         <div className="flex items-baseline gap-2">
           <h2 className="text-h3 text-ink">측정건수 현황</h2>

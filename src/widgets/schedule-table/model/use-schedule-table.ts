@@ -2,8 +2,9 @@ import { useEffect, useMemo, type Dispatch, type SetStateAction } from 'react';
 
 import { useSchedules } from '@entities/schedule';
 import { useTeams } from '@entities/team';
+import { useDeleteSchedule } from '@features/manage-schedule-lifecycle';
 
-import { isWithinDateRange } from '@shared/lib';
+import { isWithinDateRange, toDateKey } from '@shared/lib';
 import { useDataTable, scheduleStatusOptions } from '@shared/model';
 import { TABLE_PAGE_SIZE } from "@shared/config";
 
@@ -23,6 +24,8 @@ export const useScheduleTable = () => {
 
   const { data, isLoading: loading, error } = useSchedules();
   const { data: teams } = useTeams();
+  // 확인 다이얼로그·토스트·캐시 무효화는 이 훅이 이미 들고 있다(취소 목록과 같은 배선).
+  const { handleDelete, isLoading: isDeleting } = useDeleteSchedule();
 
   const teamOptions = useMemo(
     () => [
@@ -34,15 +37,16 @@ export const useScheduleTable = () => {
 
   // 서버 목록 API 가 아직 기간·팀·상태 파라미터를 받지 않으므로 여기서 좁힌다.
   // (서버가 쿼리 파라미터를 지원하면 이 필터는 `useSchedules(query)` 로 옮긴다)
-  const tableData = useMemo(
-    () =>
-      data
-        .filter((item) => isWithinDateRange(item.sampledAt, filter.appliedRange))
-        .filter((item) => filter.teamId === ALL_TEAMS || String(item.teamId) === filter.teamId)
-        .filter((item) => filter.status === ALL_STATUSES || item.status === filter.status)
-        .map(toScheduleRows),
-    [data, filter.appliedRange, filter.teamId, filter.status],
-  );
+  const tableData = useMemo(() => {
+    // 목록 전체가 같은 기준일을 쓰도록 한 번만 읽는다
+    const todayKey = toDateKey(new Date());
+
+    return data
+      .filter((item) => isWithinDateRange(item.sampledAt, filter.appliedRange))
+      .filter((item) => filter.teamId === ALL_TEAMS || String(item.teamId) === filter.teamId)
+      .filter((item) => filter.status === ALL_STATUSES || item.status === filter.status)
+      .map((item) => toScheduleRows(item, todayKey));
+  }, [data, filter.appliedRange, filter.teamId, filter.status]);
 
   const { table, globalFilter, setGlobalFilter } = useDataTable({
     data: tableData,
@@ -51,6 +55,13 @@ export const useScheduleTable = () => {
     // 페이지도 URL 이 소유한다 — 상세에서 돌아왔을 때 보던 페이지가 남아야 한다
     pageIndex: filter.pageIndex,
     onPageIndexChange: filter.changePage,
+    overrides: {
+      meta: {
+        // 삭제 가능 여부(상태 판정)는 버튼을 그리는 카드 본문이 가린다.
+        onDelete: (row) => handleDelete(Number(row.id), row.status),
+        isRowActionPending: isDeleting,
+      },
+    },
   });
 
   // 오래된 링크나 자리를 비운 사이 줄어든 목록 때문에 범위 밖 페이지에 설 수 있다.

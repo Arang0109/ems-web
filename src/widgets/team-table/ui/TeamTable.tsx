@@ -33,7 +33,7 @@ export const TeamTable = () => {
         title="팀 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'팀 이름, 사수, 부사수 검색 ...'} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'팀 이름, 사수, 부사수 검색 ...'} />
             <RegisterTeamForm
               key={registerFormKey}
               open={registerModalOpen}

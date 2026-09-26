@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Collapsible } from "./Collapsible";
 
 interface Props {
   title: React.ReactNode;
@@ -58,14 +59,9 @@ export const SubAccordion = ({
         {action}
       </div>
 
-      <div
-        className="grid transition-[grid-template-rows] duration-300 ease-in-out"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
-      >
-        <div className="overflow-hidden">
-          <div className="border-t border-rule px-3 pt-3 pb-3 md:px-4 md:pb-4">{children}</div>
-        </div>
-      </div>
+      <Collapsible open={open}>
+        <div className="border-t border-rule px-3 pt-3 pb-3 md:px-4 md:pb-4">{children}</div>
+      </Collapsible>
     </div>
   );
 };

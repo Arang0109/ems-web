@@ -4,12 +4,15 @@ import { useSearchParams } from "react-router";
 import { useAuth } from "@entities/auth";
 
 import {
+  formatMonthDay,
   isSameDateRange,
   matchDateRangePreset,
+  toDateKey,
   toPresetRange,
   type DateRangePreset,
   type DateRangeValue,
 } from "@shared/lib";
+import { DATE_RANGE_PRESET_LABEL } from "@shared/config";
 import type { DateRange } from "@shared/ui/form";
 
 import {
@@ -28,6 +31,16 @@ const DEFAULT_PRESET: DateRangePreset = "today";
 /** 선택 도중이라 `to` 가 빈 구간을 확정 구간으로 좁힌다. `from` 조차 없으면 기본값을 쓴다. */
 const toRangeValue = (range: DateRange, fallback: DateRangeValue): DateRangeValue =>
   range.from ? { from: range.from, to: range.to ?? range.from } : fallback;
+
+/** 적용된 구간의 트리거 라벨 — 프리셋과 일치하면 프리셋 이름, 아니면 `8월 1일 ~ 8월 31일` */
+const toRangeLabel = (range: DateRangeValue, today: Date): string => {
+  const preset = matchDateRangePreset(range, today);
+  if (preset) return DATE_RANGE_PRESET_LABEL[preset];
+
+  const from = formatMonthDay(toDateKey(range.from));
+  const to = formatMonthDay(toDateKey(range.to));
+  return from === to ? from : `${from} ~ ${to}`;
+};
 
 /**
  * 측정계획 목록의 조회 조건.
@@ -102,6 +115,7 @@ export const useScheduleFilter = () => {
 
   return {
     appliedRange: values.range,
+    appliedRangeLabel: toRangeLabel(values.range, today),
     teamId: values.teamId,
     changeTeam,
     status: values.status,

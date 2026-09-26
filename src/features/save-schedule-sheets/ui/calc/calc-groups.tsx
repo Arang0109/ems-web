@@ -4,7 +4,7 @@ import {
 import { roundHalfUp } from "@shared/lib";
 import type { CalcResultItem } from "@shared/ui/form";
 
-import { PARTICLE_HINT, WEATHER_HINT } from "../../model/field-hints";
+import { PARTICLE_HINT, WEATHER_HINT } from "../../model/input/field-hints";
 
 /** 시간당 유량의 분당 표기 — 원값과 같은 소수 1자리. 없으면 `null` 을 넘겨 그리드가 `—` 를 찍게 둔다. */
 const perMinute = (perHour: number | null | undefined): number | null => {

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import type { EditorSectionId } from "../section-progress";
+import type { EditorSectionId } from "../sections";
 
 /** 섹션 카드의 DOM id — 섹션 바로가기의 스크롤 이동 대상 */
 export const sectionDomId = (id: EditorSectionId): string => `sheet-section-${id}`;

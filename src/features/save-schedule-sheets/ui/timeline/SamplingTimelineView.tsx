@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Badge, StatusDot } from "@shared/ui/badges";
 import { EmptyText } from "@shared/ui/feedback";
 
-import type { SamplingTimeline, TimelineIssueLevel, TimelineRow } from "../../model/sampling-timeline";
+import type { SamplingTimeline, TimelineIssueLevel, TimelineRow } from "../../model/derived/sampling-timeline";
 
 interface Props {
   timeline: SamplingTimeline;

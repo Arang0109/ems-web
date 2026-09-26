@@ -7,7 +7,7 @@ import type { EquipStatus } from "@shared/model";
 import type { EquipmentTableRow } from "../model/types";
 
 export const CustomCell = ({ getValue }: CellContext<EquipmentTableRow, string>) => (
-  <span className="text-body-4 text-foreground">{getValue()}</span>
+  <span className="text-body-4 text-ink">{getValue()}</span>
 );
 
 const STATUS_TONE_MAP: Record<EquipStatus, StatusTone> = {

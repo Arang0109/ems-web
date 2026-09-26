@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import { toCelsius, type SheetCalcPreview } from "@entities/schedule";
 import type { CalcResultItem } from "@shared/ui/form";
 
-import { POINT_RESULT_HINT } from "../../../model/field-hints";
-import { averageOfInputs } from "../../../model/input-average";
+import { POINT_RESULT_HINT } from "../../../model/input/field-hints";
+import { averageOfInputs } from "../../../model/derived/input-average";
 import type { SamplingPointForm } from "../../../model/types";
 import { FLOW_FIELDS, ISOKINETIC_FIELDS, type PointField } from "./point-fields";
 

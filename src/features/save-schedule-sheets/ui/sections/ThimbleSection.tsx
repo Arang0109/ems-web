@@ -1,8 +1,8 @@
 import { SectionAccordion } from "@shared/ui/accordion";
 import { UnitField } from "@shared/ui/form";
 
-import { THIMBLE_HINT } from "../../model/field-hints";
-import { fieldPath } from "../../model/required-fields";
+import { THIMBLE_HINT } from "../../model/input/field-hints";
+import { fieldPath } from "../../model/input/required-fields";
 import type { ParticleForm } from "../../model/types";
 import type { FieldStateProps, SectionShellProps } from "./shell-props";
 

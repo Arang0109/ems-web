@@ -10,6 +10,7 @@ import type {
   UpdateReportDatesRequest, UpdateScheduleRequest,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
   AnalysisResultResponse, SaveSamplingTimesRequest, SaveAnalysisResultsRequest,
+  SaveScheduleCustomFieldsRequest, TemplateCheckResponse,
 } from './dto';
 import type { MeasurementCategory } from '@shared/model';
 
@@ -35,7 +36,7 @@ export const scheduleApi = {
     return res.data;
   },
 
-  // 동시 편집 충돌(409)을 다른 실패와 구분해야 하므로 unwrap 을 거쳐 ApiError 로 던진다.
+  // 동시 편집 충돌(409)을 다른 실패와 구분해야 하므로 unwrap 을 거쳐 상태 코드가 실린 ApiResponseError 로 던진다.
   saveSheets: async (id: number, body: SaveSheetsRequest): Promise<ScheduleResponse> => {
     const res = await axiosPrivate.put<ApiResponseMessage<ScheduleResponse>>(`/schedules/${id}/sheets`, body);
     return unwrap(res);
@@ -154,6 +155,24 @@ export const scheduleApi = {
 
   reopenSchedule: async (id: number): Promise<ApiResponseMessage<ScheduleResponse>> => {
     const res = await axiosPrivate.post(`/schedules/${id}/reopen`);
+    return res.data;
+  },
+
+  // 회차 커스텀 필드 값 저장. 전체 채택 — 정의된 필드 전부를 보내며 빠진 키·빈 값은 지워진다.
+  saveCustomFields: async (
+    id: number, body: SaveScheduleCustomFieldsRequest,
+  ): Promise<ApiResponseMessage<ScheduleResponse>> => {
+    const res = await axiosPrivate.put(`/schedules/${id}/custom-fields`, body);
+    return res.data;
+  },
+
+  // 채취기록부 템플릿 검사. export 와 같은 multipart('template' 파트 하나)지만 응답은 JSON 봉투다.
+  checkSamplingRecordTemplate: async (template: File): Promise<ApiResponseMessage<TemplateCheckResponse>> => {
+    const formData = new FormData();
+    formData.append('template', template);
+    // Content-Type을 직접 지정하면 multipart boundary가 빠지므로 헤더는 건드리지 않는다(export 와 같다).
+    const res = await axiosPrivate.post('/schedules/sampling-records/template-check', formData);
+    console.log(res);
     return res.data;
   },
 

@@ -1,7 +1,7 @@
-import { format } from "date-fns";
 
 import type { EquipmentRegisterForm } from "../../model/types";
 
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import { InputGroup, FieldGroup, DatePicker, Textarea } from "@shared/ui/form";
 
 import { STEP_GRID_4 } from "./step-props";
@@ -23,8 +23,8 @@ export const PurchaseStep = ({ form, onChange }: Props) => (
       <DatePicker
         id="purchaseDate"
         label="구매일"
-        value={form.purchaseDate ? new Date(form.purchaseDate) : undefined}
-        onChange={(date) => onChange('purchaseDate', date ? format(date, 'yyyy-MM-dd') : '')}
+        value={toPickerDate(form.purchaseDate)}
+        onChange={(date) => onChange('purchaseDate', fromPickerDate(date))}
       />
     </div>
 

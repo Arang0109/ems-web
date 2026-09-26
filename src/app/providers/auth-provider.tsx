@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { AuthContext, TOKEN_KEY, type AuthCredentials, type AuthUser } from "@entities/auth";
-
-const USER_KEY = "authUser";
+import { useEffect, useState } from "react";
+import { AuthContext, type AuthCredentials, type AuthUser } from "@entities/auth";
+import { SESSION_EXPIRED, tokenStorage } from "@shared/api";
 
 const getStoredUser = (): AuthUser | null => {
-  const raw = localStorage.getItem(USER_KEY);
+  const raw = tokenStorage.getUserRaw();
   if (!raw) return null;
   try {
     // 나중에 추가된 필드(teamId/teamName, userId)는 옛 저장값에 없다. 타입 단언이
@@ -23,26 +22,33 @@ const getStoredUser = (): AuthUser | null => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [accessToken, setAccessToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY)
+    tokenStorage.getAccessToken()
   );
   const [user, setUser] = useState<AuthUser | null>(() => getStoredUser());
 
   const login = (data: AuthCredentials) => {
     const { accessToken, ...userData } = data;
 
-    localStorage.setItem(TOKEN_KEY, accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
+    tokenStorage.setAccessToken(accessToken);
+    tokenStorage.setUserRaw(JSON.stringify(userData));
 
     setAccessToken(accessToken);
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    tokenStorage.clear();
     setAccessToken(null);
     setUser(null);
   };
+
+  // 재발급까지 실패하면 shared(axios)가 저장소를 비우고 알린다 — 로그인 화면으로 새로 시작한다.
+  // 전체 새로고침으로 보내는 것은 화면에 남은 쿼리 캐시·구독(STOMP·SSE)을 한 번에 끊기 위해서다.
+  useEffect(() => {
+    const handleExpired = () => window.location.assign("/");
+    window.addEventListener(SESSION_EXPIRED, handleExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED, handleExpired);
+  }, []);
 
   const isAuthenticated = !!accessToken; // accessToken이 null이면 False
 

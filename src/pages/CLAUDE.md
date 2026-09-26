@@ -121,7 +121,10 @@ client/
 ├── contract/
 │   ├── index.ts
 │   └── ...
-└── pollutant/
+├── pollutant/
+│   ├── index.ts
+│   └── ...
+└── measurement-method/
     ├── index.ts
     └── ...
 ```
@@ -191,6 +194,7 @@ sub-domain/
 | `client/contract` | `/contracts/register` | ContractRegisterPage | ProtectedRoute |
 | `client/contract` | `/contracts/:contractId` | ContractDetailPage | ProtectedRoute |
 | `client/pollutant` | `/pollutants` | PollutantPage | ProtectedRoute |
+| `client/measurement-method` | `/measurement-methods` | MeasurementMethodPage | ProtectedRoute |
 | `equipment` | `/equipment` | EquipmentPage | ProtectedRoute |
 | `staff` | `/staff` | StaffPage | ProtectedRoute |
 | `schedule` | `/schedule` | SchedulePage | ProtectedRoute |
@@ -201,6 +205,7 @@ sub-domain/
 | `chat` | `/chat/:roomId` | ChatPage | ProtectedRoute |
 | `admin/member` | `/admin/members` | AdminMemberPage | **AdminRoute** |
 | `admin/document` | `/admin/documents` | AdminDocumentPage | **AdminRoute** |
+| `admin/custom-field` | `/admin/custom-fields` | AdminCustomFieldPage | **AdminRoute** |
 | `platform/tenant` | `/platform/tenants` | PlatformTenantPage | **PlatformRoute** |
 | `platform/pollutant-catalog` | `/platform/pollutant-catalog` | PlatformPollutantCatalogPage | **PlatformRoute** |
 
@@ -220,3 +225,22 @@ sub-domain/
 레이아웃 인스턴스는 하나로 둔다 — 별도 레이아웃 라우트를 만들면 사이드바가 새 트리로
 리마운트되어 펼쳐 둔 메뉴가 접히고 전환이 깜빡인다. 타입은
 `widgets/layouts/route-handle.ts` 의 `MainRouteHandle` 이다.
+
+### 모바일 sticky 헤더를 갖는 상세 화면 — `DETAIL_ROUTE_HANDLE`
+
+측정계획 상세처럼 **제목줄 · 식별 칩 · 탭이 상단에 고정**되는 MO 시안 화면은 라우트에
+`handle={DETAIL_ROUTE_HANDLE}`(`{ detail: true }`)을 주고, 페이지는 `PageLayout` 에
+`showMenu stickyHeader` 를 넘긴다. 모두 모바일(md 미만) 전용이며 데스크탑은 기존 규격 그대로다.
+
+- 레이아웃: 브랜드 상단 바 숨김 · 상단 여백 0 (본문 배경은 다른 페이지처럼 `bg-canvas`)
+- 헤더(제목줄 · 칩 · 탭)만 전폭 `bg-surface` 로 깔린다
+- `showMenu`: 브랜드 바에 있던 ⋯(사이드바 열기) 버튼을 제목줄 우측 끝에 노출
+- `stickyHeader`: 제목줄(58px) + `subtitle` 칩 줄(25px)을 `sticky top-0` 으로 고정
+- 헤더 아래에 함께 고정할 요소(탭 목록)는 `sticky` + `PAGE_STICKY_HEADER_OFFSET` 을 건다
+  (예: `ScheduleProfile` 의 `Tabs listClassName`)
+
+```tsx
+<Route path="/schedule/:scheduleId" element={<ScheduleDetailPage />} handle={DETAIL_ROUTE_HANDLE} />
+
+<PageLayout title="측정계획 상세" subtitle={<ScheduleProfileHeadline />} showBack backTo={backTo} showMenu stickyHeader>
+```

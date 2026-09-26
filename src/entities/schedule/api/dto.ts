@@ -1,7 +1,8 @@
 import type {
   MeasurementField, ScheduleStatus, MeasurementType, Grade, Shape, Orientation,
-  MeasurementMethod, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
+  SampleGrouping, MeasurementMode, PollutantPhase, MeasurementCycle, EquipType, PitotTubeType,
   MeasurementCategory, WeatherCondition, WindDirection, InspectionType,
+  TemplateIssueType, TemplateExpressionSource,
 } from "@shared/model";
 
 export type ScheduleListResponse = {
@@ -63,11 +64,22 @@ export type ScheduleResponse = {
 // 장비는 팀 아래(team.equipments), 채취 기록지는 채취 정보 아래(samplingData.sheets),
 // 실험분석 결과는 측정항목 안(items[].analysis)에 있다.
 export type ScheduleSnapshotDto = {
-  team: TeamSnapshotDto;
-  tenant: TenantSnapshotDto;
+  id: string;
+  scheduleId: number;
+  tenantId: number;
+  version: number;
+  
   client: ClientSnapshotDto;
+  tenant: TenantSnapshotDto;
+  team: TeamSnapshotDto;
   samplingData: SamplingSnapshotDto;
-  items: MeasurementItemSnapshotDto[];
+
+  items: SamplingItemSnapshotDto[];
+
+  // 이 회차의 커스텀 필드 값(키 → 값). 키는 고객사가 정의한 커스텀 필드(GET /schedules/custom-fields)이고
+  // 라벨은 그 정의에서 따로 받는다 — 응답에 라벨을 섞으면 정의의 사본이 된다.
+  // 필드 도입 전에 만들어진 문서는 null 로 온다.
+  customFields: Record<string, string> | null;
 };
 
 // 그 회차의 현장 채취 사실 — 채취 시각·현장 담당자·채취 기록지.
@@ -215,7 +227,26 @@ export type AnalysisResultDto = {
   samplingEndedAt: string | null;
 };
 
-export type MeasurementItemSnapshotDto = {
+/**
+ * 측정 시점 측정방법 사본. 원장(`/measurement-methods`)에서 복사한 값이라 이후 고객사가 측정방법을
+ * 고쳐도 이 회차의 기록지는 바뀌지 않는다.
+ *
+ * `methodId` 는 원장 연결키다. 측정방법 승격(2026-09-14) 이전 문서는 마이그레이션이 enum 문자열을
+ * 이 사본으로 바꾼 것이라 null 이다 — 소비처는 `methodId ?? name` 으로 그룹을 식별한다.
+ * `samplingMinutes` 는 표준(계획) 채취시간이며 실측 시각과 다르다.
+ */
+export type MeasurementMethodSnapshotDto = {
+  methodId: number | null;
+  name: string;
+  sampleGrouping: SampleGrouping;
+  /** `MERGED` 일 때만 값이 있다 */
+  mergedSampleName: string | null;
+  samplingMinutes: number | null;
+  /** 표준 흡인유량(L/min). 통칭 시료의 유량은 이 값이 정한다. 도입 이전 문서는 null */
+  suctionFlowRate: number | null;
+};
+
+export type SamplingItemSnapshotDto = {
   stackPollutantId: number;
   pollutantId: number;
   /**
@@ -228,14 +259,27 @@ export type MeasurementItemSnapshotDto = {
   nameEn: string;
   field: MeasurementField;
   /**
-   * 채취 방법(흡착관·카트리지·흡수액 등)과 입자상/가스상 구분. `code` 와 같은 이유로 null 일 수
-   * 있다 — 카탈로그 도입 이전 스냅샷과 고객사 자체 물질은 카탈로그 투영값이 비어 있다.
+   * 측정방법 사본(채취 단위·통칭 시료명·표준 채취시간)과 입자상/가스상 구분.
+   * `method` 는 고객사가 물질을 채택할 때 정한 측정방법이라 정해지지 않은 레거시 항목은 null 이고,
+   * `phase` 는 `code` 와 같은 이유로 null 일 수 있다 — 카탈로그 도입 이전 스냅샷과 고객사 자체 물질.
    * 현장채취 가스상 표의 행 구성이 이 둘로 결정되므로 소비처는 null 분기를 반드시 다뤄야 한다.
    */
-  method: MeasurementMethod | null;
+  method: MeasurementMethodSnapshotDto | null;
   phase: PollutantPhase | null;
+  /** 측정방식 분류(카탈로그 전역 사실)의 사본. 회사 측정방법과 무관하게 항목을 묶는 축. 구 문서는 null */
+  mode: MeasurementMode | null;
   equipment: string;
   testMethod: string;
+  /**
+   * 이 항목에 적용되는 표준 채취시간(분). 항목별 오버라이드가 반영된 값이라 `method.samplingMinutes`(방법 기본값)와
+   * 다를 수 있다. 계획 기본값이며 실측 시각은 `analysis` 가 갖는다. 승격 이전 문서는 null.
+   */
+  samplingMinutes: number | null;
+  /**
+   * 이 항목에 적용되는 표준 흡인유량(L/min). 항목별 오버라이드가 반영된 값 — 새 가스상 행의 흡인유량 칸을
+   * 이 값으로 채워 시작한다. 실측값은 행이 따로 갖는다. 도입 이전 문서는 null.
+   */
+  suctionFlowRate: number | null;
   cycle: MeasurementCycle;
   allowance: number | null;
   /** 측정 시점의 산소보정 적용 여부 — 측정시설 원장(stack-pollutant)에서 스냅샷된 값 */
@@ -326,6 +370,8 @@ export type ExhaustGasDataDto = {
   // 계산결과
   standardGasDensity: number | null;        // 표준상태 배출가스밀도
   o2CorrectionFactor: number | null;        // 산소보정계수
+  // 아래 평균 5종은 서버 도메인에 필드만 있고 ApplyResultStep 이 채우지 않아 항상 null 이다.
+  // 평균이 필요하면 회차 값에서 `calcExhaustGasAverage`(lib/sheet-calc) 로 낸다.
   avgO2: number | null;
   avgCo2: number | null;
   avgCo: number | null;
@@ -581,6 +627,35 @@ export type ChangeTenantSnapshotRequest = {
   zipcode?: string | null;
   analyst: string | null;
   technicalManager: string | null;
+};
+
+// 회차 커스텀 필드 값 저장 — PUT /schedules/{id}/custom-fields
+// **전체 채택**이다 — 커스텀 필드 폼이 단독 소유하는 경로라 정의된 필드 전부를 보내며,
+// 요청에 없는 키와 빈 값은 "지웠다"로 읽는다. 키는 이 고객사에 정의된 것이어야 한다(아니면 400).
+// 값은 500자 이하. 계산 입력이 아니라 시트는 재계산되지 않고, 분석값 입력 단계 이후에도 고칠 수 있다.
+export type SaveScheduleCustomFieldsRequest = {
+  values: Record<string, string>;
+};
+
+// 채취기록부 템플릿 검사 결과 — POST /schedules/sampling-records/template-check
+// 템플릿을 채우지 않고 `${...}` 와 `jx:` 메모를 읽어 바인딩 계약에 없는 이름을 돌려준다.
+// 렌더링은 없는 이름을 오류 없이 빈칸으로 넘기므로, 양식을 등록하기 전에 이 검사로 오타를 잡는다.
+export type TemplateCheckResponse = {
+  valid: boolean;
+  issues: TemplateIssueResponse[];
+};
+
+export type TemplateIssueResponse = {
+  sheetName: string;
+  /** 셀 주소(예: "B3"). 시트 단위 문제(AREA_MISSING)면 null */
+  cell: string | null;
+  /** 셀 텍스트인지 메모 명령인지. 시트 단위 문제면 null */
+  source: TemplateExpressionSource | null;
+  /** 문제가 난 표현식 본문. 시트 단위 문제면 null */
+  expression: string | null;
+  /** 문제의 이름 — 미해결 경로는 실패 지점까지의 점 경로(예: "plan.clientNmae") */
+  name: string;
+  type: TemplateIssueType;
 };
 
 // 측정팀 스냅샷 수정 — PATCH /schedules/{id}/team

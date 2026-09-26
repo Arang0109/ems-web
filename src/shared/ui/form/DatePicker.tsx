@@ -1,18 +1,14 @@
 import React from "react";
-import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
+import { toDateKey } from "@shared/lib";
 import { Button } from "@shared/ui/buttons";
 import { Calendar } from "@shared/ui/primitives";
-import { Field, FieldDescription } from "@shared/ui/primitives";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { PopoverRoot, PopoverContent, PopoverTrigger } from "../popover";
 import { cn } from "@/lib/utils";
 
-import { InFieldLabel } from "./InFieldLabel";
+import { InFieldShell } from "./InFieldShell";
+import { isFieldInvalid, type FieldErrorProps } from "./field-error";
 import {
   IN_FIELD_CONTROL_HEIGHT,
   IN_FIELD_ICON_CLASS,
@@ -20,7 +16,7 @@ import {
   inFieldPlaceholder,
 } from "./in-field";
 
-interface DatePickerProps {
+interface DatePickerProps extends FieldErrorProps {
   id?: string;
   label?: React.ReactNode;
   value?: Date;
@@ -29,7 +25,6 @@ interface DatePickerProps {
   disabled?: boolean;
   required?: boolean;
   helperText?: string;
-  errorMessage?: string;
   className?: string;
 }
 
@@ -43,15 +38,16 @@ export const DatePicker = ({
   required,
   helperText,
   errorMessage,
+  invalid: invalidProp,
   className,
 }: DatePickerProps) => {
   const [open, setOpen] = React.useState(false);
   const hasLabel = !!label;
-  const invalid = !!errorMessage;
+  const invalid = isFieldInvalid({ errorMessage, invalid: invalidProp });
   const effectivePlaceholder = hasLabel ? inFieldPlaceholder(placeholder, label) : placeholder;
 
   const picker = (
-    <Popover open={open} onOpenChange={setOpen}>
+    <PopoverRoot open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <Button
@@ -61,7 +57,7 @@ export const DatePicker = ({
             aria-invalid={invalid || undefined}
             className={cn(
               "w-full justify-start text-left font-normal",
-              !value && "text-muted-foreground",
+              !value && "text-muted-ink",
               // 라벨이 칸 안에 들어오면 달력 아이콘은 우측으로 옮겨 세로 중앙에 고정한다 —
               // 좌측에 두면 라벨 시작점까지 아이콘 폭만큼 밀려 다른 인필드 칸과 글줄이 어긋난다
               hasLabel && cn("relative pl-2.5 pr-9", IN_FIELD_CONTROL_HEIGHT, IN_FIELD_VALUE_CLASS),
@@ -69,12 +65,12 @@ export const DatePicker = ({
             )}
           >
             {!hasLabel && <CalendarIcon className="mr-2 size-4" />}
-            {value ? format(value, "yyyy-MM-dd") : <span>{effectivePlaceholder}</span>}
-            {hasLabel && <CalendarIcon className={cn("size-4 text-muted-foreground", IN_FIELD_ICON_CLASS)} />}
+            {value ? toDateKey(value) : <span>{effectivePlaceholder}</span>}
+            {hasLabel && <CalendarIcon className={cn("size-4 text-muted-ink", IN_FIELD_ICON_CLASS)} />}
           </Button>
         }
       />
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="p-0" align="start">
         <Calendar
           mode="single"
           selected={value}
@@ -85,27 +81,22 @@ export const DatePicker = ({
           defaultMonth={value}
         />
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 
   if (!hasLabel) return picker;
 
   return (
-    <Field data-invalid={invalid || undefined} className="gap-1.5">
-      <div className="relative">
-        <InFieldLabel
-          htmlFor={id}
-          required={required}
-          invalid={invalid}
-          disabled={disabled}
-          className="left-2.5"
-        >
-          {label}
-        </InFieldLabel>
-        {picker}
-      </div>
-      {helperText && <FieldDescription>{helperText}</FieldDescription>}
-      {errorMessage && <FieldDescription className="text-destructive">{errorMessage}</FieldDescription>}
-    </Field>
+    <InFieldShell
+      id={id}
+      label={label}
+      required={required}
+      disabled={disabled}
+      helperText={helperText}
+      errorMessage={errorMessage}
+      invalid={invalid}
+    >
+      {picker}
+    </InFieldShell>
   );
 };

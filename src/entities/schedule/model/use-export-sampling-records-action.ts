@@ -1,6 +1,5 @@
 import { useEntityMutation } from "@shared/model";
-import { readBlobErrorMessage, ApiResponseError } from "@shared/api";
-import { parseAttachmentFilename } from "@shared/lib";
+import { unwrapBlob } from "@shared/api";
 import type { SamplingRecordsExport } from "./types";
 import { scheduleApi } from "../api/api";
 
@@ -17,23 +16,12 @@ export const useExportSamplingRecordsAction = () => {
   const { run, isLoading, error } = useEntityMutation(async (id: number, template: File): Promise<SamplingRecordsExport> => {
     const res = await scheduleApi.exportSamplingRecords(id, template);
 
-    // 성공 응답이 ZIP 바이너리라 ApiResponseMessage.status로 성공 여부를 볼 수 없고,
-    // axiosPrivate 인터셉터가 에러 응답도 resolve로 넘기므로 HTTP status를 직접 판별한다.
-    if (res.status < 200 || res.status >= 300) {
-      const serverMessage = await readBlobErrorMessage(res.data);
-      throw new ApiResponseError(serverMessage ?? FALLBACK_MESSAGE[res.status] ?? "채취기록지 생성에 실패했습니다.");
-    }
-
-    // axios 헤더 값 타입이 string으로 좁혀지지 않아 문자열일 때만 파싱한다.
-    const disposition = res.headers["content-disposition"];
-
-    return {
-      blob: res.data,
+    return unwrapBlob(res, {
+      fallbackMessage: "채취기록지 생성에 실패했습니다.",
+      messageByStatus: FALLBACK_MESSAGE,
       // 헤더 파싱이 실패해도 서버와 같은 규칙으로 파일명을 만든다.
-      filename:
-        parseAttachmentFilename(typeof disposition === "string" ? disposition : undefined)
-        ?? `채취기록부-${id}.zip`,
-    };
+      fallbackFilename: `채취기록부-${id}.zip`,
+    });
   }, { fallbackMessage: "채취기록지 생성에 실패했습니다." });
 
   return { exportSamplingRecords: run, isLoading, error };

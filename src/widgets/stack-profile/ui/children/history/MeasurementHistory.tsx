@@ -38,7 +38,7 @@ export const MeasurementHistory = ({ stackId }: Props) => {
   );
 
   if (isLoading) return <EmptyText>불러오는 중...</EmptyText>;
-  if (error) return <p className="py-8 text-center text-body-2 text-danger">{error}</p>;
+  if (error) return <EmptyText tone="danger">{error}</EmptyText>;
   if (!hasRecords) return <EmptyText>완료된 측정 이력이 없습니다.</EmptyText>;
 
   const handleYearChange = (value: string | null) => {

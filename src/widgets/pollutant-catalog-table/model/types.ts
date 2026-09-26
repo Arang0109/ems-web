@@ -5,7 +5,8 @@ export type PollutantCatalogTableRow = {
   code: string;
   field: string;
   nameKr: string;
-  method: string;
+  /** 측정방식 라벨. 미분류면 '—' */
+  mode: string;
   /** 미지정이면 '—' */
   sortOrder: string;
   statusLabel: string;

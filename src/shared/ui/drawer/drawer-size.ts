@@ -14,20 +14,6 @@ export const DRAWER_SIDES = ["top", "right", "bottom", "left"] as const;
 
 export type DrawerSide = (typeof DRAWER_SIDES)[number];
 
-/**
- * 백드롭.
- *
- * `components/ui/dialog.tsx` · `components/ui/sheet.tsx` · `dialogs/ConfirmDialog.tsx` 에
- * 같은 문자열이 이미 세 벌 있고 이것이 네 번째다. z-index 도 네 곳 모두 `z-50` 리터럴이다.
- * DESIGN-SYSTEM.md 의 "모달 폭·백드롭·z-index 토큰화" 항목이 가리키는 지점이므로,
- * 그 작업이 오면 네 곳을 함께 걷어낸다. 여기서는 최소한 이름을 붙여 둔다.
- */
-export const DRAWER_BACKDROP_CLASS =
-  "fixed inset-0 isolate z-50 bg-black/10 transition-opacity duration-200 " +
-  "supports-backdrop-filter:backdrop-blur-xs " +
-  "data-starting-style:opacity-0 data-ending-style:opacity-0 " +
-  "motion-reduce:transition-none dark:bg-black/50";
-
 /** 표면 — side 와 무관한 부분. 색·글씨·그림자는 `ConfirmDialog` 와 같은 팔레트 어휘를 쓴다. */
 export const DRAWER_POPUP_CLASS =
   "fixed z-50 flex flex-col bg-surface text-ink shadow-panel outline-none " +

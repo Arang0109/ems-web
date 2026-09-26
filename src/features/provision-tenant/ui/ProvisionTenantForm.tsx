@@ -40,8 +40,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             placeholder="고객사명"
             value={form.name}
             onChange={(value) => handleChange("name", value)}
-            invalid={!!fieldErrors?.name}
-            error={fieldErrors?.name}
+            errorMessage={fieldErrors?.name}
             required
             startIcon={<Building2 />}
           />
@@ -52,8 +51,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             code="business"
             value={form.bizNumber}
             onChange={(value) => handleChange("bizNumber", value)}
-            invalid={!!fieldErrors?.bizNumber}
-            error={fieldErrors?.bizNumber}
+            errorMessage={fieldErrors?.bizNumber}
             startIcon={<Hash />}
           />
         </div>
@@ -80,8 +78,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             placeholder="아이디"
             value={form.adminUsername}
             onChange={(value) => handleChange("adminUsername", value)}
-            invalid={!!fieldErrors?.adminUsername}
-            error={fieldErrors?.adminUsername}
+            errorMessage={fieldErrors?.adminUsername}
             required
             startIcon={<User2Icon />}
           />
@@ -92,8 +89,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             placeholder="비밀번호"
             value={form.adminPassword}
             onChange={(value) => handleChange("adminPassword", value)}
-            invalid={!!fieldErrors?.adminPassword}
-            error={fieldErrors?.adminPassword}
+            errorMessage={fieldErrors?.adminPassword}
             required
             startIcon={<KeyRound />}
           />
@@ -105,8 +101,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             placeholder="이름"
             value={form.adminName}
             onChange={(value) => handleChange("adminName", value)}
-            invalid={!!fieldErrors?.adminName}
-            error={fieldErrors?.adminName}
+            errorMessage={fieldErrors?.adminName}
             required
             startIcon={<User2Icon />}
           />
@@ -135,8 +130,7 @@ export const ProvisionTenantForm = ({ open, onOpenChange, onSuccess }: Props) =>
             placeholder="이메일"
             value={form.adminEmail}
             onChange={(value) => handleChange("adminEmail", value)}
-            invalid={!!fieldErrors?.adminEmail}
-            error={fieldErrors?.adminEmail}
+            errorMessage={fieldErrors?.adminEmail}
             startIcon={<MailIcon />}
           />
         </div>

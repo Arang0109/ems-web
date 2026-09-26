@@ -22,8 +22,7 @@ export const UpdateDocumentFields = ({ form, fieldErrors, onChange }: Props) => 
         placeholder="문서명"
         value={form.name}
         onChange={(value) => onChange('name', value)}
-        invalid={!!fieldErrors?.name}
-        error={fieldErrors?.name}
+        errorMessage={fieldErrors?.name}
         required
       />
       <Select
@@ -46,7 +45,8 @@ export const UpdateDocumentFields = ({ form, fieldErrors, onChange }: Props) => 
       rows={2}
       maxLength={500}
       // 서버가 blank를 "기존값 유지"로 해석하므로 지우기가 불가능하다는 점을 명시한다.
-      helperText={fieldErrors?.description ?? '비워두면 기존 설명이 유지됩니다.'}
+      helperText='비워두면 기존 설명이 유지됩니다.'
+      errorMessage={fieldErrors?.description}
     />
   </FieldGroup>
 );

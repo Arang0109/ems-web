@@ -33,7 +33,7 @@ export const MemberTable = () => {
         title="회원 목록"
         actions={
           <>
-            <Search filter={globalFilter} setFilter={setGlobalFilter} placeholder={'아이디, 이름, 부서 검색 ...'} />
+            <Search value={globalFilter} onChange={setGlobalFilter} placeholder={'아이디, 이름, 부서 검색 ...'} />
             <RegisterMemberForm
               key={registerFormKey}
               open={registerModalOpen}

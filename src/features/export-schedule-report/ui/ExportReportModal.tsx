@@ -2,12 +2,19 @@ import { formatFileSize } from "@shared/lib";
 import { FormDialog } from "@shared/ui/dialogs";
 import { Select } from "@shared/ui/form";
 
+import { Button } from "@shared/ui/buttons";
+import { SearchCheck } from "lucide-react";
+
 import type { ReportTemplate } from "../model/hooks/use-report-template";
+import type { useTemplateCheck } from "../model/hooks/use-template-check";
+import { TemplateCheckResult } from "./TemplateCheckResult";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   template: ReportTemplate;
+  /** 양식 검사 — 없으면 검사 버튼을 그리지 않는다 */
+  check?: ReturnType<typeof useTemplateCheck>;
   isLoading: boolean;
   onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
 }
@@ -18,7 +25,7 @@ interface Props {
 // 성적서 export 가 아직 쓰이지 않아 당분간 채취기록부 export 를 탄다(useExportReport 참고).
 // 문구도 실제로 내려받는 것에 맞춰 두었다 — 되돌릴 때 함께 성적서 문구로 되돌린다.
 export const ExportReportModal = ({
-  open, onOpenChange, template, isLoading, onSubmit,
+  open, onOpenChange, template, check, isLoading, onSubmit,
 }: Props) => {
   const {
     documentOptions, versionOptions, documentId, selectedVersion,
@@ -74,17 +81,34 @@ export const ExportReportModal = ({
 
       {/* 양식이 아예 없으면 어디서 등록하는지까지 알려준다. */}
       {!hasDocuments && !isDocumentsLoading && !loadError && (
-        <p className="mt-3 text-caption text-muted-foreground">
+        <p className="mt-3 text-caption text-muted-ink">
           등록된 채취기록부 양식이 없습니다. 관리자 문서 관리에서 먼저 양식을 등록해 주세요.
         </p>
       )}
 
       {(loadError || templateError) && (
-        <p className="mt-3 text-caption text-destructive">{loadError ?? templateError}</p>
+        <p className="mt-3 text-caption text-danger">{loadError ?? templateError}</p>
+      )}
+
+      {/* 렌더링은 없는 이름을 오류 없이 빈칸으로 넘기므로, 내려받기 전에 이름 오류를 미리 본다. */}
+      {check && (
+        <div className="mt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            startIcon={SearchCheck}
+            onClick={check.handleCheck}
+            disabled={!canSubmit || isLoading || check.isChecking}
+          >
+            {check.isChecking ? "검사 중..." : "양식 검사"}
+          </Button>
+          {check.result && <TemplateCheckResult result={check.result} />}
+        </div>
       )}
 
       {/* 기록지 종류만큼 파일이 만들어져 ZIP으로 묶이므로 미리 알린다. */}
-      <p className="mt-3 text-caption text-muted-foreground">
+      <p className="mt-3 text-caption text-muted-ink">
         기록지 종류별로 엑셀 파일이 생성되어 ZIP으로 압축된 뒤 내려받아집니다.
       </p>
     </FormDialog>

@@ -44,15 +44,15 @@ export const InspectionHistoryDialog = ({
         <Divider />
 
         <SectionTitle>수검 이력</SectionTitle>
-        {isLoading && <p className="text-body-2 text-muted-foreground">이력을 불러오는 중입니다...</p>}
+        {isLoading && <p className="text-body-2 text-muted-ink">이력을 불러오는 중입니다...</p>}
         {!isLoading && records.length === 0 && (
-          <p className="text-body-2 text-muted-foreground">등록된 수검 이력이 없습니다.</p>
+          <p className="text-body-2 text-muted-ink">등록된 수검 이력이 없습니다.</p>
         )}
         {!isLoading && records.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px] border-collapse">
               <thead>
-                <tr className="border-b border-border text-body-4 text-muted-foreground">
+                <tr className="border-b border-rule text-body-4 text-muted-ink">
                   <th className="py-2 text-left font-normal">실시일</th>
                   <th className="py-2 text-left font-normal">유효기간</th>
                   <th className="py-2 text-left font-normal">검사기관</th>
@@ -62,12 +62,12 @@ export const InspectionHistoryDialog = ({
               </thead>
               <tbody>
                 {records.map((record) => (
-                  <tr key={record.id} className="border-b border-border last:border-b-0">
-                    <td className="py-2.5 text-body-2 text-foreground whitespace-nowrap">{record.inspectedAt}</td>
-                    <td className="py-2.5 text-body-2 text-muted-foreground whitespace-nowrap">{record.validUntil ?? '—'}</td>
-                    <td className="py-2.5 text-body-2 text-foreground">{record.agency || '—'}</td>
-                    <td className="py-2.5 text-body-2 text-foreground">{record.certificateNumber || '—'}</td>
-                    <td className="py-2.5 text-body-2 text-foreground whitespace-nowrap">
+                  <tr key={record.id} className="border-b border-rule last:border-b-0">
+                    <td className="py-2.5 text-body-2 text-ink whitespace-nowrap">{record.inspectedAt}</td>
+                    <td className="py-2.5 text-body-2 text-muted-ink whitespace-nowrap">{record.validUntil ?? '—'}</td>
+                    <td className="py-2.5 text-body-2 text-ink">{record.agency || '—'}</td>
+                    <td className="py-2.5 text-body-2 text-ink">{record.certificateNumber || '—'}</td>
+                    <td className="py-2.5 text-body-2 text-ink whitespace-nowrap">
                       {record.result ? INSPECTION_RESULT_LABEL[record.result] : '—'}
                     </td>
                   </tr>

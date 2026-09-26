@@ -1,13 +1,10 @@
 import { useNavigate } from "react-router";
 
 import { useAuth, isAdmin } from "@entities/auth";
-import {
-  useCompleteScheduleAction, useCancelScheduleAction, useReopenScheduleAction,
-} from "@entities/schedule";
 
+import { canDeleteSchedule, canReopenSchedule, canTransitionScheduleStatus, requiresAdminToReopenSchedule, useCancelScheduleAction, useCompleteScheduleAction, useReopenScheduleAction } from "@entities/schedule";
 import {
-  canDeleteSchedule, canReopenSchedule, canTransitionScheduleStatus,
-  requiresAdminToReopenSchedule, type ScheduleStatus,
+  type ScheduleStatus,
 } from "@shared/model";
 import { useConfirm } from "@shared/ui/dialogs";
 import { toast } from "@shared/ui/toasts";

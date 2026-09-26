@@ -47,12 +47,28 @@ feature-name/
 feature-name/
 ├── index.ts
 ├── model/
-│   ├── types.ts
-│   ├── mapper.ts
-│   ├── validator.ts
-│   ├── section-progress.ts   # 섹션별 입력 진행도 계산
-│   ├── field-hints.ts        # 항목 도움말 문구 (shared/ui 의 HelpTip 이 소비)
+│   ├── types.ts              # 폼 타입·기본값 팩토리
+│   ├── sections.ts           # 섹션 id·순서·라벨의 정본 (판정은 input/ 이 한다)
+│   ├── mapper.ts             # Form ↔ Domain
+│   ├── input/                # 입력 칸의 규칙 — 무엇을 적는가
+│   │   ├── required-fields.ts    # 칸 경로·필수 목록·isFilled (단일 소스)
+│   │   ├── section-progress.ts   # 섹션별 입력 진행도
+│   │   ├── validator.ts
+│   │   ├── point-chain.ts        # 지점 간 입력 전파
+│   │   ├── common-sections.ts    # 기록지 간 공유 값(기상·수분·배출가스·측정점 온도·동정압) 복사
+│   │   └── field-hints.ts        # 항목 도움말 문구 (shared/ui 의 HelpTip 이 소비)
+│   ├── derived/              # 입력에서 파생하는 표시값 — 폼에 쓰지 않는다
+│   │   ├── derived-times.ts      # 고정·합산 시각 (가스분석기 15분, 입자상 종료시각 …)
+│   │   ├── suction.ts            # m³→L, 흡인유량 환산
+│   │   └── sampling-timeline.ts, nozzle-estimate.ts, input-average.ts, wall-distances.ts
+│   ├── gaseous/              # 가스상 시료 행 — 항목↔행 대응(gaseous-rows)과 행 규칙(sample-rules)
+│   ├── sync/                 # 동시편집 — blocks·conflict·remote-sync (순수 함수, 전부 테스트)
 │   └── hooks/
+│       ├── use-save-sheets.ts        # 파사드 — 폼 상태·저장 파이프라인·반환 표면
+│       ├── use-sheet-rules.ts        # 스냅샷 항목 → 규칙 파생 (useMemo 만)
+│       ├── use-remote-sheets-sync.ts # SSE 구독·병합·강조 타이머 (effect 는 여기에만)
+│       ├── use-sheet-conflict.ts     # 409 복구
+│       └── use-sync-common-sections.ts # 앞 기록지의 공유 값 가져오기
 └── ui/
     ├── XxxEditor.tsx         # 섹션 조합 셸
     ├── sections/             # 섹션 단위 컴포넌트 + shell-props.ts
@@ -60,6 +76,15 @@ feature-name/
     ├── calc/                 # 계산 결과 표면 — 섹션을 가로지르는 파생값 (아래 참조)
     └── report/               # 인쇄/미리보기 전용 뷰
 ```
+
+`model/` 의 하위 폴더는 **입력(input) / 파생(derived)** 을 가르는 아래 원칙을 폴더로 옮긴 것이다.
+폴더 사이에 배럴(index.ts)은 두지 않고 파일을 직접 import 한다.
+
+- **파생값은 폼에 쓰지 않는다.** `derived/`·`gaseous/sample-rules` 의 결과는 표시만 대체한다
+  (`use-save-sheets` 의 "effect 금지, 파생만"). 폼 상태를 effect 로 동기화하면 기준선(baseline)·동시편집 병합이
+  자동값을 편집으로 오인한다. 예외는 입자상 종료시각(`withParticleEndTime`) 하나뿐이며 저장되지만 입력이 아니다.
+- **함수명 접두사**: `calc*` 숫자·시각 계산 / `get*` 조회·선택 / `is*`·`has*` 판정 / `build*` 구조 생성 /
+  `to*`·`from*` 변환 / `with*`·`apply*` 갱신된 폼 반환 / `describe*` 사용자 문구.
 
 ### 입력과 계산 결과는 표면으로 가른다
 
@@ -77,7 +102,7 @@ feature-name/
 같은 값이라도 **어떤 표현으로 놓였는지**가 기준이다. 측정지점 평균이 그 예다 —
 데스크탑 전치 표의 `평균` 열은 지점 값 옆에서 대조하는 자리라 남고, 모바일 카드 아래 붙던
 `측정지점 평균` 아코디언은 입력에서 떨어진 결과 묶음이라 드로어로 갔다.
-두 표현이 어긋나지 않도록 평균 판정은 `averageOf` 한 곳에서만 나온다.
+두 표현이 어긋나지 않도록 평균 판정은 `averageOfInputs`(`model/derived/input-average`) 한 곳에서만 나온다.
 
 ```
 ui/calc/

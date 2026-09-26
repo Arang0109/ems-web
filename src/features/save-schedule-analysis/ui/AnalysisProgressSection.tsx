@@ -1,6 +1,6 @@
-import { format } from "date-fns";
 import { Save } from "lucide-react";
 
+import { toPickerDate, fromPickerDate } from "@shared/lib";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { Button } from "@shared/ui/buttons";
 import { DatePicker, InputGroup } from "@shared/ui/form";
@@ -17,9 +17,6 @@ interface Props {
   onChange: (name: keyof AnalysisProgressForm, value: string) => void;
   onSave: () => void;
 }
-
-const toDate = (value: string): Date | undefined => (value ? new Date(value) : undefined);
-const toDateValue = (date: Date | undefined): string => (date ? format(date, "yyyy-MM-dd") : "");
 
 /**
  * 분석 진행 정보. 시료가 실험실에 들어온 시점부터 성적서 발행까지의 일자와 담당자를 다룬다.
@@ -44,23 +41,23 @@ export const AnalysisProgressSection = ({
       <DatePicker
         id="receivedAt"
         label="시료접수일자"
-        value={toDate(form.receivedAt)}
+        value={toPickerDate(form.receivedAt)}
         disabled={!editable}
-        onChange={(date) => onChange("receivedAt", toDateValue(date))}
+        onChange={(date) => onChange("receivedAt", fromPickerDate(date))}
       />
       <DatePicker
         id="analyzedAt"
         label="분석완료일자"
-        value={toDate(form.analyzedAt)}
+        value={toPickerDate(form.analyzedAt)}
         disabled={!editable}
-        onChange={(date) => onChange("analyzedAt", toDateValue(date))}
+        onChange={(date) => onChange("analyzedAt", fromPickerDate(date))}
       />
       <DatePicker
         id="issuedAt"
         label="성적서발행일자"
-        value={toDate(form.issuedAt)}
+        value={toPickerDate(form.issuedAt)}
         disabled={!editable}
-        onChange={(date) => onChange("issuedAt", toDateValue(date))}
+        onChange={(date) => onChange("issuedAt", fromPickerDate(date))}
       />
       <InputGroup
         id="analyst"

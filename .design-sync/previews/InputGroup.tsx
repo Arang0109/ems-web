@@ -19,14 +19,13 @@ export const WithLabel = () => {
   );
 };
 
-/** 오류 상태 — `invalid` + `error` 가 함께 간다 */
+/** 오류 상태 — `errorMessage` 하나로 라벨·테두리 빨강 + 칸 아래 문구 */
 export const Invalid = () => (
   <div className="max-w-sm">
     <InputGroup
       label="사업자번호"
       value="123-45"
-      invalid
-      error="사업자번호 10자리를 모두 입력하세요."
+      errorMessage="사업자번호 10자리를 모두 입력하세요."
     />
   </div>
 );

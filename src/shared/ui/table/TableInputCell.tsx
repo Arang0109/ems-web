@@ -1,7 +1,7 @@
 import React from "react";
 
 import type { FieldTone } from "@shared/model";
-import { NumericField, TimeField } from "@shared/ui/form";
+import { ValueInput } from "@shared/ui/form";
 import { cn } from "@/lib/utils";
 
 import { STICKY_CELL_CLASS, cellFaceClass, isCellFilled } from "./cell-face";
@@ -67,47 +67,37 @@ export const TableInputCell = ({
       )}
     >
       <div className="flex items-center">
-        {type === "time" ? (
-          // 네이티브 시각 위젯은 열 폭보다 넓어 표를 밀어낸다
-          <TimeField
-            value={value}
-            onChange={onChange}
-            frame="none"
-            disabled={disabled}
-            inputClassName={inputClass}
-          />
-        ) : type === "number" ? (
-          // 모바일 숫자 키패드에는 `-` 가 없다 — 부호는 ± 버튼이 맡는다
-          <NumericField
-            value={value}
-            onChange={onChange}
-            allowNegative={min === undefined || min < 0}
-            step={step}
-            maxIntDigits={maxIntDigits}
-            maxDecimals={maxDecimals}
-            frame="none"
-            disabled={disabled}
-            placeholder={placeholder}
-            inputClassName={inputClass}
-          />
-        ) : (
-          <input
-            value={value}
-            type={type}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder ?? ""}
-            disabled={disabled}
-            aria-invalid={tone === "danger" || undefined}
-            className={cn(
-              "w-full bg-transparent text-ink placeholder:text-muted-ink focus:outline-none",
-              "disabled:cursor-not-allowed disabled:text-muted-ink",
-              inputClass,
-            )}
-            min={min}
-            max={max}
-            step={step}
-          />
-        )}
+        <ValueInput
+          type={type}
+          value={value}
+          onChange={onChange}
+          min={min}
+          step={step}
+          maxIntDigits={maxIntDigits}
+          maxDecimals={maxDecimals}
+          frame="none"
+          disabled={disabled}
+          placeholder={placeholder}
+          inputClassName={inputClass}
+          renderText={() => (
+            <input
+              value={value}
+              type={type}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder ?? ""}
+              disabled={disabled}
+              aria-invalid={tone === "danger" || undefined}
+              className={cn(
+                "w-full bg-transparent text-ink placeholder:text-muted-ink focus:outline-none",
+                "disabled:cursor-not-allowed disabled:text-muted-ink",
+                inputClass,
+              )}
+              min={min}
+              max={max}
+              step={step}
+            />
+          )}
+        />
         {unit && <span className="pr-1.5 text-caption text-muted-ink shrink-0"><i>{unit}</i></span>}
       </div>
     </td>

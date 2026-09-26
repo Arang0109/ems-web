@@ -18,8 +18,8 @@ export const CanceledScheduleTable = () => {
       <div className="mt-3 flex items-center gap-2">
         <Search
           className="w-full"
-          filter={globalFilter}
-          setFilter={setGlobalFilter}
+          value={globalFilter}
+          onChange={setGlobalFilter}
           placeholder={'관리번호, 시설, 팀 검색'}
         />
       </div>
