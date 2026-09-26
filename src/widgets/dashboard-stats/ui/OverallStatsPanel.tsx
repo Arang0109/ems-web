@@ -15,7 +15,7 @@ const CARDS = [
   { id: 'stackCount', label: '측정시설 수', unit: '개', icon: Factory },
 ] as const;
 
-export const OverallStatsWidget = ({ summary }: Props) => (
+export const OverallStatsPanel = ({ summary }: Props) => (
   <SummaryCardGroup
     title="전체 통계"
     gridClassName="grid grid-cols-1 gap-3 md:grid-cols-2"

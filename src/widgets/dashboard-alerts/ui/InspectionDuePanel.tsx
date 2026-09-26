@@ -10,7 +10,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-export const InspectionDueWidget = ({ equipments, isLoading }: Props) => (
+export const InspectionDuePanel = ({ equipments, isLoading }: Props) => (
   <AlertPanel
     title="검사 예정 장비"
     isLoading={isLoading}

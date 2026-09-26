@@ -1,22 +1,5 @@
 import type { InspectionType } from "@shared/model";
 
-export interface MeasurementCountChart {
-  label: string;
-  count: number;
-}
-
-export interface OverallStats {
-  workplaceCount: number;
-  contractCount: number;
-  stackCount: number;
-  totalMeasurements: number;
-}
-
-export interface MonthlyStats {
-  monthlyMeasurements: number;
-  newContractCount: number;
-}
-
 /** 만료 임박 계약. `daysRemaining` 은 서버 정의상 항상 0 이상이다. */
 export interface ExpiringContract {
   contractId: number;

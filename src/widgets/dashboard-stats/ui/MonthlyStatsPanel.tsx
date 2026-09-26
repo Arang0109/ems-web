@@ -13,7 +13,7 @@ const CARDS = [
   { id: 'newContractCount', label: '신규 계약', unit: '건', icon: FilePlus },
 ] as const;
 
-export const MonthlyStatsWidget = ({ summary }: Props) => (
+export const MonthlyStatsPanel = ({ summary }: Props) => (
   <SummaryCardGroup
     title="이번달 통계"
     gridClassName="grid grid-cols-1 gap-3 sm:grid-cols-2"

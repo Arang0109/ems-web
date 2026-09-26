@@ -69,7 +69,7 @@ interface Props {
 
 /**
  * 값 영역은 라벨 높이만큼 내려야 라벨과 겹치지 않는다.
- * 모바일은 값 글자가 18px 이라 한 단계 더 내린다 — 프레임도 그만큼(56px) 높다.
+ * 모바일은 한 단계 더 내린다 — 프레임도 그만큼(56px) 높다.
  */
 const LABELED_VALUE_CLASS = cn(IN_FIELD_VALUE_CLASS, "max-md:pt-6");
 
@@ -87,8 +87,8 @@ const LABELED_VALUE_CLASS = cn(IN_FIELD_VALUE_CLASS, "max-md:pt-6");
  * 단위는 **라벨 줄 뒤 괄호**로 붙는다 — 우측 회색 단위 박스는 고정폭(44~48px)이라
  * 모바일에서 입력 폭을 갉아먹고, 면 색 때문에 값보다 먼저 눈에 들었다.
  *
- * 입력값 글자 크기 18px 는 타이포 10단계에 없는 값이라 이 컴포넌트 안에서만 예외로 둔다
- * (데스크탑은 text-body-2 = 14px).
+ * 입력값 글자는 text-body-2(14px)다. 터치 모바일에서는 `app/index.css` 의 iOS 확대 방지 규칙이
+ * 16px 로 올린다 — 여기서 따로 키우지 않는다.
  */
 export const UnitField = ({
   label,

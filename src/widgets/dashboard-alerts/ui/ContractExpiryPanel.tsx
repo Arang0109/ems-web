@@ -9,7 +9,7 @@ interface Props {
   isLoading?: boolean;
 }
 
-export const ContractExpiryWidget = ({ contracts, isLoading }: Props) => (
+export const ContractExpiryPanel = ({ contracts, isLoading }: Props) => (
   <AlertPanel
     title="계약 만료 임박"
     isLoading={isLoading}

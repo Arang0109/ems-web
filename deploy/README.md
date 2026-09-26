@@ -59,6 +59,21 @@ cp deploy/deploy.local.sh.example deploy/deploy.local.sh
 
 > DB·백엔드 컨테이너는 재기동되지 않는다.
 
+### PWA 확인 (프론트 배포 후)
+
+서비스워커·홈 화면 설치는 **HTTPS 에서만** 동작한다. `http://<EC2-IP>` 로 붙으면 앱은 그대로 쓰이지만
+설치 메뉴가 뜨지 않는다.
+
+```bash
+curl -sI https://<domain>/sw.js | grep -i cache-control                 # no-store 여야 한다
+curl -sI https://<domain>/manifest.webmanifest | grep -i content-type   # application/manifest+json
+```
+
+- 배포 후 이미 열려 있던 앱에는 "새 버전이 있습니다" 토스트가 뜬다(열어 둔 채면 최대 1시간 안).
+  [새로고침] 을 눌러야 새 번들로 바뀐다. 토스트를 무시해도 앱을 완전히 닫았다 다시 열면 적용된다.
+- `sw.js` 가 캐시되면 새 배포를 영영 감지하지 못한다 — 앞단(ALB/CloudFront 등)에 캐시 정책을 둘 때
+  `/sw.js`·`/index.html` 은 캐시에서 빼야 한다.
+
 ---
 
 ## 백엔드 재배포

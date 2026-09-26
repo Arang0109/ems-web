@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 import { SidebarMenuButton } from "./SidebarMenuButton";
 import type { SidebarBrand } from "./types";
 
@@ -20,7 +22,7 @@ export const SidebarMobileBar = ({ brand }: Props) => {
     <header className="sticky top-0 z-30 flex h-14.5 items-center justify-between gap-3 border-b border-rule bg-surface/90 px-4 backdrop-blur-[7px] md:hidden">
       <div className="flex min-w-0 items-center gap-2.5">
         <div className="flex size-8 shrink-0 items-center justify-center rounded-nav bg-brand-primary text-surface">
-          <BrandIcon className="size-4" />
+          <BrandIcon className={cn("size-4", brand.iconClassName)} />
         </div>
         <div className="flex min-w-0 flex-col">
           <span className="truncate text-h3 text-ink">{brand.title}</span>

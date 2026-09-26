@@ -1,5 +1,3 @@
-import { useDashboard } from '@features/dashboard-summary';
-
 import { MeasurementChart } from '@widgets/metrics';
 import { DashboardStats } from '@widgets/dashboard-stats';
 import { DashboardAlerts } from '@widgets/dashboard-alerts';
@@ -7,23 +5,12 @@ import { TeamScheduleTable } from '@widgets/team-schedule-table';
 
 import { useIsMobile } from '@shared/model';
 import { PageLayout } from '@shared/ui/layout';
-import { SkeletonPanel } from '@shared/ui/skeletons';
-import { Callout } from '@shared/ui/feedback';
-
-import { TriangleAlert } from 'lucide-react';
 
 /**
- * 대시보드.
- *
- * `useDashboard` 는 두 엔드포인트를 받아 stats·alerts 위젯 모두에 먹이는
- * coordinator 훅이라 페이지가 보유한다. pages/CLAUDE.md 의 조합 예외에 해당한다.
+ * 대시보드. 위젯이 각자 데이터를 조회한다 — 통계와 알림은 같은 요약 쿼리를 구독하므로
+ * 요청은 한 번만 나간다.
  */
 export const Dashboard = () => {
-  const {
-    stats, overallStats, monthlyStats,
-    expiringContracts, inspectionDueEquipments,
-    isLoading, error,
-  } = useDashboard();
   const isMobileDevice = useIsMobile();
 
   return (
@@ -31,36 +18,12 @@ export const Dashboard = () => {
       {/* MainLayout 이 이미 <main> 이므로 여기서는 div — 중첩 main 은 유효하지 않다 */}
       <div className="flex flex-col items-start gap-5 lg:flex-row lg:justify-between">
         <section className="w-full grow space-y-5">
-          {error && (
-            <Callout role="alert" tone="danger" icon={TriangleAlert}>
-              {error}
-            </Callout>
-          )}
           <TeamScheduleTable />
-
-          {!isMobileDevice && (
-            isLoading || !stats ? (
-              <SkeletonPanel bodyClassName="h-64" />
-            ) : (
-              <MeasurementChart stats={stats} />
-            )
-          )}
-
-          {!isMobileDevice && (
-            <DashboardStats
-              overallStats={overallStats}
-              monthlyStats={monthlyStats}
-              isLoading={isLoading}
-            />
-          )}
-          
+          {!isMobileDevice && <MeasurementChart />}
+          {!isMobileDevice && <DashboardStats />}
         </section>
 
-        <DashboardAlerts
-          contracts={expiringContracts}
-          equipments={inspectionDueEquipments}
-          isLoading={isLoading}
-        />
+        <DashboardAlerts />
       </div>
     </PageLayout>
   );

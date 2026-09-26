@@ -52,6 +52,21 @@
   }
 }
 
+/* iOS 입력 확대 방지 — Safari 는 글자가 16px 미만인 입력칸에 포커스가 가면 화면을 확대하고,
+   입력이 끝나도 원래 배율로 돌아오지 않는다. 터치 + 모바일 폭(md 미만)에서만 입력 글자를 16px 로 올린다.
+
+   @layer 밖에 둔다 — 레이어 없는 스타일은 Tailwind 유틸리티(@layer utilities)보다 우선하므로,
+   입력칸마다 달린 text-body-3·text-body-2 를 컴포넌트를 고치지 않고 한 번에 덮는다.
+   viewport 의 maximum-scale=1 로 막지 않는 이유: 안드로이드에서 손가락 확대까지 막혀 접근성이 떨어진다.
+   태블릿(md 이상)은 데스크탑 표가 보이는 폭이라 좁은 셀이 넘치지 않게 제외한다. */
+@media (pointer: coarse) and (width < 48rem) {
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="color"]),
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+}
+
 @keyframes slide-in {
   from {
     transform: translateX(100%);

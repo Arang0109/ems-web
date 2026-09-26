@@ -17,4 +17,4 @@ export const ACTION_TILE_ICON_CLASS = "size-4 md:size-4.75";
  * 액션 바 자체 — 모서리 없이 화면 양옆 끝까지 닿게 레이아웃 좌우 여백(-mx-4 / md:-mx-7.5)을 넘어 깐다.
  */
 export const ACTION_BAR_CLASS =
-  "-mx-4 justify-center gap-1 rounded-none px-2 pt-2.25 pb-3 md:-mx-7.5 md:gap-2 md:px-7.5 md:py-3";
+  "-mx-4 justify-center gap-1 rounded-none px-2 pt-2.25 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:-mx-7.5 md:gap-2 md:px-7.5 md:py-3";

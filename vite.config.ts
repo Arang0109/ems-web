@@ -1,10 +1,62 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    // 설치(홈 화면) + 앱 셸 precache. 데이터(/api)는 캐시하지 않는다 — 항상 네트워크.
+    // 등록은 src/app/providers/pwa-update-prompt.tsx 가 프로덕션 빌드에서만 한다.
+    VitePWA({
+      registerType: 'prompt',
+      // 개발 모드는 MSW 서비스워커가 같은 scope(/)를 쓴다 — 둘이 겹치지 않게 끈다.
+      devOptions: { enabled: false },
+      // public 의 아이콘은 아래 globPatterns 가 이미 담는다 — 매니페스트 아이콘을 따로 넣으면 중복 항목이 된다.
+      includeManifestIcons: false,
+      manifest: {
+        name: 'EcoMetric',
+        short_name: 'EcoMetric',
+        description: '측정대행업무 관리 시스템',
+        lang: 'ko',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        theme_color: '#ffffff',
+        background_color: '#f7f8f8',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        // woff2 는 precache 에서 뺀다 — Pretendard dynamic-subset 은 파일이 수십 개라 설치가 무거워진다.
+        // 실제로 쓰인 서브셋만 아래 runtimeCaching 이 담는다.
+        globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // pwa-icon.svg 는 PNG 아이콘을 만드는 원본이라 앱이 쓰지 않는다.
+        globIgnores: ['mockServiceWorker.js', 'pwa-icon.svg'],
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/ws/, /^\/mockServiceWorker\.js$/],
+        cleanupOutdatedCaches: true,
+        // 기본 상한(2MiB)을 넘는 파일은 경고만 남기고 precache 에서 조용히 빠진다.
+        // 메인 번들이 이미 1.8MB 라 코드 분할 전까지는 여유를 둔다.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/assets/') && url.pathname.endsWith('.woff2'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts',
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
     alias: {

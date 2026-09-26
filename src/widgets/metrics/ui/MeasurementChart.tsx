@@ -3,16 +3,18 @@ import {
   LineChart, Line, LabelList, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
 } from 'recharts';
 import { addDays, differenceInCalendarDays, endOfYear, startOfYear } from 'date-fns';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { ChevronLeftIcon, ChevronRightIcon, TriangleAlert } from 'lucide-react';
 
 import { Panel } from '@shared/ui/cards';
 import { IconButton } from '@shared/ui/buttons';
 import { DateRangePicker, type DateRange } from '@shared/ui/form';
 import { useIsMobile } from '@shared/model';
+import { Callout } from '@shared/ui/feedback';
+import { SkeletonPanel } from '@shared/ui/skeletons';
 
 import { formatNumber } from "@shared/lib";
 
-import type { MeasurementChartPoint } from './model/types';
+import { useMeasurementChart } from '../model/use-measurement-chart';
 
 /**
  * 측정건수 추이 차트.
@@ -22,10 +24,6 @@ import type { MeasurementChartPoint } from './model/types';
  * (올해 1~12월 고정 응답) 선택한 기간으로 데이터를 필터링하지 않는다.
  * 서버가 파라미터를 지원하게 되면 `range` 를 그대로 조회 훅에 넘기면 된다.
  */
-
-interface Props {
-  stats: MeasurementChartPoint[];
-}
 
 /** 값 라벨이 서로 겹치기 시작하는 지점. 이보다 촘촘하면 라벨을 숨긴다. */
 const MAX_LABELED_POINTS = 12;
@@ -91,7 +89,8 @@ const createDot = (maxIndex: number) =>
     );
   };
 
-export const MeasurementChart = ({ stats }: Props) => {
+export const MeasurementChart = () => {
+  const { points: stats, isLoading, error } = useMeasurementChart();
   const isMobile = useIsMobile();
   const [range, setRange] = useState<DateRange | undefined>(() => {
     const today = new Date();
@@ -108,6 +107,16 @@ export const MeasurementChart = ({ stats }: Props) => {
   const handleShift = (direction: -1 | 1) => {
     setRange((prev) => (prev ? shiftRange(prev, direction) : prev));
   };
+
+  if (error) {
+    return (
+      <Callout role="alert" tone="danger" icon={TriangleAlert}>
+        {error}
+      </Callout>
+    );
+  }
+
+  if (isLoading) return <SkeletonPanel bodyClassName="h-64" />;
 
   return (
     <Panel className="flex flex-col">

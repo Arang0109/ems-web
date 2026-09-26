@@ -355,4 +355,3 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
 | `sign-in/hooks/`, `sign-out/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
-| `dashboard-summary/model/use-dashboard.ts` | 훅이 `model/` 직하, 표시 컴포넌트·표시 타입을 feature 가 소유 | 표시 컴포넌트를 widget 으로 이전 |

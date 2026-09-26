@@ -34,6 +34,7 @@
 | HTTP | `axios` |
 | 실시간 | `@stomp/stompjs` (채팅 STOMP 수신 전용. `sockjs-client` 는 쓰지 않는다 — 서버가 폴백을 켜지 않는다) |
 | 테스트 | `vitest` |
+| PWA | `vite-plugin-pwa` (devDependency — 매니페스트·서비스워커 생성. 등록은 `app/providers/pwa-update-prompt.tsx`) |
 
 > **서버 상태는 react-query 가, 클라이언트 상태는 직접 관리한다.**
 >
@@ -83,6 +84,13 @@ API 관련 작업(entity의 api/dto/mapper, 신규 feature 등) 전에 **먼저 
   로컬에서 실서버에 붙으려고 끌 때는 `.env.development` 를 고치지 말고 `.env.development.local` 에
   `VITE_ENABLE_MSW=false` 를 둔다 — `*.local` 은 git 이 무시하고 Vite 가 같은 모드 파일을 덮어쓴다.
   도메인별 on/off 는 `src/shared/api/mocks/handlers/index.ts` 의 상태 마커로 관리한다.
+- **PWA:** `vite.config.ts` 의 `VitePWA` 가 매니페스트와 `sw.js` 를 만든다. 서비스워커는 **프로덕션 빌드에서만**
+  등록한다 — 개발 모드는 MSW 워커가 같은 scope(`/`)를 쓰므로 `devOptions.enabled: false` 로 끈다.
+  - 앱 셸(js·css·html·아이콘)만 precache 한다. **`/api`·`/ws` 는 캐시하지 않는다**(항상 네트워크).
+  - 새 배포는 `registerType: 'prompt'` — 토스트의 [새로고침] 을 눌러야 교체된다(작성 중 폼 보호).
+  - 확인은 `npm run build && npm run preview` (localhost 는 HTTPS 예외). 실기기 설치는 HTTPS 에서만 된다.
+  - 아이콘 원본은 `public/pwa-icon.svg`·`public/favicon.svg` 이고 PNG·ico 는 여기서 뽑은 결과물이다.
+    로고 벡터는 `src/widgets/layouts/LogoMark.tsx` 와 같은 패스를 쓴다 — 마크가 바뀌면 함께 바꾼다.
 - **Path Aliases** (`vite.config.ts` · `tsconfig.app.json` · `vitest.config.ts` 3곳에 동일하게 정의):
 
   | alias | 대상 |

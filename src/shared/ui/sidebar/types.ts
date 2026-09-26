@@ -32,6 +32,8 @@ export type SidebarNavGroup = {
 /** 사이드바·모바일 상단 바가 공유하는 브랜드(로고 + 이름) */
 export type SidebarBrand = {
   icon: ElementType;
+  /** 아이콘 크기 덮어쓰기 — 기본 16px. 여백이 많은 로고 마크처럼 기본 크기로는 작아 보일 때만 쓴다 */
+  iconClassName?: string;
   title: string;
   subtitle?: string;
 };

@@ -54,7 +54,7 @@ const InfoSection = ({
 const SoftTile = ({ label, value }: { label: string; value: string }) => (
   <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-icon-tile bg-brand-soft px-3 py-2">
     <span className="text-caption text-muted-ink">{label}</span>
-    <span className="text-body-4 break-words text-ink">{value}</span>
+    <span className="text-body-4 wrap-break-words text-ink">{value}</span>
   </div>
 );
 

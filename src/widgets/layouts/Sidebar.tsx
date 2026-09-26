@@ -161,6 +161,7 @@ export const Sidebar = () => {
       header={
         <SidebarBrandHeader
           icon={APP_BRAND.icon}
+          iconClassName={APP_BRAND.iconClassName}
           title={APP_BRAND.title}
           subtitle={APP_BRAND.subtitle}
         />

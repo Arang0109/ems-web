@@ -23,7 +23,7 @@ export const MainLayout = () => {
           "min-w-0 flex-1 max-w-380 bg-canvas",
           // overflow-hidden : 스크롤을 페이지 안쪽(대화 목록·말풍선)에 가둔다.
           // h-dvh 는 모바일 주소창이 접힐 때 100vh 가 넘치는 것을 막는다.
-          isFill ? "flex h-dvh flex-col overflow-hidden" : "min-h-screen",
+          isFill ? "flex h-dvh flex-col overflow-hidden" : "min-h-dvh",
         )}
       >
         {/* 모바일 상단 바 — 브랜드 로고 + 더보기(⋯)로 사이드바 열기.
@@ -35,7 +35,8 @@ export const MainLayout = () => {
             // 꽉 찬 화면은 상하 여백을 줄인다 — 넉넉한 여백은 스크롤되는 페이지의 규격이고,
             // 여기서는 그만큼 대화 영역이 깎인다. min-h-0 이 없으면 flex 자식이 줄지 않는다.
             isFill
-              ? "flex min-h-0 flex-1 flex-col px-4 py-4 md:px-7.5 md:py-6"
+              // 아래 여백은 iOS 홈 인디케이터만큼 늘린다 — 입력창이 화면 맨 아래에 붙는 화면이다.
+              ? "flex min-h-0 flex-1 flex-col px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-7.5 md:py-6"
               : isDetail
                 // 상세 화면은 모바일 상단 여백을 없애 sticky 페이지 헤더가 화면 최상단에 붙게 한다
                 ? "px-4 pt-0 pb-6 md:px-7.5 md:py-10"

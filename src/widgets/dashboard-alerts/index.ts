@@ -1,1 +1,1 @@
-export { DashboardAlerts } from './DashboardAlerts';
+export { DashboardAlerts } from './ui/DashboardAlerts';

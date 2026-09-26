@@ -1,1 +1,1 @@
-export { MeasurementChart } from './MeasurementChart';
+export { MeasurementChart } from './ui/MeasurementChart';

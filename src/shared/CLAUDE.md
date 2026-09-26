@@ -69,7 +69,7 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `theme/` | ThemeToggle (다크모드 전환. 색 토큰은 `app/index.css` 의 `.dark` — DESIGN-SYSTEM.md 참조) |
 | `tooltip/` | `Tooltip`(말풍선 — 임의 트리거에 병합), `HelpTip`(라벨 옆 도움말 아이콘). 아래 참조 |
 | `tabs/` | `Tabs` — 언더라인형 탭. 비활성 탭 본문은 기본적으로 **언마운트**되므로, 탭을 오가며 유지해야 할 입력 폼이 있으면 `keepMounted` 를 켠다 |
-| `toasts/` | `toast` (`toast.success`, `toast.error`) — feature 훅의 사용자 피드백 |
+| `toasts/` | `toast` (`toast.success`, `toast.error`) — feature 훅의 사용자 피드백. `toast.prompt(message, action)` 은 버튼을 누르거나 닫을 때까지 남는다(새 버전 안내 등) |
 
 ### 드래그 정렬은 `SortableList` 를 쓴다
 
