@@ -25,7 +25,7 @@ import {
 
 export { ALL_TEAMS, ALL_STATUSES } from "./filter-params";
 
-/** 기본 조회 범위 — 오늘 하루 */
+/** 기본 조회 범위 — 이번 주 */
 const DEFAULT_PRESET: DateRangePreset = "week";
 
 /** 선택 도중이라 `to` 가 빈 구간을 확정 구간으로 좁힌다. `from` 조차 없으면 기본값을 쓴다. */

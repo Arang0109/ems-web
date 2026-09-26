@@ -54,10 +54,10 @@ export const requiresAdminToReopenSchedule = (status: ScheduleStatus): boolean =
 /**
  * 측정계획을 삭제(감춤)할 수 있는지 여부. 서버 `ScheduleStatus.canDelete()` 와 같은 규칙이다.
  *
- * 삭제는 "애초에 잘못 등록됨"을 목록에서 감추는 조작이라 실측 데이터가 없는 '측정예정'에서 허용된다.
- * '취소'도 감출 수 있는데, 취소 건에는 사유를 남겨 둬야 할 것과 잘못 만들어져 지워야 할 것이
- * 섞여 있어 취소 목록에서 골라내야 하기 때문이다.
- * 진행 중(측정중·분석값입력중)인 계획은 취소를 먼저 거쳐야 한다.
+ * 삭제는 "애초에 잘못 등록됨"을 목록에서 감추는 조작이다. 성적서가 나가기 전(측정예정·측정중·분석값입력중)이면
+ * 취소를 거치지 않고 바로 감출 수 있다. '취소'도 감출 수 있는데, 취소 건에는 사유를 남겨 둬야 할 것과
+ * 잘못 만들어져 지워야 할 것이 섞여 있어 취소 목록에서 골라내야 하기 때문이다.
+ * 성적서작성완료는 발행된 결과가 있어 삭제할 수 없다.
  */
 export const canDeleteSchedule = (status: ScheduleStatus): boolean =>
   status === 'SCHEDULED' || status === 'MEASURING' || status === 'ANALYZING' || status === 'CANCELED';

@@ -36,7 +36,7 @@ describe("buildTemperatureTables", () => {
   it("측정점 표는 지점 채취시간을 누적한 구간과 DGM 평균을 적고, 값이 없는 칸은 뺀다", () => {
     const table = build([dustSheet()]).tables.find((t) => t.kind === "point")!;
 
-    expect(table.columns).toEqual(["배출가스", "DGM 평균"]);   // 임핀저는 전부 비어 빠진다
+    expect(table.columns).toEqual(["배출가스", "가스미터 온도"]);   // 임핀저는 전부 비어 빠진다
     expect(table.rows.map((row) => [row.label, row.timeText, row.values])).toEqual([
       ["지점 1", "09:30 ~ 09:40", [150, 21]],
       ["지점 2", "09:40 ~ 10:00", [160, null]],   // 출구가 비어 평균을 내지 않는다
@@ -60,7 +60,7 @@ describe("buildTemperatureTables", () => {
     };
     const table = build([sheet]).tables.find((t) => t.kind === "sample")!;
 
-    expect(table.columns).toEqual(["평균"]);
+    expect(table.columns).toEqual(["가스미터 온도"]);
     expect(table.rows.map((row) => [row.label, row.timeText, row.values])).toEqual([
       ["SOx", "09:10 ~ 09:40", [25.5]],
       ["NOx", "09:20 ~ --:--", [26]],
@@ -77,7 +77,7 @@ describe("buildTemperatureTables", () => {
 
     const same = build([withMoisture(dustSheet(), "20"), withMoisture(getDefaultSheetForm("GAS"), "20")]);
     const sameTable = same.tables.find((t) => t.kind === "moisture")!;
-    expect(sameTable.columns).toEqual(["평균"]);
+    expect(sameTable.columns).toEqual(["가스미터 온도"]);
     expect(sameTable.rows.map((row) => [row.timeText, row.values])).toEqual([["09:05 ~ 09:15", [21]]]);
 
     const split = build([withMoisture(dustSheet(), "20"), withMoisture(getDefaultSheetForm("GAS"), "24")]);

@@ -87,10 +87,13 @@ describe("canDeleteSchedule", () => {
     expect(canDeleteSchedule("CANCELED")).toBe(true);
   });
 
-  it("진행 중이거나 성적서작성완료된 계획은 삭제할 수 없다 — 취소를 먼저 거친다", () => {
-    for (const status of ["MEASURING", "ANALYZING", "REPORT_COMPLETED"] as const) {
-      expect(canDeleteSchedule(status)).toBe(false);
-    }
+  it("진행 중인 계획은 취소를 거치지 않고 삭제할 수 있다", () => {
+    expect(canDeleteSchedule("MEASURING")).toBe(true);
+    expect(canDeleteSchedule("ANALYZING")).toBe(true);
+  });
+
+  it("성적서작성완료된 계획은 삭제할 수 없다", () => {
+    expect(canDeleteSchedule("REPORT_COMPLETED")).toBe(false);
   });
 
   it("측정예정은 '잘못 등록'(삭제)일 수도 '무산'(취소)일 수도 있어 둘 다 열려 있다", () => {
