@@ -5,7 +5,7 @@ import type { SidebarBrand } from "@shared/ui/sidebar";
 /** 측정업체(테넌트) 서비스 브랜드 — 사이드바 헤더 · 모바일 상단 바 공용 */
 export const APP_BRAND: SidebarBrand = {
   icon: Activity,
-  title: "EnvBridge",
+  title: "EcoMetric",
   subtitle: "환경 측정 관리 시스템",
 };
 

@@ -3,14 +3,14 @@ import { Plus, SquarePen, Trash2 } from "lucide-react";
 import { Button, IconButton } from "@shared/ui/buttons";
 import { EmptyText } from "@shared/ui/feedback";
 import { useRemountKey } from "@shared/model";
-import { Panel } from "@shared/ui/cards";
+import { ItemTile, ItemTileGrid, ItemTileGroup } from "@shared/ui/cards";
 
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
 import { RegisterStackPollutantForm } from "@features/register-stack-pollutant";
 import { UpdateStackPollutantForm, useDeleteStackPollutant } from "@features/update-stack-pollutant";
 
 import { groupMeasurementsByCycle } from "../../model/mapper";
-import type { MeasurementCycleGroup, MeasurementProfile } from "../../model/types";
+import type { MeasurementProfile } from "../../model/types";
 
 interface Props {
   stackId: number | null;
@@ -23,12 +23,12 @@ interface Props {
 }
 
 /**
- * 측정항목 칩 — 이름(국문·영문) + 허용기준 + 산소보정.
+ * 측정항목 타일 — 이름(국문·영문) + 허용기준 + 산소보정.
  *
  * 산소보정은 적용하는 항목에만 표시한다 — 대부분의 항목이 미적용이라
  * "미적용"까지 적으면 칩마다 의미 없는 줄이 하나씩 늘어난다.
  */
-const MeasurementChip = ({
+const MeasurementTile = ({
   item, standardOxygen, onEdit, onDelete,
 }: {
   item: MeasurementProfile;
@@ -36,63 +36,36 @@ const MeasurementChip = ({
   onEdit: () => void;
   onDelete: () => void;
 }) => (
-  <div className="flex items-start gap-2 rounded-panel border border-rule-dark bg-surface px-3 py-2">
-    <div className="min-w-0">
-      <p className="text-body-1 text-ink-soft">{item.nameKr}</p>
-      <p className="text-caption text-muted-ink">{item.nameEn}</p>
-      <p className="text-caption text-brand-dark">
-        허용기준 : {item.allowance}
-        {item.oxygenApplicable && standardOxygen !== null && (
-          <span className="text-brand-dark"> ({standardOxygen}%)</span>
-        )}
-      </p>
-    </div>
-
-    <div className="flex shrink-0 gap-1">
-      <IconButton
-        icon={<SquarePen size={15} />}
-        label={`${item.nameKr} 수정`}
-        variant="ghost"
-        size="icon-sm"
-        onClick={onEdit}
-      />
-      <IconButton
-        icon={<Trash2 size={15} />}
-        label={`${item.nameKr} 삭제`}
-        variant="ghost"
-        size="icon-sm"
-        onClick={onDelete}
-      />
-    </div>
-  </div>
-);
-
-/** 측정주기별 묶음 상자 — 헤더에 주기명과 건수, 본문에 항목 칩 */
-const CycleGroupBox = ({
-  group, standardOxygen, onEdit, onDelete,
-}: {
-  group: MeasurementCycleGroup;
-  standardOxygen: number | null;
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
-}) => (
-  <Panel variant="inset">
-    <p className="border-b border-rule px-1 pb-3 text-body-4 text-ink">
-      {group.label} : <span className="text-brand-dark">{group.items.length}개</span>
-    </p>
-
-    <div className="flex flex-wrap gap-2 pt-3">
-      {group.items.map((item) => (
-        <MeasurementChip
-          key={item.id}
-          item={item}
-          standardOxygen={standardOxygen}
-          onEdit={() => onEdit(item.id)}
-          onDelete={() => onDelete(item.id)}
+  <ItemTile
+    title={item.nameKr}
+    description={
+      <>
+        <p>{item.nameEn}</p>
+        <p>
+          허용기준:{item.allowance}
+          {item.oxygenApplicable && standardOxygen !== null && <span> ({standardOxygen}%)</span>}
+        </p>
+      </>
+    }
+    actions={
+      <>
+        <IconButton
+          icon={<SquarePen size={19} />}
+          label={`${item.nameKr} 수정`}
+          variant="ghost"
+          size="icon-sm"
+          onClick={onEdit}
         />
-      ))}
-    </div>
-  </Panel>
+        <IconButton
+          icon={<Trash2 size={19} />}
+          label={`${item.nameKr} 삭제`}
+          variant="ghost"
+          size="icon-sm"
+          onClick={onDelete}
+        />
+      </>
+    }
+  />
 );
 
 export const MeasurementInfo = ({
@@ -141,15 +114,21 @@ export const MeasurementInfo = ({
       {groups.length === 0 ? (
         <EmptyText>등록된 측정항목이 없습니다.</EmptyText>
       ) : (
-        <div className="space-y-3">
+        <div>
           {groups.map((group) => (
-            <CycleGroupBox
-              key={group.cycle}
-              group={group}
-              standardOxygen={standardOxygen}
-              onEdit={handleEditClick}
-              onDelete={handleDeleteClick}
-            />
+            <ItemTileGroup key={group.cycle} title={group.label} count={group.items.length}>
+              <ItemTileGrid>
+                {group.items.map((item) => (
+                  <MeasurementTile
+                    key={item.id}
+                    item={item}
+                    standardOxygen={standardOxygen}
+                    onEdit={() => handleEditClick(item.id)}
+                    onDelete={() => handleDeleteClick(item.id)}
+                  />
+                ))}
+              </ItemTileGrid>
+            </ItemTileGroup>
           ))}
         </div>
       )}

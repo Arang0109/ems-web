@@ -271,6 +271,8 @@ Tailwind 기본 `shadow-sm` 대신 이 값을 쓴다 (피그마 카드 그림자
 | `StickyActionBar` | `shared/ui/layout/StickyActionBar.tsx` | 하단 고정 액션 바 (블러 + 상단 구분선) |
 | `PageLayout` | `shared/ui/layout/PageLayout.tsx` | 페이지 셸 — 제목 + 액션 + 본문 |
 | `Panel`, `SummaryCard`, `SummaryCardGroup` | `shared/ui/cards/` | 카드 셸 / 지표 타일 / 제목+타일 그리드 |
+| `SectionCard` | `shared/ui/cards/` | 접히지 않는 섹션 카드 (헤더 액션+제목 / 구분선 아래 본문) — 접이식은 `SectionAccordion` |
+| `ItemTile`, `ItemTileGroup`, `ItemTileGrid` | `shared/ui/cards/` | 목록 항목 타일(측정항목 등) / 제목+건수 묶음 / 라벨+2열 격자 |
 | `EmptyText` | `shared/ui/feedback/EmptyText.tsx` | 패널 안 한 줄 빈 상태 |
 | `Skeleton`, `SkeletonPanel` | `shared/ui/skeletons/` | 자리표시 원자 / 패널 단위 로딩 |
 | `DateRangePicker` | `shared/ui/form/DateRangePicker.tsx` | 기간 선택 |

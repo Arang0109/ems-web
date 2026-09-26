@@ -51,7 +51,7 @@ shadcn/ui를 래핑하거나 직접 작성한 공통 컴포넌트. 카테고리�
 | `avatar/` | Avatar(이니셜 원형) |
 | `borders/` | Divider(`text` 로 가운데 문구, `className` 으로 배치 — 문구가 없어도 캡션 한 줄 높이를 차지한다) |
 | `buttons/` | Button, IconButton(나머지 props 를 `<button>` 까지 전달 — `render` 슬롯·dnd 리스너 가능, `label` 필수), BackButton(뒤로가기 — `PageLayout` 이 사용), DetailViewButton(앱에서는 미사용 — 디자인 시스템 공개 컴포넌트라 유지) |
-| `cards/` | Panel(카드 셸 — `variant`: `plain`·`elevated`(그림자+선)·`outlined`(선만)·`inset`(패널 안 캔버스 상자), `as` 로 section·aside), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드). **`rounded-panel bg-surface …` 를 손으로 조합하지 말고 variant 를 쓴다** |
+| `cards/` | Panel(카드 셸 — `variant`: `plain`·`elevated`(그림자+선)·`outlined`(선만)·`inset`(패널 안 캔버스 상자), `as` 로 section·aside), SummaryCard(지표 타일), SummaryCardGroup(제목+타일 그리드), SectionCard(접히지 않는 섹션 카드 — `SectionAccordion` 과 헤더·본문 여백이 같다), ItemTile(목록 항목 타일 — 제목+캡션+우측 액션, `tone` brand/neutral)·ItemTileGroup(제목+건수, 형제 사이 구분선)·ItemTileGrid(라벨+2열 격자). **`rounded-panel bg-surface …` 를 손으로 조합하지 말고 variant 를 쓴다** |
 | `dialogs/` | `FormDialog`(폼 제출 모달), `StepFormDialog`(스텝 위저드 모달), `ConfirmProvider` + `useConfirm`(확인 다이얼로그), `useUnsavedChangesGuard`(미저장 이탈 방지). 앞의 둘은 비공개 `FormDialogShell` 위에 얹힌다. `DocumentViewerDialog`(고정폭 문서 뷰어)는 셸을 쓰지 않는다 — 아래 참조 |
 | `drawer/` | `Drawer` — 화면 가장자리에서 밀려 들어오는 오버레이(모바일 하단 바텀시트 / 데스크탑 사이드). 폼 제출 표면이 아니다 — 아래 참조 |
 | `feedback/` | EmptyText(한 줄 빈 상태·로딩·불러오기 실패 — `size` sm/md/lg, `tone` muted/danger), ErrorText(칸에 묶이지 않은 폼·스텝 에러 한 줄, `role="alert"`), Callout(톤 배너 — `tone` neutral/info/warning/danger + `icon`·`title`·`action`). **배너·에러 문구를 raw 마크업으로 새로 만들지 않는다** |

@@ -39,7 +39,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
           placeholder="전체 팀"
           ariaLabel="팀 필터"
           /* 모바일 시안: 팀은 내용 폭, 남는 폭은 상태 필터가 채운다 */
-          className="shrink-0 md:flex-1"
+          className="max-md:shrink-0"
         />
         <FilterSelect
           icon={Activity}
@@ -48,7 +48,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
           onValueChange={filter.changeStatus}
           placeholder="전체 상태"
           ariaLabel="상태 필터"
-          className="flex-1"
+          className="max-md:flex-1"
         />
         <ScheduleFilterPopover
           label={filter.appliedRangeLabel}

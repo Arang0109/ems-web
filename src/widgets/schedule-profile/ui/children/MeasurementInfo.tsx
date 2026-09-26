@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { SquarePen } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Calendar, SquarePen } from "lucide-react";
 
 import type { ScheduleDetail, ScheduleSnapshot } from "@entities/schedule";
 import type { StackPollutantListItem } from "@entities/stack-pollutant";
@@ -12,8 +12,8 @@ import { displayValue, formatBusinessNumber } from "@shared/lib";
 import { MEASUREMENT_TYPE_LABEL } from "@shared/config";
 import { SectionAccordion } from "@shared/ui/accordion";
 import { IconButton } from "@shared/ui/buttons";
-import { DetailGrid, DetailRow } from "@shared/ui/form";
-import { useRemountKey } from "@shared/model";
+import { SectionCard } from "@shared/ui/cards";
+import { useIsMobile, useRemountKey } from "@shared/model";
 import { EmptyText } from "@shared/ui/feedback";
 
 import {
@@ -27,6 +27,36 @@ const purposeLabel = (purpose: string | null): string => {
   return MEASUREMENT_TYPE_LABEL[purpose as keyof typeof MEASUREMENT_TYPE_LABEL] ?? purpose;
 };
 import { MeasurementItems } from "./MeasurementItems";
+import { HighlightBox, InfoRows } from "./InfoBlocks";
+
+/**
+ * 측정정보 카드 — 모바일은 접이식, 데스크탑은 펼친 카드.
+ * 데스크탑 시안은 네 카드를 두 열에 한 번에 펼쳐 보여 주므로 접을 이유가 없고,
+ * 모바일은 한 열로 길게 쌓이므로 접어서 훑을 수 있어야 한다.
+ */
+const InfoSection = ({
+  title, action, children,
+}: { title: React.ReactNode; action?: React.ReactNode; children: React.ReactNode }) => {
+  const isMobile = useIsMobile();
+
+  return isMobile ? (
+    <SectionAccordion title={title} action={action} defaultOpen>
+      {children}
+    </SectionAccordion>
+  ) : (
+    <SectionCard title={title} action={action}>
+      {children}
+    </SectionCard>
+  );
+};
+
+/** 사전 정보의 보조 값 타일 — 라벨 위·값 아래, Soft 면 */
+const SoftTile = ({ label, value }: { label: string; value: string }) => (
+  <div className="flex min-w-0 flex-1 flex-col gap-0.5 rounded-icon-tile bg-brand-soft px-3 py-2">
+    <span className="text-caption text-muted-ink">{label}</span>
+    <span className="text-body-4 break-words text-ink">{value}</span>
+  </div>
+);
 
 interface Props {
   scheduleId: number | null;
@@ -92,82 +122,130 @@ export const MeasurementInfo = ({
   const editingStackPollutantId =
     stackPollutants.find((row) => row.pollutant.id === editingPollutantId)?.id ?? null;
 
+  const totalItemCount = groups.reduce(
+    (sum, group) => sum + group.current.length + group.others.length,
+    0,
+  );
+
   return (
-    <div className="space-y-4">
-      <SectionAccordion
-        title="측정계획 사전 정보"
-        action={editAction("사전 정보 수정", () => setBasicInfoEditOpen(true))}
-        defaultOpen={true}
-      >
-        <DetailGrid>
-          <DetailRow label="관리 번호 (문서 번호)" value={displayValue(schedule?.referenceNumber)} />
-          {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
-          <DetailRow label="측정 일자" value={displayValue(schedule?.sampledAt)} />
-          <DetailRow label="측정 분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
-          <DetailRow
-            label="측정 용도"
-            value={purposeLabel(schedule?.schedulePurpose ?? null)}
-          />
-          <DetailRow label="측정 팀" value={displayValue(team.teamName)} />
-        </DetailGrid>
-      </SectionAccordion>
+    <div className="grid items-start gap-5 lg:grid-cols-2">
+      {/* 왼쪽은 계획·시설·의뢰기관 메타, 오른쪽은 측정항목 — 좁은 화면에서는 한 열로 쌓인다 */}
+      <div className="min-w-0 space-y-5">
+        <InfoSection
+          title="측정계획 사전 정보"
+          action={editAction("사전 정보 수정", () => setBasicInfoEditOpen(true))}
+        >
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            {/* 관리번호가 이 계획의 대표 식별자라 브랜드 막대로 앞세운다 */}
+            <div className="flex items-stretch gap-4">
+              <span aria-hidden className="w-1 shrink-0 rounded-full bg-brand-primary" />
+              <div className="flex flex-wrap items-end gap-x-1.5 gap-y-1">
+                <div className="flex flex-col gap-2">
+                  <span className="text-label text-muted-ink">관리번호</span>
+                  <span className="text-h3 text-ink">{displayValue(schedule?.referenceNumber)}</span>
+                </div>
+                <div className="flex items-center gap-2 pb-1">
+                  <span className="flex items-center gap-1 text-label text-muted-ink">
+                    <Calendar size={16} aria-hidden />
+                    측정일
+                  </span>
+                  {/* sampledAt은 LocalDate("yyyy-MM-dd") — Date 파싱 없이 원문 표시 */}
+                  <span className="text-body-4 text-ink-soft">{displayValue(schedule?.sampledAt)}</span>
+                </div>
+              </div>
+            </div>
 
-      <SectionAccordion
-        title="측정항목"
-        action={editAction("측정항목 수정", () => setItemsEditOpen(true))}
-        defaultOpen
-      >
-        <MeasurementItems
-          groups={groups}
-          onEditItem={canEdit ? setEditingPollutantId : undefined}
-        />
-      </SectionAccordion>
+            <div className="flex min-w-64 flex-1 gap-2">
+              <SoftTile label="측정 분야" value={schedule ? fieldLabel(schedule.measurementField) : "-"} />
+              <SoftTile label="측정 용도" value={purposeLabel(schedule?.schedulePurpose ?? null)} />
+              <SoftTile label="측정 팀" value={displayValue(team.teamName)} />
+            </div>
+          </div>
+        </InfoSection>
 
-      <SectionAccordion
-        title="측정시설 정보"
-        action={editAction("측정시설 정보 수정", () => setStackEditOpen(true))}
-      >
-        <DetailGrid>
-          <DetailRow label="측정시설" value={displayValue(stack.name)} />
-          <DetailRow label="SEMS 번호" value={displayValue(stack.semsNumber)} />
-          <DetailRow label="측정시설 종별" value={gradeLabel(stack.grade)} />
-          <DetailRow label="주요 생산품" value={displayValue(stack.mainProduct)} />
-          <DetailRow label="방향" value={orientationLabel(stack.orientation)} />
-          <DetailRow label="형태" value={shapeLabel(stack.shape)} />
-          <DetailRow
-            label="지름 / 크기"
-            value={describeDimension(stack.shape, stack.horizontalLength, stack.verticalLength)}
-          />
-          <DetailRow label="측정공 높이 (m)" value={displayValue(stack.height)} />
-          <DetailRow label="기준산소농도 (%)" value={displayValue(stack.standardOxygen)} />
-        </DetailGrid>
-      </SectionAccordion>
+        <InfoSection
+          title="측정시설 정보"
+          action={editAction("측정시설 정보 수정", () => setStackEditOpen(true))}
+        >
+          <div className="space-y-2">
+            <HighlightBox
+              label="측정 시설"
+              value={displayValue(stack.name)}
+              aside={workplace.name || undefined}
+            />
+            <InfoRows
+              rows={[
+                [
+                  { label: "SEMS 번호", value: displayValue(stack.semsNumber) },
+                  { label: "측정시설 종별", value: gradeLabel(stack.grade) },
+                  { label: "주요 생산품", value: displayValue(stack.mainProduct) },
+                  { label: "방향", value: orientationLabel(stack.orientation) },
+                ],
+                [
+                  { label: "형태", value: shapeLabel(stack.shape) },
+                  {
+                    label: "지름 / 크기",
+                    value: describeDimension(stack.shape, stack.horizontalLength, stack.verticalLength),
+                  },
+                  { label: "측정공 높이 (m)", value: displayValue(stack.height) },
+                  { label: "기준산소농도 (%)", value: displayValue(stack.standardOxygen) },
+                ],
+              ]}
+            />
+          </div>
+        </InfoSection>
 
-      <SectionAccordion
-        title="의뢰기관 정보"
-        action={editAction("의뢰기관 정보 수정", () => setClientEditOpen(true))}
-      >
-        <DetailGrid>
-          <DetailRow label="의뢰기관" value={displayValue(client.name)} />
-          <DetailRow label="사업장" value={displayValue(workplace.name)} />
-          <DetailRow
-            label="사업자번호"
-            value={client.bizNumber ? formatBusinessNumber(client.bizNumber) : "-"}
+        <InfoSection
+          title="의뢰기관 정보"
+          action={editAction("의뢰기관 정보 수정", () => setClientEditOpen(true))}
+        >
+          <div className="space-y-2">
+            <HighlightBox label="의뢰기관" value={displayValue(client.name)} />
+            <InfoRows
+              rows={[
+                [
+                  { label: "사업장", value: displayValue(workplace.name) },
+                  {
+                    label: "사업자번호",
+                    value: client.bizNumber ? formatBusinessNumber(client.bizNumber) : "-",
+                  },
+                  // 주소는 한 칸에 담기지 않으므로 두 칸을 쓴다
+                  {
+                    label: "사업장주소",
+                    span: 2,
+                    value: displayValue(`${workplace.roadAddress} ${workplace.detailAddress}`.trim()),
+                  },
+                ],
+                [
+                  // 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 채취 스냅샷이 보유한다.
+                  // 수정도 이 폼이 아니라 성적서 진행 일자(PATCH /report-dates) 소관이다.
+                  { label: "배출시설 관리자", value: displayValue(samplingData?.facilityManager) },
+                  { label: "시료채취 입회자", value: displayValue(samplingData?.samplingWitness) },
+                  { label: "업종", value: displayValue(workplace.businessCategory) },
+                  { label: "사업장 종별", value: gradeLabel(workplace.grade) },
+                ],
+              ]}
+            />
+          </div>
+        </InfoSection>
+      </div>
+
+      <div className="min-w-0">
+        <InfoSection
+          title={
+            <>
+              측정항목{" "}
+              <span className="text-body-4 text-brand-primary">{totalItemCount}개</span>
+            </>
+          }
+          action={editAction("측정항목 수정", () => setItemsEditOpen(true))}
+        >
+          <MeasurementItems
+            groups={groups}
+            onEditItem={canEdit ? setEditingPollutantId : undefined}
           />
-          {/* 주소는 한 열에 담기지 않아 줄바꿈으로 격자를 깨뜨리므로 데스크탑에서 전 열을 쓴다 */}
-          <DetailRow
-            label="사업장주소"
-            span="full"
-            value={displayValue(`${workplace.roadAddress} ${workplace.detailAddress}`.trim())}
-          />
-          {/* 담당자는 측정계획마다 달라지므로 의뢰기관 스냅샷이 아니라 채취 스냅샷이 보유한다.
-              수정도 이 폼이 아니라 성적서 진행 일자(PATCH /report-dates) 소관이다. */}
-          <DetailRow label="배출시설 관리자" value={displayValue(samplingData?.facilityManager)} />
-          <DetailRow label="시료채취 입회자" value={displayValue(samplingData?.samplingWitness)} />
-          <DetailRow label="업종" value={displayValue(workplace.businessCategory)} />
-          <DetailRow label="사업장 종별" value={gradeLabel(workplace.grade)} />
-        </DetailGrid>
-      </SectionAccordion>
+        </InfoSection>
+      </div>
 
       {/* 열 때마다, 그리고 스냅샷이 갱신되면 key가 바뀌어 폼이 새 값으로 리마운트된다. */}
       {canEdit && (
