@@ -60,7 +60,7 @@ feature-name/
 │   ├── derived/              # 입력에서 파생하는 표시값 — 폼에 쓰지 않는다
 │   │   ├── derived-times.ts      # 고정·합산 시각 (가스분석기 15분, 입자상 종료시각 …)
 │   │   ├── suction.ts            # m³→L, 흡인유량 환산
-│   │   └── sampling-timeline.ts, nozzle-estimate.ts, input-average.ts, wall-distances.ts
+│   │   └── sampling-timeline.ts, timeline-groups.ts, temperature-table.ts, nozzle-estimate.ts, input-average.ts, wall-distances.ts
 │   ├── gaseous/              # 가스상 시료 행 — 항목↔행 대응(gaseous-rows)과 행 규칙(sample-rules)
 │   ├── sync/                 # 동시편집 — blocks·conflict·remote-sync (순수 함수, 전부 테스트)
 │   └── hooks/

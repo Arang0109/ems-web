@@ -60,7 +60,7 @@ export const requiresAdminToReopenSchedule = (status: ScheduleStatus): boolean =
  * 진행 중(측정중·분석값입력중)인 계획은 취소를 먼저 거쳐야 한다.
  */
 export const canDeleteSchedule = (status: ScheduleStatus): boolean =>
-  status === 'SCHEDULED' || status === 'CANCELED';
+  status === 'SCHEDULED' || status === 'MEASURING' || status === 'ANALYZING' || status === 'CANCELED';
 
 /**
  * 측정계획 상태의 표시 톤. 목록 배지·모바일 칩·상세 헤더가 공유한다.

@@ -31,10 +31,11 @@ const build = (
   info: ScheduleBasicInfoForm,
   sheet: SheetForm,
   previewCalc: SheetCalcPreview | null = null,
-): SamplingTimeline => buildSamplingTimeline({ basicInfo: info, sheet, previewCalc });
+): SamplingTimeline => buildSamplingTimeline({ basicInfo: info, sheets: [{ sheet, previewCalc }] });
 
+/** 기록지 고유 행은 `${category}:${id}` 로 불리므로 접미사로도 찾는다 */
 const rowOf = (timeline: SamplingTimeline, id: string) =>
-  timeline.rows.find((row) => row.id === id);
+  timeline.rows.find((row) => row.id === id || row.id.endsWith(`:${id}`));
 
 /** 구간 길이(분) — 축 오프셋의 차이 */
 const spanOf = (timeline: SamplingTimeline, id: string): number | null => {
@@ -250,5 +251,82 @@ describe("buildSamplingTimeline — 축", () => {
     const ticks = build(basicInfo("09:00", "17:00"), gasSheet()).axis!.ticks;
     expect(ticks.length).toBeGreaterThanOrEqual(4);
     expect(ticks.length).toBeLessThanOrEqual(7);
+  });
+});
+
+describe("buildSamplingTimeline — 기록지 여러 장", () => {
+  const dustSheet = (over: Partial<SheetForm> = {}): SheetForm => ({
+    ...getDefaultSheetForm("DUST"),
+    ...over,
+  });
+
+  const withCommon = (sheet: SheetForm, moistureStart: string, gasStart: string): SheetForm => ({
+    ...sheet,
+    moisture: { ...sheet.moisture, samplingStartTime: moistureStart },
+    exhaustGas: { ...sheet.exhaustGas, gasAnalyzerStartTime: gasStart },
+  });
+
+  const buildMany = (info: ScheduleBasicInfoForm, sheets: SheetForm[]): SamplingTimeline =>
+    buildSamplingTimeline({ basicInfo: info, sheets: sheets.map((sheet) => ({ sheet, previewCalc: null })) });
+
+  it("공통 섹션 시각이 모든 기록지에서 같으면 한 행으로 합치고 '공통'으로 적는다", () => {
+    const timeline = buildMany(basicInfo("09:00", "12:00"), [
+      withCommon(dustSheet(), "09:10", "09:20"),
+      withCommon(gasSheet(), "09:10", "09:20"),
+    ]);
+
+    const gasRows = timeline.rows.filter((row) => row.kind === "gas");
+    expect(gasRows).toHaveLength(1);
+    expect(gasRows[0].id).toBe("gas");
+    expect(gasRows[0].sourceLabel).toBe("공통");
+    expect(timeline.rows.filter((row) => row.kind === "moisture")).toHaveLength(1);
+  });
+
+  it("공통 섹션 시각이 갈리면 기록지별로 남기고 기록지 이름을 붙인다", () => {
+    const timeline = buildMany(basicInfo("09:00", "12:00"), [
+      withCommon(dustSheet(), "09:10", "09:20"),
+      withCommon(gasSheet(), "09:10", "09:40"),
+    ]);
+
+    const gasRows = timeline.rows.filter((row) => row.kind === "gas");
+    expect(gasRows.map((row) => row.sourceLabel)).toEqual(["먼지", "가스상"]);
+    // 수분은 여전히 같으므로 합쳐진다
+    expect(timeline.rows.filter((row) => row.kind === "moisture")[0].sourceLabel).toBe("공통");
+  });
+
+  it("기록지가 한 장이면 출처 라벨을 달지 않는다", () => {
+    const timeline = build(basicInfo("09:00", "12:00"), withCommon(gasSheet(), "09:10", "09:20"));
+    expect(timeline.rows.every((row) => row.sourceLabel === null)).toBe(true);
+  });
+
+  it("모든 기록지의 시료를 같은 총 채취시간으로 판정하고, 문장에 기록지를 밝힌다", () => {
+    const timeline = buildMany(basicInfo("09:00", "10:00"), [
+      dustSheet({
+        particle: { ...getDefaultSheetForm("DUST").particle, samplingStartTime: "09:30" },
+        samplingPoints: [{ ...getDefaultSamplingPointForm(), samplingTime: "60" }],
+      }),
+      gasSheet({
+        samples: [{ ...getDefaultSampleForm(), sampleName: "SOx", startTime: "09:10", endTime: "09:40" }],
+      }),
+    ]);
+
+    const outside = timeline.issues.filter((issue) => issue.code === "outside-total");
+    expect(outside).toHaveLength(1);
+    expect(outside[0].rowIds).toEqual(["DUST:particle"]);
+    expect(outside[0].message).toContain("[먼지] 입자상 채취");
+    expect(rowOf(timeline, "sample-0")?.id).toBe("GAS:sample-0");
+  });
+});
+
+describe("buildSamplingTimeline — 행 위반 수준", () => {
+  it("행마다 가장 심한 위반을 싣는다", () => {
+    const sheet = gasSheet({
+      samples: [{ ...getDefaultSampleForm(), startTime: "08:00", endTime: "08:00" }],
+    });
+    const timeline = build(basicInfo("09:00", "17:00"), sheet);
+
+    // 0분(주의)과 범위 밖(경고)이 겹치면 경고를 따른다
+    expect(rowOf(timeline, "sample-0")?.level).toBe("danger");
+    expect(rowOf(timeline, "total")?.level).toBeNull();
   });
 });

@@ -1,5 +1,7 @@
 import type { SheetCalcPreview } from "@entities/schedule";
+import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { MINUTES_PER_DAY, fromMinutes, toMinutes, withSubjectJosa } from "@shared/lib";
+import type { MeasurementCategory } from "@shared/model";
 
 import {
   GAS_ANALYZER_DURATION_MINUTES,
@@ -16,6 +18,9 @@ import { isParticleCategory } from "../types";
  * 이 화면의 시각은 총 채취시간(측정계획 단위) 아래에 수분·가스분석기·THC·입자상·가스상 항목이
  * 놓이는 구조인데, 입력칸이 섹션마다 떨어져 있어 앞뒤가 어긋나도 알아채기 어렵다.
  * 여기서 구간을 만들고 규칙 위반을 모아, 팝오버가 그리기만 하면 되게 한다.
+ *
+ * **기록지 전체가 한 축이다.** 총 채취시간은 측정계획 단위 값이라, 그 안에 먼지·가스상 … 모든 기록지의
+ * 시각이 함께 놓여야 범위 판정이 맞다. 기록지마다 따로 그리면 탭을 바꿀 때마다 흐름이 끊긴다.
  *
  * **판정은 하되 저장은 막지 않는다** — 이 폼은 부분 저장을 허용하는 것이 기존 정책이다.
  */
@@ -44,6 +49,12 @@ export interface TimelineRow {
   endOffset: number;
   /** 왜 마커로 남았는지 등 행에 붙는 한 줄 설명 */
   note?: string;
+  /** 어느 기록지의 시각인가 — "공통"·"먼지"·"먼지·가스상". 기록지가 한 장이거나 총 채취시간이면 null */
+  sourceLabel: string | null;
+  /** 이 행을 낸 기록지들. 총 채취시간은 측정계획 단위라 비어 있다 */
+  categories: MeasurementCategory[];
+  /** 이 행에 걸린 가장 심한 위반. 없으면 null */
+  level: TimelineIssueLevel | null;
 }
 
 export type TimelineIssueLevel = "warning" | "danger";
@@ -81,11 +92,15 @@ export interface SamplingTimeline {
   worstLevel: TimelineIssueLevel | null;
 }
 
+export interface TimelineSheetInput {
+  sheet: SheetForm;
+  /** 수분 채취시간 산출에 필요한 흡입량(vm_g)의 출처 — 기록지마다 다르다 */
+  previewCalc: SheetCalcPreview | null;
+}
+
 export interface SamplingTimelineInput {
   basicInfo: ScheduleBasicInfoForm;
-  sheet: SheetForm;
-  /** 수분 채취시간 산출에 필요한 흡입량(vm_g)의 출처 */
-  previewCalc: SheetCalcPreview | null;
+  sheets: TimelineSheetInput[];
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -128,35 +143,25 @@ interface RawRow {
   durationMinutes: number | null;
   endDerived: boolean;
   note?: string;
+  sourceLabel: string | null;
+  categories: MeasurementCategory[];
 }
+
+/** 기록지를 합치기 전의 행 — 어느 기록지에서 왔는지를 들고 있다 */
+type SheetRawRow = Omit<RawRow, "sourceLabel" | "categories"> & { category: MeasurementCategory };
 
 const SAMPLE_LABEL_FALLBACK = "가스상 항목";
 
 /**
- * 폼에서 타임라인 행 후보를 모은다. **시작시각이 비어 있으면 행을 만들지 않는다.**
+ * 기록지 한 장에서 타임라인 행 후보를 모은다. **시작시각이 비어 있으면 행을 만들지 않는다.**
  *
  * 이 규칙 하나로 조건부 항목(THC·입자상)의 노출 판정이 저절로 맞아떨어진다 —
  * 배정되지 않은 항목은 애초에 입력칸이 없어 시작시각이 비어 있기 때문이다.
+ * 총 채취시간은 측정계획 단위 값이라 여기서 만들지 않는다.
  */
-export const collectRawRows = ({
-  basicInfo,
-  sheet,
-  previewCalc,
-}: SamplingTimelineInput): RawRow[] => {
-  const rows: RawRow[] = [];
-
-  const totalStart = toMinutes(basicInfo.samplingStartedAt);
-  if (totalStart !== null) {
-    rows.push({
-      id: "total",
-      kind: "total",
-      label: "총 채취시간",
-      rawStart: totalStart,
-      rawEnd: toMinutes(basicInfo.samplingEndedAt),
-      durationMinutes: null,
-      endDerived: false,
-    });
-  }
+const collectSheetRows = ({ sheet, previewCalc }: TimelineSheetInput): SheetRawRow[] => {
+  const { category } = sheet;
+  const rows: SheetRawRow[] = [];
 
   const moistureStart = toMinutes(sheet.moisture.samplingStartTime);
   if (moistureStart !== null) {
@@ -164,6 +169,7 @@ export const collectRawRows = ({
     rows.push({
       id: "moisture",
       kind: "moisture",
+      category,
       label: "수분 채취",
       rawStart: moistureStart,
       rawEnd: null,
@@ -178,6 +184,7 @@ export const collectRawRows = ({
     rows.push({
       id: "gas",
       kind: "gas",
+      category,
       label: "가스분석기",
       rawStart: gasStart,
       rawEnd: null,
@@ -191,6 +198,7 @@ export const collectRawRows = ({
     rows.push({
       id: "thc",
       kind: "thc",
+      category,
       label: "THC",
       rawStart: thcStart,
       rawEnd: null,
@@ -200,13 +208,14 @@ export const collectRawRows = ({
   }
 
   // 저장된 종료시각을 믿지 않고 지점 채취시간에서 다시 구한다 — 서버 값과 어긋날 여지를 없앤다.
-  const particleStart = isParticleCategory(sheet.category)
+  const particleStart = isParticleCategory(category)
     ? toMinutes(sheet.particle.samplingStartTime)
     : null;
   if (particleStart !== null) {
     rows.push({
       id: "particle",
       kind: "particle",
+      category,
       label: "입자상 채취",
       rawStart: particleStart,
       rawEnd: null,
@@ -223,6 +232,7 @@ export const collectRawRows = ({
     rows.push({
       id: `sample-${index}`,
       kind: "sample",
+      category,
       label: name || `${SAMPLE_LABEL_FALLBACK} ${index + 1}`,
       rawStart: start,
       rawEnd: toMinutes(sample.endTime),
@@ -230,6 +240,110 @@ export const collectRawRows = ({
       endDerived: false,
     });
   });
+
+  return rows;
+};
+
+/** 기록지끼리 복사해 쓰는 공통 섹션의 시각 — 같은 굴뚝에서 한 번 잰 값이다 */
+const COMMON_KINDS: readonly TimelineRowKind[] = ["moisture", "gas", "thc"];
+
+export const COMMON_SOURCE_LABEL = "공통";
+
+/** 기록지 목록의 표시 라벨 — "먼지·가스상" */
+export const describeSheets = (categories: MeasurementCategory[]): string =>
+  categories.map((category) => MEASUREMENT_CATEGORY_LABEL[category]).join("·");
+
+/**
+ * 기록지 고유 행(입자상·가스상 시료)의 id. 온도 타임라인이 같은 규칙으로 행을 찾으므로 한 곳에서 짓는다.
+ * `localId` 는 기록지 안의 id — "particle", "sample-0" …
+ */
+export const sheetRowId = (category: MeasurementCategory, localId: string): string => `${category}:${localId}`;
+
+/** 기록지 정보를 id·출처 라벨로 바꿔 단 행 */
+const toSheetlessRow = (
+  row: SheetRawRow,
+  id: string,
+  sourceLabel: string | null,
+  categories: MeasurementCategory[],
+): RawRow => ({
+  id,
+  kind: row.kind,
+  label: row.label,
+  rawStart: row.rawStart,
+  rawEnd: row.rawEnd,
+  durationMinutes: row.durationMinutes,
+  endDerived: row.endDerived,
+  note: row.note,
+  sourceLabel,
+  categories,
+});
+
+/**
+ * 모든 기록지의 행을 한 목록으로 모은다. 순서는 총 채취시간 → 공통 섹션 → 기록지별 채취다.
+ *
+ * 공통 섹션(수분·가스분석기·THC)은 기록지마다 같은 값을 복사해 쓰므로 그대로 늘어놓으면 같은 시각이
+ * 기록지 수만큼 반복된다. **시작·종료가 같으면 하나로 합치고**, 모든 기록지가 같은 값이면 "공통"으로 적는다.
+ * 값이 갈리면 각각 기록지 이름을 붙여 남긴다 — 불일치가 드러나야 고칠 수 있다.
+ */
+export const collectRawRows = ({ basicInfo, sheets }: SamplingTimelineInput): RawRow[] => {
+  const rows: RawRow[] = [];
+  const isMultiSheet = sheets.length > 1;
+
+  const totalStart = toMinutes(basicInfo.samplingStartedAt);
+  if (totalStart !== null) {
+    rows.push({
+      id: "total",
+      kind: "total",
+      label: "총 채취시간",
+      rawStart: totalStart,
+      rawEnd: toMinutes(basicInfo.samplingEndedAt),
+      durationMinutes: null,
+      endDerived: false,
+      sourceLabel: null,
+      categories: [],
+    });
+  }
+
+  const sheetRows = sheets.flatMap(collectSheetRows);
+
+  COMMON_KINDS.forEach((kind) => {
+    const groups = new Map<string, SheetRawRow[]>();
+    sheetRows
+      .filter((row) => row.kind === kind)
+      .forEach((row) => {
+        const key = `${row.rawStart}|${row.rawEnd}|${row.durationMinutes}`;
+        groups.set(key, [...(groups.get(key) ?? []), row]);
+      });
+
+    groups.forEach((group) => {
+      const categories = group.map((row) => row.category);
+      const isCommon = group.length === sheets.length;
+
+      rows.push(
+        toSheetlessRow(
+          group[0],
+          // 모두 같은 값이면 kind 를 그대로 id 로 쓴다 — 기록지가 한 장일 때도 같은 id 가 된다.
+          isCommon ? kind : `${kind}@${categories.join("+")}`,
+          !isMultiSheet ? null : isCommon ? COMMON_SOURCE_LABEL : describeSheets(categories),
+          categories,
+        ),
+      );
+    });
+  });
+
+  // 입자상·가스상 시료는 기록지 고유의 채취라 합치지 않는다.
+  sheetRows
+    .filter((row) => !COMMON_KINDS.includes(row.kind))
+    .forEach((row) => {
+      rows.push(
+        toSheetlessRow(
+          row,
+          sheetRowId(row.category, row.id),
+          isMultiSheet ? describeSheets([row.category]) : null,
+          [row.category],
+        ),
+      );
+    });
 
   return rows;
 };
@@ -285,8 +399,21 @@ const place = (rows: RawRow[]): PlacedRow[] => {
   });
 };
 
-/** 눈금 간격 후보 — 눈금이 4~7개가 되는 첫 단위를 고른다 */
+/** 눈금 간격 후보 — 눈금 개수가 상한 안에 드는 첫 단위를 고른다 */
 const TICK_STEPS = [5, 10, 15, 30, 60, 120, 180, 360];
+
+/** `startMinutes` 부터 `spanMinutes` 구간의 눈금. 오프셋은 구간 시작 기준이다 */
+const buildTicks = (startMinutes: number, spanMinutes: number, maxTicks = 7): TimelineAxis["ticks"] => {
+  const step =
+    TICK_STEPS.find((candidate) => spanMinutes / candidate <= maxTicks) ??
+    TICK_STEPS[TICK_STEPS.length - 1];
+
+  const ticks: TimelineAxis["ticks"] = [];
+  for (let tick = Math.ceil(startMinutes / step) * step; tick <= startMinutes + spanMinutes; tick += step) {
+    ticks.push({ offset: tick - startMinutes, label: fromMinutes(tick) });
+  }
+  return ticks;
+};
 
 export const buildTimelineAxis = (rows: PlacedRow[]): TimelineAxis | null => {
   if (rows.length === 0) return null;
@@ -304,25 +431,18 @@ export const buildTimelineAxis = (rows: PlacedRow[]): TimelineAxis | null => {
   const spanMinutes = Math.max(paddedSpan, MIN_AXIS_SPAN_MINUTES);
   const startMinutes = paddedStart - (spanMinutes - paddedSpan) / 2;
 
-  const step =
-    TICK_STEPS.find((candidate) => spanMinutes / candidate <= 7) ??
-    TICK_STEPS[TICK_STEPS.length - 1];
-
-  const ticks: TimelineAxis["ticks"] = [];
-  for (
-    let tick = Math.ceil(startMinutes / step) * step;
-    tick <= startMinutes + spanMinutes;
-    tick += step
-  ) {
-    ticks.push({ offset: tick - startMinutes, label: fromMinutes(tick) });
-  }
-
-  return { startMinutes, spanMinutes, ticks };
+  return { startMinutes, spanMinutes, ticks: buildTicks(startMinutes, spanMinutes) };
 };
 
 // ─────────────────────────────────────────────────────────────
 // 위반 판정
 // ─────────────────────────────────────────────────────────────
+
+/** 위반 문장 속 행 이름 — 문장만 읽어도 어느 기록지의 행인지 알 수 있게 출처를 앞에 붙인다 */
+const issueLabel = (row: PlacedRow): string =>
+  row.sourceLabel && row.sourceLabel !== COMMON_SOURCE_LABEL
+    ? `[${row.sourceLabel}] ${row.label}`
+    : row.label;
 
 /**
  * 시각 간 모순을 찾는다.
@@ -342,7 +462,7 @@ export const findTimelineIssues = (rows: PlacedRow[]): TimelineIssue[] => {
       dangers.push({
         code: "reversed-range",
         level: "danger",
-        message: `${row.label}의 종료시각이 시작시각보다 빠릅니다.`,
+        message: `${issueLabel(row)}의 종료시각이 시작시각보다 빠릅니다.`,
         rowIds: [row.id],
       });
     }
@@ -351,7 +471,7 @@ export const findTimelineIssues = (rows: PlacedRow[]): TimelineIssue[] => {
       warnings.push({
         code: "zero-duration",
         level: "warning",
-        message: `${row.label}의 채취시간이 0분입니다.`,
+        message: `${issueLabel(row)}의 채취시간이 0분입니다.`,
         rowIds: [row.id],
       });
     }
@@ -364,7 +484,7 @@ export const findTimelineIssues = (rows: PlacedRow[]): TimelineIssue[] => {
       warnings.push({
         code: "crosses-midnight",
         level: "warning",
-        message: `${withSubjectJosa(row.label)} 자정을 넘깁니다. 다음 날로 해석했습니다.`,
+        message: `${withSubjectJosa(issueLabel(row))} 자정을 넘깁니다. 다음 날로 해석했습니다.`,
         rowIds: [row.id],
       });
     }
@@ -378,7 +498,7 @@ export const findTimelineIssues = (rows: PlacedRow[]): TimelineIssue[] => {
           code: "outside-total",
           level: "danger",
           message:
-            `${withSubjectJosa(row.label)} 총 채취시간` +
+            `${withSubjectJosa(issueLabel(row))} 총 채취시간` +
             `(${fromMinutes(total.startMinutes)}~${fromMinutes(total.endMinutes)}) 밖에 있습니다.`,
           rowIds: [row.id],
         });
@@ -396,6 +516,17 @@ export const findTimelineIssues = (rows: PlacedRow[]): TimelineIssue[] => {
   return [...dangers, ...warnings];
 };
 
+/** 행별 최고 심각도 — 같은 행에 주의와 경고가 겹치면 경고를 따른다 */
+const levelByRowId = (issues: TimelineIssue[]): Map<string, TimelineIssueLevel> => {
+  const levels = new Map<string, TimelineIssueLevel>();
+  issues.forEach((issue) => {
+    issue.rowIds.forEach((id) => {
+      if (issue.level === "danger" || !levels.has(id)) levels.set(id, issue.level);
+    });
+  });
+  return levels;
+};
+
 // ─────────────────────────────────────────────────────────────
 // 진입점
 // ─────────────────────────────────────────────────────────────
@@ -407,6 +538,9 @@ export const buildSamplingTimeline = (input: SamplingTimelineInput): SamplingTim
   if (!axis) {
     return { rows: [], axis: null, issues: [], issueCount: 0, worstLevel: null };
   }
+
+  const issues = findTimelineIssues(placed);
+  const levels = levelByRowId(issues);
 
   const rows: TimelineRow[] = placed.map((row) => ({
     id: row.id,
@@ -424,9 +558,10 @@ export const buildSamplingTimeline = (input: SamplingTimelineInput): SamplingTim
     startOffset: row.startMinutes - axis.startMinutes,
     endOffset: row.endMinutes - axis.startMinutes,
     note: row.note,
+    sourceLabel: row.sourceLabel,
+    categories: row.categories,
+    level: levels.get(row.id) ?? null,
   }));
-
-  const issues = findTimelineIssues(placed);
 
   return {
     rows,

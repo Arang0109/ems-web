@@ -12,7 +12,6 @@ import { StickyActionBar } from "@shared/ui/layout";
 import { ChipNav } from "@shared/ui/nav";
 import { Callout, EmptyText } from "@shared/ui/feedback";
 
-import { buildSamplingTimeline } from "../model/derived/sampling-timeline";
 import { getMissingRequiredFields } from "../model/input/required-fields";
 import type { SheetFieldPath } from "../model/input/required-fields";
 import { BASIC_INFO_SECTION, getVisibleSections } from "../model/sections";
@@ -23,6 +22,7 @@ import { useBorrowedFields } from "../model/hooks/use-borrowed-fields";
 import { useLoadPreviousSheet } from "../model/hooks/use-load-previous-sheet";
 import { sectionDomId, useSectionNav } from "../model/hooks/use-section-nav";
 import { useSyncCommonSections } from "../model/hooks/use-sync-common-sections";
+import { useSamplingTimeline } from "../model/hooks/use-sampling-timeline";
 import type { SheetFieldState } from "./sheet-field-state";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { SheetFormView } from "./SheetFormView";
@@ -95,15 +95,11 @@ export const SheetsEditor = ({
     [activeSheet],
   );
 
-  // 타임라인은 측정계획 단위 총 채취시간과 활성 시트의 시각을 함께 봐야 한다.
-  // 둘을 다 쥐고 있는 곳이 여기뿐이라 이 컴포넌트가 소유한다.
-  const timeline = useMemo(
-    () =>
-      activeSheet
-        ? buildSamplingTimeline({ basicInfo: basicInfoForm, sheet: activeSheet, previewCalc })
-        : null,
-    [basicInfoForm, activeSheet, previewCalc],
-  );
+  // 타임라인은 측정계획 단위 총 채취시간 안에 모든 기록지의 시각을 함께 봐야 한다 —
+  // 기록지를 바꿔도 같은 흐름이 보여야 한다. 둘을 다 쥐고 있는 곳이 여기뿐이라 이 컴포넌트가 소유한다.
+  const timelines = useSamplingTimeline({
+    basicInfo: basicInfoForm, sheets, activeSheet, activePreviewCalc: previewCalc, externals,
+  });
 
   const confirm = useConfirm();
 
@@ -289,7 +285,9 @@ export const SheetsEditor = ({
       {(activeSheet || isDirty) && (
         /* 읽기 액션(시간 확인·미리보기)을 왼쪽에, 쓰기 액션(다운로드·저장)을 오른쪽에 묶는다 */
         <StickyActionBar className={ACTION_BAR_CLASS}>
-          {timeline && <SamplingTimelinePopover timeline={timeline} />}
+          {timelines && (
+            <SamplingTimelinePopover timeline={timelines.timeline} temperatures={timelines.temperatures} />
+          )}
 
           {/* 계산 결과는 섹션 폼에 흩어 두지 않고 이 드로어 한 곳에서 본다 */}
           <Button
