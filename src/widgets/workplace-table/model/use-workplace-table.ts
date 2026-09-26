@@ -26,8 +26,7 @@ export const useWorkplaceTable = ({ workplaces, onRowClick }: Props) => {
       }
     : undefined;
 
-  // 상세 폼은 목록(WorkplaceListItem)이 아닌 상세(Workplace)를 요구하므로,
-  // 그 행을 선택해 부모가 상세를 조회하게 한 뒤 모달을 연다.
+  // 상세 폼은 부모가 쥔 선택 항목을 받으므로, 그 행을 먼저 선택시킨 뒤 모달을 연다.
   const handleViewDetail = (row: WorkplaceTableRow) => {
     handleRowClick?.(row);
     setDetailOpen(true);

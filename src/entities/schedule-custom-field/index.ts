@@ -1,5 +1,3 @@
-export { scheduleCustomFieldApi } from "./api/api";
-
 export type { ScheduleCustomField, ScheduleCustomFieldCreate, ScheduleCustomFieldUpdate } from "./model/types";
 
 export { useScheduleCustomFields } from "./model/use-schedule-custom-fields";

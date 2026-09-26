@@ -1,4 +1,4 @@
-import type { Workplace } from "@entities/workplace";
+import type { WorkplaceListItem } from "@entities/workplace";
 
 import { measurementFieldOptions, gradeOptions } from "@shared/model";
 import { useRegisterStack } from "../model/hooks/use-register-stack";
@@ -11,7 +11,7 @@ import type { Grade, MeasurementField } from "@shared/model";
 import { Building2, Hash, Factory, Plus } from "lucide-react";
 
 interface Props {
-  workplace: Workplace | null;
+  workplace: WorkplaceListItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;

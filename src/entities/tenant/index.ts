@@ -1,5 +1,3 @@
-export { tenantApi } from './api/api';
-
 export type {
   Tenant,
   TenantProvision,

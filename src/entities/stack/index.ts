@@ -1,5 +1,3 @@
-export { stackApi } from "./api/api";
-
 export type {
   Stack, StackCreate, StackUpdate, StackListItem, StackDetail,
   Prevention, PreventionCreate, PreventionUpdate,

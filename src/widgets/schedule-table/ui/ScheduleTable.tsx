@@ -10,7 +10,7 @@ import { Search, FilterSelect } from '@shared/ui/form';
 import { Activity, CalendarDays, Users } from 'lucide-react';
 
 interface Props {
-  onRowClick?: (row: ScheduleTableRow) => void;
+  onRowClick?: (scheduleId: number) => void;
 }
 
 export const ScheduleTable = ({ onRowClick }: Props) => {
@@ -68,7 +68,7 @@ export const ScheduleTable = ({ onRowClick }: Props) => {
         <BasicTable
           table={table}
           error={error}
-          onRowClick={onRowClick}
+          onRowClick={onRowClick && ((row: ScheduleTableRow) => onRowClick(Number(row.id)))}
           mobileCard={scheduleCardConfig}
           emptyState={
             <TableEmptyState

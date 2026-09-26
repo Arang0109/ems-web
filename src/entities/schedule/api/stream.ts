@@ -1,5 +1,6 @@
 import { refreshAccessToken, tokenStorage } from "@shared/api";
-import type { MeasurementCategory, ScheduleStatus } from "@shared/model";
+
+import type { SheetsSavedEventResponse } from "./dto";
 
 /**
  * 측정계획 편집 실시간 알림 구독.
@@ -13,19 +14,8 @@ import type { MeasurementCategory, ScheduleStatus } from "@shared/model";
  * 액세스 로그에 남으므로 채택하지 않았고, 대신 fetch 로 스트림을 직접 읽는다.
  */
 
-/** 서버가 보내는 시트 저장 알림. 시트 본문은 담기지 않는다 — 수신 측이 상세 조회로 최신본을 가져온다. */
-export type SheetsSavedEvent = {
-  scheduleId: number;
-  tenantId: number;
-  /** 저장한 사용자. `username` 으로 내 저장의 메아리를 걸러내고, `name` 은 안내 문구에 쓴다. */
-  editor: { username: string; name: string };
-  /** 이번 저장이 건드린 기록지(수정분 + 삭제분) */
-  categories: MeasurementCategory[];
-  status: ScheduleStatus;
-};
-
 interface Handlers {
-  onSheetsSaved: (event: SheetsSavedEvent) => void;
+  onSheetsSaved: (event: SheetsSavedEventResponse) => void;
 }
 
 const RECONNECT_BASE_MS = 1_000;
@@ -116,7 +106,7 @@ export const subscribeScheduleStream = (
   const handleFrame = (frame: Frame) => {
     if (frame.event !== "sheets-saved") return;
     try {
-      onSheetsSaved(JSON.parse(frame.data) as SheetsSavedEvent);
+      onSheetsSaved(JSON.parse(frame.data) as SheetsSavedEventResponse);
     } catch {
       // 해석하지 못한 프레임 때문에 구독 전체가 끊기지는 않도록 삼킨다.
     }

@@ -62,7 +62,7 @@ app → pages → widgets → features → entities → shared
 | 레이어 | 개수 | 슬라이스 |
 |--------|------|---------|
 | pages | 9 그룹 / 라우트 23개 | `sign-in`, `dashboard`, `client`(하위 `client`·`contract`·`pollutant`·`measurement-method`), `equipment`, `schedule`, `staff`, `chat`, `admin`(하위 `member`·`document`·`custom-field`), `platform`(하위 `tenant`·`pollutant-catalog`) |
-| widgets | 26 | `sign-in`, `layouts`, `chat-room-list`, `chat-room`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `pollutant-catalog-table`, `measurement-method-table`, `schedule-custom-field-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `canceled-schedule-table`, `schedule-profile`, `tenant-table` |
+| widgets | 27 | `sign-in`, `layouts`, `chat-room-list`, `chat-room`, `metrics`, `dashboard-stats`, `dashboard-alerts`, `client-table`, `workplace-table`, `stack-table`, `stack-list-table`, `stack-profile`, `contract-table`, `pollutant-table`, `pollutant-catalog-table`, `measurement-method-table`, `schedule-custom-field-table`, `document-table`, `equipment-table`, `member-table`, `team-table`, `team-schedule-table`, `schedule-table`, `canceled-schedule-table`, `schedule-profile`, `contract-profile`, `tenant-table` |
 | features | 55 | `sign-in`, `sign-out`, `send-chat-message`, `open-chat-room`, `hide-chat-room`, `download-chat-attachment`, `dashboard-summary`, `provision-tenant`, `record-inspection`, `download-document`, `add-document-version`, `delete-document-version`, `export-schedule-report`, `manage-schedule-lifecycle`, `save-schedule-sheets`, `save-schedule-analysis`, `fill-default-measurement-methods`, `register-*`(client·workplace·stack·contract·pollutant·pollutant-catalog·measurement-method·schedule-custom-field·facility·prevention·stack-pollutant·document·equipment·member·schedule·team), `update-*`(client·contract·workplace·stack·stack-pollutant·facility·prevention·document·equipment·member·pollutant·pollutant-catalog·measurement-method·schedule-custom-field·schedule-custom-fields·team·schedule-basic-info·schedule-client·schedule-equipments·schedule-item·schedule-items·schedule-stack) |
 | entities | 19 | `auth`, `chat`, `client`, `workplace`, `stack`, `stack-pollutant`, `contract`, `dashboard`, `pollutant`, `pollutant-catalog`, `measurement-method`, `document`, `equipment`, `measurement-record`, `member`, `schedule`, `schedule-custom-field`, `team`, `tenant` |
 | shared | — | `api`, `config`, `lib`, `model`, `ui` |
@@ -93,7 +93,7 @@ slice-name/
 | 레이어 | 책임 |
 |--------|------|
 | app | 앱 초기화, provider 등록, 전역 설정, 라우트 구성 |
-| pages | 라우트 단위 화면 — widget/feature/entity를 조합 |
+| pages | 라우트 단위 화면 — widget을 조합 (feature/entity 직접 사용은 지양, `pages/CLAUDE.md` 참조) |
 | widgets | 여러 entity/feature를 조합하는 복합 UI 블록 |
 | features | 사용자 시나리오 — 폼 상태, 제출 로직, 선택/액션 처리 |
 | entities | 도메인 모델 — 타입, 표시용 UI, 도메인 API, 데이터 조회 훅 |
@@ -182,8 +182,7 @@ shared/model/types/common-types (공통 enum/type)
 
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
-| `entities/auth/index.ts` | `SignInRequest`/`SignInResponse` DTO 를 public API 로 노출 | auth 액션 훅을 만들어 DTO 노출 제거 |
-| `entities/dashboard` | `model/` 자체가 없어 DTO 4종을 그대로 노출 | `model/types.ts` + 페칭 훅 신설 |
-| `features/{sign-in,sign-out}` | `entities/*/api/api.ts` 직접 호출 (entity 훅 부재가 원인) | 위 두 항목 해소 시 함께 정리 |
+| `entities/*/model/types.ts` | 도메인 타입 다수가 응답 DTO 의 별칭(`Client = ClientResponse` 등)이라 서버 응답 모양이 상위 레이어까지 그대로 흐른다 | 설계 부채로 기록. 서버 계약이 바뀔 때 해당 슬라이스부터 분리 |
+| `features/dashboard-summary` | 표시 컴포넌트·표시 타입을 feature 가 소유하고 `widgets/dashboard-*` 는 그대로 넘기기만 한다 | 표시 컴포넌트를 widget 으로 이전 |
 | `features/{sign-in,sign-out}` | 훅이 슬라이스 루트 `hooks/` 에 위치 | `model/hooks/` 로 이동 |
 | `src/shared/ui/*`, `src/widgets/schedule-profile/**` | `@/lib/utils` 의 `cn` 직접 사용 | shadcn 관행으로 인정할지 `@shared/lib` 로 이전할지 미결정 |

@@ -1,7 +1,7 @@
 import { useUpdateWorkplace } from '../model/hooks/use-update-workplace';
 import { useDeleteWorkplace } from '../model/hooks/use-delete-workplace';
 
-import type { Workplace } from '@entities/workplace';
+import type { WorkplaceListItem } from '@entities/workplace';
 
 import { FormDialog } from "@shared/ui/dialogs";
 import { FieldGroup, InputGroup, SectionTitle, AddressInput, Select } from "@shared/ui/form";
@@ -15,7 +15,7 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   client: Client | null;
-  workplace: Workplace | null;
+  workplace: WorkplaceListItem | null;
   onSuccess?: () => void;
 }
 

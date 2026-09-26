@@ -355,6 +355,4 @@ Select 훅은 재사용 가능성을 기준으로 레이어를 결정한다.
 | 위치 | 문제 | 개선 방향 |
 |------|------|-----------|
 | `sign-in/hooks/`, `sign-out/hooks/` | 훅이 슬라이스 루트에 위치 | `model/hooks/` 로 이동 |
-| `sign-in/hooks/use-sign-in.ts` | `signInApi` 직접 호출 (`entities/auth` 에 액션 훅이 없음) | entity 액션 훅 신설 후 경유 |
-| `sign-in/model/mapper.ts` | Form → **Request DTO** 직접 변환 | 도메인 입력 모델을 거치도록 변경 |
-| `dashboard-summary/model/use-dashboard.ts` | `dashboardApi` 직접 호출, 훅이 `model/` 직하 | `entities/dashboard` 에 `model/` 신설 후 경유 |
+| `dashboard-summary/model/use-dashboard.ts` | 훅이 `model/` 직하, 표시 컴포넌트·표시 타입을 feature 가 소유 | 표시 컴포넌트를 widget 으로 이전 |

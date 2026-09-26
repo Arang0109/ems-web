@@ -5,13 +5,13 @@ import { getDefaultStackRegisterForm } from "../types";
 import { toStackCreate } from "../mapper";
 import { validateStackFields } from "../validator";
 
-import type { Workplace } from "@entities/workplace";
+import type { WorkplaceListItem } from "@entities/workplace";
 import { useRegisterStackAction } from "@entities/stack";
 
 import { toast } from "@shared/ui/toasts";
 
 interface Props {
-  workplace: Workplace | null;
+  workplace: WorkplaceListItem | null;
   onSuccess: () => void;
 }
 

@@ -1,7 +1,7 @@
 import { useWorkplaceTable } from '../model/use-workplace-table';
 
 import type { Client } from '@entities/client';
-import type { Workplace, WorkplaceListItem } from '@entities/workplace';
+import type { WorkplaceListItem } from '@entities/workplace';
 
 import { RegisterWorkplaceForm } from '@features/register-workplace';
 import { UpdateWorkplaceForm } from '@features/update-workplace';
@@ -14,7 +14,7 @@ import { Building2 } from 'lucide-react';
 interface Props {
   workplaces: WorkplaceListItem[];
   selectedClient: Client | null;
-  selectedWorkplace: Workplace | null;
+  selectedWorkplace: WorkplaceListItem | null;
 
   onRowClick?: (workplace: WorkplaceListItem) => void;
   onSuccess?: () => void;

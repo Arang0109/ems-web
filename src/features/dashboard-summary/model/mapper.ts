@@ -1,27 +1,27 @@
-import type { MeasurementCountChartResponse, DashboardOverviewResponse } from "@entities/dashboard";
+import type { MeasurementCount, DashboardOverview } from "@entities/dashboard";
 import type {
   MeasurementCountChart, OverallStats, MonthlyStats,
   ExpiringContract, InspectionDue,
 } from "./types";
 
-export const toMeasurementCountChart = (col: MeasurementCountChartResponse): MeasurementCountChart => ({
+export const toMeasurementCountChart = (col: MeasurementCount): MeasurementCountChart => ({
   label: col.label,
   count: col.count,
 });
 
-export const toOverallStats = (col: DashboardOverviewResponse): OverallStats => ({
+export const toOverallStats = (col: DashboardOverview): OverallStats => ({
   workplaceCount: col.workplaceCount,
   contractCount: col.contractCount,
   stackCount: col.stackCount,
   totalMeasurements: col.completedMeasurementCount,
 });
 
-export const toMonthlyStats = (col: DashboardOverviewResponse): MonthlyStats => ({
+export const toMonthlyStats = (col: DashboardOverview): MonthlyStats => ({
   monthlyMeasurements: col.thisMonthMeasurementCount,
   newContractCount: col.newContractCount,
 });
 
-export const toExpiringContracts = (col: DashboardOverviewResponse): ExpiringContract[] =>
+export const toExpiringContracts = (col: DashboardOverview): ExpiringContract[] =>
   (col.expiringContracts ?? []).map((item) => ({
     contractId: item.contractId,
     contractName: item.contractName,
@@ -30,7 +30,7 @@ export const toExpiringContracts = (col: DashboardOverviewResponse): ExpiringCon
     daysRemaining: item.daysRemaining,
   }));
 
-export const toInspectionDues = (col: DashboardOverviewResponse): InspectionDue[] =>
+export const toInspectionDues = (col: DashboardOverview): InspectionDue[] =>
   (col.inspectionDueEquipments ?? []).map((item) => ({
     equipmentId: item.equipmentId,
     equipmentName: item.equipmentName,

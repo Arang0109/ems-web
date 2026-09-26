@@ -1,5 +1,3 @@
-export { measurementMethodApi } from "./api/api";
-
 export type { MeasurementMethod, MeasurementMethodCreate, MeasurementMethodUpdate } from "./model/types";
 
 export { useMeasurementMethods } from "./model/use-measurement-methods";

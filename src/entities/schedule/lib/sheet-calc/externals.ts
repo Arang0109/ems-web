@@ -1,5 +1,4 @@
-import type { NozzleSpecDto, ParticleSamplerSpecDto, PitotTubeSpecDto } from "../../api/dto";
-import type { ScheduleSnapshot } from "../../model/types";
+import type { NozzleSpec, ParticleSamplerSpec, PitotTubeSpec, ScheduleSnapshot } from "../../model/types";
 import type { SheetCalcExternals } from "./types";
 
 // ── 스냅샷에서 계산 외부입력 추출 ────────────────────────────────
@@ -10,9 +9,9 @@ export const getSheetCalcExternals = (snapshot: ScheduleSnapshot): SheetCalcExte
   const stack = snapshot.client?.workplace?.stack;
   const equipments = snapshot.team?.equipments ?? [];
 
-  const pitotSpec = equipments.find((e) => e.type === "PITOT_TUBE")?.spec as PitotTubeSpecDto | null | undefined;
-  const samplerSpec = equipments.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as ParticleSamplerSpecDto | null | undefined;
-  const nozzleSpec = equipments.find((e) => e.type === "NOZZLE")?.spec as NozzleSpecDto | null | undefined;
+  const pitotSpec = equipments.find((e) => e.type === "PITOT_TUBE")?.spec as PitotTubeSpec | null | undefined;
+  const samplerSpec = equipments.find((e) => e.type === "PARTICLE_SAMPLER")?.spec as ParticleSamplerSpec | null | undefined;
+  const nozzleSpec = equipments.find((e) => e.type === "NOZZLE")?.spec as NozzleSpec | null | undefined;
 
   return {
     stackName: stack?.name ?? null,

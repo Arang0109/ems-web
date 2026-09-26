@@ -1,5 +1,3 @@
-export { teamApi } from './api/api';
-
 export type { Team, TeamCreate, TeamUpdate } from './model/types';
 
 export { useTeams } from './model/use-teams';

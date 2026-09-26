@@ -749,3 +749,16 @@ export type SamplingTimeEntryDto = {
   samplingStartedAt: string | null; // "HH:mm:ss"
   samplingEndedAt: string | null;
 };
+
+// ── 실시간 스트림 ────────────────────────────────────────────────
+
+/** 서버가 보내는 시트 저장 알림(SSE `sheets-saved`). 시트 본문은 담기지 않는다 — 수신 측이 상세 조회로 최신본을 가져온다. */
+export type SheetsSavedEventResponse = {
+  scheduleId: number;
+  tenantId: number;
+  /** 저장한 사용자. `username` 으로 내 저장의 메아리를 걸러내고, `name` 은 안내 문구에 쓴다. */
+  editor: { username: string; name: string };
+  /** 이번 저장이 건드린 기록지(수정분 + 삭제분) */
+  categories: MeasurementCategory[];
+  status: ScheduleStatus;
+};

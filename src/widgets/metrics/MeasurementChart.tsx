@@ -5,14 +5,14 @@ import {
 import { addDays, differenceInCalendarDays, endOfYear, startOfYear } from 'date-fns';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
-import type { MeasurementCountChartResponse } from '@entities/dashboard';
-
 import { Panel } from '@shared/ui/cards';
 import { IconButton } from '@shared/ui/buttons';
 import { DateRangePicker, type DateRange } from '@shared/ui/form';
 import { useIsMobile } from '@shared/model';
 
 import { formatNumber } from "@shared/lib";
+
+import type { MeasurementChartPoint } from './model/types';
 
 /**
  * 측정건수 추이 차트.
@@ -24,7 +24,7 @@ import { formatNumber } from "@shared/lib";
  */
 
 interface Props {
-  stats: MeasurementCountChartResponse[];
+  stats: MeasurementChartPoint[];
 }
 
 /** 값 라벨이 서로 겹치기 시작하는 지점. 이보다 촘촘하면 라벨을 숨긴다. */

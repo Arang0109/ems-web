@@ -281,11 +281,12 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `schedule-custom-field` | `useScheduleCustomFields` | `useRegisterScheduleCustomFieldAction`, `useUpdateScheduleCustomFieldAction`, `useDeleteScheduleCustomFieldAction` |
 | `tenant` | `useTenants` | `useProvisionTenantAction` |
 | `chat` | `useChatRooms`, `useChatRoomDetail`, `useChatContacts`, `useChatUnreadCount`, `useChatMessages`(무한), `useChatAttachment`(blob) | `useSendChatMessageAction`(낙관), `useMarkChatRoomReadAction`, `useOpenChatRoomAction`, `useHideChatRoomAction`, `useDownloadChatAttachmentAction`, `useChatRealtime`(STOMP 구독) |
-| `auth` | — | `useAuth`(Context 훅). API: `signInApi`, `signOutApi` |
-| `dashboard` | — (model 훅 없음) | — (API: `dashboardApi` 만 존재) |
+| `auth` | `useUsers` | `useAuth`(Context 훅), `useSignInAction` |
+| `dashboard` | `useMeasurementStats`, `useDashboardOverview` | — |
 
 > `auth`, `dashboard` 는 표준 CRUD 패턴을 따르지 않는다.
-> 두 슬라이스 모두 **DTO 를 public API 로 노출하는 규칙 위반 상태**이며(아래 참조), 정리 대상이다.
+> **API 객체(`xxxApi`)·구독 함수는 index 로 노출하지 않는다** — 상위 레이어는 훅만 쓴다.
+> 실시간 구독도 훅으로 감싼다(`chat` 의 `useChatRealtime`, `schedule` 의 `useScheduleStream`).
 
 ### 표준 패턴 예외
 
@@ -306,8 +307,7 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 
 | 위치 | 문제 |
 |------|------|
-| `auth/index.ts` | `SignInRequest`/`SignInResponse` DTO 를 export (규칙상 금지) |
-| `dashboard/index.ts` | `model/` 이 없어 응답 DTO 4종을 그대로 export |
+| `*/model/types.ts` (client·member·team·workplace·document·equipment·chat·auth·schedule 등) | 도메인 타입이 응답 DTO 의 별칭이다. index 규칙은 형식상 지키지만 서버 응답 모양이 상위 레이어까지 그대로 흐른다 — 설계 부채 |
 
 ---
 
@@ -328,10 +328,12 @@ mutation 수명주기에 개입해야 하면 `useMutation` 을 직접 조립한�
 | `equipment` | `Equipment`, `EquipmentCreate`, `EquipmentUpdate`, `EquipmentStatusChange`, `InspectionItem`, `InspectionItemInput`, `InspectionRecord`, `InspectionRecordCreate`, `EquipmentSpec` 및 종류별 Spec 타입 |
 | `member` | `Member`, `MemberCreate`, `MemberUpdate`, `Role` |
 | `team` | `Team`, `TeamCreate`, `TeamUpdate` |
-| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleCustomFieldsSave`, `TemplateCheckResult`·`TemplateIssue`, `ScheduleDetail`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`, `TemplateIssueDescription`) |
+| `schedule` | `ScheduleListItem`, `ScheduleCreate`, `ScheduleMetaUpdate`, `ScheduleCustomFieldsSave`, `TemplateCheckResult`·`TemplateIssue`, `ScheduleDetail`, `SheetsSavedEvent`, 스냅샷 타입군(`ClientSnapshot`·`TenantSnapshot` 등), `SamplingSheet` 및 기록지 하위 타입군, `lib/` 계산 타입(`SheetCalcPreview`, `NozzleRecommendation`, `TemplateIssueDescription`) |
 | `schedule-custom-field` | `ScheduleCustomField`, `ScheduleCustomFieldCreate`, `ScheduleCustomFieldUpdate` |
 | `tenant` | `Tenant`, `TenantProvision`, `TenantAdminCreate` |
 | `chat` | `ChatRoom`, `ChatRoomListItem`, `ChatMessage`, `ChatMessagePage`, `ChatPeer`, `ChatContact`, `ChatAttachment`, `ChatAttachmentDownload`, `ChatDelivery`, `ChatMessageType` |
+| `auth` | `User`, `SignInCredentials`, `AuthUser`, `AuthCredentials` |
+| `dashboard` | `MeasurementCount`, `DashboardOverview`, `ExpiringContractItem`, `InspectionDueItem` |
 
 > **공용 enum·레이블은 entity 에 두지 않는다.** `MeasurementField`, `Grade`, `DocumentCategory`,
 > `ContractAmountUnit`, `TenantStatus`, `SubscriptionPlan`, `UserRole` 등은

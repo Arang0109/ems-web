@@ -1,5 +1,3 @@
-export { clientApi } from './api/api';
-
 export type { Client, ClientCreate, ClientUpdate } from './model/types';
 
 export { useClients } from './model/use-clients';

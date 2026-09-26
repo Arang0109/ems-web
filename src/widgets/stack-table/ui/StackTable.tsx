@@ -1,6 +1,6 @@
 import { useStackTable } from '../model/use-stack-table';
 
-import type { Workplace } from '@entities/workplace';
+import type { WorkplaceListItem } from '@entities/workplace';
 import type { StackListItem } from '@entities/stack';
 
 import { RegisterStackForm } from '@features/register-stack';
@@ -16,7 +16,7 @@ interface Props {
   stacks: StackListItem[];
   loading: boolean;
   error: string | null;
-  selectedWorkplace: Workplace | null;
+  selectedWorkplace: WorkplaceListItem | null;
   onSuccess?: () => void;
 }
 
@@ -39,7 +39,7 @@ export const StackTable = ({
           <h2 className="text-h3 text-ink">측정지점(굴뚝) 목록</h2>
             {selectedWorkplace ? (
               <p className="mt-0.5 text-label text-brand-primary truncate">
-                {selectedWorkplace.name}
+                {selectedWorkplace.workplaceName}
               </p>
             ) : (
               <p className="mt-0.5 text-caption text-muted-ink">

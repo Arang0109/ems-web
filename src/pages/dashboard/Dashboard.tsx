@@ -15,9 +15,8 @@ import { TriangleAlert } from 'lucide-react';
 /**
  * 대시보드.
  *
- * `useDashboard` 는 두 엔드포인트를 한 번에 받아 stats·alerts 위젯 모두에 먹이는
- * coordinator 훅이라 페이지가 보유한다. 위젯별로 나누면 같은 summary 요청이 2번 나간다
- * (쿼리 캐시가 없는 plain useEffect 구조). pages/CLAUDE.md 의 조합 예외에 해당한다.
+ * `useDashboard` 는 두 엔드포인트를 받아 stats·alerts 위젯 모두에 먹이는
+ * coordinator 훅이라 페이지가 보유한다. pages/CLAUDE.md 의 조합 예외에 해당한다.
  */
 export const Dashboard = () => {
   const {

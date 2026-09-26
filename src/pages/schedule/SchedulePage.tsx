@@ -47,8 +47,8 @@ export const SchedulePage = () => {
     >
       {/* 조회 조건은 URL 쿼리에 있다 — 상세의 뒤로가기가 보던 목록으로 되돌아오도록 실어 보낸다 */}
       <ScheduleTable
-        onRowClick={(row) =>
-          navigate(`/schedule/${row.id}`, { state: toScheduleListState(location.search) })
+        onRowClick={(scheduleId) =>
+          navigate(`/schedule/${scheduleId}`, { state: toScheduleListState(location.search) })
         }
       />
     </PageLayout>

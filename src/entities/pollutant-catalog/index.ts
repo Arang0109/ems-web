@@ -1,5 +1,3 @@
-export { pollutantCatalogApi } from "./api/api";
-
 export type {
   PollutantCatalog, PollutantCatalogCreate, PollutantCatalogUpdate,
 } from "./model/types";

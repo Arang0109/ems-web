@@ -1,5 +1,3 @@
-export { stackPollutantApi } from "./api/api";
-
 export type { StackPollutantCreate, StackPollutantListItem, StackPollutantUpdate } from "./model/types";
 
 export { useStackPollutants } from "./model/use-stack-pollutants";

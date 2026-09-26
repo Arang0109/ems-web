@@ -1,5 +1,3 @@
-export { pollutantApi } from "./api/api";
-
 export type { Pollutant, PollutantCandidate, PollutantCreate, PollutantUpdate } from "./model/types";
 
 export { usePollutants } from "./model/use-pollutants";

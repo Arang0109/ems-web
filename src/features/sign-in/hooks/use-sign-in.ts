@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 
-import { signInApi, useAuth, isPlatformAdmin } from "@entities/auth";
+import { useSignInAction, useAuth, isPlatformAdmin } from "@entities/auth";
 
-import { mapSignInFormDataToRequest } from "../model/mapper";
+import { toSignInCredentials } from "../model/mapper";
 import type { SignInFormData } from "../model/types";
 
 import type { ApiResponseMessage } from "@shared/model";
@@ -20,6 +20,7 @@ export const useSignIn = () => {
 
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { signIn } = useSignInAction();
 
   const [form, setForm] = useState<SignInFormData>({
     username: getRememberedUsername() || "",
@@ -45,25 +46,16 @@ export const useSignIn = () => {
       localStorage.removeItem(REMEMBER_ID_KEY);
     }
 
-    const payload = mapSignInFormDataToRequest(form);
+    const payload = toSignInCredentials(form);
 
     try {
-      const res = await signInApi(payload);
-       setError(false);
+      const credentials = await signIn(payload);
+      setError(false);
 
       toast.success('로그인에 성공했습니다.');
-      login({
-        accessToken: res.data.accessToken,
-        userId: res.data.userId,
-        tenant: res.data.tenant,
-        username: res.data.username,
-        name: res.data.name,
-        teamId: res.data.teamId,
-        teamName: res.data.teamName,
-        role: res.data.role,
-      });
+      login(credentials);
       // 플랫폼 운영자는 운영자 콘솔로, 그 외(고객사 유저)는 대시보드로
-      navigate(isPlatformAdmin(res.data.role) ? "/platform/tenants" : "/dashboard", { replace: true });
+      navigate(isPlatformAdmin(credentials.role) ? "/platform/tenants" : "/dashboard", { replace: true });
 
     } catch (error: unknown) {
       setError(true);

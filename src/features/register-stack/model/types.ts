@@ -1,4 +1,4 @@
-import type { Workplace } from "@entities/workplace";
+import type { WorkplaceListItem } from "@entities/workplace";
 import type { MeasurementField, Grade } from "@shared/model";
 
 export type StackRegisterForm = {
@@ -13,9 +13,9 @@ export type StackRegisterForm = {
   standardOxygen: string;
 }
 
-export const getDefaultStackRegisterForm = (workplace?: Workplace | null): StackRegisterForm => ({
+export const getDefaultStackRegisterForm = (workplace?: WorkplaceListItem | null): StackRegisterForm => ({
   workplaceId: workplace?.id ?? 0,
-  workplaceName: workplace?.name ?? "",
+  workplaceName: workplace?.workplaceName ?? "",
   field: "AIR",
   stackName: "",
   semsNumber: "",

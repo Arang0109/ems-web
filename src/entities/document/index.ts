@@ -1,5 +1,3 @@
-export { documentApi } from './api/api';
-
 export type {
   Document,
   DocumentVersion,

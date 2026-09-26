@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ScheduleDetail, SheetRef, SheetsSavedEvent } from "@entities/schedule";
-import { subscribeScheduleStream } from "@entities/schedule";
+import { useScheduleStream } from "@entities/schedule";
 import { MEASUREMENT_CATEGORY_LABEL } from "@shared/config";
 import { toast } from "@shared/ui/toasts";
 
@@ -106,12 +106,10 @@ export const useRemoteSheetsSync = ({
   }, [scheduleId, currentUsername, fetchSchedule]);
 
   // 같은 측정계획을 열어둔 다른 사용자의 저장을 구독한다.
-  useEffect(() => {
-    if (scheduleId == null) return;
-    return subscribeScheduleStream(scheduleId, {
-      onSheetsSaved: (event) => { void applyRemoteSave(event); },
-    });
-  }, [scheduleId, applyRemoteSave]);
+  const handleSheetsSaved = useCallback((event: SheetsSavedEvent) => {
+    void applyRemoteSave(event);
+  }, [applyRemoteSave]);
+  useScheduleStream(scheduleId, handleSheetsSaved);
 
   // 강조는 잠깐만 남긴다. 갱신이 연달아 오면 마지막 것 기준으로 타이머가 다시 시작된다.
   useEffect(() => {

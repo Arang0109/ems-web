@@ -4,13 +4,13 @@ import type { WorkplaceUpdateForm } from "../types";
 import { toWorkplaceUpdate } from "../mapper";
 
 import { useUpdateWorkplaceAction } from "@entities/workplace";
-import type { Workplace } from "@entities/workplace";
+import type { WorkplaceListItem } from "@entities/workplace";
 
 import { toast } from "@shared/ui/toasts";
 import type { AddressValue } from "@shared/model";
 
 interface Props {
-  workplace: Workplace | null;
+  workplace: WorkplaceListItem | null;
   onSuccess: () => void;
 }
 
@@ -18,7 +18,7 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
   const { updateWorkplace, isLoading } = useUpdateWorkplaceAction();
 
   const [form, setForm] = useState<WorkplaceUpdateForm>({
-    name: workplace?.name ?? '',
+    name: workplace?.workplaceName ?? '',
     bizNumber: workplace?.bizNumber ?? "",
     businessCategory: workplace?.businessCategory ?? "",
     zipcode: workplace?.zipcode ?? '',
@@ -48,7 +48,7 @@ export const useUpdateWorkplace = ({ workplace, onSuccess }: Props) => {
     
     try {
       await updateWorkplace(workplace.id, toWorkplaceUpdate(form));
-      toast.success(`${workplace.name}이(가) 수정되었습니다.`);
+      toast.success(`${workplace.workplaceName}이(가) 수정되었습니다.`);
       onSuccess();
     } catch (err) {
       const message = err instanceof Error ? err.message : '수정에 실패했습니다.';

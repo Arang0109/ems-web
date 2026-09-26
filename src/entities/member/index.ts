@@ -1,5 +1,3 @@
-export { memberApi, roleApi } from './api/api';
-
 export type { Member, MemberCreate, MemberUpdate, Role } from './model/types';
 
 export { useMembers } from './model/use-members';

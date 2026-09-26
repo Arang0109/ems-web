@@ -3,13 +3,14 @@ import type {
   ScheduleListResponse, ScheduleResponse, ScheduleSnapshotDto, SamplingSnapshotDto,
   TeamSnapshotDto, TenantSnapshotDto, ClientSnapshotDto, WorkplaceSnapshotDto,
   StackSnapshotDto, FacilitySnapshotDto, PreventionSnapshotDto,
-  EquipmentSnapshotDto, EquipmentSpecDto, ParticleSamplerSpecDto,
+  EquipmentSnapshotDto, EquipmentSpecDto, ParticleSamplerSpecDto, PitotTubeSpecDto, NozzleSpecDto,
   SamplingItemSnapshotDto, MeasurementMethodSnapshotDto, AnalysisResultDto,
   SamplingSheetDto, SamplingSheetResponse, WeatherDataDto, MoistureDataDto, ExhaustGasDataDto,
   FlowRateDataDto, ParticulateSamplingDto, SamplingPointDto, IsokineticSamplingDto,
   GaseousSamplingDto, SheetRefDto,
   PreviousSheetResponse, PreviousSheetCandidateResponse,
   AnalysisResultResponse, TemplateCheckResponse, TemplateIssueResponse,
+  SheetsSavedEventResponse,
 } from "../api/dto";
 
 export type ScheduleListItem = ScheduleListResponse;
@@ -48,6 +49,8 @@ export type PreventionSnapshot = PreventionSnapshotDto;
 export type EquipmentSnapshot = EquipmentSnapshotDto;
 export type EquipmentSpec = EquipmentSpecDto;
 export type ParticleSamplerSpec = ParticleSamplerSpecDto;
+export type PitotTubeSpec = PitotTubeSpecDto;
+export type NozzleSpec = NozzleSpecDto;
 export type SamplingItemSnapshot = SamplingItemSnapshotDto;
 // 측정항목 안에 놓인 측정방법 사본. null 이면 측정방법이 정해지지 않은 레거시 항목이다.
 export type MeasurementMethodSnapshot = MeasurementMethodSnapshotDto;
@@ -73,6 +76,9 @@ export type SheetSave = SamplingSheetDto;
 
 // 삭제할 시트 참조 (Form → Domain 변환 결과)
 export type SheetRef = SheetRefDto;
+
+// 다른 사용자의 시트 저장 알림. 본문은 없고 누가·어느 기록지를 저장했는지만 담는다.
+export type SheetsSavedEvent = SheetsSavedEventResponse;
 
 // 현장 채취 정보. 시트와 같은 스냅샷 노드에 살고 현장 채취 탭이 함께 소유하므로
 // 시트 저장에 함께 실린다 — 나눠 보내면 저장 한 번이 여러 왕복이 된다.

@@ -1,5 +1,3 @@
-export { equipmentApi } from './api/api';
-
 export type {
   Equipment,
   EquipmentCreate,
